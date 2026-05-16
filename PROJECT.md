@@ -1,6 +1,6 @@
-# Warehouse Document Archive — PROJECT.md
+# ArchiveApp — PROJECT.md
 > Živý dokument. Aktualizovať po každom rozhodnutí alebo sprinte.
-> Verzia 1.0 FINAL — Všetky otázky uzavreté. Nula otvorených blockerov. Cursor Sprint 1 môže začať.
+> Verzia 2.0 — Sprint 2 dokončený, infraštruktúra live, bugy identifikované.
 
 ---
 
@@ -29,14 +29,19 @@ Výstup: exportovateľný inventár.
 
 ## 2. Zásadné rozhodnutia (log)
 
-| # | Rozhodnutie | Dôvod | Dátum |
-|---|---|---|---|
-| 1 | Metadáta sa neštandardizujú vopred | Štítky sú random, schéma vznikne po prvých 50–100 zložkách | — |
-| 2 | Každá zložka dostane vlastné ID + QR | Jednoznačná referencia bez závislosti na obsahu štítku | — |
-| 3 | Granularita MVP = zložka, nie dokument | Dokumenty vnútri zložky sú fáza 2 | — |
-| 4 | QR povinný na krabicu, voliteľný na zložku | Krabíc je menej, zložiek príliš veľa na povinné QR | — |
-| 5 | Foto je primárny zdroj pravdy, OCR je surový text vedľa fotky | OCR sa neinterpretuje — slúži len pre fulltext search | — |
-| 7 | Foto storage = Cloudflare R2 (nie lokálny filesystem) | Efemérny filesystem na cloude by spôsobil stratu fotiek pri reštarte. R2 free tier 10 GB pokryje celý projekt. | — |
+| # | Rozhodnutie | Dôvod |
+|---|---|---|
+| 1 | Metadáta sa neštandardizujú vopred | Štítky sú random, schéma vznikne po prvých 50–100 zložkách |
+| 2 | Každá zložka dostane vlastné ID + QR | Jednoznačná referencia bez závislosti na obsahu štítku |
+| 3 | Granularita MVP = zložka, nie dokument | Dokumenty vnútri zložky sú fáza 2 |
+| 4 | QR povinný na krabicu, voliteľný na zložku | Krabíc je menej, zložiek príliš veľa na povinné QR |
+| 5 | Foto = primárny zdroj pravdy, OCR = surový text pre search | OCR sa neinterpretuje — len fulltext search |
+| 6 | Foto storage = Cloudflare R2 | Efemérny filesystem na Railway by spôsobil stratu fotiek |
+| 7 | UUID interné + QR-000001 externé | UUID = DB, QR kód = fyzická nálepka |
+| 8 | Tesseract OCR na Railway serveri, batch cez API endpoint | Bez inštalácie na PC, volá sa z browsera |
+| 9 | HTTP Basic Auth pre MVP, MS OAuth pre fázu 2 | Solo MVP nevyžaduje komplexnú auth |
+| 10 | Frontend = Cloudflare Pages, Backend = Railway | Statický build na Pages, API na Railway |
+| 11 | Domény: archiveapp.assetin.space (frontend), archiveapp-api.assetin.space (backend) | Čisté oddelenie frontend/backend |
 
 ---
 
@@ -51,76 +56,51 @@ Sklad              (3 sklady, označené A / B / C)
                 └── Výkres (fáza 3)
 ```
 
-**Architektonické rozhodnutie — homogénny strom:**
-Každá úroveň je `Item` s `parent_id`. Typ určuje `ItemType`, nie štruktúra tabuľky.
-Zložka je plnohodnotný kontajner — nie listový uzol. Jej deti (dokumenty)
-zatiaľ nevznikajú, ale model to unesie bez budúcej zmeny schémy.
+**Homogénny strom:** Každá úroveň je `Item` s `parent_id`. Typ určuje `ItemType`.
+Zložka = plnohodnotný kontajner. Fáza 2 = len nové ItemType záznamy, žiadna migrácia.
 
-Fáza 2 = len nové `ItemType` záznamy (DOKUMENT, VYKRES) + UI pre ich vytváranie.
-Žiadna migrácia dátového modelu nebude potrebná.
-
-**Atypické kontajnery (tubusy, role, voľné dokumenty):**
-Neriešime špeciálne. Vytvorí sa Item typu KRABICA s popisným názvom (napr. "Tubus" alebo "Voľné výkresy"). Žiadny extra typ v MVP.
+**Atypické kontajnery (tubusy, voľné dokumenty):**
+Neriešime špeciálne — KRABICA s popisným názvom (napr. "Tubus").
 
 ---
 
 ## 4. Informačný model (MVP)
 
-### 4.1 Každá položka (Item) má:
-- `id` — UUID, generovaný systémom, interné DB ID
-- `type_code` — SKLAD / PALETA / KRABICA / ZLOZKA (MVP). DOKUMENT / VYKRES prídu v fáze 2.
-- `name` — ľudský názov, voliteľný (napr. "Krabica pri okne", "Paleta č.3")
-- `parent_id` — UUID nadradenej položky (nullable = koreň stromu)
-- `qr_code` — externý QR kód z nálepky, napr. `QR-000042` (nullable, unique)
-- `note` — voľné textové pole, čokoľvek (nullable)
-- `status` — NA_MIESTE / VYNESENE / NEZNÁME
+### 4.1 Item
+- `id` — UUID (interné)
+- `type_code` — SKLAD / PALETA / KRABICA / ZLOZKA (MVP)
+- `name` — voliteľný ľudský názov
+- `parent_id` — UUID rodiča (nullable = koreň)
+- `qr_code` — externý kód z nálepky, napr. `QR-000042` (nullable, unique)
+- `note` — voľné textové pole (nullable)
+- `status` — NA_MIESTE / VYNESENE / NEZNAME
+- `deleted_at` — soft delete (nikdy hard delete)
 - `created_at`, `updated_at`
 
-### 4.2 Každá fotka (Photo) má:
-- `id`
-- `item_id` — väzba na položku
-- `storage_url` — plná R2 URL pre zobrazenie (signed URL generovaná on-demand)
-- `storage_key` — R2 object key (napr. `photos/2024/QR-000023-001.jpg`) pre správu súboru
-- `ocr_raw_text` — surový text vrátený Tesseract (nullable)
+### 4.2 QRTag
+- `id` — UUID
+- `code` — napr. "QR-000001" (unique)
+- `status` — FREE / ASSIGNED
+- `assigned_item_id` — nullable UUID
+- `created_at`
+
+### 4.3 Photo
+- `id` — UUID
+- `item_id` — väzba na Item
+- `storage_url` — signed URL z R2 (generovaná on-demand, 15 min platnosť)
+- `storage_key` — R2 object key (napr. `photos/2026/QR-000023-001.jpg`)
+- `ocr_raw_text` — surový Tesseract text (nullable)
 - `ocr_status` — PENDING / DONE / FAILED
 - `created_at`
 
-> Backend nikdy neukladá fotku lokálne. Upload = priamy stream do R2.
-> Pre zobrazenie sa generuje časovo obmedzená signed URL (15 min).
-> DB neobsahuje binárne dáta — len referencie.
+### 4.4 Metadátová stratégia
+**Capture first, classify later:**
+- Teraz: foto + OCR raw text, žiadna štruktúra
+- Po ~200 zložkách: analyzovať OCR korpus → odvodiť schému → pridať polia
 
-### 4.3 Čo zatiaľ NIE JE v modeli (fáza 2):
-- Štruktúrované metadáta (projektant, rok, typ dokumentu...) — vzniknú po analýze OCR korpusu
-- Prepojenia medzi dokumentmi
-- Pohybový log / výpožičky
-- Používatelia a oprávnenia
-
-### 4.4 Metadátová stratégia — dvojkroková:
-> **Krok 1 (teraz):** "Capture first" — každá zložka má foto + OCR raw text.
-> Žiadna štruktúra sa nevynucuje. Fulltext search cez surový OCR text stačí
-> na základné vyhľadávanie.
->
-> **Krok 2 (po ~200 zložkách):** Analyzovať OCR korpus — aké slová sa opakujú,
-> aké vzory existujú — a z toho odvodiť štruktúrované metadátové polia.
-> Až vtedy pridať voliteľné štruktúrované polia do modelu.
-
-### 4.5 OCR workflow — dvojfázový (terén vs. doma)
-
-**Terén (sklad, telefón, slabé pripojenie):**
-Upload fotky = okamžitý. `ocr_status = PENDING`. Žiadne čakanie, ide sa ďalej.
-
-**Doma / kancelária (batch post-processing):**
-Spustiť `npm run ocr:batch` — prejde všetky fotky s `PENDING`, spustí
-Tesseract lokálne, uloží `ocr_raw_text`, nastaví `DONE`.
-
-OCR teda nie je súčasť upload flow — je to samostatný krok ktorý beží
-kedy je to pohodlné. Appka funguje plne aj bez OCR textu (hľadanie
-cez `note` a `name` stále funguje).
-
-**OCR služba pre MVP:** Tesseract (open source, self-hosted, zadarmo).
-Prepnutie na Google Cloud Vision je zmena jedného service súboru — rozhodnutie
-sa odloží na moment keď budeme mať reálne dáta a budeme vedieť
-či Tesseract presnosť stačí.
+### 4.5 OCR workflow
+- **Terén:** upload foto → `ocr_status = PENDING` → okamžitý return
+- **Doma:** `POST /api/ocr/process-pending` → Tesseract na Railway → uloží raw text
 
 ---
 
@@ -128,232 +108,199 @@ sa odloží na moment keď budeme mať reálne dáta a budeme vedieť
 
 ### UC-1: Inventarizácia v teréne
 ```
-Prídem k palete
-→ Naskenujem / vytvorím QR krabice
-→ Odfotím krabicu (vonkajší popis ak existuje)
-→ Otvorím krabicu → prechádzam zložkami
-→ Každej zložke priradím ID (naskenujem alebo vytvorím QR)
-→ Odfotím štítok zložky
-→ Pridám voliteľnú poznámku
-→ Ďalšia zložka
+Prídem k palete → naskenuj QR krabice → otvor krabicu
+→ každej zložke naskenuj/priraď QR → odfot štítok → poznámka → ďalšia
 ```
-**Výstup:** Krabica je zaznamenaná v systéme, zložky sú fotené.
 
 ### UC-2: Nájsť kde niečo je
 ```
-Viem že hľadám "kolaudáciu pre objekt Modrý kríž"
-→ Otvorím search → zadám kľúčové slovo
-→ Systém vráti zložky ktorých fotky alebo poznámky obsahujú text
-→ Vidím lokáciu: Sklad A → Paleta 7 → Krabica 23
+Hľadám "kolaudáciu pre objekt X"
+→ search → výsledky s lokáciou: Sklad A → Paleta 7 → Krabica 23
 ```
 
 ### UC-3: Scan v sklade
 ```
-Som fyzicky pri krabici
-→ Naskenujem QR kód krabice
-→ Vidím zoznam všetkých zložiek v tejto krabici s ich fotkami
-→ Nájdem čo hľadám bez otvárania
+Naskenuj QR krabice → vidím všetky zložky s fotkami → nájdem bez otvárania
 ```
 
 ### UC-4: Export inventára
 ```
-Chcem report pre klienta / pre seba
-→ Kliknem Export
-→ Stiahnem Excel/CSV s: ID, typ, lokácia, status, poznámka, odkaz na foto
+Export → CSV/JSON so všetkými položkami, lokáciou, statusom, poznámkami
 ```
 
 ---
 
-## 6. Čo NIE JE cieľom MVP (out of scope)
+## 6. Out of scope (MVP)
 
-- Skenovanie obsahu dokumentov — len štítky zložiek
-- Interpretácia OCR textu / extrakcia štruktúrovaných polí (to je fáza 2)
-- Viacero používateľov / autentifikácia
+- Skenovanie obsahu dokumentov (len štítky)
+- Interpretácia OCR / extrakcia štruktúrovaných polí
+- Viacero používateľov / role
 - Výpožičkový systém s termínmi
 - Prepojenie na externé systémy
-- Mobilná app (stačí responzívny web)
-- Preskladávanie paliet (to je fyzická operácia, nie IT)
+- Natívna mobilná app (responzívny web stačí)
 
 ---
 
-## 7. Tech stack (rozhodnuté)
+## 7. Tech stack
 
-| Vrstva | Technológia | Poznámka |
+| Vrstva | Technológia | Stav |
 |---|---|---|
-| Frontend | Vite + React + TypeScript | Responzívny web — funguje na telefóne aj PC |
-| Backend | Node.js + Express + TypeScript | |
-| Databáza | PostgreSQL + Prisma ORM | |
-| Hosting | Railway alebo Render (cloud VPS) | ~5–10€/mes, HTTPS automaticky |
-| Foto storage | Cloudflare R2 | Free tier 10 GB, egress zadarmo, S3-kompatibilné API. Backend streamuje priamo do R2, DB ukladá R2 URL. Žiadny lokálny filesystem. |
-| QR scan | zxing-js (browser kamera) + manuálny vstup | Funguje v mobile Chrome bez inštalácie |
-| OCR | Tesseract (self-hosted, open source) | Batch script, spúšťa sa doma na PC |
-| Auth | MVP: HTTP Basic Auth (1 env premenná) → Fáza 2: Microsoft OAuth (passport-azure-ad) | MS OAuth = klient sa prihlási firemným MS365 účtom, žiadne nové heslá |
-| Export | CSV / Excel generovaný na backende | |
+| Frontend | Vite + React + TypeScript | ✓ live |
+| Backend | Node.js + Express + TypeScript + Prisma | ✓ live |
+| Databáza | PostgreSQL (Railway addon) | ✓ live |
+| Frontend hosting | Cloudflare Pages | ✓ live |
+| Backend hosting | Railway | ✓ live |
+| Foto storage | Cloudflare R2 (archiveapp-photos) | ✓ pripravené |
+| QR scan | @zxing/browser (kamera) + manuálny input | ✓ live |
+| OCR | Tesseract na Railway, batch endpoint | ⬜ Sprint 3 |
+| Auth MVP | HTTP Basic Auth | ✓ live |
+| Auth fáza 2 | Microsoft OAuth (passport-azure-ad) | ⬜ po MVP |
+| Export | CSV + JSON endpoint | ⬜ Sprint 4 |
 
 ---
 
-## 8. Sprint plán
+## 8. Domény a infraštruktúra
 
-### Sprint 0 — Príprava (pred kódom)
-- [ ] Nakúpiť QR nálepky (odporúčam 200 ks pre začiatok, napr. Avery L4732)
-- [ ] Otestovať tlač QR — rozmer, čitateľnosť telefónom na rôznych vzdialenostiach
-- [ ] Vytvoriť GitHub repozitár (private, monorepo `frontend/` + `backend/`)
-- [ ] Vytvoriť Railway projekt + PostgreSQL addon + Cloudflare R2 bucket
-- [ ] Nastaviť doménu (CNAME na Railway)
-- [ ] Urobiť "suchý beh" — prejsť jednu reálnu krabicu perom a papierom, zaznamenať čo vidíme na štítkoch
-- [ ] Rozhodnúť OQ-9 (kde beží Tesseract)
-- **Výstup:** Infraštruktúra pripravená, vieme čo je reálne na štítkoch, Cursor môže začať
+```
+archiveapp.assetin.space        → Frontend (Cloudflare Pages)
+archiveapp-api.assetin.space    → Backend API (Railway)
+```
 
-### Sprint 1 — Základ (core data model + základné API)
-**Cieľ:** Môžem vytvoriť položku, priradiť jej rodičovskú položku, uložiť poznámku. Appka je chránená.
-- [ ] Prisma schema: Item, ItemType, QRTag, Photo
-- [ ] HTTP Basic Auth middleware (BASIC_AUTH_USER + BASIC_AUTH_PASS z env)
-- [ ] API: POST /items, GET /items/:id, PATCH /items/:id
-- [ ] API: GET /items/:id/children, GET /items/:id/path
-- [ ] Seed: ItemTypes + 3 sklady + pár paliet ako testovací fixture
-- [ ] UI: jednoduchá stránka — vytvor položku, vyber rodiča zo zoznamu
-- **Testovací scenár:** Vytvoriť Sklad A → Paleta 1 → Krabica 3 → Zložka 001 a zobraziť celú path. Overiť že bez hesla appka vráti 401.
+### Railway env premenné
+```
+DATABASE_URL          postgresql://... (Railway PostgreSQL addon)
+BASIC_AUTH_USER       admin
+BASIC_AUTH_PASS       [silné heslo — uložené v heslovníku]
+FRONTEND_URL          https://archiveapp.assetin.space
+R2_ACCOUNT_ID         279e449f81d15c59fa3fdaecb8590de7
+R2_ACCESS_KEY_ID      [z Cloudflare Account API tokenu]
+R2_SECRET_ACCESS_KEY  [z Cloudflare Account API tokenu]
+R2_BUCKET_NAME        archiveapp-photos
+R2_PUBLIC_URL         [R2 public URL]
+NODE_ENV              production
+```
 
-### Sprint 2 — QR + Scan flow
-**Cieľ:** Môžem naskenovať QR kód a dostať sa k položke. V teréne.
-- [ ] QR generovanie + tlač (PDF s QR štítkami)
-- [ ] Kamerový scanner v UI (zxing-js)
-- [ ] Flow: scan → ak voľný QR → priraď k položke / ak obsadený → otvor položku
-- [ ] UI: Scan stránka + Item detail stránka (info, status, parent, children)
-- **Testovací scenár:** Vytlačiť 5 QR, nalepiť na krabice, naskenovať → vidieť obsah
+### Cloudflare Pages env premenné
+```
+VITE_API_URL          https://archiveapp-api.assetin.space/api
+```
 
-### Sprint 3 — Fotky + OCR batch
-**Cieľ:** Odfotím štítok v teréne (okamžite), OCR prebehne neskôr doma ako batch.
-- [ ] Multipart upload fotky — rýchly, neblokujúci, `ocr_status = PENDING`
-- [ ] `npm run ocr:batch` script — Tesseract na všetky PENDING fotky, uloží `ocr_raw_text`
-- [ ] UI: upload fotky v Item detail, náhľad fotky, zobrazenie OCR textu ak existuje
-- [ ] Badge "čaká na OCR" ak `ocr_status = PENDING`
-- [ ] Voľné textové pole `note` editovateľné inline
-- **Testovací scenár:** Nafotiť 10 zložiek v teréne → doma spustiť batch → skontrolovať výsledky Tesseract
+### Railway build/deploy config
+```
+Root directory:       backend
+Build command:        npm install && npx prisma generate && npm run build
+Pre-deploy command:   npx prisma migrate deploy
+Start command:        npx tsx prisma/seed.ts && node dist/index.js
+```
 
-### Sprint 4 — Search + Export
-**Cieľ:** Môžem nájsť zložku podľa čohokoľvek čo je na štítku, a exportovať inventár.
-- [ ] Search endpoint: ILIKE / PostgreSQL fulltext cez `name`, `note`, `ocr_raw_text`
-- [ ] UI: search bar + výsledky s lokáciou path + náhľad fotky
-- [ ] Export: CSV so všetkými položkami (ID, typ, lokácia, status, note, ocr_text snippet)
-- [ ] UI: stránka "Obsah krabice" — scan krabice → zoznam zložiek s fotkami a OCR textom
-- [ ] Po dokončení: analýza OCR korpusu — aké slová sa opakujú → návrh metadátovej schémy
-- **Testovací scenár:** Nájsť zložku podľa mena projektanta alebo názvu objektu z OCR textu
+### Cloudflare Pages build config
+```
+Framework preset:     React (Vite)
+Root directory:       frontend
+Build command:        npm run build
+Build output dir:     dist
+```
+
+### GitHub repo
+```
+AssetinSpace/ArchiveApp (private)
+├── frontend/         Vite + React + TypeScript
+├── backend/          Node.js + Express + TypeScript + Prisma
+├── PROJECT.md        tento dokument
+└── .env.example      template env premenných
+```
 
 ---
 
-## 9. Otvorené otázky
+## 9. Sprint plán
 
-| # | Otázka | Kto rozhodne | Priorita |
-|---|---|---|---|
-| OQ-1 | ~~Formát ID?~~ **ROZHODNUTÉ: UUID = interné DB id. QR kód formát `QR-000001` až `QR-999999` (6 číslic, sekvenčný) = externý identifikátor na nálepke. 999 999 kódov pokryje projekt s veľkou rezervou.** | — | — |
-| OQ-2 | ~~QR nálepky?~~ **ROZHODNUTÉ: Tlačiť vopred v dávkach (napr. 100 ks), importovať ako FREE, nalepiť fyzicky pred skenovaním, priradiť pri skenovaní v teréne.** | — | — |
-| OQ-3 | ~~Voľné dokumenty a tubusy?~~ **ROZHODNUTÉ: Neriešime v MVP. Ak treba, vytvorí sa Item typu KRABICA s názvom "Tubus" alebo "Voľné". Žiadny špeciálny typ.** | — | — |
-| OQ-4 | ~~Atypické kontajnery fyzicky?~~ **ROZHODNUTÉ: Viď OQ-3. Krabica s popisným názvom stačí.** | — | — |
-| OQ-5 | ~~Kde beží appka?~~ **ROZHODNUTÉ: Cloud VPS — Railway alebo Render (~5–10€/mes). Telefón v teréne cez mobilné dáta / hotspot. PC doma pre OCR batch. Budúci skener = PC pripojený na cloud.** | — | — |
-| OQ-6 | ~~OCR služba?~~ **ROZHODNUTÉ: Tesseract, batch, po návrate zo skladu.** | — | — |
-| OQ-7 | Ručne písané štítky — ak Tesseract presnosť bude nízka, riešiť manuálnym prepísaním do `note`? | Konzultant | Nízka |
-| OQ-8 | Pečiatka s číslom ako fallback — zaviesť ako oficiálny backup postup? | Konzultant | Nízka |
-| OQ-9 | ~~Kde beží Tesseract?~~ **ROZHODNUTÉ: Na Railway serveri. nixpacks.toml pridá Tesseract ako system dependency. OCR batch sa volá cez API endpoint POST /ocr/process-pending — spustíš z PC prehliadačom alebo curl príkazom.** | — | — |
-| OQ-10 | **Auth stratégia — ROZHODNUTÉ:** Sprint 1 = HTTP Basic Auth (1 env premenná, 20 minút). Fáza 2 = Microsoft OAuth cez `passport-azure-ad` — klient sa prihlási firemným MS365 účtom. Fáza 3 = roly (konzultant / klient read-only / admin). | — | — |
+### Sprint 0 — Infraštruktúra ✓ HOTOVÝ
+- ✓ GitHub repo, Railway, PostgreSQL, Cloudflare Pages, R2
+- ✓ Domény nastavené (Websupport DNS → Railway + Cloudflare)
+
+### Sprint 1 — Dátový model + API ✓ HOTOVÝ
+- ✓ Prisma schema: Item, ItemType, QRTag, Photo
+- ✓ HTTP Basic Auth middleware
+- ✓ API: CRUD /items, /path, /children
+- ✓ Seed: 3 sklady, palety, ItemTypes
+- ✓ Základné UI
+
+### Sprint 2 — QR + Scan flow ✓ HOTOVÝ (s bugmi)
+- ✓ QR generovanie + import + PDF tlač
+- ✓ Scan stránka (kamera + manuálny input)
+- ✓ FREE QR → formulár → vytvorenie položky
+- ✓ ASSIGNED QR → presmeruj na detail
+- ✓ Item detail: breadcrumb, children, status, note, QR obrázok
+- ✓ QR Admin stránka
+- ⚠️ Bug TD-5: video preview čierne (QR sa načíta, len nevidno obraz)
+- ⚠️ Bug TD-6: pri "Pridať dieťa" nie je QR scanner, len ručný vstup
+- ⚠️ Bug TD-7: React Query neinvaliduje po vytvorení dieťaťa (treba refresh)
+
+### Sprint 2 Bugfix ⬜ NASLEDUJÚCI
+- [ ] Opraviť video preview (CSS/srcObject)
+- [ ] Pridať link /scan?parentId pri "Pridať dieťa"
+- [ ] React Query invalidácia po POST /items
+
+### Sprint 3 — Fotky + OCR ⬜
+- [ ] Multipart upload → Cloudflare R2
+- [ ] Signed URL pre zobrazenie fotiek
+- [ ] nixpacks.toml: Tesseract system dependency na Railway
+- [ ] POST /api/ocr/process-pending endpoint
+- [ ] UI: foto galéria, OCR text, PENDING badge
+
+### Sprint 4 — Search + Export ⬜
+- [ ] Fulltext search (ILIKE cez name, note, ocr_raw_text)
+- [ ] Search UI s lokáciou path a náhľadom
+- [ ] CSV + JSON export endpoint
+- [ ] Stránka "Obsah krabice"
 
 ---
 
 ## 10. Definícia "hotovo" pre MVP
 
-MVP je hotové keď:
-1. Všetky krabice v jednom sklade sú zaznamenané v systéme s lokáciou
+1. Všetky krabice v jednom sklade zaznamenané s lokáciou
 2. Každá zložka má ID a aspoň jednu fotku štítku
-3. Systém vráti lokáciu (sklad → paleta → krabica) keď zadám QR kód zložky
+3. Systém vráti lokáciu keď zadám QR kód zložky
 4. Export do CSV funguje
-5. Appka je použiteľná na mobile v sklade (responzívna, rýchla)
+5. Appka použiteľná na mobile v sklade
 
 ---
 
-## 11. Infraštruktúra a GitHub workflow
+## 11. Prenositeľnosť a odovzdanie
 
-### Repozitár
-```
-GitHub: private repo  "warehouse-archive"
-├── frontend/         Vite + React + TypeScript
-├── backend/          Node.js + Express + TypeScript + Prisma
-├── scripts/          ocr-batch.ts, export.ts, import-qr.ts
-├── PROJECT.md        tento dokument
-└── .env.example      zoznam potrebných env premenných
-```
+IT tím objednávateľa dostane:
+1. `dump.sql` — kompletná PostgreSQL databáza (pg_dump)
+2. `export.json` — hierarchický strom s metadátami a OCR textom
+3. `photos/` — R2 bucket stiahnutý cez rclone
+4. `README.md` — popis schémy a postup importu
 
-### Deploy pipeline
-```
-Cursor (lokálny vývoj)
-    │  git push → GitHub (private)
-    │  automatický webhook
-    ▼
-Railway
-    ├── Backend service  (Node.js, auto-deploy z /backend)
-    ├── PostgreSQL addon  (managed, zálohy automaticky)
-    └── Vlastná doména   (CNAME → Railway, HTTPS automaticky)
-
-Cloudflare R2
-    └── Bucket: warehouse-photos  (fotky, trvalé, egress zadarmo)
-```
-
-### Doména
-Ak máš existujúcu doménu: pridaj CNAME záznam `archiv.tvojadomena.sk → Railway URL`.
-Ak nemáš: `porkbun.com` alebo `namecheap.com`, ~8–12€/rok.
-Nastaviť hneď od začiatku — Railway URL je nepraktická na mobile.
-
-### Env premenné (`.env` na Railway, lokálne v `.env.local`)
-```
-DATABASE_URL          PostgreSQL connection string (Railway dá automaticky)
-R2_ACCOUNT_ID         Cloudflare account ID
-R2_ACCESS_KEY_ID      R2 API kľúč
-R2_SECRET_ACCESS_KEY  R2 API secret
-R2_BUCKET_NAME        warehouse-photos
-R2_PUBLIC_URL         https://... (pre signed URLs)
-BASIC_AUTH_USER       meno pre HTTP Basic Auth (MVP)
-BASIC_AUTH_PASS       heslo pre HTTP Basic Auth (MVP)
-```
-
-### Postup nastavenia (Sprint 0, pred prvým commitom)
-1. Vytvoriť GitHub repo, naklónovať lokálne
-2. Vytvoriť Railway projekt → Add PostgreSQL → skopírovať `DATABASE_URL`
-3. Vytvoriť Cloudflare účet → R2 → nový bucket → API token
-4. Nastaviť doménu (CNAME)
-5. `.env.example` commitnúť do repo, `.env.local` nikdy (gitignore)
-6. Prvý commit: len prázdna štruktúra + PROJECT.md → verify že Railway deploy prebehol
+**Pravidlo:** Nikdy nedenormalizovať. Každá informácia žije na jednom mieste.
 
 ---
 
+## 12. Technický dlh
 
-## 12. Prenositeľnosť a export dát
-
-**Princíp:** Práca konzultanta musí byť odovzdateľná IT tímu objednávateľa
-bez závislosti na akejkoľvek platforme alebo vendorovi.
-
-### Čo PostgreSQL umožňuje (kedykoľvek, bez poplatku):
-
-| Formát | Príkaz / nástroj | Kto to otvorí |
+| # | Popis | Kedy |
 |---|---|---|
-| SQL dump | `pg_dump` | Každý Postgres klient (pgAdmin, DBeaver, psql) |
-| CSV sada | `COPY TO` | Excel, Python, R, Access, ktokoľvek |
-| JSON strom | export skript (Sprint 4) | Každý moderný systém, akýkoľvek jazyk |
-
-### Čo dostane IT tím objednávateľa:
-1. `dump.sql` — kompletná databáza (schéma + dáta), importovateľná do akéhokoľvek PostgreSQL
-2. `export.json` — hierarchický strom všetkých položiek s metadátami a OCR textom
-3. `photos/` — stiahnutý R2 bucket s fotkami (rclone, jeden príkaz)
-4. `README.md` — popis schémy, ako importovať, ako sa orientovať v dátach
-
-### Architektonické pravidlo (platí od Sprintu 1):
-> Nikdy nedenormalizovať. Každá informácia žije na jednom mieste,
-> prepája sa cez UUID. Žiadne kopírované hodnoty.
-> Toto zaručuje konzistentnosť exportu kedykoľvek počas projektu.
-
-### Kedy sa export pripraví:
-- Sprint 4: JSON export endpoint (živý, volateľný cez API)
-- Fáza odovzdania: SQL dump + foto archív + README balík
+| TD-1 | Bundle 790 KB (@zxing) — React.lazy pre ScanPage | Po MVP |
+| TD-2 | qrcode package na FE aj BE — správne, dva runtime | Neriešiť |
+| TD-3 | Basic Auth → MS OAuth keď sa zapojí klient | Fáza 2 |
+| TD-4 | Railway trial 30 dní — pridať kartu pred vypršaním | Čoskoro |
+| TD-5 | Video preview čierne na ScanPage | Sprint 2 Bugfix |
+| TD-6 | Chýba QR scan pri "Pridať dieťa" | Sprint 2 Bugfix |
+| TD-7 | React Query neinvaliduje po vytvorení dieťaťa | Sprint 2 Bugfix |
 
 ---
 
-*Posledná aktualizácia: v1.0 FINAL — všetky OQ uzavreté, nula blockerov*
-*Ďalší krok: Cursor prompt pre Sprint 1 →*
+## 13. Otvorené otázky
+
+| # | Otázka | Priorita |
+|---|---|---|
+| OQ-7 | Ručne písané štítky — Tesseract presnosť nízka → manuálne prepísanie do note? | Nízka |
+| OQ-8 | Pečiatka s číslom ako fallback pre QR nálepky? | Nízka |
+| OQ-11 | Nakúpiť QR nálepky (Avery L4732) — otestovať pred výjazdom | Stredná |
+
+---
+
+*Posledná aktualizácia: v2.0 — Sprint 2 live, bugy zdokumentované, infraštruktúra kompletná*
+*Ďalší krok: Sprint 2 Bugfix → Sprint 3 (fotky + OCR)*
