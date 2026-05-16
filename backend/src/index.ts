@@ -10,17 +10,21 @@ import { qrRouter } from "./routes/qr.js";
 
 const app = express();
 
-// CORS_ORIGIN je čiarkami oddelený zoznam povolených origin-ov.
-// Default = lokálny dev server. V produkcii nastav napr.
-// CORS_ORIGIN=https://archiveapp.assetin.space
-const corsOrigins = (process.env.CORS_ORIGIN ?? "http://localhost:5173")
-  .split(",")
-  .map((s) => s.trim())
-  .filter(Boolean);
+// Whitelist povolených origin-ov pre CORS.
+// - localhost:5173 = lokálny Vite dev server
+// - archiveapp.pages.dev = Cloudflare Pages produkcia
+// - FRONTEND_URL = budúca vlastná doména (nastav v Railway Variables)
+// - CORS_ORIGIN = nepovinný čiarkami oddelený zoznam ďalších origin-ov
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://archiveapp.pages.dev",
+  process.env.FRONTEND_URL ?? "",
+  ...(process.env.CORS_ORIGIN ?? "").split(",").map((s) => s.trim()),
+].filter(Boolean);
 
 app.use(
   cors({
-    origin: corsOrigins,
+    origin: allowedOrigins,
     credentials: true,
   }),
 );
