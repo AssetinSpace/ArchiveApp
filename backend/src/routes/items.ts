@@ -36,6 +36,31 @@ async function validateParentType(
   return null;
 }
 
+// Overí že medzi aktívnymi položkami rovnakého typu a rodiča neexistuje
+// položka s rovnakým názvom (porovnanie case-insensitive).
+// excludeId sa použije pri PATCH aby sme nevylúčili samu seba.
+async function checkNameConflict(
+  typeCode: string,
+  parentId: string | null | undefined,
+  name: string,
+  excludeId?: string,
+): Promise<string | null> {
+  const conflict = await prisma.item.findFirst({
+    where: {
+      type_code: typeCode,
+      parent_id: parentId ?? null,
+      name: { equals: name, mode: "insensitive" },
+      deleted_at: null,
+      ...(excludeId ? { id: { not: excludeId } } : {}),
+    },
+    select: { id: true },
+  });
+  if (conflict) {
+    return `Položka s názvom "${name}" tohto typu už existuje na rovnakom mieste`;
+  }
+  return null;
+}
+
 const StatusSchema = z.enum(["NA_MIESTE", "VYNESENE", "NEZNAME"]);
 
 const CreateItemSchema = z.object({
@@ -117,6 +142,14 @@ itemsRouter.post("/", async (req, res, next) => {
     if (parentErr) {
       res.status(400).json({ error: parentErr });
       return;
+    }
+
+    if (body.name) {
+      const nameErr = await checkNameConflict(body.type_code, body.parent_id, body.name);
+      if (nameErr) {
+        res.status(409).json({ error: nameErr });
+        return;
+      }
     }
 
     // Ak je qr_code zadané: musí to byť existujúci FREE QRTag.
@@ -248,7 +281,7 @@ itemsRouter.patch("/:id", async (req, res, next) => {
 
     const existing = await prisma.item.findFirst({
       where: { id, deleted_at: null },
-      select: { id: true, parent_id: true },
+      select: { id: true, type_code: true, parent_id: true, name: true },
     });
     if (!existing) {
       res.status(404).json({ error: "Item not found" });
@@ -273,6 +306,17 @@ itemsRouter.patch("/:id", async (req, res, next) => {
           res.status(400).json({ error: "Cannot create cycle" });
           return;
         }
+      }
+    }
+
+    // Ak sa mení názov alebo rodič, skontrolujeme únikanosť názvu.
+    const finalName = body.name !== undefined ? body.name : existing.name;
+    const finalParentId = body.parent_id !== undefined ? body.parent_id : existing.parent_id;
+    if (finalName) {
+      const nameErr = await checkNameConflict(existing.type_code, finalParentId, finalName, id);
+      if (nameErr) {
+        res.status(409).json({ error: nameErr });
+        return;
       }
     }
 
