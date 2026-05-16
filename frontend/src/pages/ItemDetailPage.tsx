@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import QRCode from "qrcode";
@@ -9,6 +10,8 @@ import {
   type Item,
   type Status,
 } from "../api";
+import { PhotoUpload } from "../components/PhotoUpload";
+import { PhotoGallery } from "../components/PhotoGallery";
 
 const STATUS_LABEL: Record<Status, string> = {
   NA_MIESTE: "Na mieste",
@@ -19,6 +22,7 @@ const STATUS_LABEL: Record<Status, string> = {
 export function ItemDetailPage() {
   const { id = "" } = useParams<{ id: string }>();
   const qc = useQueryClient();
+  const [fabOpen, setFabOpen] = useState(false);
 
   const itemQ = useQuery({
     queryKey: ["items", "one", id],
@@ -103,12 +107,21 @@ export function ItemDetailPage() {
         <QRSection item={item} onAssigned={invalidateAll} />
       </section>
 
+      {/* Photos */}
+      <section className="card">
+        <h2>Fotky</h2>
+        <PhotoUpload itemId={item.id} />
+        <div style={{ marginTop: 12 }}>
+          <PhotoGallery itemId={item.id} />
+        </div>
+      </section>
+
       {/* Children */}
       <section className="card">
-        <h2>Deti ({childrenQ.data?.length ?? 0})</h2>
+        <h2>Podradené položky ({childrenQ.data?.length ?? 0})</h2>
         {childrenQ.isLoading && <p className="muted">Načítavam…</p>}
         {childrenQ.data && childrenQ.data.length === 0 && (
-          <p className="muted">Žiadne deti</p>
+          <p className="muted">Žiadne podradené položky</p>
         )}
         {childrenQ.data?.map((c) => (
           <Link key={c.id} to={`/items/${c.id}`} className="card-link">
@@ -137,6 +150,46 @@ export function ItemDetailPage() {
 
         <AddChildForm parent={item} onAdded={invalidateAll} />
       </section>
+
+      {/* FAB — skrátený prístup k "Pridať podradeú položku" */}
+      {CHILD_TYPE_BY_PARENT[item.type_code] && createPortal(
+        <button
+          type="button"
+          className="fab"
+          onClick={() => setFabOpen(true)}
+          aria-label="Pridať podradeú položku"
+          title="Pridať podradeú položku"
+        >
+          +
+        </button>,
+        document.body,
+      )}
+
+      {fabOpen && CHILD_TYPE_BY_PARENT[item.type_code] && createPortal(
+        <div
+          className="create-modal-overlay"
+          onClick={() => setFabOpen(false)}
+        >
+          <div
+            className="create-modal-box"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <h2 style={{ margin: 0 }}>Pridať podradeú položku</h2>
+              <button type="button" className="btn-ghost btn-small" onClick={() => setFabOpen(false)}>✕</button>
+            </div>
+            <AddChildFormContent
+              parent={item}
+              onAdded={async () => {
+                await invalidateAll();
+                setFabOpen(false);
+              }}
+              onCancel={() => setFabOpen(false)}
+            />
+          </div>
+        </div>,
+        document.body,
+      )}
     </div>
   );
 }
@@ -251,6 +304,7 @@ function QRSection({
   const [qrSrc, setQrSrc] = useState<string | null>(null);
   const [codeInput, setCodeInput] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [showManual, setShowManual] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -313,49 +367,93 @@ function QRSection({
   }
 
   return (
-    <form
-      className="form"
-      onSubmit={(e) => {
-        e.preventDefault();
-        const code = codeInput.trim();
-        if (!code) return;
-        assignMut.mutate(code);
-      }}
-    >
+    <div className="stack">
       <p className="muted" style={{ margin: 0 }}>
         Položka nemá pridelený QR kód.
       </p>
-      <label className="form-label">
-        Kód
-        <input
-          type="text"
-          value={codeInput}
-          onChange={(e) => setCodeInput(e.target.value)}
-          placeholder="napr. QR-000042"
-          autoCapitalize="characters"
-          autoCorrect="off"
-          spellCheck={false}
-        />
-      </label>
-      {error && <div className="error">{error}</div>}
-      <button type="submit" className="btn-primary" disabled={assignMut.isPending}>
-        {assignMut.isPending ? "Priradzujem…" : "Priradiť QR kód"}
-      </button>
-    </form>
+
+      {/* Primárna akcia: skenovanie */}
+      <Link
+        to={`/scan?assignTo=${item.id}`}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 8,
+          minHeight: 48,
+          padding: "0 16px",
+          background: "#2563eb",
+          color: "#fff",
+          borderRadius: 6,
+          textDecoration: "none",
+          fontWeight: 600,
+          fontSize: 16,
+        }}
+      >
+        ▣ Skenovať QR kód
+      </Link>
+
+      {/* Sekundárna akcia: manuálne zadanie (skryté) */}
+      {!showManual ? (
+        <button
+          type="button"
+          className="btn-ghost btn-small"
+          onClick={() => setShowManual(true)}
+          style={{ color: "#6b7280", fontSize: 13, minHeight: 44 }}
+        >
+          Zadať QR kód ručne…
+        </button>
+      ) : (
+        <form
+          className="form"
+          style={{ paddingTop: 8, borderTop: "1px solid #e5e7eb" }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            const code = codeInput.trim();
+            if (!code) return;
+            assignMut.mutate(code);
+          }}
+        >
+          <label className="form-label">
+            Kód
+            <input
+              type="text"
+              value={codeInput}
+              onChange={(e) => setCodeInput(e.target.value)}
+              placeholder="napr. QR-000042"
+              autoCapitalize="characters"
+              autoCorrect="off"
+              spellCheck={false}
+            />
+          </label>
+          {error && <div className="error">{error}</div>}
+          <div className="row">
+            <button type="submit" className="btn-primary" disabled={assignMut.isPending}
+              style={{ flex: 1 }}>
+              {assignMut.isPending ? "Priradzujem…" : "Priradiť QR kód"}
+            </button>
+            <button type="button" onClick={() => setShowManual(false)}>
+              Zrušiť
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
   );
 }
 
-// ─── Add child form ───────────────────────────────────────────────────────────
+// ─── Add child form content (reusable in inline + FAB modal) ─────────────────
 
-function AddChildForm({
+function AddChildFormContent({
   parent,
   onAdded,
+  onCancel,
 }: {
   parent: Item;
   onAdded: () => Promise<void> | void;
+  onCancel: () => void;
 }) {
   const allowedChildType = CHILD_TYPE_BY_PARENT[parent.type_code];
-  const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -369,12 +467,9 @@ function AddChildForm({
         parent_id: parent.id,
       }),
     onSuccess: async () => {
-      // Najprv invaliduj (await) — refetch dorazí skôr než formulár zmizne.
-      // Inak React 18 batched re-render skryje form a children list ostane stale.
       await onAdded();
       setName("");
       setNote("");
-      setOpen(false);
       setError(null);
     },
     onError: (e: Error) => setError(e.message),
@@ -382,54 +477,20 @@ function AddChildForm({
 
   if (!allowedChildType) {
     return (
-      <p className="muted" style={{ marginTop: 12 }}>
-        Tento typ položky nemôže mať deti.
-      </p>
-    );
-  }
-
-  if (!open) {
-    return (
-      <div className="row" style={{ marginTop: 12 }}>
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={() => setOpen(true)}
-        >
-          + Pridať dieťa ({TYPE_LABEL[allowedChildType] ?? allowedChildType})
-        </button>
-        <Link
-          to={`/scan?parentId=${parent.id}`}
-          className="btn-ghost"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            minHeight: 44,
-            padding: "0 12px",
-            border: "1px solid #d1d5db",
-            borderRadius: 6,
-            color: "#111827",
-            textDecoration: "none",
-          }}
-          title="Naskenuj QR kód a vytvor dieťa s týmto rodičom"
-        >
-          Skenovať QR…
-        </Link>
-      </div>
+      <p className="muted">Tento typ položky nemôže mať podradené položky.</p>
     );
   }
 
   return (
     <form
       className="form"
-      style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #e5e7eb" }}
       onSubmit={(e) => {
         e.preventDefault();
         mut.mutate();
       }}
     >
       <p className="muted" style={{ margin: 0 }}>
-        Pridať nový typ:{" "}
+        Typ:{" "}
         <strong>{TYPE_LABEL[allowedChildType] ?? allowedChildType}</strong>
       </p>
       <label className="form-label">
@@ -452,18 +513,87 @@ function AddChildForm({
       </label>
       {error && <div className="error">{error}</div>}
       <div className="row">
-        <button type="submit" className="btn-primary" disabled={mut.isPending}>
+        <button type="submit" className="btn-primary" disabled={mut.isPending}
+          style={{ flex: 1 }}>
           {mut.isPending ? "Pridávam…" : "Pridať"}
         </button>
-        <button type="button" onClick={() => setOpen(false)} disabled={mut.isPending}>
+        <button type="button" onClick={onCancel} disabled={mut.isPending}>
           Zrušiť
         </button>
       </div>
       <p className="muted" style={{ margin: 0 }}>
-        Tip: Ak chceš dieťa zároveň označiť QR nálepkou, použi{" "}
+        Tip: Ak chceš podradeú položku zároveň označiť QR nálepkou, použi{" "}
         <Link to={`/scan?parentId=${parent.id}`}>Skenovať QR</Link> namiesto tohto
         formulára.
       </p>
     </form>
+  );
+}
+
+// ─── Add child form (inline wrapper with open/close) ─────────────────────────
+
+function AddChildForm({
+  parent,
+  onAdded,
+}: {
+  parent: Item;
+  onAdded: () => Promise<void> | void;
+}) {
+  const allowedChildType = CHILD_TYPE_BY_PARENT[parent.type_code];
+  const [open, setOpen] = useState(false);
+
+  if (!allowedChildType) {
+    return (
+      <p className="muted" style={{ marginTop: 12 }}>
+        Tento typ položky nemôže mať podradené položky.
+      </p>
+    );
+  }
+
+  if (!open) {
+    return (
+      <div className="stack" style={{ marginTop: 12, gap: 8 }}>
+        <button
+          type="button"
+          className="btn-primary btn-block"
+          onClick={() => setOpen(true)}
+          style={{ minHeight: 48 }}
+        >
+          + Pridať podradeú položku ({TYPE_LABEL[allowedChildType] ?? allowedChildType})
+        </button>
+        <Link
+          to={`/scan?parentId=${parent.id}`}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: 48,
+            padding: "0 12px",
+            border: "1px solid #d1d5db",
+            borderRadius: 6,
+            color: "#111827",
+            textDecoration: "none",
+            background: "#fff",
+            fontWeight: 500,
+          }}
+          title="Naskenuj QR kód a vytvor podradeú položku s týmto rodičom"
+        >
+          ▣ Skenovať QR…
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #e5e7eb" }}>
+      <AddChildFormContent
+        parent={parent}
+        onAdded={async () => {
+          await onAdded();
+          setOpen(false);
+        }}
+        onCancel={() => setOpen(false)}
+      />
+    </div>
   );
 }

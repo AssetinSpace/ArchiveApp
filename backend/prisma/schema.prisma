@@ -70,13 +70,15 @@ model QRTag {
 model Photo {
   id           String    @id @default(uuid())
   item_id      String
-  storage_url  String
   storage_key  String
   ocr_raw_text String?
   ocr_status   OcrStatus @default(PENDING)
   created_at   DateTime  @default(now())
+  deleted_at   DateTime?
 
   item Item @relation(fields: [item_id], references: [id])
 
   @@index([item_id])
+  @@index([ocr_status])
+  @@index([deleted_at])
 }

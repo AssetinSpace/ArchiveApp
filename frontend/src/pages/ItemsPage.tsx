@@ -1,4 +1,5 @@
 import { useMemo, useState, type FormEvent } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -38,8 +39,7 @@ function TreeNode({ item, level }: { item: Item; level: number }) {
           gap: 8,
           paddingLeft: indent + 4,
           paddingRight: 4,
-          paddingTop: 8,
-          paddingBottom: 8,
+          minHeight: 48,
           borderRadius: 6,
         }}
       >
@@ -49,7 +49,8 @@ function TreeNode({ item, level }: { item: Item; level: number }) {
           onClick={() => setExpanded((v) => !v)}
           aria-label={expanded ? "Zbaliť" : "Rozbaliť"}
           style={{
-            minWidth: 28,
+            minWidth: 44,
+            minHeight: 44,
             padding: 0,
             color: mightHaveChildren ? "#374151" : "transparent",
             visibility: mightHaveChildren ? "visible" : "hidden",
@@ -133,6 +134,7 @@ function TreeView() {
 
 export function ItemsPage() {
   const qc = useQueryClient();
+  const [fabOpen, setFabOpen] = useState(false);
 
   const typesQ = useQuery({ queryKey: ["item-types"], queryFn: () => api.itemTypes() });
   const itemsQ = useQuery({ queryKey: ["items", "all"], queryFn: () => api.listItems() });
@@ -200,7 +202,7 @@ export function ItemsPage() {
     }
     if (parentNeeded && !parentId) {
       setFormError(
-        `Pre typ ${TYPE_LABEL[typeCode] ?? typeCode} musíš vybrať rodiča (${
+        `Pre typ ${TYPE_LABEL[typeCode] ?? typeCode} musíš vybrať nadradenú položku (${
           TYPE_LABEL[expectedParentType ?? ""] ?? expectedParentType
         })`,
       );
@@ -252,7 +254,7 @@ export function ItemsPage() {
           </label>
 
           <label className="form-label">
-            Rodič
+            Nadradená položka
             {typeCode === "" && (
               <input value="" disabled placeholder="(vyber najprv typ)" />
             )}
@@ -266,7 +268,7 @@ export function ItemsPage() {
                 required
               >
                 <option value="">
-                  — vyber {TYPE_LABEL[expectedParentType ?? ""] ?? "rodiča"} —
+                  — vyber {TYPE_LABEL[expectedParentType ?? ""] ?? "nadradenú položku"} —
                 </option>
                 {eligibleParents.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -309,7 +311,158 @@ export function ItemsPage() {
         </p>
         <TreeView />
       </section>
+
+      {/* FAB */}
+      {createPortal(
+        <button
+          type="button"
+          className="fab"
+          onClick={() => setFabOpen(true)}
+          aria-label="Vytvoriť položku"
+          title="Vytvoriť položku"
+        >
+          +
+        </button>,
+        document.body,
+      )}
+
+      {/* FAB Modal / Drawer */}
+      {fabOpen && createPortal(
+        <div
+          className="create-modal-overlay"
+          onClick={() => setFabOpen(false)}
+        >
+          <div
+            className="create-modal-box"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <h2 style={{ margin: 0 }}>Vytvoriť položku</h2>
+              <button type="button" className="btn-ghost btn-small" onClick={() => setFabOpen(false)}>✕</button>
+            </div>
+            <CreateItemFormContent
+              types={types}
+              items={items}
+              getFullPath={getFullPath}
+              onCreated={() => {
+                qc.invalidateQueries({ queryKey: ["items", "all"] });
+                qc.invalidateQueries({ queryKey: ["items", "root"] });
+                setFabOpen(false);
+              }}
+            />
+          </div>
+        </div>,
+        document.body,
+      )}
     </div>
+  );
+}
+
+// ─── Reusable create-item form (used both inline and in FAB modal) ────────────
+
+function CreateItemFormContent({
+  types,
+  items,
+  getFullPath,
+  onCreated,
+}: {
+  types: ItemType[];
+  items: Item[];
+  getFullPath: (item: Item) => string;
+  onCreated: (created: Item) => void;
+}) {
+  const qc = useQueryClient();
+  const [typeCode, setTypeCode] = useState<string>("");
+  const [name, setName] = useState<string>("");
+  const [parentId, setParentId] = useState<string>("");
+  const [note, setNote] = useState<string>("");
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const expectedParentType = useMemo(
+    () => (typeCode ? PARENT_TYPE_BY_CHILD[typeCode] ?? null : null),
+    [typeCode],
+  );
+  const parentNeeded = typeCode !== "" && typeCode !== "SKLAD";
+  const eligibleParents = useMemo(
+    () => expectedParentType ? items.filter((it) => it.type_code === expectedParentType) : [],
+    [items, expectedParentType],
+  );
+
+  const createMut = useMutation({
+    mutationFn: api.createItem,
+    onSuccess: (created) => {
+      qc.invalidateQueries({ queryKey: ["items", "all"] });
+      if (!created.parent_id) {
+        qc.invalidateQueries({ queryKey: ["items", "root"] });
+      } else {
+        qc.invalidateQueries({ queryKey: ["items", "children", created.parent_id] });
+      }
+      setName("");
+      setParentId("");
+      setNote("");
+      setFormError(null);
+      onCreated(created);
+    },
+    onError: (err: Error) => setFormError(err.message),
+  });
+
+  function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    setFormError(null);
+    if (!typeCode) { setFormError("Vyber typ položky"); return; }
+    if (parentNeeded && !parentId) {
+      setFormError(
+        `Pre typ ${TYPE_LABEL[typeCode] ?? typeCode} musíš vybrať nadradenú položku (${
+          TYPE_LABEL[expectedParentType ?? ""] ?? expectedParentType
+        })`,
+      );
+      return;
+    }
+    createMut.mutate({
+      type_code: typeCode,
+      name: name.trim() || null,
+      parent_id: parentId || null,
+      note: note.trim() || null,
+    });
+  }
+
+  return (
+    <form className="form" onSubmit={onSubmit}>
+      <label className="form-label">
+        Typ
+        <select value={typeCode} onChange={(e) => { setTypeCode(e.target.value); setParentId(""); }} required>
+          <option value="">— vyber typ —</option>
+          {types.map((t: ItemType) => (
+            <option key={t.code} value={t.code}>{t.label} ({t.code})</option>
+          ))}
+        </select>
+      </label>
+      <label className="form-label">
+        Názov
+        <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="napr. Krabica pri okne" />
+      </label>
+      <label className="form-label">
+        Nadradená položka
+        {typeCode === "" && <input value="" disabled placeholder="(vyber najprv typ)" />}
+        {typeCode === "SKLAD" && <input value="(žiadny — sklad je koreň)" disabled />}
+        {typeCode !== "" && typeCode !== "SKLAD" && (
+          <select value={parentId} onChange={(e) => setParentId(e.target.value)} required>
+            <option value="">— vyber {TYPE_LABEL[expectedParentType ?? ""] ?? "nadradenú položku"} —</option>
+            {eligibleParents.map((p) => (
+              <option key={p.id} value={p.id}>{getFullPath(p)}</option>
+            ))}
+          </select>
+        )}
+      </label>
+      <label className="form-label">
+        Poznámka
+        <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} placeholder="(voliteľné)" />
+      </label>
+      {formError && <div className="error">{formError}</div>}
+      <button type="submit" className="btn-primary btn-block" disabled={createMut.isPending}>
+        {createMut.isPending ? "Ukladám…" : "Vytvoriť"}
+      </button>
+    </form>
   );
 }
 

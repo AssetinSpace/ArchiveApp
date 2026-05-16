@@ -178,6 +178,13 @@ qrRouter.get("/print", async (req, res, next) => {
           width: innerW,
           align: "center",
         });
+
+      // Čiarkovaný okraj pre rezanie.
+      doc
+        .rect(cellX, cellY, cellW, cellH)
+        .dash(3, { space: 3 })
+        .stroke("#CCCCCC")
+        .undash();
     });
 
     doc.end();

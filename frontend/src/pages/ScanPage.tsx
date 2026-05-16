@@ -16,6 +16,7 @@ type LookupState =
   | { kind: "idle" }
   | { kind: "loading" }
   | { kind: "free"; lookup: QRLookup }
+  | { kind: "assign_to"; lookup: QRLookup }
   | { kind: "not_found"; code: string }
   | { kind: "error"; message: string };
 
@@ -26,11 +27,18 @@ export function ScanPage() {
   // Po naskenovaní FREE QR sa CreateForLookupForm predvyplní týmto rodičom
   // a odvodeným typom dieťaťa (napr. KRABICA → ZLOZKA).
   const presetParentId = searchParams.get("parentId") || null;
+  const assignToId = searchParams.get("assignTo") || null;
 
   const presetParentQ = useQuery({
     queryKey: ["items", "one", presetParentId],
     queryFn: () => api.getItem(presetParentId as string),
     enabled: !!presetParentId,
+  });
+
+  const assignToQ = useQuery({
+    queryKey: ["items", "one", assignToId],
+    queryFn: () => api.getItem(assignToId as string),
+    enabled: !!assignToId,
   });
 
   const [code, setCode] = useState("");
@@ -53,8 +61,12 @@ export function ScanPage() {
     try {
       const lookup = await api.qrLookup(trimmed);
       if (lookup.status === "ASSIGNED" && lookup.assignedItem) {
-        // Priamy presmerujem na detail položky.
         navigate(`/items/${lookup.assignedItem.id}`);
+        return;
+      }
+      // Ak prichádzame z ItemDetailPage "Skenovať QR kód" (assignTo), ponúkni priame priradenie.
+      if (assignToId && lookup.status === "FREE") {
+        setState({ kind: "assign_to", lookup });
         return;
       }
       setState({ kind: "free", lookup });
@@ -142,11 +154,11 @@ export function ScanPage() {
     <div className="stack">
       <h1>Scan QR kód</h1>
 
-      {/* Banner ak prichádzame z ItemDetailPage "Skenovať QR" */}
+      {/* Banner: pridávaš podradeú položku (parentId) */}
       {presetParentId && (
         <div className="card" style={{ background: "#eff6ff", borderColor: "#bfdbfe" }}>
           <p style={{ margin: 0 }}>
-            <strong>Pridávaš dieťa pre:</strong>{" "}
+            <strong>Pridávaš podradeú položku pre:</strong>{" "}
             {presetParentQ.isLoading && <span className="muted">načítavam…</span>}
             {presetParentQ.data && (
               <Link to={`/items/${presetParentId}`}>
@@ -159,19 +171,78 @@ export function ScanPage() {
             {presetParentQ.error && (
               <span className="error">
                 {" "}
-                — rodič sa nenašiel: {(presetParentQ.error as Error).message}
+                — nadradená položka sa nenašla: {(presetParentQ.error as Error).message}
               </span>
             )}
           </p>
           <p className="muted" style={{ margin: "8px 0 0" }}>
-            Po naskenovaní voľného QR sa typ a rodič automaticky predvyplnia.
+            Po naskenovaní voľného QR sa typ a nadradená položka automaticky predvyplnia.
           </p>
         </div>
       )}
 
-      {/* Manuálny input — vždy viditeľný */}
+      {/* Banner: priradzuješ QR k existujúcej položke (assignTo) */}
+      {assignToId && (
+        <div className="card" style={{ background: "#f0fdf4", borderColor: "#bbf7d0" }}>
+          <p style={{ margin: 0 }}>
+            <strong>Priradzuješ QR kód k položke:</strong>{" "}
+            {assignToQ.isLoading && <span className="muted">načítavam…</span>}
+            {assignToQ.data && (
+              <Link to={`/items/${assignToId}`}>
+                {assignToQ.data.name ?? "(bez názvu)"} (
+                {TYPE_LABEL[assignToQ.data.type_code] ?? assignToQ.data.type_code})
+              </Link>
+            )}
+            {assignToQ.error && (
+              <span className="error">
+                {" "}— položka sa nenašla: {(assignToQ.error as Error).message}
+              </span>
+            )}
+          </p>
+          <p className="muted" style={{ margin: "8px 0 0" }}>
+            Naskenuj voľný QR kód — automaticky sa priradí k tejto položke.
+          </p>
+        </div>
+      )}
+
+      {/* Kamera — primárna akcia */}
       <section className="card">
-        <h2>Zadať kód</h2>
+        <h2>Kamera</h2>
+        {!cameraOn && (
+          <>
+            <p className="muted" style={{ marginBottom: 12 }}>
+              Kamera sa spustí až po stlačení tlačidla (iOS Safari požiadavka).
+              Funguje len na HTTPS doméne, na http://localhost nie.
+            </p>
+            <button type="button" className="btn-primary btn-block" onClick={startCamera}
+              style={{ minHeight: 52, fontSize: 18 }}>
+              ▶ Spustiť kameru
+            </button>
+          </>
+        )}
+        {cameraOn && (
+          <>
+            <video ref={videoRef} className="scanner-video" playsInline muted />
+            <button
+              type="button"
+              className="btn-danger btn-block"
+              onClick={stopCamera}
+              style={{ marginTop: 12 }}
+            >
+              ■ Zastaviť kameru
+            </button>
+          </>
+        )}
+        {cameraError && (
+          <div className="error" style={{ marginTop: 8 }}>
+            {cameraError}
+          </div>
+        )}
+      </section>
+
+      {/* Manuálny input */}
+      <section className="card">
+        <h2>Zadať kód ručne</h2>
         <form className="form" onSubmit={onSubmit}>
           <label className="form-label">
             QR kód
@@ -187,46 +258,12 @@ export function ScanPage() {
           </label>
           <button
             type="submit"
-            className="btn-primary"
+            className="btn-primary btn-block"
             disabled={state.kind === "loading" || !code.trim()}
           >
             {state.kind === "loading" ? "Hľadám…" : "Hľadať"}
           </button>
         </form>
-      </section>
-
-      {/* Kamera */}
-      <section className="card">
-        <h2>Kamera</h2>
-        {!cameraOn && (
-          <>
-            <p className="muted">
-              Kamera sa spustí až po stlačení tlačidla (iOS Safari požiadavka).
-              Funguje len na HTTPS doméne, na http://localhost nie.
-            </p>
-            <button type="button" className="btn-primary" onClick={startCamera}>
-              ▶ Spustiť kameru
-            </button>
-          </>
-        )}
-        {cameraOn && (
-          <>
-            <video ref={videoRef} className="scanner-video" playsInline muted />
-            <button
-              type="button"
-              className="btn-danger"
-              onClick={stopCamera}
-              style={{ marginTop: 12 }}
-            >
-              ■ Zastaviť kameru
-            </button>
-          </>
-        )}
-        {cameraError && (
-          <div className="error" style={{ marginTop: 8 }}>
-            {cameraError}
-          </div>
-        )}
       </section>
 
       {/* Výsledok */}
@@ -243,18 +280,82 @@ export function ScanPage() {
           </p>
         </div>
       )}
-      {state.kind === "free" && (
+      {state.kind === "assign_to" && assignToId && (
+        <AssignToItemSection
+          lookup={state.lookup}
+          assignToItem={assignToQ.data ?? null}
+          onAssigned={() => navigate(`/items/${assignToId}`)}
+        />
+      )}
+      {state.kind === "free" && !assignToId && (
         <CreateForLookupForm
           lookup={state.lookup}
           presetParent={presetParentQ.data ?? null}
           onCreated={(item) => {
-            // Ak prišiel s parentId, vráť ho na detail rodiča (najprirodzenejší flow).
-            // Inak na detail novovytvorenej položky.
             navigate(presetParentId ? `/items/${presetParentId}` : `/items/${item.id}`);
           }}
         />
       )}
     </div>
+  );
+}
+
+// ─── Priradenie FREE QR k existujúcej položke (assignTo flow) ─────────────────
+
+function AssignToItemSection({
+  lookup,
+  assignToItem,
+  onAssigned,
+}: {
+  lookup: QRLookup;
+  assignToItem: Item | null;
+  onAssigned: () => void;
+}) {
+  const qc = useQueryClient();
+  const [error, setError] = useState<string | null>(null);
+
+  const mut = useMutation({
+    mutationFn: () =>
+      assignToItem
+        ? api.qrAssign(lookup.code, assignToItem.id)
+        : Promise.reject(new Error("Položka nenájdená")),
+    onSuccess: async () => {
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["items"] }),
+        qc.invalidateQueries({ queryKey: ["qr"] }),
+      ]);
+      onAssigned();
+    },
+    onError: (e: Error) => setError(e.message),
+  });
+
+  return (
+    <section className="card">
+      <h2>
+        Priradiť QR <code>{lookup.code}</code>
+      </h2>
+      <p className="muted" style={{ margin: "0 0 12px" }}>
+        QR kód je voľný (FREE). Priradí sa k tejto položke.
+      </p>
+      {assignToItem && (
+        <div className="row" style={{ marginBottom: 16, gap: 8, flexWrap: "wrap" }}>
+          <span className={`badge badge-${assignToItem.type_code.toLowerCase()}`}>
+            {TYPE_LABEL[assignToItem.type_code] ?? assignToItem.type_code}
+          </span>
+          <strong>{assignToItem.name ?? "(bez názvu)"}</strong>
+        </div>
+      )}
+      {error && <div className="error" style={{ marginBottom: 8 }}>{error}</div>}
+      <button
+        type="button"
+        className="btn-primary btn-block"
+        disabled={mut.isPending || !assignToItem}
+        onClick={() => mut.mutate()}
+        style={{ minHeight: 52, fontSize: 17 }}
+      >
+        {mut.isPending ? "Priradzujem…" : `Priradiť ${lookup.code}`}
+      </button>
+    </section>
   );
 }
 
@@ -331,7 +432,7 @@ function CreateForLookupForm({
     }
     if (parentNeeded && !parentId) {
       setError(
-        `Pre typ ${TYPE_LABEL[typeCode] ?? typeCode} musíš vybrať rodiča (${
+        `Pre typ ${TYPE_LABEL[typeCode] ?? typeCode} musíš vybrať nadradenú položku (${
           TYPE_LABEL[expectedParent ?? ""] ?? expectedParent
         })`,
       );
@@ -369,7 +470,7 @@ function CreateForLookupForm({
         </label>
 
         <label className="form-label">
-          Rodič
+          Nadradená položka
           {typeCode === "" && (
             <input value="" disabled placeholder="(vyber najprv typ)" />
           )}
@@ -383,7 +484,7 @@ function CreateForLookupForm({
               required
             >
               <option value="">
-                — vyber {TYPE_LABEL[expectedParent ?? ""] ?? "rodiča"} —
+                — vyber {TYPE_LABEL[expectedParent ?? ""] ?? "nadradenú položku"} —
               </option>
               {eligibleParents.map((p) => (
                 <option key={p.id} value={p.id}>

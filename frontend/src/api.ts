@@ -106,6 +106,25 @@ export type QRLookup = {
   } | null;
 };
 
+export type OcrStatus = "PENDING" | "DONE" | "FAILED";
+
+export type Photo = {
+  id: string;
+  signed_url: string;
+  ocr_raw_text: string | null;
+  ocr_status: OcrStatus;
+  created_at: string;
+  // item_id sa vracia iba z /photos/:id (detail), nie z list endpointu.
+  item_id?: string;
+};
+
+export type UploadPhotoResponse = {
+  id: string;
+  signed_url: string;
+  ocr_status: OcrStatus;
+  created_at: string;
+};
+
 async function handle<T>(res: Response): Promise<T> {
   if (res.status === 204) return undefined as T;
   const text = await res.text();
@@ -203,6 +222,28 @@ export const api = {
     }),
   qrUnassign: (code: string) =>
     request<QRTag>(`/qr/${encodeURIComponent(code)}/unassign`, { method: "POST" }),
+
+  // ─── Photos ────────────────────────────────────────────────────────────────
+  listPhotos: (itemId: string) =>
+    request<Photo[]>(`/items/${itemId}/photos`),
+  getPhoto: (id: string) => request<Photo>(`/photos/${id}`),
+  deletePhoto: (id: string) =>
+    request<{ id: string; deleted: true }>(`/photos/${id}`, { method: "DELETE" }),
+
+  // Upload ide mimo request() — FormData potrebuje aby fetch sám nastavil
+  // multipart/form-data Content-Type s boundary stringom. Keby sme nastavili
+  // 'Content-Type: application/json' z request(), multer by request odmietol.
+  uploadPhoto: async (itemId: string, file: File): Promise<UploadPhotoResponse> => {
+    const creds = getCredentials();
+    const formData = new FormData();
+    formData.append("photo", file);
+    const res = await fetch(`${API_URL}/items/${itemId}/photos`, {
+      method: "POST",
+      headers: creds ? { Authorization: authHeader(creds) } : {},
+      body: formData,
+    });
+    return handle<UploadPhotoResponse>(res);
+  },
 
   // Stiahne PDF so štítkami ako Blob. Volajúci si otvorí URL.createObjectURL(blob)
   // v novom tabe (window.open neumie poslať Basic Auth header).

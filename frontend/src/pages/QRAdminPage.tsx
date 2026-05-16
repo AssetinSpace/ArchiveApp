@@ -9,6 +9,8 @@ export function QRAdminPage() {
   const qc = useQueryClient();
   const [filter, setFilter] = useState<Filter>("ALL");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [generateOpen, setGenerateOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
 
   const tagsQ = useQuery({
     queryKey: ["qr", "list", filter],
@@ -59,20 +61,45 @@ export function QRAdminPage() {
     <div className="stack">
       <h1>QR Admin</h1>
 
-      {/* Generovať */}
+      {/* Generovať — accordion, default zbalené */}
       <section className="card">
-        <h2>Generovať QR kódy</h2>
-        <GenerateForm onDone={refresh} />
+        <button
+          type="button"
+          className="accordion-header"
+          onClick={() => setGenerateOpen((v) => !v)}
+          aria-expanded={generateOpen}
+        >
+          Generovať QR kódy
+          <span className="accordion-header-arrow">{generateOpen ? "▲" : "▼"}</span>
+        </button>
+        {generateOpen && (
+          <div style={{ marginTop: 16 }}>
+            <GenerateForm onDone={refresh} />
+          </div>
+        )}
       </section>
 
-      {/* Importovať */}
+      {/* Importovať — accordion, default zbalené */}
       <section className="card">
-        <h2>Importovať existujúce kódy</h2>
-        <ImportForm onDone={refresh} />
+        <button
+          type="button"
+          className="accordion-header"
+          onClick={() => setImportOpen((v) => !v)}
+          aria-expanded={importOpen}
+        >
+          Importovať existujúce kódy
+          <span className="accordion-header-arrow">{importOpen ? "▲" : "▼"}</span>
+        </button>
+        {importOpen && (
+          <div style={{ marginTop: 16 }}>
+            <ImportForm onDone={refresh} />
+          </div>
+        )}
       </section>
 
-      {/* Filter + akcie */}
+      {/* Zoznam QR kódov — vždy viditeľný */}
       <section className="card">
+        <h2 style={{ marginBottom: 16 }}>Zoznam QR kódov</h2>
         <div
           className="row"
           style={{

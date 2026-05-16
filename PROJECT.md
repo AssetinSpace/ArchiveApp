@@ -1,6 +1,6 @@
 # ArchiveApp — PROJECT.md
 > Živý dokument. Aktualizovať po každom rozhodnutí alebo sprinte.
-> Verzia 2.0 — Sprint 2 dokončený, infraštruktúra live, bugy identifikované.
+> Verzia 2.1 — Sprint 3a dokončený (fotky + R2), OCR odložené do 3b.
 
 ---
 
@@ -87,11 +87,14 @@ Neriešime špeciálne — KRABICA s popisným názvom (napr. "Tubus").
 ### 4.3 Photo
 - `id` — UUID
 - `item_id` — väzba na Item
-- `storage_url` — signed URL z R2 (generovaná on-demand, 15 min platnosť)
-- `storage_key` — R2 object key (napr. `photos/2026/QR-000023-001.jpg`)
-- `ocr_raw_text` — surový Tesseract text (nullable)
-- `ocr_status` — PENDING / DONE / FAILED
+- `storage_key` — R2 object key (napr. `photos/2026/{itemId}/{uuid}.jpg`)
+- `ocr_raw_text` — surový Tesseract text (nullable, vypĺňa sa v 3b)
+- `ocr_status` — PENDING / DONE / FAILED (defaultne PENDING po uploade)
 - `created_at`
+- `deleted_at` — soft delete (R2 objekt zámerne ostáva, orphan cleanup neskôr)
+
+**Signed URL** sa NEUKLADÁ v DB. Generuje sa on-demand pri každej API odpovedi
+cez `getSignedUrlForKey(storage_key)` (default 15 min platnosť).
 
 ### 4.4 Metadátová stratégia
 **Capture first, classify later:**
@@ -150,9 +153,9 @@ Export → CSV/JSON so všetkými položkami, lokáciou, statusom, poznámkami
 | Databáza | PostgreSQL (Railway addon) | ✓ live |
 | Frontend hosting | Cloudflare Pages | ✓ live |
 | Backend hosting | Railway | ✓ live |
-| Foto storage | Cloudflare R2 (archiveapp-photos) | ✓ pripravené |
+| Foto storage | Cloudflare R2 (archiveapp-photos) | ✓ live (Sprint 3a) |
 | QR scan | @zxing/browser (kamera) + manuálny input | ✓ live |
-| OCR | Tesseract na Railway, batch endpoint | ⬜ Sprint 3 |
+| OCR | Tesseract na Railway, batch endpoint | ⬜ Sprint 3b |
 | Auth MVP | HTTP Basic Auth | ✓ live |
 | Auth fáza 2 | Microsoft OAuth (passport-azure-ad) | ⬜ po MVP |
 | Export | CSV + JSON endpoint | ⬜ Sprint 4 |
@@ -172,7 +175,7 @@ DATABASE_URL          postgresql://... (Railway PostgreSQL addon)
 BASIC_AUTH_USER       admin
 BASIC_AUTH_PASS       [silné heslo — uložené v heslovníku]
 FRONTEND_URL          https://archiveapp.assetin.space
-R2_ACCOUNT_ID         279e449f81d15c59fa3fdaecb8590de7
+R2_ACCOUNT_ID         324e558ab210cbc41f1f20e2a3aa4a01
 R2_ACCESS_KEY_ID      [z Cloudflare Account API tokenu]
 R2_SECRET_ACCESS_KEY  [z Cloudflare Account API tokenu]
 R2_BUCKET_NAME        archiveapp-photos
@@ -241,12 +244,20 @@ AssetinSpace/ArchiveApp (private)
 - [ ] Pridať link /scan?parentId pri "Pridať dieťa"
 - [ ] React Query invalidácia po POST /items
 
-### Sprint 3 — Fotky + OCR ⬜
-- [ ] Multipart upload → Cloudflare R2
-- [ ] Signed URL pre zobrazenie fotiek
+### Sprint 3a — Fotky + R2 (bez OCR) ✓ HOTOVÝ
+- ✓ Cloudflare R2 service wrapper (`backend/src/services/r2.ts`)
+- ✓ Photo migrácia: drop `storage_url`, add `deleted_at`, indexy `[ocr_status]`+`[deleted_at]`
+- ✓ Multer multipart upload (memoryStorage, 10 MB limit, MIME whitelist JPEG/PNG/WebP)
+- ✓ Rate limit 20 req/min/IP na POST upload (`express-rate-limit`)
+- ✓ POST `/api/items/:id/photos` (upload), GET `/api/items/:id/photos` (list so signed URLs), GET `/api/photos/:id` (detail), DELETE `/api/photos/:id` (soft delete)
+- ✓ FE `PhotoUpload` (capture=environment, browser-image-compression nad 2 MB)
+- ✓ FE `PhotoGallery` (grid 2/3 col, PENDING badge, vlastný lightbox s Escape + klik mimo)
+- ✓ Integrácia v `ItemDetailPage` (sekcia Fotky)
+
+### Sprint 3b — OCR ⬜ NASLEDUJÚCI
 - [ ] nixpacks.toml: Tesseract system dependency na Railway
-- [ ] POST /api/ocr/process-pending endpoint
-- [ ] UI: foto galéria, OCR text, PENDING badge
+- [ ] POST /api/ocr/process-pending endpoint (batch nad `ocr_status = PENDING`)
+- [ ] Zobrazenie OCR textu pod fotkou + filter PENDING/DONE/FAILED v UI
 
 ### Sprint 4 — Search + Export ⬜
 - [ ] Fulltext search (ILIKE cez name, note, ocr_raw_text)
@@ -302,5 +313,5 @@ IT tím objednávateľa dostane:
 
 ---
 
-*Posledná aktualizácia: v2.0 — Sprint 2 live, bugy zdokumentované, infraštruktúra kompletná*
-*Ďalší krok: Sprint 2 Bugfix → Sprint 3 (fotky + OCR)*
+*Posledná aktualizácia: v2.1 — Sprint 3a hotový (fotky uploadované na R2, galéria + lightbox v UI), OCR ako 3b.*
+*Ďalší krok: Sprint 3b — Tesseract OCR na Railway, vyplnenie `ocr_raw_text` pre PENDING fotky.*
