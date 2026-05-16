@@ -43,12 +43,15 @@ export function ItemDetailPage() {
 
   const item = itemQ.data;
 
-  function invalidateAll() {
-    qc.invalidateQueries({ queryKey: ["items", "one", id] });
-    qc.invalidateQueries({ queryKey: ["items", "path", id] });
-    qc.invalidateQueries({ queryKey: ["items", "children", id] });
-    qc.invalidateQueries({ queryKey: ["items", "all"] });
-    qc.invalidateQueries({ queryKey: ["items", "root"] });
+  // Prefix-match invalidácia: jedna volanie pokryje všetky ["items", ...] queries
+  // (one/path/children/all/root) v celej aplikácii. Vraciame Promise, aby ho
+  // mohli mutácie awaitnúť — bez toho sa formulár stihne zavrieť skôr než refetch
+  // dorazí a children list ostane vizuálne neaktuálny do ďalšieho triggeru.
+  async function invalidateAll() {
+    await Promise.all([
+      qc.invalidateQueries({ queryKey: ["items"] }),
+      qc.invalidateQueries({ queryKey: ["qr"] }),
+    ]);
   }
 
   return (
@@ -162,7 +165,13 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 
 // ─── Item editor (status + note) ──────────────────────────────────────────────
 
-function ItemEditor({ item, onSaved }: { item: Item; onSaved: () => void }) {
+function ItemEditor({
+  item,
+  onSaved,
+}: {
+  item: Item;
+  onSaved: () => Promise<void> | void;
+}) {
   const [status, setStatus] = useState<Status>(item.status);
   const [note, setNote] = useState<string>(item.note ?? "");
   const [name, setName] = useState<string>(item.name ?? "");
@@ -181,9 +190,9 @@ function ItemEditor({ item, onSaved }: { item: Item; onSaved: () => void }) {
         note: note.trim() || null,
         name: name.trim() || null,
       }),
-    onSuccess: () => {
+    onSuccess: async () => {
       setError(null);
-      onSaved();
+      await onSaved();
     },
     onError: (e: Error) => setError(e.message),
   });
@@ -232,7 +241,13 @@ function ItemEditor({ item, onSaved }: { item: Item; onSaved: () => void }) {
 
 // ─── QR section ───────────────────────────────────────────────────────────────
 
-function QRSection({ item, onAssigned }: { item: Item; onAssigned: () => void }) {
+function QRSection({
+  item,
+  onAssigned,
+}: {
+  item: Item;
+  onAssigned: () => Promise<void> | void;
+}) {
   const [qrSrc, setQrSrc] = useState<string | null>(null);
   const [codeInput, setCodeInput] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -257,10 +272,10 @@ function QRSection({ item, onAssigned }: { item: Item; onAssigned: () => void })
 
   const assignMut = useMutation({
     mutationFn: (code: string) => api.qrAssign(code, item.id),
-    onSuccess: () => {
+    onSuccess: async () => {
       setCodeInput("");
       setError(null);
-      onAssigned();
+      await onAssigned();
     },
     onError: (e: Error) => setError(e.message),
   });
@@ -268,9 +283,9 @@ function QRSection({ item, onAssigned }: { item: Item; onAssigned: () => void })
   const unassignMut = useMutation({
     mutationFn: () =>
       item.qr_code ? api.qrUnassign(item.qr_code) : Promise.resolve(null as never),
-    onSuccess: () => {
+    onSuccess: async () => {
       setError(null);
-      onAssigned();
+      await onAssigned();
     },
     onError: (e: Error) => setError(e.message),
   });
@@ -332,7 +347,13 @@ function QRSection({ item, onAssigned }: { item: Item; onAssigned: () => void })
 
 // ─── Add child form ───────────────────────────────────────────────────────────
 
-function AddChildForm({ parent, onAdded }: { parent: Item; onAdded: () => void }) {
+function AddChildForm({
+  parent,
+  onAdded,
+}: {
+  parent: Item;
+  onAdded: () => Promise<void> | void;
+}) {
   const allowedChildType = CHILD_TYPE_BY_PARENT[parent.type_code];
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -347,12 +368,14 @@ function AddChildForm({ parent, onAdded }: { parent: Item; onAdded: () => void }
         note: note.trim() || null,
         parent_id: parent.id,
       }),
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Najprv invaliduj (await) — refetch dorazí skôr než formulár zmizne.
+      // Inak React 18 batched re-render skryje form a children list ostane stale.
+      await onAdded();
       setName("");
       setNote("");
       setOpen(false);
       setError(null);
-      onAdded();
     },
     onError: (e: Error) => setError(e.message),
   });
@@ -367,14 +390,32 @@ function AddChildForm({ parent, onAdded }: { parent: Item; onAdded: () => void }
 
   if (!open) {
     return (
-      <button
-        type="button"
-        className="btn-primary"
-        style={{ marginTop: 12 }}
-        onClick={() => setOpen(true)}
-      >
-        + Pridať dieťa ({TYPE_LABEL[allowedChildType] ?? allowedChildType})
-      </button>
+      <div className="row" style={{ marginTop: 12 }}>
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={() => setOpen(true)}
+        >
+          + Pridať dieťa ({TYPE_LABEL[allowedChildType] ?? allowedChildType})
+        </button>
+        <Link
+          to={`/scan?parentId=${parent.id}`}
+          className="btn-ghost"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            minHeight: 44,
+            padding: "0 12px",
+            border: "1px solid #d1d5db",
+            borderRadius: 6,
+            color: "#111827",
+            textDecoration: "none",
+          }}
+          title="Naskenuj QR kód a vytvor dieťa s týmto rodičom"
+        >
+          Skenovať QR…
+        </Link>
+      </div>
     );
   }
 
@@ -418,6 +459,11 @@ function AddChildForm({ parent, onAdded }: { parent: Item; onAdded: () => void }
           Zrušiť
         </button>
       </div>
+      <p className="muted" style={{ margin: 0 }}>
+        Tip: Ak chceš dieťa zároveň označiť QR nálepkou, použi{" "}
+        <Link to={`/scan?parentId=${parent.id}`}>Skenovať QR</Link> namiesto tohto
+        formulára.
+      </p>
     </form>
   );
 }

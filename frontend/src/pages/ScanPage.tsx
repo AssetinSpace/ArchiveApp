@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BrowserQRCodeReader, type IScannerControls } from "@zxing/browser";
 import {
   api,
+  CHILD_TYPE_BY_PARENT,
   PARENT_TYPE_BY_CHILD,
   TYPE_LABEL,
   type Item,
@@ -20,6 +21,18 @@ type LookupState =
 
 export function ScanPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  // ?parentId=... — používateľ prišiel z ItemDetailPage "Skenovať QR" linku.
+  // Po naskenovaní FREE QR sa CreateForLookupForm predvyplní týmto rodičom
+  // a odvodeným typom dieťaťa (napr. KRABICA → ZLOZKA).
+  const presetParentId = searchParams.get("parentId") || null;
+
+  const presetParentQ = useQuery({
+    queryKey: ["items", "one", presetParentId],
+    queryFn: () => api.getItem(presetParentId as string),
+    enabled: !!presetParentId,
+  });
+
   const [code, setCode] = useState("");
   const [state, setState] = useState<LookupState>({ kind: "idle" });
   const [cameraOn, setCameraOn] = useState(false);
@@ -32,11 +45,6 @@ export function ScanPage() {
     controlsRef.current = null;
     setCameraOn(false);
   }
-
-  // Cleanup pri odchode zo stránky.
-  useEffect(() => {
-    return () => stopCamera();
-  }, []);
 
   async function lookupCode(value: string) {
     const trimmed = value.trim();
@@ -60,38 +68,70 @@ export function ScanPage() {
     }
   }
 
-  async function startCamera() {
+  function startCamera() {
     setCameraError(null);
     setCameraOn(true);
-    try {
-      const reader = new BrowserQRCodeReader();
-      // undefined deviceId → defaultná kamera (mobile zvyčajne back-facing po prompt).
-      const controls = await reader.decodeFromVideoDevice(
-        undefined,
-        videoRef.current!,
-        (result, _err, ctrls) => {
-          if (result) {
-            const text = result.getText();
-            ctrls.stop();
-            controlsRef.current = null;
-            setCameraOn(false);
-            setCode(text);
-            void lookupCode(text);
-          }
-        },
-      );
-      controlsRef.current = controls;
-    } catch (e) {
-      const msg = (e as Error).message;
-      setCameraOn(false);
-      // Typické chyby: NotAllowedError, NotFoundError, browser nepodporuje getUserMedia,
-      // alebo HTTP (nie HTTPS) — kamera funguje len na HTTPS / localhost.
-      setCameraError(
-        `Kameru sa nepodarilo spustiť: ${msg}. ` +
-          "Skontroluj povolenia kamery a že stránka beží na HTTPS (na http://localhost kamera nefunguje).",
-      );
-    }
+    // Reálne spustenie zxing prebieha v useEffect nižšie — musíme počkať
+    // na React render aby <video> element existoval a videoRef.current bol set.
+    // Inak zxing dostane null, vytvorí interný skrytý video element,
+    // QR scan funguje ale viditeľné <video> ostane čierne (Bug Sprint 2).
   }
+
+  // Spustí zxing dekodér po tom čo React vyrenderuje <video> element.
+  useEffect(() => {
+    if (!cameraOn) return;
+
+    let cancelled = false;
+    const videoEl = videoRef.current;
+    if (!videoEl) {
+      // Nemalo by sa stať — keď cameraOn=true, video element je v JSX.
+      setCameraOn(false);
+      setCameraError("Video element nie je dostupný.");
+      return;
+    }
+
+    (async () => {
+      try {
+        const reader = new BrowserQRCodeReader();
+        // undefined deviceId → defaultná kamera (mobile zvyčajne back-facing).
+        const controls = await reader.decodeFromVideoDevice(
+          undefined,
+          videoEl,
+          (result, _err, ctrls) => {
+            if (result && !cancelled) {
+              const text = result.getText();
+              ctrls.stop();
+              controlsRef.current = null;
+              setCameraOn(false);
+              setCode(text);
+              void lookupCode(text);
+            }
+          },
+        );
+        if (cancelled) {
+          controls.stop();
+        } else {
+          controlsRef.current = controls;
+        }
+      } catch (e) {
+        if (cancelled) return;
+        const msg = (e as Error).message;
+        setCameraOn(false);
+        // Typické chyby: NotAllowedError, NotFoundError, browser nepodporuje getUserMedia,
+        // alebo HTTP (nie HTTPS) — kamera funguje len na HTTPS / localhost.
+        setCameraError(
+          `Kameru sa nepodarilo spustiť: ${msg}. ` +
+            "Skontroluj povolenia kamery a že stránka beží na HTTPS (na http://localhost kamera nefunguje).",
+        );
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      controlsRef.current?.stop();
+      controlsRef.current = null;
+    };
+  }, [cameraOn]);
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -101,6 +141,33 @@ export function ScanPage() {
   return (
     <div className="stack">
       <h1>Scan QR kód</h1>
+
+      {/* Banner ak prichádzame z ItemDetailPage "Skenovať QR" */}
+      {presetParentId && (
+        <div className="card" style={{ background: "#eff6ff", borderColor: "#bfdbfe" }}>
+          <p style={{ margin: 0 }}>
+            <strong>Pridávaš dieťa pre:</strong>{" "}
+            {presetParentQ.isLoading && <span className="muted">načítavam…</span>}
+            {presetParentQ.data && (
+              <Link to={`/items/${presetParentId}`}>
+                {presetParentQ.data.name ?? "(bez názvu)"} (
+                {TYPE_LABEL[presetParentQ.data.type_code] ??
+                  presetParentQ.data.type_code}
+                )
+              </Link>
+            )}
+            {presetParentQ.error && (
+              <span className="error">
+                {" "}
+                — rodič sa nenašiel: {(presetParentQ.error as Error).message}
+              </span>
+            )}
+          </p>
+          <p className="muted" style={{ margin: "8px 0 0" }}>
+            Po naskenovaní voľného QR sa typ a rodič automaticky predvyplnia.
+          </p>
+        </div>
+      )}
 
       {/* Manuálny input — vždy viditeľný */}
       <section className="card">
@@ -179,7 +246,12 @@ export function ScanPage() {
       {state.kind === "free" && (
         <CreateForLookupForm
           lookup={state.lookup}
-          onCreated={(item) => navigate(`/items/${item.id}`)}
+          presetParent={presetParentQ.data ?? null}
+          onCreated={(item) => {
+            // Ak prišiel s parentId, vráť ho na detail rodiča (najprirodzenejší flow).
+            // Inak na detail novovytvorenej položky.
+            navigate(presetParentId ? `/items/${presetParentId}` : `/items/${item.id}`);
+          }}
         />
       )}
     </div>
@@ -190,20 +262,35 @@ export function ScanPage() {
 
 function CreateForLookupForm({
   lookup,
+  presetParent,
   onCreated,
 }: {
   lookup: QRLookup;
+  presetParent: Item | null;
   onCreated: (item: Item) => void;
 }) {
   const qc = useQueryClient();
   const typesQ = useQuery({ queryKey: ["item-types"], queryFn: () => api.itemTypes() });
   const itemsQ = useQuery({ queryKey: ["items", "all"], queryFn: () => api.listItems() });
 
-  const [typeCode, setTypeCode] = useState<string>("");
-  const [parentId, setParentId] = useState<string>("");
+  // Odvodený typ dieťaťa z preset rodiča (napr. KRABICA → ZLOZKA).
+  // Memoizované aby neretriggerovalo useEffect každý render.
+  const presetChildType = useMemo(
+    () => (presetParent ? CHILD_TYPE_BY_PARENT[presetParent.type_code] ?? null : null),
+    [presetParent],
+  );
+
+  const [typeCode, setTypeCode] = useState<string>(presetChildType ?? "");
+  const [parentId, setParentId] = useState<string>(presetParent?.id ?? "");
   const [name, setName] = useState<string>("");
   const [note, setNote] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+
+  // Predvyplnenie keď preset dorazí asynchrónne (po fetch parent itemu).
+  useEffect(() => {
+    if (presetChildType) setTypeCode(presetChildType);
+    if (presetParent) setParentId(presetParent.id);
+  }, [presetChildType, presetParent]);
 
   const types = typesQ.data ?? [];
   const items = itemsQ.data ?? [];
@@ -223,9 +310,13 @@ function CreateForLookupForm({
         note: note.trim() || null,
         qr_code: lookup.code,
       }),
-    onSuccess: (item) => {
-      qc.invalidateQueries({ queryKey: ["items"] });
-      qc.invalidateQueries({ queryKey: ["qr"] });
+    onSuccess: async (item) => {
+      // Await invalidácie aby refetch dorazil pred navigáciou späť na rodiča
+      // (Bug 3 fix — rovnaký pattern ako v ItemDetailPage).
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["items"] }),
+        qc.invalidateQueries({ queryKey: ["qr"] }),
+      ]);
       onCreated(item);
     },
     onError: (e: Error) => setError(e.message),
