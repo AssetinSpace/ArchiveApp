@@ -1,0 +1,82 @@
+// ArchiveApp Prisma schema — Sprint 1 (MVP dátový model)
+// Bližší popis polí v PROJECT.md §4.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Status {
+  NA_MIESTE
+  VYNESENE
+  NEZNAME
+}
+
+enum OcrStatus {
+  PENDING
+  DONE
+  FAILED
+}
+
+enum QrStatus {
+  FREE
+  ASSIGNED
+}
+
+model ItemType {
+  code  String @id
+  label String
+
+  items Item[]
+}
+
+model Item {
+  id         String    @id @default(uuid())
+  type_code  String
+  name       String?
+  parent_id  String?
+  qr_code    String?   @unique
+  note       String?
+  status     Status    @default(NA_MIESTE)
+  deleted_at DateTime?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+
+  type     ItemType @relation(fields: [type_code], references: [code])
+  parent   Item?    @relation("ItemTree", fields: [parent_id], references: [id])
+  children Item[]   @relation("ItemTree")
+  qr_tag   QRTag?
+  photos   Photo[]
+
+  @@index([parent_id])
+  @@index([type_code])
+  @@index([deleted_at])
+}
+
+model QRTag {
+  id               String   @id @default(uuid())
+  code             String   @unique
+  status           QrStatus @default(FREE)
+  assigned_item_id String?  @unique
+  created_at       DateTime @default(now())
+
+  assigned_item Item? @relation(fields: [assigned_item_id], references: [id])
+}
+
+model Photo {
+  id           String    @id @default(uuid())
+  item_id      String
+  storage_url  String
+  storage_key  String
+  ocr_raw_text String?
+  ocr_status   OcrStatus @default(PENDING)
+  created_at   DateTime  @default(now())
+
+  item Item @relation(fields: [item_id], references: [id])
+
+  @@index([item_id])
+}
