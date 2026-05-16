@@ -12,12 +12,14 @@ const app = express();
 
 // Whitelist povolených origin-ov pre CORS.
 // - localhost:5173 = lokálny Vite dev server
-// - archiveapp.pages.dev = Cloudflare Pages produkcia
-// - FRONTEND_URL = budúca vlastná doména (nastav v Railway Variables)
+// - archiveapp.pages.dev = Cloudflare Pages default doména
+// - archiveapp.assetin.space = produkčná vlastná doména
+// - FRONTEND_URL = override cez Railway Variables
 // - CORS_ORIGIN = nepovinný čiarkami oddelený zoznam ďalších origin-ov
 const allowedOrigins = [
   "http://localhost:5173",
   "https://archiveapp.pages.dev",
+  "https://archiveapp.assetin.space",
   process.env.FRONTEND_URL ?? "",
   ...(process.env.CORS_ORIGIN ?? "").split(",").map((s) => s.trim()),
 ].filter(Boolean);
@@ -26,6 +28,7 @@ app.use(
   cors({
     origin: allowedOrigins,
     credentials: true,
+    allowedHeaders: ["Authorization", "Content-Type"],
   }),
 );
 app.use(express.json({ limit: "1mb" }));
