@@ -1,0 +1,307 @@
+/* ──────────────────────────────────────────────────────────────────────────
+   ArchiveApp — globálne mobile-first štýly
+   Princípy:
+   - Min. width: 375px (iPhone SE), žiadne horizontálne scrolly
+   - Tlačidlá min-height 44px (dotykový target)
+   - Inputy min-height 48px, font-size 16px (iOS nezoomuje pri focuse)
+   - Žiadny CSS framework — jednoduché triedy
+   ────────────────────────────────────────────────────────────────────────── */
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #1f2937;
+  background: #f9fafb;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+input, select, textarea, button {
+  font-size: 16px;
+  font-family: inherit;
+}
+
+input, select, textarea {
+  min-height: 48px;
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  color: inherit;
+}
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: -1px;
+}
+
+button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  color: #111827;
+  cursor: pointer;
+  font-weight: 500;
+}
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+button:not(:disabled):hover {
+  background: #f3f4f6;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+.btn-primary:not(:disabled):hover {
+  background: #1d4ed8;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: #fff;
+  border-color: #dc2626;
+}
+.btn-danger:not(:disabled):hover {
+  background: #b91c1c;
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+}
+
+.btn-small {
+  min-height: 36px;
+  padding: 0 10px;
+  font-size: 14px;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+h1, h2, h3 { margin: 0 0 12px; font-weight: 600; line-height: 1.2; }
+h1 { font-size: 22px; }
+h2 { font-size: 18px; }
+h3 { font-size: 16px; }
+
+a { color: #2563eb; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+p { margin: 0 0 12px; }
+
+/* ─── Layout ────────────────────────────────────────────────────────────── */
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.card-link {
+  display: block;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  color: inherit;
+  text-decoration: none;
+  transition: background 120ms, border-color 120ms;
+}
+.card-link:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  text-decoration: none;
+}
+
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+.scrollable-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.muted { color: #6b7280; font-size: 13px; }
+.error { color: #b91c1c; font-size: 14px; }
+.success { color: #15803d; font-size: 14px; }
+
+/* ─── Form ──────────────────────────────────────────────────────────────── */
+
+.form { display: flex; flex-direction: column; gap: 12px; }
+.form-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+}
+
+/* ─── Navbar ────────────────────────────────────────────────────────────── */
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #111827;
+  color: #fff;
+  border-bottom: 1px solid #1f2937;
+}
+.navbar-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  align-items: stretch;
+  padding: 0 8px;
+}
+.navbar-link {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: #d1d5db;
+  text-decoration: none;
+  padding: 8px 4px;
+  font-size: 12px;
+  min-height: 56px;
+  border-bottom: 3px solid transparent;
+}
+.navbar-link:hover {
+  color: #fff;
+  text-decoration: none;
+}
+.navbar-link.active {
+  color: #fff;
+  border-bottom-color: #3b82f6;
+}
+.navbar-icon { font-size: 20px; line-height: 1; }
+.navbar-label { font-size: 11px; letter-spacing: 0.3px; }
+
+@media (min-width: 640px) {
+  .navbar-link { flex-direction: row; font-size: 14px; gap: 8px; padding: 0 16px; }
+  .navbar-icon { font-size: 18px; }
+  .navbar-label { font-size: 14px; }
+}
+
+/* ─── Badges ────────────────────────────────────────────────────────────── */
+
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  background: #f3f4f6;
+  color: #374151;
+}
+.badge-sklad   { background: #f0fdf4; color: #166534; }
+.badge-paleta  { background: #eff6ff; color: #1d4ed8; }
+.badge-krabica { background: #fefce8; color: #854d0e; }
+.badge-zlozka  { background: #fdf4ff; color: #7e22ce; }
+
+.badge-na_mieste { background: #f0fdf4; color: #166534; }
+.badge-vynesene  { background: #fef2f2; color: #b91c1c; }
+.badge-neznane   { background: #fef3c7; color: #92400e; }
+
+.badge-free      { background: #ecfdf5; color: #047857; }
+.badge-assigned  { background: #eef2ff; color: #4338ca; }
+
+/* ─── Breadcrumb ────────────────────────────────────────────────────────── */
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  padding: 8px 0;
+  font-size: 14px;
+}
+.breadcrumb-sep {
+  color: #9ca3af;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.breadcrumb a, .breadcrumb span {
+  flex-shrink: 0;
+}
+
+/* ─── Table (admin) ─────────────────────────────────────────────────────── */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  min-width: 600px; /* prinúti horizontálny scroll na mobile */
+}
+.table th, .table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  vertical-align: middle;
+}
+.table th {
+  background: #f9fafb;
+  font-weight: 600;
+  font-size: 13px;
+  color: #374151;
+}
+.table tr:hover td {
+  background: #fafafa;
+}
+
+/* ─── Video / scanner ──────────────────────────────────────────────────── */
+
+.scanner-video {
+  width: 100%;
+  max-width: 600px;
+  aspect-ratio: 4 / 3;
+  background: #000;
+  border-radius: 8px;
+  display: block;
+}
+
+/* ─── Misc helpers ─────────────────────────────────────────────────────── */
+
+.qr-preview {
+  width: 200px;
+  height: 200px;
+  background: #fff;
+  padding: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 16px 0;
+}

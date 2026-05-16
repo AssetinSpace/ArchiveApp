@@ -1,5 +1,30 @@
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001/api";
 
+// Mapuje typ položky na typ jej povinného rodiča. SKLAD je koreň (null).
+// Zdieľané s backendom (backend/src/constants.ts) — pri zmene udržiavať obe.
+export const PARENT_TYPE_BY_CHILD: Record<string, string | null> = {
+  SKLAD: null,
+  PALETA: "SKLAD",
+  KRABICA: "PALETA",
+  ZLOZKA: "KRABICA",
+};
+
+// Pre daný typ rodiča vráti typ ktorý môže byť jeho dieťaťom.
+// Používa sa v UI pri "Pridať dieťa" na ItemDetailPage.
+export const CHILD_TYPE_BY_PARENT: Record<string, string | null> = {
+  SKLAD: "PALETA",
+  PALETA: "KRABICA",
+  KRABICA: "ZLOZKA",
+  ZLOZKA: null,
+};
+
+export const TYPE_LABEL: Record<string, string> = {
+  SKLAD: "Sklad",
+  PALETA: "Paleta",
+  KRABICA: "Krabica",
+  ZLOZKA: "Zložka",
+};
+
 // Credentials stored in sessionStorage so they survive React re-renders but reset on tab close.
 const STORAGE_KEY = "archiveapp_creds";
 
@@ -45,6 +70,40 @@ export type Item = {
   created_at: string;
   updated_at: string;
   parent?: Item | null;
+};
+
+export type QrStatus = "FREE" | "ASSIGNED";
+
+export type QRTag = {
+  id: string;
+  code: string;
+  status: QrStatus;
+  assigned_item_id: string | null;
+  created_at: string;
+  assigned_item?: {
+    id: string;
+    name: string | null;
+    type_code: string;
+  } | null;
+};
+
+export type PathNode = {
+  id: string;
+  type_code: string;
+  name: string | null;
+  parent_id: string | null;
+};
+
+export type QRLookup = {
+  id: string;
+  code: string;
+  status: QrStatus;
+  assignedItem: {
+    id: string;
+    name: string | null;
+    type_code: string;
+    path: PathNode[];
+  } | null;
 };
 
 async function handle<T>(res: Response): Promise<T> {
@@ -120,4 +179,50 @@ export const api = {
     request<void>(`/items/${id}`, {
       method: "DELETE",
     }),
+
+  // ─── QR ────────────────────────────────────────────────────────────────────
+  qrList: (params?: { status?: QrStatus }) => {
+    const qs = new URLSearchParams();
+    if (params?.status) qs.set("status", params.status);
+    const q = qs.toString();
+    return request<QRTag[]>(`/qr${q ? `?${q}` : ""}`);
+  },
+  qrLookup: (code: string) =>
+    request<QRLookup>(`/qr/${encodeURIComponent(code)}`),
+  qrGenerate: (data: { count: number; prefix?: string }) =>
+    request<QRTag[]>("/qr/generate", { method: "POST", json: data }),
+  qrImport: (data: { codes: string[] }) =>
+    request<{ created: number; skipped: number; codes: string[] }>("/qr/import", {
+      method: "POST",
+      json: data,
+    }),
+  qrAssign: (code: string, item_id: string) =>
+    request<QRTag>(`/qr/${encodeURIComponent(code)}/assign`, {
+      method: "POST",
+      json: { item_id },
+    }),
+  qrUnassign: (code: string) =>
+    request<QRTag>(`/qr/${encodeURIComponent(code)}/unassign`, { method: "POST" }),
+
+  // Stiahne PDF so štítkami ako Blob. Volajúci si otvorí URL.createObjectURL(blob)
+  // v novom tabe (window.open neumie poslať Basic Auth header).
+  qrPrintBlob: async (codes: string[]): Promise<Blob> => {
+    const creds = getCredentials();
+    const qs = new URLSearchParams();
+    qs.set("codes", codes.join(","));
+    const res = await fetch(`${API_URL}/qr/print?${qs.toString()}`, {
+      headers: creds ? { Authorization: "Basic " + btoa(`${creds.user}:${creds.pass}`) } : {},
+    });
+    if (!res.ok) {
+      let msg = `${res.status} ${res.statusText}`;
+      try {
+        const body = await res.json();
+        if (body && body.error) msg = String(body.error);
+      } catch {
+        // not JSON; keep the default message
+      }
+      throw new Error(msg);
+    }
+    return await res.blob();
+  },
 };

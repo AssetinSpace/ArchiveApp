@@ -6,12 +6,21 @@ import { Prisma } from "@prisma/client";
 import { basicAuth } from "./auth.js";
 import { itemTypesRouter } from "./routes/itemTypes.js";
 import { itemsRouter } from "./routes/items.js";
+import { qrRouter } from "./routes/qr.js";
 
 const app = express();
 
+// CORS_ORIGIN je čiarkami oddelený zoznam povolených origin-ov.
+// Default = lokálny dev server. V produkcii nastav napr.
+// CORS_ORIGIN=https://archiveapp.assetin.space
+const corsOrigins = (process.env.CORS_ORIGIN ?? "http://localhost:5173")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: corsOrigins,
     credentials: true,
   }),
 );
@@ -22,6 +31,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/api", basicAuth, itemTypesRouter);
+app.use("/api/qr", basicAuth, qrRouter);
 app.use("/api/items", basicAuth, itemsRouter);
 
 const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {

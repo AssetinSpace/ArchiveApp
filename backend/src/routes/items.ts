@@ -1,8 +1,40 @@
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma.js";
+import { PARENT_TYPE_BY_CHILD } from "../constants.js";
 
 export const itemsRouter: Router = Router();
+
+// Overí že parent_id zodpovedá očakávanému typu rodiča pre daný type_code.
+// Vracia chybovú správu alebo null ak je validácia OK.
+async function validateParentType(
+  typeCode: string,
+  parentId: string | null | undefined,
+): Promise<string | null> {
+  const expectedParentType = PARENT_TYPE_BY_CHILD[typeCode];
+  // Neznámy typ — necháme padnúť na ItemType lookup vyššie.
+  if (expectedParentType === undefined) return null;
+
+  if (expectedParentType === null) {
+    if (parentId) {
+      return `${typeCode} is a root type and must not have a parent`;
+    }
+    return null;
+  }
+
+  if (!parentId) {
+    return `${typeCode} must have parent of type ${expectedParentType}`;
+  }
+  const parent = await prisma.item.findFirst({
+    where: { id: parentId, deleted_at: null },
+    select: { type_code: true },
+  });
+  if (!parent) return "Parent does not exist or is deleted";
+  if (parent.type_code !== expectedParentType) {
+    return `${typeCode} must have parent of type ${expectedParentType}, got ${parent.type_code}`;
+  }
+  return null;
+}
 
 const StatusSchema = z.enum(["NA_MIESTE", "VYNESENE", "NEZNAME"]);
 
@@ -81,15 +113,45 @@ itemsRouter.post("/", async (req, res, next) => {
       return;
     }
 
-    if (body.parent_id) {
-      const parent = await prisma.item.findFirst({
-        where: { id: body.parent_id, deleted_at: null },
-        select: { id: true },
+    const parentErr = await validateParentType(body.type_code, body.parent_id);
+    if (parentErr) {
+      res.status(400).json({ error: parentErr });
+      return;
+    }
+
+    // Ak je qr_code zadané: musí to byť existujúci FREE QRTag.
+    // Vytvorenie itemu + assign QRTag prebehne atomicky v transakcii aby
+    // sa zachovala konzistencia Item.qr_code ↔ QRTag.assigned_item_id.
+    if (body.qr_code) {
+      const created = await prisma.$transaction(async (tx) => {
+        const tag = await tx.qRTag.findUnique({ where: { code: body.qr_code! } });
+        if (!tag) return { error: { status: 400, message: "QR code not found" } };
+        if (tag.status !== "FREE") {
+          return { error: { status: 400, message: "QR code already assigned" } };
+        }
+        const item = await tx.item.create({
+          data: {
+            type_code: body.type_code,
+            name: body.name ?? null,
+            parent_id: body.parent_id ?? null,
+            note: body.note ?? null,
+            qr_code: body.qr_code,
+          },
+          include: { parent: true },
+        });
+        await tx.qRTag.update({
+          where: { code: body.qr_code! },
+          data: { status: "ASSIGNED", assigned_item_id: item.id },
+        });
+        return { item };
       });
-      if (!parent) {
-        res.status(400).json({ error: "Parent does not exist or is deleted" });
+
+      if ("error" in created && created.error) {
+        res.status(created.error.status).json({ error: created.error.message });
         return;
       }
+      res.status(201).json(created.item);
+      return;
     }
 
     const created = await prisma.item.create({
@@ -98,7 +160,7 @@ itemsRouter.post("/", async (req, res, next) => {
         name: body.name ?? null,
         parent_id: body.parent_id ?? null,
         note: body.note ?? null,
-        qr_code: body.qr_code ?? null,
+        qr_code: null,
       },
       include: { parent: true },
     });
