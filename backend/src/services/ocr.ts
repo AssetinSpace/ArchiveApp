@@ -15,10 +15,19 @@ import tesseract from "node-tesseract-ocr";
 import { getObjectAsBuffer } from "./r2.js";
 import { prisma } from "../prisma.js";
 
+// PSM 1 = "Automatic page segmentation with OSD" (Orientation and Script
+// Detection). Tesseract pred OCR automaticky detekuje rotáciu fotky a pootočí
+// si vstup. POVINNÉ: musí byť nainštalovaný `tesseract-ocr-osd` apt package
+// (osd.traineddata) — viď backend/railpack.json. Bez OSD packagu PSM 1 zhodí
+// proces s chybou "Unable to load osd.traineddata" a každá fotka skončí FAILED.
+//
+// Pôvodne sme mali PSM 6 (uniform block of text) ale nálepky/štítky bývajú
+// nafotené pod rôznymi uhlami (chrbty zložiek = 90°, krabice naležato = 180°,
+// telefón v ruke = 0-15° náklon). PSM 1 toto vie samo zarovnať.
 const TESSERACT_CONFIG = {
   lang: "eng",
   oem: 1, // LSTM OCR engine — modernejší než legacy.
-  psm: 6, // Assume uniform block of text (vhodné pre štítky).
+  psm: 1, // Auto segmentation + OSD orientation detection.
 };
 
 /**

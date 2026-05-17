@@ -143,6 +143,64 @@ ocrRouter.post("/retry/:photoId", async (req, res, next) => {
   }
 });
 
+// ─── GET /api/ocr/recent ──────────────────────────────────────────────────────
+//
+// Vráti posledných N fotiek (akýkoľvek stav okrem deleted) so signed URL,
+// item linkom a OCR preview. Slúži pre OCRAdminPage sekciu "Posledné fotky"
+// — používateľ tak má hneď preklik na konkrétny Item po batchi.
+//
+// Order: created_at desc (Photo nemá updated_at; pridanie by vyžadovalo
+// migráciu, pre MVP stačí "najnovšie uploadnuté" lebo to typicky súhlasí
+// s "naposledy spracované" v solo-user batchi).
+
+const RecentQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(50).optional(),
+});
+
+ocrRouter.get("/recent", async (req, res, next) => {
+  try {
+    const q = RecentQuerySchema.parse(req.query);
+    const limit = q.limit ?? 20;
+
+    const photos = await prisma.photo.findMany({
+      where: { deleted_at: null },
+      orderBy: { created_at: "desc" },
+      take: limit,
+      select: {
+        id: true,
+        item_id: true,
+        storage_key: true,
+        ocr_status: true,
+        ocr_raw_text: true,
+        created_at: true,
+        item: { select: { name: true, type_code: true } },
+      },
+    });
+
+    const enriched = await Promise.all(
+      photos.map(async (p) => ({
+        id: p.id,
+        item_id: p.item_id,
+        item_name: p.item.name,
+        item_type_code: p.item.type_code,
+        signed_url: await getSignedUrlForKey(p.storage_key),
+        ocr_status: p.ocr_status,
+        // Truncate raw text aby JSON response nebol obrovský pri dlhých OCR
+        // výsledkoch. Full text je dostupný cez Item detail (PhotoGallery).
+        ocr_text_preview:
+          p.ocr_raw_text && p.ocr_raw_text.length > 200
+            ? p.ocr_raw_text.slice(0, 200) + "…"
+            : p.ocr_raw_text,
+        created_at: p.created_at,
+      })),
+    );
+
+    res.json(enriched);
+  } catch (e) {
+    next(e);
+  }
+});
+
 // ─── GET /api/ocr/failed ──────────────────────────────────────────────────────
 //
 // Zoznam FAILED fotiek pre OCRAdminPage sekciu "Zlyhané fotky".

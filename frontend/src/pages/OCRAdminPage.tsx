@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, type FailedPhoto, type OcrStatusCounts } from "../api";
+import {
+  api,
+  TYPE_LABEL,
+  type FailedPhoto,
+  type OcrStatusCounts,
+  type RecentOcrPhoto,
+} from "../api";
 
 // OCRAdminPage — Sprint 3b
 //
@@ -14,6 +20,7 @@ import { api, type FailedPhoto, type OcrStatusCounts } from "../api";
 
 const STATUS_KEY = ["ocr-status"] as const;
 const FAILED_KEY = ["ocr-failed"] as const;
+const RECENT_KEY = ["ocr-recent"] as const;
 
 export function OCRAdminPage() {
   const qc = useQueryClient();
@@ -38,6 +45,11 @@ export function OCRAdminPage() {
     enabled: (statusQ.data?.failed ?? 0) > 0,
   });
 
+  const recentQ = useQuery({
+    queryKey: RECENT_KEY,
+    queryFn: () => api.fetchRecentOcrPhotos(20),
+  });
+
   const startMut = useMutation({
     mutationFn: () => api.processOcrPending(),
     onSuccess: (data) => {
@@ -55,8 +67,9 @@ export function OCRAdminPage() {
     if (isProcessing && current === 0) {
       setIsProcessing(false);
       setCompletedBanner(queuedRef.current);
-      // Refresh failed zoznamu (pribudli mohli FAILED) aj photo galérií inde.
+      // Refresh failed + recent zoznamov + photo galérií inde.
       qc.invalidateQueries({ queryKey: FAILED_KEY });
+      qc.invalidateQueries({ queryKey: RECENT_KEY });
       qc.invalidateQueries({ queryKey: ["items"] });
     }
     previousPendingRef.current = current;
@@ -67,6 +80,7 @@ export function OCRAdminPage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: STATUS_KEY });
       qc.invalidateQueries({ queryKey: FAILED_KEY });
+      qc.invalidateQueries({ queryKey: RECENT_KEY });
       qc.invalidateQueries({ queryKey: ["items"] });
     },
   });
@@ -174,6 +188,24 @@ export function OCRAdminPage() {
           )}
         </section>
       )}
+
+      {/* Recent photos — vždy zobrazené, prelink na Item detail */}
+      <section className="card">
+        <h2>Posledné fotky</h2>
+
+        {recentQ.isLoading && <p className="muted">Načítavam…</p>}
+        {recentQ.error && (
+          <p className="error">Chyba: {(recentQ.error as Error).message}</p>
+        )}
+
+        {recentQ.data && recentQ.data.length === 0 && (
+          <p className="muted">Žiadne fotky.</p>
+        )}
+
+        {recentQ.data?.map((p) => (
+          <RecentRow key={p.id} photo={p} />
+        ))}
+      </section>
     </div>
   );
 }
@@ -234,6 +266,67 @@ function FailedRow({
         {retrying ? "Spracovávam…" : "Retry"}
       </button>
     </div>
+  );
+}
+
+// ─── RecentRow ───────────────────────────────────────────────────────────────
+
+function RecentRow({ photo }: { photo: RecentOcrPhoto }) {
+  const typeLabel = TYPE_LABEL[photo.item_type_code] ?? photo.item_type_code;
+  const statusBadge = (() => {
+    if (photo.ocr_status === "PENDING")
+      return <span className="photo-badge-pending">PENDING</span>;
+    if (photo.ocr_status === "FAILED")
+      return <span className="photo-badge-failed">FAILED</span>;
+    if (
+      photo.ocr_status === "DONE" &&
+      (!photo.ocr_text_preview || photo.ocr_text_preview.trim().length === 0)
+    ) {
+      return <span className="photo-badge-done-empty">DONE (bez textu)</span>;
+    }
+    return (
+      <span className="badge badge-na_miesto" style={{ background: "#dcfce7", color: "#166534" }}>
+        DONE
+      </span>
+    );
+  })();
+
+  return (
+    <Link to={`/items/${photo.item_id}`} className="ocr-recent-row">
+      <img
+        src={photo.signed_url}
+        alt=""
+        className="ocr-recent-thumb"
+        loading="lazy"
+      />
+      <div className="ocr-recent-meta">
+        <div className="ocr-recent-name-row">
+          <span className={`badge badge-${photo.item_type_code.toLowerCase()}`}>
+            {typeLabel}
+          </span>
+          {statusBadge}
+          <span className="ocr-recent-name">
+            {photo.item_name ?? "(bez názvu)"}
+          </span>
+        </div>
+        {photo.ocr_status === "DONE" && photo.ocr_text_preview && (
+          <div className="ocr-recent-preview">{photo.ocr_text_preview}</div>
+        )}
+        {photo.ocr_status === "PENDING" && (
+          <div className="muted" style={{ fontSize: 12 }}>
+            Čaká na OCR…
+          </div>
+        )}
+        {photo.ocr_status === "FAILED" && (
+          <div className="muted" style={{ fontSize: 12 }}>
+            OCR zlyhalo — retry v sekcii Zlyhané fotky alebo v galérii.
+          </div>
+        )}
+      </div>
+      <div className="ocr-recent-arrow" aria-hidden="true">
+        ›
+      </div>
+    </Link>
   );
 }
 

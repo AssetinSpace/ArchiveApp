@@ -142,6 +142,17 @@ export type FailedPhoto = {
   created_at: string;
 };
 
+export type RecentOcrPhoto = {
+  id: string;
+  item_id: string;
+  item_name: string | null;
+  item_type_code: string;
+  signed_url: string;
+  ocr_status: OcrStatus;
+  ocr_text_preview: string | null;
+  created_at: string;
+};
+
 export type ProcessPendingResponse = {
   started: boolean;
   queuedCount: number;
@@ -264,6 +275,8 @@ export const api = {
   retryOcr: (photoId: string) =>
     request<Photo>(`/ocr/retry/${photoId}`, { method: "POST" }),
   fetchFailedPhotos: () => request<FailedPhoto[]>("/ocr/failed"),
+  fetchRecentOcrPhotos: (limit = 20) =>
+    request<RecentOcrPhoto[]>(`/ocr/recent?limit=${limit}`),
 
   // Upload ide mimo request() — FormData potrebuje aby fetch sám nastavil
   // multipart/form-data Content-Type s boundary stringom. Keby sme nastavili

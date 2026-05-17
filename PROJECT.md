@@ -254,14 +254,16 @@ AssetinSpace/ArchiveApp (private)
 - ✓ FE `PhotoGallery` (grid 2/3 col, PENDING badge, vlastný lightbox s Escape + klik mimo)
 - ✓ Integrácia v `ItemDetailPage` (sekcia Fotky)
 
-### Sprint 3b — OCR 🟡 KÓD HOTOVÝ (čaká Railway deploy verifikáciu)
-- ✓ `backend/railpack.json`: `deploy.aptPackages: ["tesseract-ocr", "tesseract-ocr-eng"]` — Railway runtime image dostane Tesseract binary cez apt
+### Sprint 3b — OCR 🟡 LIVE, ladenie kvality
+- ✓ `backend/railpack.json`: `deploy.aptPackages: ["tesseract-ocr", "tesseract-ocr-eng", "tesseract-ocr-osd"]` — Railway runtime dostane Tesseract 5.3.0 + leptonica 1.82.0 + English language data + Orientation/Script Detection
 - ℹ️ Pôvodný `backend/nixpacks.toml` zmazaný — Railway prešlo na **Railpack** builder (default od 2025), nixpacks config sa ignoruje. Spec predpokladal nixpacks, museli sme prejsť cez Railpack ekvivalent.
+- ⚙️ **OCR config v `services/ocr.ts`:** `lang=eng, oem=1, psm=1` (auto page segmentation + OSD). PSM 6 → 1 lebo nálepky/štítky majú rôzne rotácie (chrbet zložky = 90° vertical), PSM 1 to vie auto-rotovať.
 - ✓ `backend/src/types/node-tesseract-ocr.d.ts`: lokálna deklarácia typov (chýbajúce @types)
 - ✓ `backend/src/services/ocr.ts`: `processPhoto` (idempotent), `processPending` (sériový batch, lang=eng, OEM=1, PSM=6)
 - ✓ `backend/src/routes/ocr.ts`: 4 endpointy — `POST /api/ocr/process-pending` (async fire-and-forget cez `setImmediate`), `GET /api/ocr/status`, `POST /api/ocr/retry/:photoId` (sync), `GET /api/ocr/failed`
 - ✓ `frontend/src/api.ts`: `fetchOcrStatus`, `processOcrPending`, `retryOcr`, `fetchFailedPhotos`
-- ✓ `frontend/src/pages/OCRAdminPage.tsx` (route `/admin/ocr`, navbar link): štatistiky 2×2 grid, polling 3s počas spracovania, banner "Hotovo", sekcia FAILED s Retry
+- ✓ `frontend/src/pages/OCRAdminPage.tsx` (route `/admin/ocr`, navbar link): štatistiky 2×2 grid, polling 3s počas spracovania, banner "Hotovo", sekcia FAILED s Retry, sekcia "Posledné fotky" s thumbnail + link na Item detail + OCR preview (200 znakov)
+- ✓ `GET /api/ocr/recent?limit=20`: posledných N fotiek so signed URL + item info + OCR preview pre admin sekciu "Posledné fotky"
 - ✓ `frontend/src/components/PhotoGallery.tsx` rozšírené: DONE → collapsible OCR text, DONE bez textu → sivý badge, FAILED → červený badge + Retry
 - ⬜ **Deploy verifikácia:** Railway Deploy Logs → potvrď `tesseract --version` funguje; testovací scenár z chatu (3 fotky → batch → OCR text v galérii)
 - 📝 Lokálny test OCR preskočený — Tesseract binary nie je v Windows PATH, plán to predpokladá (testuje sa len na Railway)
@@ -320,5 +322,5 @@ IT tím objednávateľa dostane:
 
 ---
 
-*Posledná aktualizácia: v2.2 — Sprint 3b kód napísaný, prvý deploy odhalil že Railway prešlo z Nixpacks na Railpack (nixpacks.toml ignorovaný). Konverzia na `backend/railpack.json` s `deploy.aptPackages`. Čaká druhý deploy + overenie Tesseract binary v Build Logs.*
-*Ďalší krok: push → Railway redeploy → over že Build Logs obsahuje `install apt packages: tesseract-ocr` → /api/ocr/test-binary smoke test → end-to-end test cez /admin/ocr.*
+*Posledná aktualizácia: v2.2 — Sprint 3b live na Railway (Tesseract 5.3.0 cez Railpack apt). Prvý reálny test odhalil low OCR kvalitu na rotovanom kovovom texte na tmavom pozadí (chrbet zložky) — pridané `tesseract-ocr-osd` + PSM 6→1 pre auto orientation. Pridaná UX "Posledné fotky" sekcia v /admin/ocr s prelinkom na Item detail.*
+*Ďalší krok: po deployi s OSD pretestovať rotovanú fotku → ak stále nesedí, otestovať na reálnom čelnom štítku (čierny text/biele pozadie/horizontálne) → rozhodnúť o slovenskom language packu (OQ-7).*
