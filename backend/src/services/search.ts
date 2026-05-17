@@ -20,7 +20,15 @@ import { prisma } from "../prisma.js";
 import { getItemPath, type PathNode } from "../lib/itemPath.js";
 import { getSignedUrlForKey } from "./r2.js";
 
-export type MatchSource = "name" | "ocr_title" | "note" | "ocr";
+export type MatchSource =
+  | "name"
+  | "ocr_title"
+  | "meta_stavba"
+  | "meta_cast"
+  | "meta_projektant"
+  | "meta_adresa"
+  | "note"
+  | "ocr";
 
 export type SearchHit = {
   item: {
@@ -38,6 +46,8 @@ export type SearchHit = {
 };
 
 // SQL row shape vrátený raw queriou — pomenovania v snake_case (PostgreSQL).
+// Sprint 7: vyťahujeme aj 4 hľadateľné metadata polia aby snippet vedel
+// extrahovať hodnotu bez ďalšieho dotazu do DB.
 type SearchRow = {
   id: string;
   type_code: string;
@@ -48,6 +58,10 @@ type SearchRow = {
   status: string;
   updated_at: Date;
   match_source: MatchSource;
+  meta_stavba: string | null;
+  meta_cast: string | null;
+  meta_projektant: string | null;
+  meta_adresa: string | null;
 };
 
 type ThumbRow = { item_id: string; storage_key: string };
@@ -103,9 +117,17 @@ export async function searchItems(query: string, limit: number): Promise<SearchH
     rows = await prisma.$queryRaw<SearchRow[]>`
       SELECT i.id, i.type_code, i.name, i.ocr_title, i.note, i.qr_code,
         i.status::text AS status, i.updated_at,
+        i.metadata->>'stavba' AS meta_stavba,
+        i.metadata->>'cast' AS meta_cast,
+        i.metadata->>'projektant' AS meta_projektant,
+        i.metadata->>'adresa' AS meta_adresa,
         CASE
           WHEN strip_diacritics(i.name) LIKE strip_diacritics(${like}) THEN 'name'
           WHEN strip_diacritics(i.ocr_title) LIKE strip_diacritics(${like}) THEN 'ocr_title'
+          WHEN strip_diacritics(i.metadata->>'stavba') LIKE strip_diacritics(${like}) THEN 'meta_stavba'
+          WHEN strip_diacritics(i.metadata->>'cast') LIKE strip_diacritics(${like}) THEN 'meta_cast'
+          WHEN strip_diacritics(i.metadata->>'projektant') LIKE strip_diacritics(${like}) THEN 'meta_projektant'
+          WHEN strip_diacritics(i.metadata->>'adresa') LIKE strip_diacritics(${like}) THEN 'meta_adresa'
           WHEN strip_diacritics(i.note) LIKE strip_diacritics(${like}) THEN 'note'
           ELSE 'ocr'
         END AS match_source
@@ -114,6 +136,10 @@ export async function searchItems(query: string, limit: number): Promise<SearchH
         AND (
           strip_diacritics(i.name) LIKE strip_diacritics(${like})
           OR strip_diacritics(i.ocr_title) LIKE strip_diacritics(${like})
+          OR strip_diacritics(i.metadata->>'stavba') LIKE strip_diacritics(${like})
+          OR strip_diacritics(i.metadata->>'cast') LIKE strip_diacritics(${like})
+          OR strip_diacritics(i.metadata->>'projektant') LIKE strip_diacritics(${like})
+          OR strip_diacritics(i.metadata->>'adresa') LIKE strip_diacritics(${like})
           OR strip_diacritics(i.note) LIKE strip_diacritics(${like})
           OR EXISTS (
             SELECT 1 FROM "Photo" p
@@ -205,6 +231,14 @@ export async function searchItems(query: string, limit: number): Promise<SearchH
       snippet = extractSnippet(ocrTextByItem.get(r.id) ?? "", query);
     } else if (r.match_source === "ocr_title") {
       snippet = extractSnippet(r.ocr_title ?? "", query);
+    } else if (r.match_source === "meta_stavba") {
+      snippet = extractSnippet(r.meta_stavba ?? "", query);
+    } else if (r.match_source === "meta_cast") {
+      snippet = extractSnippet(r.meta_cast ?? "", query);
+    } else if (r.match_source === "meta_projektant") {
+      snippet = extractSnippet(r.meta_projektant ?? "", query);
+    } else if (r.match_source === "meta_adresa") {
+      snippet = extractSnippet(r.meta_adresa ?? "", query);
     }
     return {
       item: {

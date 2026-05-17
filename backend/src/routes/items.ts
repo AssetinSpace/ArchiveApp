@@ -148,6 +148,14 @@ itemsRouter.get("/inventory", async (_req, res, next) => {
         qr_code: true,
         note: true,
         status: true,
+        // Sprint 5/7: rozšírené polia pre tabuľku — auto_name (pozičný ID),
+        // ocr_title + status (Sprint 5 LLM titul), metadata + status
+        // (Sprint 7 LLM metadata).
+        auto_name: true,
+        ocr_title: true,
+        ocr_title_status: true,
+        metadata: true,
+        metadata_status: true,
         created_at: true,
         updated_at: true,
         _count: {

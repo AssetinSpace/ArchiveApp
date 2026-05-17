@@ -24,6 +24,10 @@ const DEBOUNCE_MS = 300;
 const MATCH_LABEL: Record<MatchSource, string> = {
   name: "Nájdené v názve",
   ocr_title: "Nájdené v OCR názve",
+  meta_stavba: "Nájdené v metadata: Stavba",
+  meta_cast: "Nájdené v metadata: Časť",
+  meta_projektant: "Nájdené v metadata: Projektant",
+  meta_adresa: "Nájdené v metadata: Adresa",
   note: "Nájdené v poznámke",
   ocr: "Nájdené v OCR texte",
 };

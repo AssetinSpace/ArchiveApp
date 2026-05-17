@@ -61,6 +61,39 @@ export type Status = "NA_MIESTE" | "VYNESENE" | "NEZNAME";
 export type OcrTitleStatus = "NONE" | "SUGGESTED" | "CONFIRMED" | "REJECTED";
 export type MetadataStatus = "NONE" | "EXTRACTED" | "REVIEWED";
 
+// Sprint 7: 7 navrhovaných polí + permisívne ďalšie kľúče (LLM môže navrhnúť
+// aj iné polia, backend ich ukladá a tu necháme `[k: string]` pre forward-compat).
+export type ItemMetadata = {
+  stavba?: string | null;
+  cast?: string | null;
+  projektant?: string | null;
+  adresa?: string | null;
+  cislo?: string | null;
+  datum?: string | null;
+  stupen?: string | null;
+  [key: string]: string | null | undefined;
+};
+
+export const KNOWN_METADATA_KEYS = [
+  "stavba",
+  "cast",
+  "projektant",
+  "adresa",
+  "cislo",
+  "datum",
+  "stupen",
+] as const;
+
+export const METADATA_LABELS: Record<string, string> = {
+  stavba: "Stavba",
+  cast: "Časť",
+  projektant: "Projektant",
+  adresa: "Adresa",
+  cislo: "Číslo",
+  datum: "Dátum",
+  stupen: "Stupeň",
+};
+
 export type Item = {
   id: string;
   type_code: string;
@@ -74,7 +107,7 @@ export type Item = {
   auto_name?: string | null;
   ocr_title?: string | null;
   ocr_title_status?: OcrTitleStatus;
-  metadata?: Record<string, unknown>;
+  metadata?: ItemMetadata;
   metadata_status?: MetadataStatus;
   deleted_at: string | null;
   created_at: string;
@@ -91,6 +124,12 @@ export type InventoryItem = {
   qr_code: string | null;
   note: string | null;
   status: Status;
+  // Sprint 5/7: rozšírené polia pre tabuľku — backend ich vracia z /items/inventory.
+  auto_name: string | null;
+  ocr_title: string | null;
+  ocr_title_status: OcrTitleStatus;
+  metadata: ItemMetadata;
+  metadata_status: MetadataStatus;
   created_at: string;
   updated_at: string;
   /** Zreťazený OCR text z max 3 najnovších DONE fotiek. Null ak žiadna fotka s OCR. */
@@ -196,7 +235,15 @@ export type ProcessPendingResponse = {
 
 // ─── Search types (Sprint 4 + Sprint 5) ──────────────────────────────────────
 
-export type MatchSource = "name" | "ocr_title" | "note" | "ocr";
+export type MatchSource =
+  | "name"
+  | "ocr_title"
+  | "meta_stavba"
+  | "meta_cast"
+  | "meta_projektant"
+  | "meta_adresa"
+  | "note"
+  | "ocr";
 
 export type SearchHit = {
   item: {
@@ -291,6 +338,49 @@ export type PendingReviewResponse = {
   limit: number;
   offset: number;
   items: PendingReviewItem[];
+};
+
+// ─── LLM Metadata types (Sprint 7) ───────────────────────────────────────────
+
+export type LlmMetadataStatusResponse = {
+  total: number;
+  none: number;
+  eligible: number;
+  extracted: number;
+  reviewed: number;
+  noApiKey: boolean;
+};
+
+export type LlmMetadataResult = {
+  photoId: string;
+  itemId: string;
+  metadata: ItemMetadata | null;
+  error: string | null;
+};
+
+export type LlmMetadataProcessResponse = {
+  processed: number;
+  results: LlmMetadataResult[];
+};
+
+export type PendingMetadataReviewItem = {
+  id: string;
+  typeCode: string;
+  name: string | null;
+  autoName: string | null;
+  ocrTitle: string | null;
+  metadata: ItemMetadata;
+  metadataStatus: MetadataStatus;
+  qrCode: string | null;
+  path: PathNode[];
+  photo: { storageKey: string; signedUrl: string } | null;
+};
+
+export type PendingMetadataReviewResponse = {
+  total: number;
+  limit: number;
+  offset: number;
+  items: PendingMetadataReviewItem[];
 };
 
 async function handle<T>(res: Response): Promise<T> {
@@ -497,6 +587,35 @@ export const api = {
       method: "POST",
       json: { title },
     }),
+
+  // ─── LLM Metadata (Sprint 7) ───────────────────────────────────────────────
+  fetchLlmMetadataStatus: () =>
+    request<LlmMetadataStatusResponse>("/llm-metadata/status"),
+  processLlmMetadata: (limit?: number) =>
+    request<LlmMetadataProcessResponse>("/llm-metadata/process", {
+      method: "POST",
+      json: limit !== undefined ? { limit } : {},
+    }),
+  fetchPendingMetadataReview: (limit = 20, offset = 0) => {
+    const qs = new URLSearchParams();
+    qs.set("limit", String(limit));
+    qs.set("offset", String(offset));
+    return request<PendingMetadataReviewResponse>(
+      `/llm-metadata/pending-review?${qs.toString()}`,
+    );
+  },
+  confirmLlmMetadata: (itemId: string, metadata?: ItemMetadata) =>
+    request<Item>(`/llm-metadata/${itemId}/confirm`, {
+      method: "POST",
+      json: metadata !== undefined ? { metadata } : {},
+    }),
+  editLlmMetadata: (itemId: string, metadata: ItemMetadata) =>
+    request<Item>(`/llm-metadata/${itemId}/edit`, {
+      method: "POST",
+      json: { metadata },
+    }),
+  rejectLlmMetadata: (itemId: string) =>
+    request<Item>(`/llm-metadata/${itemId}/reject`, { method: "POST" }),
 
   // ─── Export (Sprint 4) ─────────────────────────────────────────────────────
   // Stiahne CSV/JSON ako Blob. Basic Auth musí ísť cez fetch header — <a href>

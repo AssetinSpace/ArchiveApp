@@ -10,7 +10,15 @@ import {
   type ExpandedState,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { api, TYPE_LABEL, type InventoryItem, type Status } from "../api";
+import {
+  api,
+  KNOWN_METADATA_KEYS,
+  METADATA_LABELS,
+  TYPE_LABEL,
+  type InventoryItem,
+  type MetadataStatus,
+  type Status,
+} from "../api";
 import {
   buildItemTree,
   collectExpandableIds,
@@ -30,6 +38,16 @@ const STATUS_LABEL: Record<string, string> = {
 const COLUMN_LABELS: Record<string, string> = {
   type_code: "Typ",
   name: "Názov",
+  auto_name: "Auto-name",
+  ocr_title: "OCR titul",
+  meta_stavba: "Stavba",
+  meta_cast: "Časť",
+  meta_projektant: "Projektant",
+  meta_adresa: "Adresa",
+  meta_cislo: "Číslo",
+  meta_datum: "Dátum",
+  meta_stupen: "Stupeň",
+  metadata_status: "Meta status",
   qr_code: "QR",
   status: "Status",
   note: "Poznámka",
@@ -39,7 +57,29 @@ const COLUMN_LABELS: Record<string, string> = {
   updated_at: "Upravené",
 };
 
-const DEFAULT_HIDDEN = new Set(["updated_at"]);
+// Sprint 7: nové stĺpce sú default skryté aby tabuľka neexplodovala. Konzultant
+// si ich zapne v "Stĺpce ▾". Auto-name je len debug pomôcka, metadata polia
+// (cislo/datum/stupen) sú obvykle krátke ale na úzkych obrazovkách nepotrebné
+// na prvý pohľad.
+const DEFAULT_HIDDEN = new Set([
+  "updated_at",
+  "auto_name",
+  "ocr_title",
+  "meta_stavba",
+  "meta_cast",
+  "meta_projektant",
+  "meta_adresa",
+  "meta_cislo",
+  "meta_datum",
+  "meta_stupen",
+  "metadata_status",
+]);
+
+const METADATA_STATUS_LABEL: Record<MetadataStatus, string> = {
+  NONE: "—",
+  EXTRACTED: "Návrh",
+  REVIEWED: "Potvrd.",
+};
 /** Odsadenie podľa úrovne stromu (px na úroveň). */
 const TREE_INDENT_PX = 18;
 
@@ -242,6 +282,78 @@ export function ItemsDataTable() {
               </p>
             )}
           </div>
+        );
+      },
+    },
+    {
+      accessorKey: "auto_name",
+      header: "Auto-name",
+      size: 160,
+      cell: ({ getValue }) => {
+        const v = getValue<string | null>();
+        return v
+          ? <code className="data-table-qr">{v}</code>
+          : <span className="muted">—</span>;
+      },
+    },
+    {
+      accessorKey: "ocr_title",
+      header: "OCR titul",
+      size: 200,
+      cell: ({ row, getValue }) => {
+        const v = getValue<string | null>();
+        const status = row.original.ocr_title_status;
+        if (!v) return <span className="muted">—</span>;
+        return (
+          <span title={v}>
+            <span className="data-table-note" style={{ display: "inline-block" }}>{v}</span>
+            {status === "SUGGESTED" && (
+              <span className="data-table-meta-suggested-badge">návrh</span>
+            )}
+            {status === "CONFIRMED" && (
+              <span className="badge-ocr-confirmed" style={{ marginLeft: 4 }}>z OCR</span>
+            )}
+          </span>
+        );
+      },
+    },
+    ...KNOWN_METADATA_KEYS.map<ColumnDef<InventoryTreeRow>>((key) => ({
+      id: `meta_${key}`,
+      header: METADATA_LABELS[key],
+      size: 160,
+      accessorFn: (row) => row.metadata?.[key] ?? null,
+      cell: ({ row, getValue }) => {
+        const value = getValue<string | null | undefined>();
+        const isExtracted = row.original.metadata_status === "EXTRACTED";
+        if (!value) {
+          return <span className="muted">—</span>;
+        }
+        return (
+          <span
+            className={`data-table-note${isExtracted ? " data-table-meta-suggested" : ""}`}
+            style={{ display: "inline-block" }}
+            title={value}
+          >
+            {value}
+            {isExtracted && (
+              <span className="data-table-meta-suggested-badge">návrh</span>
+            )}
+          </span>
+        );
+      },
+    })),
+    {
+      accessorKey: "metadata_status",
+      header: "Meta status",
+      size: 110,
+      cell: ({ getValue }) => {
+        const v = getValue<MetadataStatus>();
+        return (
+          <span
+            className={`metadata-status-badge metadata-status-${v.toLowerCase()}`}
+          >
+            {METADATA_STATUS_LABEL[v] ?? v}
+          </span>
         );
       },
     },

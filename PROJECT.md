@@ -1,6 +1,6 @@
 # ArchiveApp — PROJECT.md
 > Živý dokument. Aktualizovať po každom rozhodnutí alebo sprinte.
-> Verzia 2.6.0 — Sprint 6 v progrese. Pridané rozlíšenie Photo LABEL vs OVERVIEW (terénny workflow).
+> Verzia 2.7.0 — Sprint 7 HOTOVÝ. JSONB metadata extraction (Gemini → 7 polí, konzultantský review).
 
 ---
 
@@ -54,6 +54,9 @@ Výstup: exportovateľný inventár.
 | 21 | JSONB `metadata` pole pripravené pre Sprint 6, nenaplňuje sa v Sprint 5 | Schéma metadata sa odvodí z analýzy ~200 reálnych OCR textov po field work — predčasná štandardizácia by viedla k zlej štruktúre |
 | 22 | Gemini 2.5 Flash namiesto Claude Haiku pre LLM title extraction | 6–7× lacnejší (~$0.27 za celý archív batch), dostatočná kvalita pre OCR text extraction zo slovenských stavebných štítkov. Free tier pre testovanie, platená úroveň pred ostrým nasadením. |
 | 23 | Photo má `photo_type` enum LABEL/OVERVIEW; LABEL ide do OCR pipeline, OVERVIEW slúži ako vizuálna referencia (krabica/paleta) | V teréne konzultant často odfotí aj samotnú krabicu/paletu, nielen štítok — bez rozlíšenia by tieto fotky inflovali PENDING/FAILED OCR štatistiky a LLM batch by ich zbytočne ťahal. OVERVIEW dostane pri uploade rovno `ocr_status = DONE` aby PENDING count zodpovedal reálnej fronte štítkov; OCR endpointy navyše filtrujú `photo_type = 'LABEL'` (dvojitá ochrana proti legacy dátam). |
+| 24 | Metadata extraction = separátny LLM call od `ocr_title` (paralelné workflows) | Halucinácia v jednom poli (napr. dátum) nesmie zrušiť potvrdený titul. Stavy `metadata_status` (NONE → EXTRACTED → REVIEWED) bežia nezávisle od `ocr_title_status`, vlastný route `/api/llm-metadata/*`, vlastná admin stránka `/admin/llm-metadata`. Konfirm metadata neprepisuje `name`. |
+| 25 | Metadata JSONB schéma je permisívna — backend ukladá aj neznáme kľúče (forward-compat), prompt navrhuje 7 fixných polí (stavba, cast, projektant, adresa, cislo, datum, stupen) | Štítky sú variabilné (rozhodnutie #1) — kým sa po ~200 zložkách neusadí konečná schéma, povoľujeme LLM-u navrhnúť aj polia mimo zoznamu. Známe polia logujeme bez warning, neznáme s warning. Konzultant rozhodne v review UI či hodnotu ponechá. |
+| 26 | Items table tree-style ostáva default; Sprint 7 metadata stĺpce sa pridávajú do existujúceho `ItemsDataTable` s warning štýlom pre `EXTRACTED` hodnoty (žltkasté pozadie + badge „návrh") | Konzistentnosť cez celý produkt — žiadna paralelná „flat 17-stĺpcová" tabuľka. Default sú nové stĺpce skryté (úzke obrazovky), konzultant si zapne v "Stĺpce ▾" dropdowne. URL state pre column toggle ostáva (existujúci pattern, žiadny localStorage). |
 
 ---
 
@@ -89,8 +92,8 @@ Neriešime špeciálne — KRABICA s popisným názvom (napr. "Tubus").
 - `auto_name` — Sprint 5: pozičný identifikátor (`sklA_pal003_kra004_zlo015`), generovaný pri POST /items, **immutable** po vytvorení. NULL pre legacy items pred Sprint 5.
 - `ocr_title` — Sprint 5: LLM-extrahovaný titulok zo OCR textu. NULL kým LLM extraction nezbehol.
 - `ocr_title_status` — Sprint 5: TEXT, hodnoty `NONE` (default) / `SUGGESTED` (LLM navrhol) / `CONFIRMED` (konzultant potvrdil → `name` prepísaný) / `REJECTED` (konzultant zamietol).
-- `metadata` — Sprint 5: JSONB, default `{}`. Pripravené pre Sprint 6 metadata extraction (projektant, dátum, adresa, typ dokumentu...). V Sprint 5 sa nenaplňuje.
-- `metadata_status` — Sprint 5: TEXT, hodnoty `NONE` (default) / `EXTRACTED` (Sprint 6) / `REVIEWED` (Sprint 6).
+- `metadata` — Sprint 5 (schema) + Sprint 7 (LLM napĺňanie): JSONB, default `{}`. LLM (Gemini 2.5 Flash) navrhne 7 polí (stavba, cast, projektant, adresa, cislo, datum, stupen). Schéma je permisívna — ukladajú sa aj neznáme kľúče ktoré LLM prípadne pridá (forward-compat).
+- `metadata_status` — Sprint 5 (schema) + Sprint 7 (workflow): TEXT, hodnoty `NONE` (default) / `EXTRACTED` (LLM navrhol) / `REVIEWED` (konzultant potvrdil).
 - `deleted_at` — soft delete (nikdy hard delete)
 - `created_at`, `updated_at`
 
@@ -181,6 +184,7 @@ Export → CSV/JSON so všetkými položkami, lokáciou, statusom, poznámkami
 | Export | CSV (BOM/`;`/CRLF) + JSON hierarchický | ✓ live (Sprint 4) |
 | Auto-name | Pozičný identifikátor `sklX_palNNN_kraNNN_zloNNN` pri POST /items | ✓ live (Sprint 5) |
 | LLM Title | Google Gemini 2.5 Flash API, batch + manual review | ✓ live (Sprint 5) |
+| LLM Metadata | Gemini 2.5 Flash → JSONB (7 polí, permisívna schéma), batch + review | ✓ live (Sprint 7) |
 
 ---
 
@@ -312,6 +316,22 @@ AssetinSpace/ArchiveApp (private)
 - ✓ PhotoGallery rozšírené: DONE collapsible, DONE bez textu badge, FAILED retry mutation
 - ✓ Reálny test (štítok RODINNÝ DOM): 95%+ presnosť, diakritika OK
 
+### Sprint 7 — JSONB Metadata Extraction ✓ HOTOVÝ
+- ✓ Backend `services/llmMetadata.ts`: `extractMetadataFromOcr` (Gemini 2.5 Flash, 30s AbortController, `maxOutputTokens: 500`, `temperature: 0.1`, OCR vstup orezaný na 2000 znakov), `processPendingMetadata` (sériový batch s 500 ms pauzou, max 50/batch), robustný `parseMetadataJson` helper (strip markdown fences, fallback `{}`)
+- ✓ Slovenský prompt s explicitnými 7 poliami a inštrukciou „nevymýšľaj, daj null" — LLM odpovedá len JSON-om
+- ✓ Backend `routes/llmMetadata.ts`: 6 endpointov (`POST /process` s 503 fallback bez `GEMINI_API_KEY`, `GET /status` s eligible count, `GET /pending-review` offset paging + thumbnail + breadcrumb, `POST /:id/confirm|edit|reject`)
+- ✓ Permisívna Zod validácia — ukladáme aj neznáme metadata kľúče s warning logom (forward-compat)
+- ✓ `services/search.ts` rozšírené: ILIKE cez `metadata->>'stavba|cast|projektant|adresa'`, CASE WHEN priorita `name > ocr_title > meta_stavba > meta_cast > meta_projektant > meta_adresa > note > ocr`, snippet aj pre `meta_*` zdroje
+- ✓ `routes/export.ts`: CSV pridáva 7 stĺpcov `metaStavba`…`metaStupen` po `metadataStatus`
+- ✓ `routes/items.ts` `/inventory`: select rozšírený o `auto_name`, `ocr_title`, `ocr_title_status`, `metadata`, `metadata_status` (single source of truth pre tabuľku)
+- ✓ FE `api.ts`: typy `ItemMetadata` (7 polí + permisívne `[k: string]`), `KNOWN_METADATA_KEYS`, `METADATA_LABELS`, `LlmMetadata*` response typy, 5 metadata API metód, `MatchSource` rozšírený o `meta_*`
+- ✓ FE `LlmMetadataAdminPage.tsx` (`/admin/llm-metadata`): 5 stat cards, no-API-key banner, batch tlačidlo, polling 3 s počas processing, review queue (offset 20/page) s editovateľným gridom 7 polí, Enter/Esc shortcuts
+- ✓ FE `ItemsDataTable.tsx`: 9 nových stĺpcov (auto_name, ocr_title, 7 metadata polí, metadata_status), warning štýl `data-table-meta-suggested` + badge „návrh" pre `EXTRACTED` hodnoty, default skryté v "Stĺpce ▾"
+- ✓ FE `ItemDetailPage.tsx`: `MetadataBanner` pre `EXTRACTED` (Potvrdiť/Upraviť/Zamietnuť, inline edit form so 7 inputmi), read-only `<dl>` zoznam pre `REVIEWED` (skip prázdne polia, kurzíva pre neznáme kľúče)
+- ✓ FE `Navbar.tsx`: pridaný link „AI Metadata" + SVG ikona vedľa „AI Názvy"
+- ✓ Žiadna nová Prisma migrácia — `metadata`/`metadata_status` schéma už existuje zo Sprintu 5
+- ✓ TypeScript build prejde na FE aj BE
+
 ### Sprint 6 — Photo type LABEL vs OVERVIEW ⏳ IN PROGRESS
 - ✓ Prisma migrácia `add_photo_type` (enum PhotoType {LABEL, OVERVIEW}, `Photo.photo_type` DEFAULT 'LABEL', index)
 - ✓ Backend `routes/photos.ts`: upload akceptuje `photo_type` query/body field, OVERVIEW dostane `ocr_status = DONE` rovno pri vložení; GET endpointy vracajú `photo_type`
@@ -414,5 +434,5 @@ IT tím objednávateľa dostane:
 
 ---
 
-*Posledná aktualizácia: v2.6.0 — Sprint 6 (Photo LABEL/OVERVIEW) v progrese, čaká na field test.*
-*Ďalší krok: Sprint 2 Bugfix (TD-5/6/7), nastaviť `GEMINI_API_KEY` na Railway, field work v sklade (DoD body 1+2 + overiť LABEL/OVERVIEW UX), potom metadata extraction po analýze ~200 OCR textov, nakoniec dump.sql + README.md pre odovzdanie (TD-12).*
+*Posledná aktualizácia: v2.7.0 — Sprint 7 (JSONB metadata extraction) HOTOVÝ. Sprint 6 (Photo LABEL/OVERVIEW) ostáva v progrese, čaká na field test.*
+*Ďalší krok: Sprint 2 Bugfix (TD-5/6/7), nastaviť `GEMINI_API_KEY` na Railway, field work v sklade (DoD body 1+2 + overiť LABEL/OVERVIEW UX + spustiť metadata batch na reálnom korpuse), nakoniec dump.sql + README.md pre odovzdanie (TD-12).*

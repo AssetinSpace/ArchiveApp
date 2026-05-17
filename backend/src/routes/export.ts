@@ -197,6 +197,13 @@ exportRouter.get("/csv", async (_req, res, next) => {
       "ocrTitle",
       "ocrTitleStatus",
       "metadataStatus",
+      "metaStavba",
+      "metaCast",
+      "metaProjektant",
+      "metaAdresa",
+      "metaCislo",
+      "metaDatum",
+      "metaStupen",
       "note",
       "status",
       "path",
@@ -233,6 +240,14 @@ exportRouter.get("/csv", async (_req, res, next) => {
             .slice(0, 100)
         : "";
       const path = buildPath(item, byId).join(" > ");
+      // Sprint 7: 7 plochých metadata stĺpcov vytiahnutých z JSONB. Neznáme
+      // kľúče (LLM môže vrátiť aj iné pole) v CSV NEzobrazujeme — JSON export
+      // ostáva plný zdroj pravdy.
+      const meta = (item.metadata ?? {}) as Record<string, unknown>;
+      const metaCell = (key: string): string => {
+        const v = meta[key];
+        return typeof v === "string" ? v : "";
+      };
       lines.push(
         joinCsvRow([
           item.id,
@@ -243,6 +258,13 @@ exportRouter.get("/csv", async (_req, res, next) => {
           item.ocr_title ?? "",
           item.ocr_title_status,
           item.metadata_status,
+          metaCell("stavba"),
+          metaCell("cast"),
+          metaCell("projektant"),
+          metaCell("adresa"),
+          metaCell("cislo"),
+          metaCell("datum"),
+          metaCell("stupen"),
           item.note ?? "",
           item.status,
           path,

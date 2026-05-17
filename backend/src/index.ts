@@ -12,6 +12,7 @@ import { ocrRouter } from "./routes/ocr.js";
 import { searchRouter } from "./routes/search.js";
 import { exportRouter } from "./routes/export.js";
 import { llmTitleRouter } from "./routes/llmTitle.js";
+import { llmMetadataRouter } from "./routes/llmMetadata.js";
 
 const app = express();
 
@@ -52,6 +53,7 @@ app.use("/api/ocr", basicAuth, ocrRouter);
 app.use("/api/search", basicAuth, searchRouter);
 app.use("/api/export", basicAuth, exportRouter);
 app.use("/api/llm-title", basicAuth, llmTitleRouter);
+app.use("/api/llm-metadata", basicAuth, llmMetadataRouter);
 
 const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof ZodError) {

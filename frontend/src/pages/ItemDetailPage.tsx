@@ -6,8 +6,11 @@ import QRCode from "qrcode";
 import {
   api,
   CHILD_TYPE_BY_PARENT,
+  KNOWN_METADATA_KEYS,
+  METADATA_LABELS,
   TYPE_LABEL,
   type Item,
+  type ItemMetadata,
   type Status,
 } from "../api";
 import { PhotoUpload } from "../components/PhotoUpload";
@@ -72,6 +75,11 @@ export function ItemDetailPage() {
     !!item.auto_name && item.name !== item.auto_name;
   const showOcrSuggestedBanner = item.ocr_title_status === "SUGGESTED";
   const showOcrConfirmedBadge = item.ocr_title_status === "CONFIRMED";
+  const showMetadataBanner = item.metadata_status === "EXTRACTED";
+  const showMetadataReadonly =
+    item.metadata_status === "REVIEWED" &&
+    !!item.metadata &&
+    Object.values(item.metadata).some((v) => typeof v === "string" && v.trim() !== "");
 
   // Prefix-match invalidácia: jedna volanie pokryje všetky ["items", ...] queries
   // (one/path/children/all/root) v celej aplikácii. Vraciame Promise, aby ho
@@ -113,6 +121,10 @@ export function ItemDetailPage() {
         <OcrTitleBanner item={item} onDone={invalidateAll} />
       )}
 
+      {showMetadataBanner && (
+        <MetadataBanner item={item} onDone={invalidateAll} />
+      )}
+
       {/* Základné metadáta */}
       <section className="card item-detail-header">
         <h1 style={{ marginBottom: 8 }}>
@@ -145,6 +157,9 @@ export function ItemDetailPage() {
           <InfoRow label="Vytvorené" value={new Date(item.created_at).toLocaleString("sk-SK")} />
           <InfoRow label="Upravené" value={new Date(item.updated_at).toLocaleString("sk-SK")} />
         </dl>
+        {showMetadataReadonly && item.metadata && (
+          <ReadonlyMetadataList metadata={item.metadata} />
+        )}
       </section>
 
       <nav className="item-detail-tabs" aria-label="Sekcie detailu">
@@ -820,4 +835,230 @@ function OcrTitleBanner({
       )}
     </section>
   );
+}
+
+// ─── Metadata banner (Sprint 7) ──────────────────────────────────────────────
+// Zobrazí sa pre Item s metadata_status === 'EXTRACTED'. "Potvrdiť všetko"
+// pošle aktuálne hodnoty (vrátane prípadných úprav v editovacom režime), ktoré
+// backend uloží a flagne REVIEWED. "Zamietnuť" vyčistí JSONB a vráti status na
+// NONE — položka pôjde znova do eligible fronty.
+
+function MetadataBanner({
+  item,
+  onDone,
+}: {
+  item: Item;
+  onDone: () => Promise<void> | void;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState<ItemMetadata>(() =>
+    normalizeMetadataDraft(item.metadata),
+  );
+
+  useEffect(() => {
+    setDraft(normalizeMetadataDraft(item.metadata));
+  }, [item.id, item.metadata]);
+
+  const confirmMut = useMutation({
+    mutationFn: (metadata?: ItemMetadata) =>
+      api.confirmLlmMetadata(item.id, metadata),
+    onSuccess: async () => {
+      setIsEditing(false);
+      await onDone();
+    },
+  });
+  const editMut = useMutation({
+    mutationFn: (metadata: ItemMetadata) =>
+      api.editLlmMetadata(item.id, metadata),
+    onSuccess: async () => {
+      await onDone();
+    },
+  });
+  const rejectMut = useMutation({
+    mutationFn: () => api.rejectLlmMetadata(item.id),
+    onSuccess: async () => {
+      await onDone();
+    },
+  });
+
+  const isPending = confirmMut.isPending || editMut.isPending || rejectMut.isPending;
+  const error = confirmMut.error ?? editMut.error ?? rejectMut.error ?? null;
+
+  const knownSet = new Set<string>(KNOWN_METADATA_KEYS);
+  const meta = item.metadata ?? {};
+  const knownEntries = KNOWN_METADATA_KEYS.map((k) => [k, meta[k]] as const).filter(
+    ([, v]) => typeof v === "string" && v.trim() !== "",
+  );
+  const unknownEntries = Object.entries(meta).filter(
+    ([k, v]) => !knownSet.has(k) && typeof v === "string" && v.trim() !== "",
+  );
+
+  return (
+    <section className="metadata-banner" aria-label="AI návrh metadát">
+      <h2 className="metadata-banner-title">AI navrhol metadata:</h2>
+
+      {isEditing ? (
+        <>
+          <div className="metadata-fields-grid">
+            {KNOWN_METADATA_KEYS.map((key) => (
+              <label key={key} className="metadata-field">
+                <span className="metadata-field-label">
+                  {METADATA_LABELS[key]}
+                </span>
+                <input
+                  type="text"
+                  value={draft[key] ?? ""}
+                  onChange={(e) =>
+                    setDraft((d) => ({ ...d, [key]: e.target.value }))
+                  }
+                  placeholder="—"
+                  maxLength={500}
+                  disabled={isPending}
+                />
+              </label>
+            ))}
+          </div>
+          <div className="row" style={{ gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+            <button
+              type="button"
+              className="btn-primary"
+              style={{ minHeight: 44 }}
+              onClick={async () => {
+                const serialized = serializeMetadataDraft(draft);
+                await editMut.mutateAsync(serialized);
+                confirmMut.mutate(serialized);
+              }}
+              disabled={isPending}
+            >
+              {confirmMut.isPending || editMut.isPending
+                ? "Ukladám…"
+                : "✓ Uložiť a potvrdiť"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsEditing(false);
+                setDraft(normalizeMetadataDraft(item.metadata));
+              }}
+              disabled={isPending}
+              style={{ minHeight: 44 }}
+            >
+              Zrušiť
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          {knownEntries.length === 0 && unknownEntries.length === 0 ? (
+            <p className="muted" style={{ margin: 0, fontSize: 13 }}>
+              LLM nevedel jednoznačne určiť žiadne pole. Môžeš metadata upraviť
+              ručne alebo zamietnuť.
+            </p>
+          ) : (
+            <dl className="metadata-readonly-list">
+              {knownEntries.map(([k, v]) => (
+                <div key={k} style={{ display: "contents" }}>
+                  <dt>{METADATA_LABELS[k]}</dt>
+                  <dd>{v}</dd>
+                </div>
+              ))}
+              {unknownEntries.map(([k, v]) => (
+                <div key={k} style={{ display: "contents" }}>
+                  <dt>{k}</dt>
+                  <dd>
+                    <em>{String(v)}</em>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )}
+          <div className="row" style={{ gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+            <button
+              type="button"
+              className="btn-primary"
+              style={{ minHeight: 44 }}
+              onClick={() => confirmMut.mutate(undefined)}
+              disabled={isPending}
+            >
+              {confirmMut.isPending ? "Potvrdzujem…" : "✓ Potvrdiť všetko"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              disabled={isPending}
+              style={{ minHeight: 44 }}
+            >
+              ✏️ Upraviť
+            </button>
+            <button
+              type="button"
+              className="btn-danger"
+              onClick={() => rejectMut.mutate()}
+              disabled={isPending}
+              style={{ minHeight: 44 }}
+            >
+              {rejectMut.isPending ? "Zamietam…" : "✗ Zamietnuť"}
+            </button>
+          </div>
+        </>
+      )}
+
+      {error && (
+        <p className="error" style={{ margin: "8px 0 0" }}>
+          Chyba: {(error as Error).message}
+        </p>
+      )}
+    </section>
+  );
+}
+
+// Read-only zobrazenie metadát keď je status REVIEWED — preskočí prázdne polia,
+// neznáme kľúče zobrazí kurzívou aby boli vizuálne odlíšené od 7 fixných polí.
+function ReadonlyMetadataList({ metadata }: { metadata: ItemMetadata }) {
+  const knownSet = new Set<string>(KNOWN_METADATA_KEYS);
+  const knownEntries = KNOWN_METADATA_KEYS.map((k) => [k, metadata[k]] as const).filter(
+    ([, v]) => typeof v === "string" && v.trim() !== "",
+  );
+  const unknownEntries = Object.entries(metadata).filter(
+    ([k, v]) => !knownSet.has(k) && typeof v === "string" && v.trim() !== "",
+  );
+  if (knownEntries.length === 0 && unknownEntries.length === 0) return null;
+
+  return (
+    <dl className="metadata-readonly-list">
+      {knownEntries.map(([k, v]) => (
+        <div key={k} style={{ display: "contents" }}>
+          <dt>{METADATA_LABELS[k]}</dt>
+          <dd>{v}</dd>
+        </div>
+      ))}
+      {unknownEntries.map(([k, v]) => (
+        <div key={k} style={{ display: "contents" }}>
+          <dt>{k}</dt>
+          <dd>
+            <em>{String(v)}</em>
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+function normalizeMetadataDraft(metadata: ItemMetadata | undefined): ItemMetadata {
+  const out: ItemMetadata = {};
+  const src = metadata ?? {};
+  for (const k of KNOWN_METADATA_KEYS) {
+    const v = src[k];
+    out[k] = typeof v === "string" ? v : "";
+  }
+  return out;
+}
+
+function serializeMetadataDraft(draft: ItemMetadata): ItemMetadata {
+  const out: ItemMetadata = {};
+  for (const k of KNOWN_METADATA_KEYS) {
+    const v = draft[k];
+    out[k] = typeof v === "string" && v.trim() !== "" ? v.trim() : null;
+  }
+  return out;
 }
