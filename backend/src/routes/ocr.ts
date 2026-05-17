@@ -6,33 +6,12 @@
 // Konvencia odpovedí: snake_case (rovnaký štýl ako /api/items, /api/photos).
 
 import { Router } from "express";
-import { execSync } from "node:child_process";
 import { z } from "zod";
 import { prisma } from "../prisma.js";
 import { processPending, processPhoto } from "../services/ocr.js";
 import { getSignedUrlForKey } from "../services/r2.js";
 
 export const ocrRouter: Router = Router();
-
-// ─── GET /api/ocr/test-binary ────────────────────────────────────────────────
-// DOČASNÝ smoke test — overuje že `tesseract` binary je v runtime PATH
-// po Railpack `deploy.aptPackages` inštalácii. Po overení v produkcii ZMAZAŤ
-// (commit: "chore: remove ocr test-binary endpoint").
-// Basic Auth platí cez index.ts mount; auth check sa tu nerieši separe.
-
-ocrRouter.get("/test-binary", (_req, res) => {
-  try {
-    const version = execSync("tesseract --version 2>&1", {
-      timeout: 5000,
-    }).toString();
-    res.json({ ok: true, version });
-  } catch (e) {
-    res.json({
-      ok: false,
-      error: e instanceof Error ? e.message : String(e),
-    });
-  }
-});
 
 // ─── POST /api/ocr/process-pending ────────────────────────────────────────────
 //
