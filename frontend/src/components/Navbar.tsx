@@ -12,7 +12,10 @@ const links: Array<{ to: string; icon: string; label: string }> = [
 export function Navbar() {
   return (
     <nav className="navbar">
-      <div className="navbar-inner">
+      <div className="navbar-brand">
+        <img src="/assetin-logo.png" alt="assetin" className="navbar-logo" />
+      </div>
+      <div className="navbar-nav">
         {links.map((link) => (
           <NavLink
             key={link.to}

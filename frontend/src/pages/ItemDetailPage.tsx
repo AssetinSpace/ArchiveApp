@@ -382,7 +382,7 @@ function QRSection({
           gap: 8,
           minHeight: 48,
           padding: "0 16px",
-          background: "#2563eb",
+          background: "var(--color-brand-green)",
           color: "#fff",
           borderRadius: 6,
           textDecoration: "none",
