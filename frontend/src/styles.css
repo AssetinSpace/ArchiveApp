@@ -1583,6 +1583,15 @@ p { margin: 0 0 12px; }
   background: #dcfce7;
 }
 
+/* Predkovia zobrazení ako kontext pri filtrovaní — mierne potlačení */
+.data-table-row-context {
+  opacity: 0.55;
+}
+
+.data-table-row-context:hover {
+  opacity: 0.8;
+}
+
 .data-table-empty {
   text-align: center;
   padding: 24px !important;

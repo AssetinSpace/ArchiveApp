@@ -13,10 +13,9 @@ import {
 import { api, TYPE_LABEL, type InventoryItem, type Status } from "../api";
 import {
   buildItemTree,
-  buildPathMap,
   collectExpandableIds,
+  includeAncestors,
   itemMatchesQuery,
-  itemsForFilteredTree,
   ocrSnippet,
   type InventoryTreeRow,
 } from "../lib/itemInventory";
@@ -29,10 +28,8 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const COLUMN_LABELS: Record<string, string> = {
-  expand: "",
   type_code: "Typ",
   name: "Názov",
-  path: "Cesta",
   qr_code: "QR",
   status: "Status",
   note: "Poznámka",
@@ -62,66 +59,56 @@ export function ItemsDataTable() {
 
   const allItems = inventoryQ.data ?? [];
   const searchQ = url.search.trim();
+  const hasAnyFilter =
+    url.typeFilters.length > 0 || !!url.statusFilter || url.hasQr || url.hasPhoto || !!searchQ;
 
-  // Keď sú aktívne chipy typov → plochý zoznam iba týchto typov.
-  // Keď nie sú chipy → strom (príp. s rozbalením pri textovom hľadaní).
-  const flatMode = url.typeFilters.length > 0;
-
-  const pathMap = useMemo(() => buildPathMap(allItems), [allItems]);
-
-  // ── Plochý režim ──────────────────────────────────────────────────────────
-  const flatItems: InventoryTreeRow[] = useMemo(() => {
-    if (!flatMode) return [];
-    let items: InventoryItem[] = allItems.filter((it) =>
-      url.typeFilters.includes(it.type_code),
-    );
-    if (url.statusFilter) items = items.filter((it) => it.status === url.statusFilter);
-    if (url.hasQr) items = items.filter((it) => !!it.qr_code);
-    if (url.hasPhoto) items = items.filter((it) => it._count.photos > 0);
-    if (searchQ) items = items.filter((it) => itemMatchesQuery(it, searchQ));
-    return items as InventoryTreeRow[];
-  }, [flatMode, allItems, url.typeFilters, url.statusFilter, url.hasQr, url.hasPhoto, searchQ]);
-
-  // ── Stromový režim ────────────────────────────────────────────────────────
-  const treeMatches = useMemo(() => {
-    if (flatMode) return [];
+  // ── Krok 1: primárne filtre (typ, status, qr, foto) ─────────────────────
+  // Typ chip = chcem vidieť položky tohto TYPU (predkovia sa pridajú ako kontext).
+  const primaryMatches = useMemo<InventoryItem[]>(() => {
     let items = allItems;
-    if (url.statusFilter) items = items.filter((it) => it.status === url.statusFilter);
+    if (url.typeFilters.length > 0)
+      items = items.filter((it) => url.typeFilters.includes(it.type_code));
+    if (url.statusFilter)
+      items = items.filter((it) => it.status === url.statusFilter);
     if (url.hasQr) items = items.filter((it) => !!it.qr_code);
     if (url.hasPhoto) items = items.filter((it) => it._count.photos > 0);
-    if (searchQ) items = items.filter((it) => itemMatchesQuery(it, searchQ));
     return items;
-  }, [flatMode, allItems, url.statusFilter, url.hasQr, url.hasPhoto, searchQ]);
+  }, [allItems, url.typeFilters, url.statusFilter, url.hasQr, url.hasPhoto]);
 
-  const hasSecondaryFilters = !!url.statusFilter || url.hasQr || url.hasPhoto;
-  const hasAnyFilter = flatMode || !!searchQ || hasSecondaryFilters;
-
-  const treeData: InventoryTreeRow[] = useMemo(() => {
-    if (flatMode) return [];
-    if (!hasAnyFilter) return buildItemTree(allItems);
-    if (treeMatches.length === 0) return [];
-    return buildItemTree(itemsForFilteredTree(allItems, treeMatches));
-  }, [flatMode, allItems, hasAnyFilter, treeMatches]);
+  // ── Krok 2: textové hľadanie ─────────────────────────────────────────────
+  const coreMatches = useMemo<InventoryItem[]>(() => {
+    if (!searchQ) return primaryMatches;
+    return primaryMatches.filter((it) => itemMatchesQuery(it, searchQ));
+  }, [primaryMatches, searchQ]);
 
   const directMatchIds = useMemo(
-    () => new Set((flatMode ? flatItems : treeMatches).map((it) => it.id)),
-    [flatMode, flatItems, treeMatches],
+    () => new Set(coreMatches.map((it) => it.id)),
+    [coreMatches],
   );
 
-  const tableData = flatMode ? flatItems : treeData;
+  // ── Krok 3: zostav strom ─────────────────────────────────────────────────
+  // Keď sú aktívne filtre: zobraz zhodné položky + ich predkovia (Sklad > Paleta > …).
+  // Bez filtrov: celý strom.
+  const treeData = useMemo<InventoryTreeRow[]>(() => {
+    if (!hasAnyFilter) return buildItemTree(allItems);
+    if (coreMatches.length === 0) return [];
+    // Pridaj predkov ako kontext, potom postav strom.
+    const withAncestors = includeAncestors(allItems, coreMatches);
+    return buildItemTree(withAncestors);
+  }, [allItems, hasAnyFilter, coreMatches]);
 
-  // ── Expanded state ────────────────────────────────────────────────────────
+  // ── Expand state ─────────────────────────────────────────────────────────
   const [expanded, setExpanded] = useState<ExpandedState>({});
 
   useEffect(() => {
-    if (flatMode || !hasAnyFilter) {
+    if (!hasAnyFilter) {
       setExpanded({});
     } else if (treeData.length > 0) {
       setExpanded(collectExpandableIds(treeData));
     }
-  }, [flatMode, hasAnyFilter, treeData]);
+  }, [hasAnyFilter, treeData]);
 
-  // ── Stĺpce menu ──────────────────────────────────────────────────────────
+  // ── Stĺpce dropdown ──────────────────────────────────────────────────────
   const [columnsOpen, setColumnsOpen] = useState(false);
   const columnsRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -135,18 +122,14 @@ export function ItemsDataTable() {
     return () => document.removeEventListener("mousedown", onDown);
   }, [columnsOpen]);
 
-  // ── Viditeľnosť stĺpcov ───────────────────────────────────────────────────
   const columnVisibility = useMemo((): VisibilityState => {
     const vis: VisibilityState = {};
     for (const col of url.hiddenColumns) vis[col] = false;
     for (const id of DEFAULT_HIDDEN) {
       if (!url.hiddenColumns.has(id)) vis[id] = false;
     }
-    // expand šípka len v strome, Cesta len v plochom
-    vis.expand = !flatMode;
-    vis.path = flatMode;
     return vis;
-  }, [url.hiddenColumns, flatMode]);
+  }, [url.hiddenColumns]);
 
   // ── Definícia stĺpcov ─────────────────────────────────────────────────────
   const columns = useMemo((): ColumnDef<InventoryTreeRow>[] => [
@@ -154,6 +137,7 @@ export function ItemsDataTable() {
       id: "expand",
       header: () => null,
       size: 40,
+      enableHiding: false,
       cell: ({ row }) =>
         row.getCanExpand() ? (
           <button
@@ -203,16 +187,6 @@ export function ItemsDataTable() {
       },
     },
     {
-      id: "path",
-      header: "Cesta",
-      accessorFn: (row) => pathMap.get(row.id) ?? "",
-      cell: ({ getValue }) => (
-        <span className="data-table-path" title={getValue<string>()}>
-          {getValue<string>()}
-        </span>
-      ),
-    },
-    {
       accessorKey: "qr_code",
       header: "QR",
       size: 110,
@@ -227,7 +201,8 @@ export function ItemsDataTable() {
       accessorKey: "status",
       header: "Status",
       size: 110,
-      cell: ({ getValue }) => STATUS_LABEL[getValue<Status>()] ?? getValue<string>(),
+      cell: ({ getValue }) =>
+        STATUS_LABEL[getValue<Status>()] ?? getValue<string>(),
     },
     {
       accessorKey: "note",
@@ -270,16 +245,16 @@ export function ItemsDataTable() {
       size: 100,
       cell: ({ getValue }) => formatDate(getValue<string>()),
     },
-  // searchQ je v cell rendereri — pri zmene query sa stĺpce musia prepočítať
+  // searchQ v cell rendereri — pri jeho zmene sa stĺpce prepočítajú
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  ], [pathMap, searchQ]);
+  ], [searchQ]);
 
   const table = useReactTable({
-    data: tableData,
+    data: treeData,
     columns,
     state: { expanded, columnVisibility },
     onExpandedChange: setExpanded,
-    getSubRows: flatMode ? undefined : (row: InventoryTreeRow) => row.subRows,
+    getSubRows: (row: InventoryTreeRow) => row.subRows,
     getRowId: (row) => row.id,
     getCoreRowModel: getCoreRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
@@ -310,9 +285,9 @@ export function ItemsDataTable() {
 
   const toggleableColumns = table
     .getAllLeafColumns()
-    .filter((c) => c.id !== "expand" && c.id !== "path" && c.getCanHide());
+    .filter((c) => c.id !== "expand" && c.getCanHide());
 
-  const matchCount = flatMode ? flatItems.length : treeMatches.length;
+  const matchCount = coreMatches.length;
 
   return (
     <div className="items-data-table">
@@ -337,24 +312,21 @@ export function ItemsDataTable() {
 
         {/* Filtre typov */}
         <div className="items-table-toolbar-row items-table-filters">
-          <span className="items-table-filter-label">Zobraziť</span>
+          <span className="items-table-filter-label">Zobraziť úrovne</span>
           {url.ALL_TYPES.map((code) => (
             <button
               key={code}
               type="button"
               className={`items-table-chip ${
-                url.typeFilters.includes(code) ? "items-table-chip-active" : ""
+                url.typeFilters.length === 0 || url.typeFilters.includes(code)
+                  ? "items-table-chip-active"
+                  : ""
               }`}
               onClick={() => toggleTypeFilter(code)}
             >
               {TYPE_LABEL[code]}
             </button>
           ))}
-          {url.typeFilters.length > 0 && (
-            <span className="items-table-filter-hint muted">
-              → plochý zoznam
-            </span>
-          )}
         </div>
 
         {/* Sekundárne filtre */}
@@ -371,33 +343,39 @@ export function ItemsDataTable() {
             ))}
           </select>
           <label className="items-table-check">
-            <input type="checkbox" checked={url.hasQr} onChange={(e) => url.setHasQr(e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={url.hasQr}
+              onChange={(e) => url.setHasQr(e.target.checked)}
+            />
             Má QR
           </label>
           <label className="items-table-check">
-            <input type="checkbox" checked={url.hasPhoto} onChange={(e) => url.setHasPhoto(e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={url.hasPhoto}
+              onChange={(e) => url.setHasPhoto(e.target.checked)}
+            />
             Má foto
           </label>
         </div>
 
         {/* Akcie */}
         <div className="items-table-toolbar-row items-table-actions">
-          {!flatMode && (
-            <div className="items-table-icon-group" role="group">
-              <button
-                type="button"
-                className="items-table-icon-btn"
-                onClick={() => setExpanded(collectExpandableIds(treeData))}
-                title="Rozbaliť všetko"
-              >⬇</button>
-              <button
-                type="button"
-                className="items-table-icon-btn"
-                onClick={() => setExpanded({})}
-                title="Zbaliť všetko"
-              >⬆</button>
-            </div>
-          )}
+          <div className="items-table-icon-group" role="group">
+            <button
+              type="button"
+              className="items-table-icon-btn"
+              onClick={() => setExpanded(collectExpandableIds(treeData))}
+              title="Rozbaliť všetko"
+            >⬇</button>
+            <button
+              type="button"
+              className="items-table-icon-btn"
+              onClick={() => setExpanded({})}
+              title="Zbaliť všetko"
+            >⬆</button>
+          </div>
 
           <div className="items-table-columns-wrap" ref={columnsRef}>
             <button
@@ -431,7 +409,7 @@ export function ItemsDataTable() {
 
           <span className="items-table-count muted">
             {hasAnyFilter ? (
-              <><strong>{matchCount}</strong> {matchCount === 1 ? "položka" : matchCount < 5 ? "položky" : "položiek"}</>
+              <><strong>{matchCount}</strong> {matchCount === 1 ? "zhoda" : matchCount < 5 ? "zhody" : "zhôd"}</>
             ) : (
               <><strong>{allItems.length}</strong> položiek</>
             )}
@@ -463,18 +441,22 @@ export function ItemsDataTable() {
               {rows.length === 0 ? (
                 <tr>
                   <td colSpan={columns.length} className="data-table-empty">
-                    {hasAnyFilter ? "Žiadne položky nevyhovujú filtrom." : "Žiadne položky."}
+                    {hasAnyFilter
+                      ? "Žiadne položky nevyhovujú filtrom."
+                      : "Žiadne položky."}
                   </td>
                 </tr>
               ) : (
                 rows.map((row) => {
                   const isMatch = hasAnyFilter && directMatchIds.has(row.original.id);
+                  const isContext = hasAnyFilter && !isMatch;
                   return (
                     <tr
                       key={row.id}
                       className={[
-                        !flatMode && row.depth > 0 ? "data-table-row-child" : "",
+                        row.depth > 0 ? "data-table-row-child" : "",
                         isMatch ? "data-table-row-match" : "",
+                        isContext ? "data-table-row-context" : "",
                       ].filter(Boolean).join(" ")}
                     >
                       {row.getVisibleCells().map((cell) => (
@@ -482,7 +464,7 @@ export function ItemsDataTable() {
                           key={cell.id}
                           style={{
                             paddingLeft:
-                              !flatMode && cell.column.id === "name"
+                              cell.column.id === "name"
                                 ? `${8 + row.depth * 16}px`
                                 : undefined,
                           }}
