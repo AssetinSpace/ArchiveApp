@@ -264,31 +264,39 @@ p { margin: 0 0 12px; }
   flex-shrink: 0;
 }
 
-/* ─── Navbar (assetin split: biela brand + zelená navigácia) ───────────── */
+/* ─── Navbar (assetin.sk: biely lichobežník + zelená nav + tmavý chvost) ── */
 
 .navbar {
+  --navbar-green: #1e7035;
+  --navbar-green-active: #268a42;
+  --navbar-navy: #050a14;
   position: sticky;
   top: 0;
   z-index: 10;
   display: flex;
   align-items: stretch;
   width: 100%;
-  border-bottom: 1px solid var(--color-border);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  min-height: 52px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(5, 10, 20, 0.14);
 }
 
 .navbar-brand {
+  position: relative;
+  z-index: 3;
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  padding: 8px 12px;
-  background: var(--color-surface);
-  border-right: 1px solid var(--color-border);
+  justify-content: center;
+  padding: 0 28px 0 18px;
+  min-width: 128px;
+  background: #fff;
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 100%, 0 100%);
 }
 
 .navbar-logo {
   display: block;
-  height: 32px;
+  height: 30px;
   width: auto;
   object-fit: contain;
 }
@@ -296,31 +304,41 @@ p { margin: 0 0 12px; }
 .navbar-nav {
   flex: 1;
   min-width: 0;
-  display: flex;
-  align-items: stretch;
+  margin-left: -20px;
+  padding-left: 28px;
+  padding-right: 4px;
+  background: var(--navbar-green);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  background: var(--color-brand-green);
   scrollbar-width: none;
 }
 .navbar-nav::-webkit-scrollbar {
   display: none;
 }
 
+.navbar-nav-inner {
+  display: flex;
+  align-items: stretch;
+  min-height: 52px;
+  width: max-content;
+  margin: 0 auto;
+}
+
 .navbar-link {
   flex: 0 0 auto;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  color: rgba(255, 255, 255, 0.85);
+  gap: 7px;
+  padding: 0 14px;
+  color: rgba(255, 255, 255, 0.92);
+  font-family: "Poppins", "Inter", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
   text-decoration: none;
-  padding: 8px 10px;
-  font-size: 12px;
-  min-height: 56px;
-  border-bottom: 3px solid transparent;
   white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 .navbar-link:hover {
   color: #fff;
@@ -329,23 +347,105 @@ p { margin: 0 0 12px; }
 }
 .navbar-link.active {
   color: #fff;
-  background: rgba(255, 255, 255, 0.15);
-  border-bottom-color: #fff;
+  font-weight: 500;
+  background: var(--navbar-green-active);
 }
-.navbar-icon { font-size: 20px; line-height: 1; }
-.navbar-label { font-size: 11px; letter-spacing: 0.3px; }
 
-@media (min-width: 640px) {
-  .navbar-logo { height: 36px; }
-  .navbar-brand { padding: 10px 16px; }
-  .navbar-link {
-    flex-direction: row;
-    font-size: 14px;
-    gap: 8px;
-    padding: 0 14px;
+.navbar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.95;
+}
+.navbar-label {
+  letter-spacing: 0.01em;
+}
+
+.navbar-tail {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  width: 56px;
+  margin-left: -1px;
+  background: var(--navbar-navy);
+}
+.navbar-tail::before {
+  content: "";
+  position: absolute;
+  left: -32px;
+  top: -8px;
+  bottom: -8px;
+  width: 48px;
+  background: var(--navbar-navy);
+  border-radius: 100% 0 0 100% / 55% 0 0 55%;
+}
+
+@media (min-width: 768px) {
+  .navbar-logo {
+    height: 34px;
   }
-  .navbar-icon { font-size: 18px; }
-  .navbar-label { font-size: 14px; }
+
+  .navbar-brand {
+    min-width: 148px;
+    padding: 0 32px 0 22px;
+  }
+
+  .navbar-nav {
+    padding-left: 32px;
+    padding-right: 8px;
+  }
+
+  .navbar-nav-inner {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .navbar-link {
+    padding: 0 18px;
+    font-size: 14px;
+  }
+
+  .navbar-tail {
+    width: 72px;
+  }
+  .navbar-tail::before {
+    left: -36px;
+    width: 56px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-brand {
+    min-width: 108px;
+    padding: 0 22px 0 12px;
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 100%, 0 100%);
+  }
+
+  .navbar-nav {
+    margin-left: -14px;
+    padding-left: 20px;
+  }
+
+  .navbar-link {
+    flex-direction: column;
+    gap: 3px;
+    padding: 8px 10px;
+    font-size: 10px;
+  }
+
+  .navbar-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .navbar-tail {
+    width: 40px;
+  }
+  .navbar-tail::before {
+    left: -24px;
+    width: 36px;
+  }
 }
 
 /* ─── Login ─────────────────────────────────────────────────────────────── */

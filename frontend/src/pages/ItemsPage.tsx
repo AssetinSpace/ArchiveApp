@@ -1,6 +1,5 @@
-import { useMemo, useState, type FormEvent } from "react";
-import { createPortal } from "react-dom";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   api,
@@ -9,6 +8,9 @@ import {
   type Item,
   type ItemType,
 } from "../api";
+import { ItemSearchPanel } from "./SearchPage";
+
+type ItemsView = "tree" | "create" | "search";
 
 // ─── tree node ────────────────────────────────────────────────────────────────
 
@@ -134,16 +136,11 @@ function TreeView() {
 
 export function ItemsPage() {
   const qc = useQueryClient();
-  const [fabOpen, setFabOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [view, setView] = useState<ItemsView>("tree");
 
   const typesQ = useQuery({ queryKey: ["item-types"], queryFn: () => api.itemTypes() });
   const itemsQ = useQuery({ queryKey: ["items", "all"], queryFn: () => api.listItems() });
-
-  const [typeCode, setTypeCode] = useState<string>("");
-  const [name, setName] = useState<string>("");
-  const [parentId, setParentId] = useState<string>("");
-  const [note, setNote] = useState<string>("");
-  const [formError, setFormError] = useState<string | null>(null);
 
   const items = itemsQ.data ?? [];
   const types = typesQ.data ?? [];
@@ -163,202 +160,99 @@ export function ItemsPage() {
     return parts.join(" › ");
   }
 
-  const expectedParentType = useMemo(
-    () => (typeCode ? PARENT_TYPE_BY_CHILD[typeCode] ?? null : null),
-    [typeCode],
-  );
-  const parentNeeded = typeCode !== "" && typeCode !== "SKLAD";
-  const eligibleParents = useMemo(
-    () =>
-      expectedParentType
-        ? items.filter((it) => it.type_code === expectedParentType)
-        : [],
-    [items, expectedParentType],
-  );
-
-  const createMut = useMutation({
-    mutationFn: api.createItem,
-    onSuccess: (created) => {
-      qc.invalidateQueries({ queryKey: ["items", "all"] });
-      if (!created.parent_id) {
-        qc.invalidateQueries({ queryKey: ["items", "root"] });
-      } else {
-        qc.invalidateQueries({ queryKey: ["items", "children", created.parent_id] });
-      }
-      setName("");
-      setParentId("");
-      setNote("");
-      setFormError(null);
-    },
-    onError: (err: Error) => setFormError(err.message),
-  });
-
-  function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    setFormError(null);
-    if (!typeCode) {
-      setFormError("Vyber typ položky");
-      return;
+  useEffect(() => {
+    const panel = searchParams.get("panel");
+    if (panel === "create" || panel === "search") {
+      setView(panel);
+    } else if (!panel) {
+      setView("tree");
     }
-    if (parentNeeded && !parentId) {
-      setFormError(
-        `Pre typ ${TYPE_LABEL[typeCode] ?? typeCode} musíš vybrať nadradenú položku (${
-          TYPE_LABEL[expectedParentType ?? ""] ?? expectedParentType
-        })`,
-      );
-      return;
+  }, [searchParams]);
+
+  function switchView(next: ItemsView) {
+    setView(next);
+    if (next === "tree") {
+      setSearchParams({}, { replace: true });
+    } else {
+      setSearchParams({ panel: next }, { replace: true });
     }
-    createMut.mutate({
-      type_code: typeCode,
-      name: name.trim() || null,
-      parent_id: parentId || null,
-      note: note.trim() || null,
-    });
   }
 
   return (
     <div className="stack">
-      <h1>Položky</h1>
-
-      {/* Create form */}
-      <section className="card">
-        <h2>Vytvoriť položku</h2>
-        <form className="form" onSubmit={onSubmit}>
-          <label className="form-label">
-            Typ
-            <select
-              value={typeCode}
-              onChange={(e) => {
-                setTypeCode(e.target.value);
-                setParentId("");
-              }}
-              required
-            >
-              <option value="">— vyber typ —</option>
-              {types.map((t: ItemType) => (
-                <option key={t.code} value={t.code}>
-                  {t.label} ({t.code})
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="form-label">
-            Názov
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="napr. Krabica pri okne"
-            />
-          </label>
-
-          <label className="form-label">
-            Nadradená položka
-            {typeCode === "" && (
-              <input value="" disabled placeholder="(vyber najprv typ)" />
-            )}
-            {typeCode === "SKLAD" && (
-              <input value="(žiadny — sklad je koreň)" disabled />
-            )}
-            {typeCode !== "" && typeCode !== "SKLAD" && (
-              <select
-                value={parentId}
-                onChange={(e) => setParentId(e.target.value)}
-                required
+      <div
+        className="row"
+        style={{ justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}
+      >
+        <h1 style={{ margin: 0 }}>Položky</h1>
+        <div className="row" style={{ gap: 4 }}>
+          {view === "tree" ? (
+            <>
+              <button
+                type="button"
+                className="btn-ghost btn-small"
+                onClick={() => switchView("search")}
               >
-                <option value="">
-                  — vyber {TYPE_LABEL[expectedParentType ?? ""] ?? "nadradenú položku"} —
-                </option>
-                {eligibleParents.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {getFullPath(p)}
-                  </option>
-                ))}
-              </select>
-            )}
-          </label>
-
-          <label className="form-label">
-            Poznámka
-            <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              rows={3}
-              placeholder="(voliteľné)"
-            />
-          </label>
-
-          {formError && <div className="error">{formError}</div>}
-
-          <button type="submit" className="btn-primary" disabled={createMut.isPending}>
-            {createMut.isPending ? "Ukladám…" : "Vytvoriť"}
-          </button>
-        </form>
-      </section>
-
-      {/* Tree */}
-      <section className="card">
-        <div
-          className="row"
-          style={{ justifyContent: "space-between", marginBottom: 12 }}
-        >
-          <h2 style={{ margin: 0 }}>Strom položiek</h2>
-          <Legend />
+                Hľadať
+              </button>
+              <button
+                type="button"
+                className="btn-primary btn-small"
+                onClick={() => switchView("create")}
+              >
+                Vytvoriť
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              className="btn-ghost btn-small"
+              onClick={() => switchView("tree")}
+            >
+              ← Späť na zoznam
+            </button>
+          )}
         </div>
-        <p className="muted" style={{ margin: "0 0 12px" }}>
-          Klikni na šípku pre rozbalenie, na názov pre detail.
-        </p>
-        <TreeView />
-      </section>
+      </div>
 
-      {/* FAB */}
-      {createPortal(
-        <button
-          type="button"
-          className="fab"
-          onClick={() => setFabOpen(true)}
-          aria-label="Vytvoriť položku"
-          title="Vytvoriť položku"
-        >
-          +
-        </button>,
-        document.body,
-      )}
-
-      {/* FAB Modal / Drawer */}
-      {fabOpen && createPortal(
-        <div
-          className="create-modal-overlay"
-          onClick={() => setFabOpen(false)}
-        >
+      {view === "tree" && (
+        <section className="card">
           <div
-            className="create-modal-box"
-            onClick={(e) => e.stopPropagation()}
+            className="row"
+            style={{ justifyContent: "space-between", marginBottom: 12 }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <h2 style={{ margin: 0 }}>Vytvoriť položku</h2>
-              <button type="button" className="btn-ghost btn-small" onClick={() => setFabOpen(false)}>✕</button>
-            </div>
-            <CreateItemFormContent
-              types={types}
-              items={items}
-              getFullPath={getFullPath}
-              onCreated={() => {
-                qc.invalidateQueries({ queryKey: ["items", "all"] });
-                qc.invalidateQueries({ queryKey: ["items", "root"] });
-                setFabOpen(false);
-              }}
-            />
+            <h2 style={{ margin: 0 }}>Strom položiek</h2>
+            <Legend />
           </div>
-        </div>,
-        document.body,
+          <p className="muted" style={{ margin: "0 0 12px" }}>
+            Klikni na šípku pre rozbalenie, na názov pre detail.
+          </p>
+          <TreeView />
+        </section>
       )}
+
+      {view === "create" && (
+        <section className="card">
+          <h2>Vytvoriť položku</h2>
+          <CreateItemFormContent
+            types={types}
+            items={items}
+            getFullPath={getFullPath}
+            onCreated={() => {
+              qc.invalidateQueries({ queryKey: ["items", "all"] });
+              qc.invalidateQueries({ queryKey: ["items", "root"] });
+              switchView("tree");
+            }}
+          />
+        </section>
+      )}
+
+      {view === "search" && <ItemSearchPanel autoFocus />}
     </div>
   );
 }
 
-// ─── Reusable create-item form (used both inline and in FAB modal) ────────────
+// ─── Reusable create-item form ────────────────────────────────────────────────
 
 function CreateItemFormContent({
   types,

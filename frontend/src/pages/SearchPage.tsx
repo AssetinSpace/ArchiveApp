@@ -27,7 +27,7 @@ const MATCH_LABEL: Record<MatchSource, string> = {
   ocr: "Nájdené v OCR texte",
 };
 
-export function SearchPage() {
+export function ItemSearchPanel({ autoFocus = false }: { autoFocus?: boolean }) {
   const [input, setInput] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
 
@@ -47,8 +47,6 @@ export function SearchPage() {
 
   return (
     <div className="stack">
-      <h1>Hľadať</h1>
-
       <section className="card">
         <label className="form-label">
           Hľadaný výraz
@@ -57,7 +55,7 @@ export function SearchPage() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="napr. kolaudácia, faktúra, projekt…"
-            autoFocus
+            autoFocus={autoFocus}
             autoCapitalize="off"
             autoCorrect="off"
             spellCheck={false}
