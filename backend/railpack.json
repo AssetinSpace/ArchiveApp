@@ -4,7 +4,8 @@
     "aptPackages": [
       "tesseract-ocr",
       "tesseract-ocr-eng",
-      "tesseract-ocr-osd"
+      "tesseract-ocr-osd",
+      "tesseract-ocr-slk"
     ]
   }
 }

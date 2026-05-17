@@ -255,9 +255,9 @@ AssetinSpace/ArchiveApp (private)
 - ✓ Integrácia v `ItemDetailPage` (sekcia Fotky)
 
 ### Sprint 3b — OCR 🟡 LIVE, ladenie kvality
-- ✓ `backend/railpack.json`: `deploy.aptPackages: ["tesseract-ocr", "tesseract-ocr-eng", "tesseract-ocr-osd"]` — Railway runtime dostane Tesseract 5.3.0 + leptonica 1.82.0 + English language data + Orientation/Script Detection
+- ✓ `backend/railpack.json`: `deploy.aptPackages: ["tesseract-ocr", "tesseract-ocr-eng", "tesseract-ocr-osd", "tesseract-ocr-slk"]` — Railway runtime dostane Tesseract 5.3.0 + leptonica 1.82.0 + English + Slovak language data + Orientation/Script Detection
 - ℹ️ Pôvodný `backend/nixpacks.toml` zmazaný — Railway prešlo na **Railpack** builder (default od 2025), nixpacks config sa ignoruje. Spec predpokladal nixpacks, museli sme prejsť cez Railpack ekvivalent.
-- ⚙️ **OCR config v `services/ocr.ts`:** `lang=eng, oem=1, psm=1` (auto page segmentation + OSD). PSM 6 → 1 lebo nálepky/štítky majú rôzne rotácie (chrbet zložky = 90° vertical), PSM 1 to vie auto-rotovať.
+- ⚙️ **OCR config v `services/ocr.ts`:** `lang="slk+eng", oem=1, psm=1` (auto page segmentation + OSD). PSM 6 → 1 lebo nálepky/štítky majú rôzne rotácie (chrbet zložky = 90° vertical), PSM 1 to vie auto-rotovať. Slovenský pack pridaný po prvom reálnom teste — eng-only dáva komolené slová bez diakritiky (`RODINNY` → `RODINNÝ`, `BILICKA` → `BILICKÁ`).
 - ✓ `backend/src/types/node-tesseract-ocr.d.ts`: lokálna deklarácia typov (chýbajúce @types)
 - ✓ `backend/src/services/ocr.ts`: `processPhoto` (idempotent), `processPending` (sériový batch, lang=eng, OEM=1, PSM=6)
 - ✓ `backend/src/routes/ocr.ts`: 4 endpointy — `POST /api/ocr/process-pending` (async fire-and-forget cez `setImmediate`), `GET /api/ocr/status`, `POST /api/ocr/retry/:photoId` (sync), `GET /api/ocr/failed`
@@ -316,11 +316,11 @@ IT tím objednávateľa dostane:
 
 | # | Otázka | Priorita |
 |---|---|---|
-| OQ-7 | Ručne písané štítky — Tesseract presnosť nízka → manuálne prepísanie do note? | Nízka |
+| OQ-7 | Ručne písané štítky — Tesseract presnosť nízka → manuálne prepísanie do note? Po pridaní `slk+eng` packu sú **tlačené** slovenské štítky čitateľné, **rukou písané** ostávajú open question. | Nízka |
 | OQ-8 | Pečiatka s číslom ako fallback pre QR nálepky? | Nízka |
 | OQ-11 | Nakúpiť QR nálepky (Avery L4732) — otestovať pred výjazdom | Stredná |
 
 ---
 
-*Posledná aktualizácia: v2.2 — Sprint 3b live na Railway (Tesseract 5.3.0 cez Railpack apt). Prvý reálny test odhalil low OCR kvalitu na rotovanom kovovom texte na tmavom pozadí (chrbet zložky) — pridané `tesseract-ocr-osd` + PSM 6→1 pre auto orientation. Pridaná UX "Posledné fotky" sekcia v /admin/ocr s prelinkom na Item detail.*
-*Ďalší krok: po deployi s OSD pretestovať rotovanú fotku → ak stále nesedí, otestovať na reálnom čelnom štítku (čierny text/biele pozadie/horizontálne) → rozhodnúť o slovenskom language packu (OQ-7).*
+*Posledná aktualizácia: v2.2 — Sprint 3b live na Railway. Po OSD orientation detection (PSM 1) reálny čelný štítok dal čitateľný text ale bez slovenskej diakritiky → pridaný `tesseract-ocr-slk` pack + `lang=slk+eng`. Sprint 3b je v podstate hotový, čaká už len final retest po deploy.*
+*Ďalší krok: deploy → retest tej istej fotky → ak slovenská diakritika sedí, sprint 3b → v2.3 HOTOVÝ.*

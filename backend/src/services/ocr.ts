@@ -24,8 +24,13 @@ import { prisma } from "../prisma.js";
 // Pôvodne sme mali PSM 6 (uniform block of text) ale nálepky/štítky bývajú
 // nafotené pod rôznymi uhlami (chrbty zložiek = 90°, krabice naležato = 180°,
 // telefón v ruke = 0-15° náklon). PSM 1 toto vie samo zarovnať.
+//
+// Jazyk "slk+eng" — Tesseract paralelne načíta slovenský aj anglický slovník.
+// Pri každom slove vyberie jazyk s vyššou confidence. Slovenský je primárny
+// (väčšina štítkov), eng je fallback pre skratky a anglické termíny.
+// POVINNÉ: tesseract-ocr-slk + tesseract-ocr-eng apt packages v railpack.json.
 const TESSERACT_CONFIG = {
-  lang: "eng",
+  lang: "slk+eng",
   oem: 1, // LSTM OCR engine — modernejší než legacy.
   psm: 1, // Auto segmentation + OSD orientation detection.
 };
