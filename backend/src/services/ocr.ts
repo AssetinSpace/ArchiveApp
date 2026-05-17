@@ -89,8 +89,11 @@ export async function processPhoto(photoId: string): Promise<void> {
 export async function processPending(
   limit = 50,
 ): Promise<{ processed: number; failed: number }> {
+  // photo_type = 'LABEL' — OVERVIEW fotky nikdy nevstupujú do OCR pipeline
+  // (Sprint 6). Bez tohto filtra by sa pri legacy dátach alebo ručnom INSERT-e
+  // mohli dostať do batchu — defensive filter.
   const photos = await prisma.photo.findMany({
-    where: { ocr_status: "PENDING", deleted_at: null },
+    where: { ocr_status: "PENDING", deleted_at: null, photo_type: "LABEL" },
     orderBy: { created_at: "asc" },
     take: limit,
     select: { id: true },

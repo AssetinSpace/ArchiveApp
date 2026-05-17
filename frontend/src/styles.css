@@ -715,7 +715,117 @@ p { margin: 0 0 12px; }
   margin: 16px 0;
 }
 
+/* ─── Photo upload (Sprint 6: LABEL vs OVERVIEW) ───────────────────────── */
+
+/* Dvojica akcií vedľa seba aj na mobile (≥375px je dosť) — full-width
+   grid 1fr/1fr zabezpečí rovnaké tap targets. Pri veľmi úzkych viewportoch
+   < 360px pad sa zmenší ale tlačidlá ostanú vedľa seba; ak by sa to v praxi
+   ukázalo ako problém, zmeníme na grid-template-columns: 1fr v media query. */
+.photo-upload-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+}
+
+.photo-upload-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 88px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--color-border);
+  background: #fff;
+  color: var(--color-text);
+  cursor: pointer;
+  font-weight: 600;
+  text-align: center;
+  user-select: none;
+  transition: background-color 0.15s, border-color 0.15s, transform 0.05s;
+}
+
+.photo-upload-btn:hover:not(.is-disabled) {
+  background: #f9fafb;
+}
+
+.photo-upload-btn:active:not(.is-disabled) {
+  transform: scale(0.985);
+}
+
+.photo-upload-btn.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.photo-upload-btn-label {
+  border-color: #c7e0cf;
+  background: #ecf6ef;
+}
+.photo-upload-btn-label:hover:not(.is-disabled) {
+  background: #def0e4;
+}
+
+.photo-upload-btn-overview {
+  border-color: #d6dce4;
+  background: #f3f5f8;
+}
+.photo-upload-btn-overview:hover:not(.is-disabled) {
+  background: #e8ecf2;
+}
+
+.photo-upload-btn-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.photo-upload-btn-title {
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.photo-upload-btn-hint {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  line-height: 1.1;
+}
+
+.photo-upload-btn-busy {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
 /* ─── Photo gallery ────────────────────────────────────────────────────── */
+
+.photo-section + .photo-section {
+  margin-top: 16px;
+}
+
+.photo-section-title {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.photo-section-count {
+  font-weight: 500;
+  color: var(--color-text-muted);
+  opacity: 0.85;
+}
+
+.photo-tile-meta-spacer {
+  flex: 1;
+}
 
 .photo-grid {
   display: grid;

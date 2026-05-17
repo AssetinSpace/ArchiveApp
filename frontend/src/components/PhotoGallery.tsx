@@ -6,6 +6,11 @@ type Props = {
   itemId: string;
 };
 
+// Sprint 6: galéria rozdelená na dve sekcie podľa photo_type.
+// - LABEL (Štítky) → full OCR UI (badges, retry, collapsible text)
+// - OVERVIEW (Fotky položky) → len thumbnail + lightbox + zmazať
+// Ak je niektorá sekcia prázdna, jej hlavička sa nezobrazí. Ak nie je
+// ani jedna fotka, zobrazí sa jednorazová "empty state" hláška.
 export function PhotoGallery({ itemId }: Props): React.JSX.Element {
   const qc = useQueryClient();
   const [lightboxPhoto, setLightboxPhoto] = useState<Photo | null>(null);
@@ -54,21 +59,55 @@ export function PhotoGallery({ itemId }: Props): React.JSX.Element {
     return <p className="muted">Žiadne fotky. Pridaj prvú tlačidlom hore.</p>;
   }
 
+  // Bezpečne rozdelíme — staršie záznamy by mohli mať photo_type undefined,
+  // tých berieme ako LABEL (migrácia im default LABEL nastaví, toto je len
+  // ochrana pred prechodom kým FE načíta nový backend bundle).
+  const labelPhotos = photos.filter((p) => (p.photo_type ?? "LABEL") === "LABEL");
+  const overviewPhotos = photos.filter((p) => p.photo_type === "OVERVIEW");
+
   return (
     <>
-      <div className="photo-grid">
-        {photos.map((p) => (
-          <PhotoTile
-            key={p.id}
-            photo={p}
-            onOpen={() => setLightboxPhoto(p)}
-            onDelete={() => onDelete(p.id)}
-            deleting={deleteMut.isPending}
-            onRetryOcr={() => retryMut.mutate(p.id)}
-            retrying={retryMut.isPending && retryMut.variables === p.id}
-          />
-        ))}
-      </div>
+      {labelPhotos.length > 0 && (
+        <section className="photo-section">
+          <h3 className="photo-section-title">
+            <span aria-hidden="true">📄</span> Štítky
+            <span className="photo-section-count">({labelPhotos.length})</span>
+          </h3>
+          <div className="photo-grid">
+            {labelPhotos.map((p) => (
+              <PhotoTile
+                key={p.id}
+                photo={p}
+                onOpen={() => setLightboxPhoto(p)}
+                onDelete={() => onDelete(p.id)}
+                deleting={deleteMut.isPending}
+                onRetryOcr={() => retryMut.mutate(p.id)}
+                retrying={retryMut.isPending && retryMut.variables === p.id}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {overviewPhotos.length > 0 && (
+        <section className="photo-section">
+          <h3 className="photo-section-title">
+            <span aria-hidden="true">📦</span> Fotky položky
+            <span className="photo-section-count">({overviewPhotos.length})</span>
+          </h3>
+          <div className="photo-grid">
+            {overviewPhotos.map((p) => (
+              <OverviewTile
+                key={p.id}
+                photo={p}
+                onOpen={() => setLightboxPhoto(p)}
+                onDelete={() => onDelete(p.id)}
+                deleting={deleteMut.isPending}
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
       {lightboxPhoto && (
         <Lightbox photo={lightboxPhoto} onClose={() => setLightboxPhoto(null)} />
@@ -77,7 +116,8 @@ export function PhotoGallery({ itemId }: Props): React.JSX.Element {
   );
 }
 
-// ─── PhotoTile ────────────────────────────────────────────────────────────────
+// ─── PhotoTile (LABEL) ────────────────────────────────────────────────────────
+// Plné OCR UI — badges, retry, collapsible text.
 
 function PhotoTile({
   photo,
@@ -166,6 +206,45 @@ function PhotoTile({
           {retrying ? "Spracovávam…" : "Skúsiť znova"}
         </button>
       )}
+    </div>
+  );
+}
+
+// ─── OverviewTile (OVERVIEW) ──────────────────────────────────────────────────
+// Bez OCR UI — len thumbnail, lightbox, zmazať.
+
+function OverviewTile({
+  photo,
+  onOpen,
+  onDelete,
+  deleting,
+}: {
+  photo: Photo;
+  onOpen: () => void;
+  onDelete: () => void;
+  deleting: boolean;
+}): React.JSX.Element {
+  return (
+    <div className="photo-tile">
+      <button
+        type="button"
+        className="photo-tile-img-btn"
+        onClick={onOpen}
+        aria-label="Otvoriť fotku vo veľkom"
+      >
+        <img src={photo.signed_url} alt="" className="photo-tile-img" loading="lazy" />
+      </button>
+      <div className="photo-tile-meta">
+        <span className="photo-tile-meta-spacer" />
+        <button
+          type="button"
+          className="btn-danger btn-small"
+          onClick={onDelete}
+          disabled={deleting}
+        >
+          Zmazať
+        </button>
+      </div>
     </div>
   );
 }

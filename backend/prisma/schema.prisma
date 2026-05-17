@@ -22,6 +22,14 @@ enum OcrStatus {
   FAILED
 }
 
+// Sprint 6: rozlíšenie fotky štítku (vstup do OCR pipeline) od vizuálnej
+// referencie celej položky (krabica/paleta). OVERVIEW fotky preskočia OCR
+// (viď services/ocr.ts) a v admin štatistikách sa nepočítajú.
+enum PhotoType {
+  LABEL
+  OVERVIEW
+}
+
 enum QrStatus {
   FREE
   ASSIGNED
@@ -85,6 +93,12 @@ model Photo {
   storage_key  String
   ocr_raw_text String?
   ocr_status   OcrStatus @default(PENDING)
+  // Sprint 6: LABEL = fotka štítku (vstup do OCR pipeline, default).
+  // OVERVIEW = vizuálna referencia položky (krabica/paleta) — preskočí OCR,
+  // pri uploade dostane ocr_status = DONE aby neostala visieť v PENDING
+  // štatistikách. Migrácia 20260518150000_add_photo_type pridáva default LABEL
+  // pre existujúce riadky.
+  photo_type   PhotoType @default(LABEL)
   created_at   DateTime  @default(now())
   deleted_at   DateTime?
 
@@ -93,4 +107,5 @@ model Photo {
   @@index([item_id])
   @@index([ocr_status])
   @@index([deleted_at])
+  @@index([photo_type])
 }

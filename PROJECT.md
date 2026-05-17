@@ -1,6 +1,6 @@
 # ArchiveApp — PROJECT.md
 > Živý dokument. Aktualizovať po každom rozhodnutí alebo sprinte.
-> Verzia 2.5.1 — Sprint 5 HOTOVÝ. Auto-naming + LLM title extraction live (Gemini 2.5 Flash).
+> Verzia 2.6.0 — Sprint 6 v progrese. Pridané rozlíšenie Photo LABEL vs OVERVIEW (terénny workflow).
 
 ---
 
@@ -53,6 +53,7 @@ Výstup: exportovateľný inventár.
 | 20 | Potvrdiť OCR title prepisuje `name`, `auto_name` ostáva immutable | OCR titulok je čitateľnejší pre vyhľadávanie ("Kolaudácia X"), `auto_name` ostáva ako stabilný pozičný identifikátor pre referenciu (footer Item detailu) |
 | 21 | JSONB `metadata` pole pripravené pre Sprint 6, nenaplňuje sa v Sprint 5 | Schéma metadata sa odvodí z analýzy ~200 reálnych OCR textov po field work — predčasná štandardizácia by viedla k zlej štruktúre |
 | 22 | Gemini 2.5 Flash namiesto Claude Haiku pre LLM title extraction | 6–7× lacnejší (~$0.27 za celý archív batch), dostatočná kvalita pre OCR text extraction zo slovenských stavebných štítkov. Free tier pre testovanie, platená úroveň pred ostrým nasadením. |
+| 23 | Photo má `photo_type` enum LABEL/OVERVIEW; LABEL ide do OCR pipeline, OVERVIEW slúži ako vizuálna referencia (krabica/paleta) | V teréne konzultant často odfotí aj samotnú krabicu/paletu, nielen štítok — bez rozlíšenia by tieto fotky inflovali PENDING/FAILED OCR štatistiky a LLM batch by ich zbytočne ťahal. OVERVIEW dostane pri uploade rovno `ocr_status = DONE` aby PENDING count zodpovedal reálnej fronte štítkov; OCR endpointy navyše filtrujú `photo_type = 'LABEL'` (dvojitá ochrana proti legacy dátam). |
 
 ---
 
@@ -105,7 +106,8 @@ Neriešime špeciálne — KRABICA s popisným názvom (napr. "Tubus").
 - `item_id` — väzba na Item
 - `storage_key` — R2 object key (napr. `photos/2026/{itemId}/{uuid}.jpg`)
 - `ocr_raw_text` — surový Tesseract text (nullable, `@db.Text`)
-- `ocr_status` — PENDING / DONE / FAILED (default PENDING po uploade)
+- `ocr_status` — PENDING / DONE / FAILED (default PENDING po uploade pre LABEL; OVERVIEW dostane rovno DONE)
+- `photo_type` — Sprint 6: LABEL / OVERVIEW, default LABEL. LABEL = fotka štítku → OCR pipeline. OVERVIEW = vizuálna referencia ako vyzerá krabica/paleta → OCR sa nikdy nespustí. OCR endpointy (`status`, `process-pending`, `failed`, `recent`) filtrujú `photo_type = 'LABEL'`.
 - `created_at`
 - `deleted_at` — soft delete (R2 objekt zámerne ostáva, orphan cleanup neskôr)
 
@@ -310,6 +312,17 @@ AssetinSpace/ArchiveApp (private)
 - ✓ PhotoGallery rozšírené: DONE collapsible, DONE bez textu badge, FAILED retry mutation
 - ✓ Reálny test (štítok RODINNÝ DOM): 95%+ presnosť, diakritika OK
 
+### Sprint 6 — Photo type LABEL vs OVERVIEW ⏳ IN PROGRESS
+- ✓ Prisma migrácia `add_photo_type` (enum PhotoType {LABEL, OVERVIEW}, `Photo.photo_type` DEFAULT 'LABEL', index)
+- ✓ Backend `routes/photos.ts`: upload akceptuje `photo_type` query/body field, OVERVIEW dostane `ocr_status = DONE` rovno pri vložení; GET endpointy vracajú `photo_type`
+- ✓ Backend `routes/ocr.ts` + `services/ocr.ts`: `status`, `process-pending`, `recent`, `failed` filtrované na `photo_type = 'LABEL'` (admin štatistiky nezahŕňajú OVERVIEW)
+- ✓ Backend `routes/export.ts`: CSV pridáva `labelPhotoCount`, `overviewPhotoCount`, `ocrTextPreview` číta len z LABEL fotiek; JSON vracia `photoType` pre každú fotku
+- ✓ Frontend `PhotoUpload`: dve tlačidlá vedľa seba — *Odfotiť štítok* (LABEL → OCR) / *Odfotiť položku* (OVERVIEW), zdieľaná upload mutácia, min-height 88 px tap target, mobile camera capture
+- ✓ Frontend `PhotoGallery`: dve sekcie *Štítky* / *Fotky položky*, OVERVIEW tile bez OCR badge/retry/textu, prázdne sekcie sa skryjú
+- ✓ Frontend `api.ts`: `PhotoType` typ, `Photo.photo_type`, `uploadPhoto(itemId, file, photoType)`
+- ✓ Štýly: `.photo-upload-buttons` grid, farebne rozlíšené tlačidlá, `.photo-section-title` headery
+- ⬜ Field test v sklade s reálnymi fotkami štítku aj prehľadovými fotkami palety
+
 ### Sprint 5 — Auto-naming + LLM Title Extraction ✓ HOTOVÝ
 - ✓ Prisma migrácia `add_auto_name_ocr_title_metadata` (auto_name, ocr_title, ocr_title_status, metadata JSONB, metadata_status, index ocr_title_status)
 - ✓ services/autoName.ts: `generateAutoName(parentId, typeCode)` — sklA_pal003_kra004_zlo015 (preferuje `auto_name` ancestora ak existuje, inak path-from-scratch)
@@ -401,5 +414,5 @@ IT tím objednávateľa dostane:
 
 ---
 
-*Posledná aktualizácia: v2.5.1 — Sprint 5 HOTOVÝ + provider switch Claude Haiku → Gemini 2.5 Flash.*
-*Ďalší krok: Sprint 2 Bugfix (TD-5/6/7), nastaviť `GEMINI_API_KEY` na Railway, field work v sklade (DoD body 1+2), potom Sprint 6 (metadata extraction po analýze ~200 OCR textov), nakoniec dump.sql + README.md pre odovzdanie (TD-12).*
+*Posledná aktualizácia: v2.6.0 — Sprint 6 (Photo LABEL/OVERVIEW) v progrese, čaká na field test.*
+*Ďalší krok: Sprint 2 Bugfix (TD-5/6/7), nastaviť `GEMINI_API_KEY` na Railway, field work v sklade (DoD body 1+2 + overiť LABEL/OVERVIEW UX), potom metadata extraction po analýze ~200 OCR textov, nakoniec dump.sql + README.md pre odovzdanie (TD-12).*

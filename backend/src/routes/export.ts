@@ -22,6 +22,7 @@ type ExportPhoto = {
   storageKey: string;
   ocrRawText: string | null;
   ocrStatus: string;
+  photoType: string;
   createdAt: Date;
 };
 
@@ -100,6 +101,7 @@ function groupPhotosByItem(
       storageKey: p.storageKey,
       ocrRawText: p.ocrRawText,
       ocrStatus: p.ocrStatus,
+      photoType: p.photoType,
       createdAt: p.createdAt,
     };
     if (list) list.push(photo);
@@ -163,6 +165,7 @@ async function loadActivePhotos(): Promise<Array<ExportPhoto & { item_id: string
       storage_key: true,
       ocr_raw_text: true,
       ocr_status: true,
+      photo_type: true,
       created_at: true,
     },
   });
@@ -172,6 +175,7 @@ async function loadActivePhotos(): Promise<Array<ExportPhoto & { item_id: string
     storageKey: p.storage_key,
     ocrRawText: p.ocr_raw_text,
     ocrStatus: String(p.ocr_status),
+    photoType: String(p.photo_type),
     createdAt: p.created_at,
   }));
 }
@@ -197,6 +201,8 @@ exportRouter.get("/csv", async (_req, res, next) => {
       "status",
       "path",
       "photoCount",
+      "labelPhotoCount",
+      "overviewPhotoCount",
       "hasOcrText",
       "ocrTextPreview",
       "createdAt",
@@ -207,8 +213,17 @@ exportRouter.get("/csv", async (_req, res, next) => {
     for (const item of items) {
       const photoList = photosByItem.get(item.id) ?? [];
       const photoCount = photoList.length;
+      const labelPhotoCount = photoList.filter((p) => p.photoType === "LABEL").length;
+      const overviewPhotoCount = photoList.filter((p) => p.photoType === "OVERVIEW").length;
+      // OCR text preview čítame len z LABEL fotiek — OVERVIEW nikdy nemá text
+      // a defenzívne sa vyhneme prípadu kde by sa do exportu dostal text z
+      // nesprávne klasifikovanej fotky.
       const firstDoneWithText = photoList.find(
-        (p) => p.ocrStatus === "DONE" && p.ocrRawText && p.ocrRawText.trim() !== "",
+        (p) =>
+          p.photoType === "LABEL" &&
+          p.ocrStatus === "DONE" &&
+          p.ocrRawText &&
+          p.ocrRawText.trim() !== "",
       );
       const hasOcrText = firstDoneWithText ? "true" : "false";
       const ocrTextPreview = firstDoneWithText
@@ -232,6 +247,8 @@ exportRouter.get("/csv", async (_req, res, next) => {
           item.status,
           path,
           photoCount,
+          labelPhotoCount,
+          overviewPhotoCount,
           hasOcrText,
           ocrTextPreview,
           item.created_at.toISOString(),
@@ -277,6 +294,7 @@ type JsonNode = {
     storageKey: string;
     ocrRawText: string | null;
     ocrStatus: string;
+    photoType: string;
     createdAt: string;
   }>;
   children: JsonNode[];
@@ -300,6 +318,7 @@ exportRouter.get("/json", async (_req, res, next) => {
           storageKey: p.storageKey,
           ocrRawText: p.ocrRawText,
           ocrStatus: p.ocrStatus,
+          photoType: p.photoType,
           createdAt: p.createdAt.toISOString(),
         }));
       nodeById.set(item.id, {

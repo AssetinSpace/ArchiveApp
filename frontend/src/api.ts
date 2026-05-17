@@ -137,11 +137,17 @@ export type QRLookup = {
 
 export type OcrStatus = "PENDING" | "DONE" | "FAILED";
 
+// Sprint 6: rozlíšenie fotky štítku (vstup do OCR) od vizuálnej referencie
+// celej položky (krabica/paleta). OVERVIEW fotky preskočia OCR pipeline,
+// frontend PhotoGallery ich zobrazuje v samostatnej sekcii.
+export type PhotoType = "LABEL" | "OVERVIEW";
+
 export type Photo = {
   id: string;
   signed_url: string;
   ocr_raw_text: string | null;
   ocr_status: OcrStatus;
+  photo_type: PhotoType;
   created_at: string;
   // item_id sa vracia iba z /photos/:id (detail), nie z list endpointu.
   item_id?: string;
@@ -151,6 +157,7 @@ export type UploadPhotoResponse = {
   id: string;
   signed_url: string;
   ocr_status: OcrStatus;
+  photo_type: PhotoType;
   created_at: string;
 };
 
@@ -410,11 +417,20 @@ export const api = {
   // Upload ide mimo request() — FormData potrebuje aby fetch sám nastavil
   // multipart/form-data Content-Type s boundary stringom. Keby sme nastavili
   // 'Content-Type: application/json' z request(), multer by request odmietol.
-  uploadPhoto: async (itemId: string, file: File): Promise<UploadPhotoResponse> => {
+  //
+  // photoType (Sprint 6) ide cez query string aby backend mohol robiť parse
+  // PRED konzumovaním multipart body — keby bol vo FormData, multer by ho
+  // dekódoval ako field, ale je čistejšie mať diskriminátor v URL.
+  uploadPhoto: async (
+    itemId: string,
+    file: File,
+    photoType: PhotoType = "LABEL",
+  ): Promise<UploadPhotoResponse> => {
     const creds = getCredentials();
     const formData = new FormData();
     formData.append("photo", file);
-    const res = await fetch(`${API_URL}/items/${itemId}/photos`, {
+    const qs = new URLSearchParams({ photo_type: photoType }).toString();
+    const res = await fetch(`${API_URL}/items/${itemId}/photos?${qs}`, {
       method: "POST",
       headers: creds ? { Authorization: authHeader(creds) } : {},
       body: formData,

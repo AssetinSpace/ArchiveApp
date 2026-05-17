@@ -32,8 +32,12 @@ ocrRouter.post("/process-pending", async (req, res, next) => {
     const body = ProcessPendingSchema.parse(req.body ?? {});
     const limit = body.limit ?? 50;
 
+    // photo_type = 'LABEL' filter — OVERVIEW fotky nikdy nevstupujú do OCR
+    // (Sprint 6). Bez tohto filtra by sa síce OVERVIEW nemali v PENDING
+    // nachádzať (upload route ich rovno značí DONE), ale defensively
+    // filtrujeme aj tu pre prípad ručného INSERT-u alebo legacy dát.
     const pendingCount = await prisma.photo.count({
-      where: { ocr_status: "PENDING", deleted_at: null },
+      where: { ocr_status: "PENDING", deleted_at: null, photo_type: "LABEL" },
     });
 
     // queuedCount = počet ktorý sa naozaj pokúsi spracovať v tomto behu
@@ -59,9 +63,12 @@ ocrRouter.post("/process-pending", async (req, res, next) => {
 
 ocrRouter.get("/status", async (_req, res, next) => {
   try {
+    // Štatistiky počítame len pre LABEL fotky — OVERVIEW nemajú s OCR nič
+    // spoločné a inflácia "done" počtu zbytočne miatla pri sledovaní reálneho
+    // pokroku batchu (Sprint 6).
     const grouped = await prisma.photo.groupBy({
       by: ["ocr_status"],
-      where: { deleted_at: null },
+      where: { deleted_at: null, photo_type: "LABEL" },
       _count: { _all: true },
     });
 
@@ -162,8 +169,10 @@ ocrRouter.get("/recent", async (req, res, next) => {
     const q = RecentQuerySchema.parse(req.query);
     const limit = q.limit ?? 20;
 
+    // Recent feed je súčasť OCR Admin → zobrazujeme len LABEL fotky,
+    // OVERVIEW patria do detailu položky, nie do OCR dashboardu (Sprint 6).
     const photos = await prisma.photo.findMany({
-      where: { deleted_at: null },
+      where: { deleted_at: null, photo_type: "LABEL" },
       orderBy: { created_at: "desc" },
       take: limit,
       select: {
@@ -209,8 +218,11 @@ ocrRouter.get("/recent", async (req, res, next) => {
 
 ocrRouter.get("/failed", async (_req, res, next) => {
   try {
+    // OVERVIEW fotky nemajú OCR, takže "FAILED" pre ne nedáva zmysel —
+    // filtrujeme na LABEL aj keď by mali OVERVIEW status FAILED nikdy nemať
+    // (upload route ich rovno značí DONE).
     const photos = await prisma.photo.findMany({
-      where: { ocr_status: "FAILED", deleted_at: null },
+      where: { ocr_status: "FAILED", deleted_at: null, photo_type: "LABEL" },
       orderBy: { created_at: "desc" },
       take: 100,
       select: {

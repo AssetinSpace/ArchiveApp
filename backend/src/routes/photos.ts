@@ -72,6 +72,21 @@ const uploadRateLimit = rateLimit({
 
 // ─── POST /api/items/:id/photos ───────────────────────────────────────────────
 
+// photoType vstupuje cez query string ALEBO cez body form field "photo_type"
+// (akceptujeme oba — frontend posiela query, curl/tests môžu posielať body).
+// Default LABEL zachová pôvodné správanie pre starší klient bez tohto poľa.
+function parsePhotoType(req: Request): "LABEL" | "OVERVIEW" | null {
+  const raw =
+    (typeof req.query.photo_type === "string" && req.query.photo_type) ||
+    (typeof req.query.photoType === "string" && req.query.photoType) ||
+    (req.body && typeof req.body.photo_type === "string" && req.body.photo_type) ||
+    (req.body && typeof req.body.photoType === "string" && req.body.photoType) ||
+    "LABEL";
+  const upper = String(raw).toUpperCase();
+  if (upper === "LABEL" || upper === "OVERVIEW") return upper;
+  return null;
+}
+
 photosRouter.post(
   "/items/:id/photos",
   uploadRateLimit,
@@ -84,6 +99,12 @@ photosRouter.post(
         return;
       }
       const itemId = String(req.params.id);
+
+      const photoType = parsePhotoType(req);
+      if (!photoType) {
+        res.status(400).json({ error: "Invalid photo_type (must be LABEL or OVERVIEW)" });
+        return;
+      }
 
       const item = await prisma.item.findFirst({
         where: { id: itemId, deleted_at: null },
@@ -108,16 +129,24 @@ photosRouter.post(
       // v buckete — riešime hromadným cleanup skriptom v budúcnosti (Sprint 3+).
       await uploadToR2(storageKey, req.file.buffer, req.file.mimetype);
 
+      // OVERVIEW fotky nikdy nevstupujú do OCR — rovno DONE, aby admin štatistiky
+      // (PENDING count) ostali čisté a tlačidlo "Spracuj PENDING" sa netýkalo
+      // fotiek čo nikdy nemajú byť spracované. OCR routes navyše filtrujú
+      // photo_type = 'LABEL', takže dvojitá ochrana.
+      const ocrStatus = photoType === "OVERVIEW" ? "DONE" : "PENDING";
+
       const photo = await prisma.photo.create({
         data: {
           id: photoId,
           item_id: itemId,
           storage_key: storageKey,
-          ocr_status: "PENDING",
+          ocr_status: ocrStatus,
+          photo_type: photoType,
         },
         select: {
           id: true,
           ocr_status: true,
+          photo_type: true,
           created_at: true,
         },
       });
@@ -128,6 +157,7 @@ photosRouter.post(
         id: photo.id,
         signed_url: signedUrl,
         ocr_status: photo.ocr_status,
+        photo_type: photo.photo_type,
         created_at: photo.created_at,
       });
     } catch (e) {
@@ -159,6 +189,7 @@ photosRouter.get("/items/:id/photos", async (req, res, next) => {
         storage_key: true,
         ocr_raw_text: true,
         ocr_status: true,
+        photo_type: true,
         created_at: true,
       },
     });
@@ -166,12 +197,16 @@ photosRouter.get("/items/:id/photos", async (req, res, next) => {
     // Signed URL sa generuje on-demand pre každú response. Parallel je rýchlejšie
     // než serial pri väčšom počte fotiek (každý presign = 1 HMAC krypto operácia,
     // bez sieťového volania).
+    //
+    // photo_type sa vracia pre OBA typy — frontend (PhotoGallery) si ich rozdelí
+    // do sekcií "Štítky" a "Fotky položky".
     const enriched = await Promise.all(
       photos.map(async (p) => ({
         id: p.id,
         signed_url: await getSignedUrlForKey(p.storage_key),
         ocr_raw_text: p.ocr_raw_text,
         ocr_status: p.ocr_status,
+        photo_type: p.photo_type,
         created_at: p.created_at,
       })),
     );
@@ -194,6 +229,7 @@ photosRouter.get("/photos/:id", async (req, res, next) => {
         storage_key: true,
         ocr_raw_text: true,
         ocr_status: true,
+        photo_type: true,
         created_at: true,
       },
     });
@@ -208,6 +244,7 @@ photosRouter.get("/photos/:id", async (req, res, next) => {
       signed_url,
       ocr_raw_text: photo.ocr_raw_text,
       ocr_status: photo.ocr_status,
+      photo_type: photo.photo_type,
       created_at: photo.created_at,
     });
   } catch (e) {
