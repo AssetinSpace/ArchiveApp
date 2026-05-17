@@ -1323,6 +1323,47 @@ p { margin: 0 0 12px; }
   gap: 12px;
 }
 
+/* Celá obrazovka — natívny Fullscreen API + CSS fallback */
+.items-data-table--fullscreen,
+.items-data-table:fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  margin: 0;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  background: var(--color-surface-muted);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  max-height: 100dvh;
+}
+
+.items-data-table--fullscreen .items-table-toolbar,
+.items-data-table:fullscreen .items-table-toolbar {
+  flex-shrink: 0;
+}
+
+.items-data-table--fullscreen .data-table-wrap,
+.items-data-table:fullscreen .data-table-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.items-data-table--fullscreen .data-table-scroll,
+.items-data-table:fullscreen .data-table-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .items-table-toolbar {
   display: flex;
   flex-direction: column;
@@ -1607,6 +1648,17 @@ p { margin: 0 0 12px; }
 .data-table-expand-spacer {
   display: inline-block;
   width: 36px;
+}
+
+.data-table-type-cell {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+}
+
+.data-table-expand-cell {
+  display: flex;
+  align-items: center;
 }
 
 .data-table-name-link {

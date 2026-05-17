@@ -33,13 +33,15 @@ const COLUMN_LABELS: Record<string, string> = {
   qr_code: "QR",
   status: "Status",
   note: "Poznámka",
-  children: "Deti",
+  children: "Podradené",
   photos: "Fotky",
   created_at: "Vytvorené",
   updated_at: "Upravené",
 };
 
 const DEFAULT_HIDDEN = new Set(["updated_at"]);
+/** Odsadenie podľa úrovne stromu (px na úroveň). */
+const TREE_INDENT_PX = 18;
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("sk-SK", {
@@ -110,7 +112,9 @@ export function ItemsDataTable() {
 
   // ── Stĺpce dropdown ──────────────────────────────────────────────────────
   const [columnsOpen, setColumnsOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const columnsRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!columnsOpen) return;
     function onDown(e: MouseEvent) {
@@ -121,6 +125,56 @@ export function ItemsDataTable() {
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
   }, [columnsOpen]);
+
+  useEffect(() => {
+    function onFullscreenChange() {
+      const active =
+        document.fullscreenElement === rootRef.current ||
+        (document as Document & { webkitFullscreenElement?: Element }).webkitFullscreenElement ===
+          rootRef.current;
+      setIsFullscreen(active);
+    }
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", onFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
+      document.removeEventListener("webkitfullscreenchange", onFullscreenChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isFullscreen || document.fullscreenElement === rootRef.current) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isFullscreen]);
+
+  async function toggleFullscreen() {
+    const el = rootRef.current;
+    if (!el) return;
+
+    if (isFullscreen) {
+      if (document.fullscreenElement) {
+        try {
+          await document.exitFullscreen();
+        } catch {
+          /* CSS režim */
+        }
+      }
+      setIsFullscreen(false);
+      return;
+    }
+
+    try {
+      await el.requestFullscreen();
+      setIsFullscreen(true);
+    } catch {
+      // iOS / staršie prehliadače — fixed overlay
+      setIsFullscreen(true);
+    }
+  }
 
   const columnVisibility = useMemo((): VisibilityState => {
     const vis: VisibilityState = {};
@@ -156,12 +210,17 @@ export function ItemsDataTable() {
       accessorKey: "type_code",
       header: "Typ",
       size: 100,
-      cell: ({ getValue }) => {
+      cell: ({ row, getValue }) => {
         const code = getValue<string>();
         return (
-          <span className={`badge badge-${code.toLowerCase()}`}>
-            {TYPE_LABEL[code] ?? code}
-          </span>
+          <div
+            className="data-table-type-cell"
+            style={{ paddingLeft: row.depth * TREE_INDENT_PX }}
+          >
+            <span className={`badge badge-${code.toLowerCase()}`}>
+              {TYPE_LABEL[code] ?? code}
+            </span>
+          </div>
         );
       },
     },
@@ -215,8 +274,8 @@ export function ItemsDataTable() {
     },
     {
       id: "children",
-      header: "Deti",
-      size: 56,
+      header: "Podradené",
+      size: 72,
       accessorFn: (row) => row._count.children,
       cell: ({ getValue }) => {
         const n = getValue<number>();
@@ -290,7 +349,10 @@ export function ItemsDataTable() {
   const matchCount = coreMatches.length;
 
   return (
-    <div className="items-data-table">
+    <div
+      ref={rootRef}
+      className={`items-data-table${isFullscreen ? " items-data-table--fullscreen" : ""}`}
+    >
       <div className="items-table-toolbar card">
 
         {/* Hľadanie */}
@@ -407,6 +469,15 @@ export function ItemsDataTable() {
             </button>
           )}
 
+          <button
+            type="button"
+            className={`items-table-chip ${isFullscreen ? "items-table-chip-active" : ""}`}
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Ukončiť celú obrazovku (Esc)" : "Tabuľka na celú obrazovku"}
+          >
+            {isFullscreen ? "✕ Zavrieť" : "⛶ Celá obrazovka"}
+          </button>
+
           <span className="items-table-count muted">
             {hasAnyFilter ? (
               <><strong>{matchCount}</strong> {matchCount === 1 ? "zhoda" : matchCount < 5 ? "zhody" : "zhôd"}</>
@@ -460,15 +531,7 @@ export function ItemsDataTable() {
                       ].filter(Boolean).join(" ")}
                     >
                       {row.getVisibleCells().map((cell) => (
-                        <td
-                          key={cell.id}
-                          style={{
-                            paddingLeft:
-                              cell.column.id === "name"
-                                ? `${8 + row.depth * 16}px`
-                                : undefined,
-                          }}
-                        >
+                        <td key={cell.id}>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </td>
                       ))}
