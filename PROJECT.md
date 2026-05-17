@@ -1,6 +1,6 @@
 # ArchiveApp — PROJECT.md
 > Živý dokument. Aktualizovať po každom rozhodnutí alebo sprinte.
-> Verzia 2.2 — Sprint 3b: kód OCR napísaný (Tesseract na Railway cez nixpacks), čaká na deploy verifikáciu.
+> Verzia 2.2 — Sprint 3b: kód OCR napísaný, Tesseract sa inštaluje cez Railpack `deploy.aptPackages` (Railway prešiel z Nixpacks na Railpack).
 
 ---
 
@@ -155,7 +155,7 @@ Export → CSV/JSON so všetkými položkami, lokáciou, statusom, poznámkami
 | Backend hosting | Railway | ✓ live |
 | Foto storage | Cloudflare R2 (archiveapp-photos) | ✓ live (Sprint 3a) |
 | QR scan | @zxing/browser (kamera) + manuálny input | ✓ live |
-| OCR | Tesseract na Railway (nixpacks), batch endpoint | 🟡 Sprint 3b kód hotový, čaká deploy |
+| OCR | Tesseract na Railway (railpack.json `deploy.aptPackages`), batch endpoint | 🟡 Sprint 3b kód hotový, čaká deploy |
 | Auth MVP | HTTP Basic Auth | ✓ live |
 | Auth fáza 2 | Microsoft OAuth (passport-azure-ad) | ⬜ po MVP |
 | Export | CSV + JSON endpoint | ⬜ Sprint 4 |
@@ -255,7 +255,8 @@ AssetinSpace/ArchiveApp (private)
 - ✓ Integrácia v `ItemDetailPage` (sekcia Fotky)
 
 ### Sprint 3b — OCR 🟡 KÓD HOTOVÝ (čaká Railway deploy verifikáciu)
-- ✓ `backend/nixpacks.toml`: Tesseract + leptonica system dependencies pre Railway
+- ✓ `backend/railpack.json`: `deploy.aptPackages: ["tesseract-ocr", "tesseract-ocr-eng"]` — Railway runtime image dostane Tesseract binary cez apt
+- ℹ️ Pôvodný `backend/nixpacks.toml` zmazaný — Railway prešlo na **Railpack** builder (default od 2025), nixpacks config sa ignoruje. Spec predpokladal nixpacks, museli sme prejsť cez Railpack ekvivalent.
 - ✓ `backend/src/types/node-tesseract-ocr.d.ts`: lokálna deklarácia typov (chýbajúce @types)
 - ✓ `backend/src/services/ocr.ts`: `processPhoto` (idempotent), `processPending` (sériový batch, lang=eng, OEM=1, PSM=6)
 - ✓ `backend/src/routes/ocr.ts`: 4 endpointy — `POST /api/ocr/process-pending` (async fire-and-forget cez `setImmediate`), `GET /api/ocr/status`, `POST /api/ocr/retry/:photoId` (sync), `GET /api/ocr/failed`
@@ -319,5 +320,5 @@ IT tím objednávateľa dostane:
 
 ---
 
-*Posledná aktualizácia: v2.2 — Sprint 3b kód napísaný a buildy prešli (backend `tsc` ✓, frontend `tsc && vite build` ✓). Čaká push + Railway deploy + overenie Tesseract binary v Deploy Logs.*
-*Ďalší krok: push → Railway redeploy → otvor `/admin/ocr` → spusti batch nad reálnymi PENDING fotkami → odhad presnosti pre slovenské štítky → rozhodnúť o slovenskom language packu.*
+*Posledná aktualizácia: v2.2 — Sprint 3b kód napísaný, prvý deploy odhalil že Railway prešlo z Nixpacks na Railpack (nixpacks.toml ignorovaný). Konverzia na `backend/railpack.json` s `deploy.aptPackages`. Čaká druhý deploy + overenie Tesseract binary v Build Logs.*
+*Ďalší krok: push → Railway redeploy → over že Build Logs obsahuje `install apt packages: tesseract-ocr` → /api/ocr/test-binary smoke test → end-to-end test cez /admin/ocr.*
