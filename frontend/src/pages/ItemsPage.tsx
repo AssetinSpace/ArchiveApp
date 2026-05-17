@@ -75,23 +75,13 @@ export function ItemsPage() {
         <h1 style={{ margin: 0 }}>Položky</h1>
         <div className="row" style={{ gap: 4 }}>
           {view === "tree" ? (
-            <>
-              <button
-                type="button"
-                className="btn-ghost btn-small"
-                onClick={() => switchView("search")}
-                title="Fulltext v názve, poznámke a OCR texte fotiek"
-              >
-                Hľadať (OCR)
-              </button>
-              <button
-                type="button"
-                className="btn-primary btn-small"
-                onClick={() => switchView("create")}
-              >
-                Vytvoriť
-              </button>
-            </>
+            <button
+              type="button"
+              className="btn-primary btn-small"
+              onClick={() => switchView("create")}
+            >
+              Vytvoriť
+            </button>
           ) : (
             <button
               type="button"

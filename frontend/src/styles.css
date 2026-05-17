@@ -1570,6 +1570,14 @@ p { margin: 0 0 12px; }
   background: #fafafa;
 }
 
+.data-table-row-match {
+  background: #f0fdf4;
+}
+
+.data-table-row-match:hover {
+  background: #dcfce7;
+}
+
 .data-table-empty {
   text-align: center;
   padding: 24px !important;
@@ -1596,6 +1604,27 @@ p { margin: 0 0 12px; }
 .data-table-name-link:hover {
   color: var(--color-brand-green);
   text-decoration: underline;
+}
+
+.data-table-ocr-snippet {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+.data-table-ocr-label {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-right: 4px;
+  vertical-align: middle;
 }
 
 .data-table-path {

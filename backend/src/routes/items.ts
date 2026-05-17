@@ -130,7 +130,10 @@ itemsRouter.get("/", async (req, res, next) => {
   }
 });
 
-// GET /api/items/inventory — flat list pre tabuľku (všetky aktívne položky + počty).
+// GET /api/items/inventory — flat list pre tabuľku (všetky aktívne položky + počty + OCR preview).
+//
+// ocr_text: zreťazený raw text z max 3 najnovších DONE fotiek (na client-side hľadanie).
+// Neprenášame celý korpus — take:3 dáva rozumný kompromis medzi pokrytím a veľkosťou odpovede.
 itemsRouter.get("/inventory", async (_req, res, next) => {
   try {
     const items = await prisma.item.findMany({
@@ -152,9 +155,27 @@ itemsRouter.get("/inventory", async (_req, res, next) => {
             photos: { where: { deleted_at: null } },
           },
         },
+        photos: {
+          where: { deleted_at: null, ocr_status: "DONE" },
+          orderBy: { created_at: "desc" },
+          take: 3,
+          select: { ocr_raw_text: true },
+        },
       },
     });
-    res.json(items);
+
+    // Agregujeme OCR texty do jedného stringu na FE full-text vyhľadávanie.
+    const result = items.map((item) => {
+      const { photos, ...rest } = item;
+      const ocr_text = photos
+        .map((p) => p.ocr_raw_text)
+        .filter((t): t is string => !!t)
+        .join(" ")
+        .slice(0, 2000) || null;
+      return { ...rest, ocr_text };
+    });
+
+    res.json(result);
   } catch (e) {
     next(e);
   }

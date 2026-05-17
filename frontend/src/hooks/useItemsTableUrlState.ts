@@ -1,16 +1,11 @@
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
-export type TableMode = "tree" | "flat";
-export type GroupBy = "" | "type_code" | "status";
-
-const MODE_KEY = "mode";
-const Q_KEY = "q";
+const SEARCH_KEY = "s";
 const TYPES_KEY = "types";
 const STATUS_KEY = "status";
 const HAS_QR_KEY = "hasQr";
 const HAS_PHOTO_KEY = "hasPhoto";
-const GROUP_KEY = "group";
 const HIDDEN_COLS_KEY = "hide";
 
 const ALL_TYPES = ["SKLAD", "PALETA", "KRABICA", "ZLOZKA"] as const;
@@ -18,8 +13,7 @@ const ALL_TYPES = ["SKLAD", "PALETA", "KRABICA", "ZLOZKA"] as const;
 export function useItemsTableUrlState() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const mode: TableMode = searchParams.get(MODE_KEY) === "flat" ? "flat" : "tree";
-  const globalFilter = searchParams.get(Q_KEY) ?? "";
+  const search = searchParams.get(SEARCH_KEY) ?? "";
   const typeFilters = useMemo(() => {
     const raw = searchParams.get(TYPES_KEY);
     if (!raw) return [] as string[];
@@ -28,11 +22,6 @@ export function useItemsTableUrlState() {
   const statusFilter = searchParams.get(STATUS_KEY) ?? "";
   const hasQr = searchParams.get(HAS_QR_KEY) === "1";
   const hasPhoto = searchParams.get(HAS_PHOTO_KEY) === "1";
-  const groupBy: GroupBy = useMemo(() => {
-    const g = searchParams.get(GROUP_KEY);
-    if (g === "type_code" || g === "status") return g;
-    return "";
-  }, [searchParams]);
   const hiddenColumns = useMemo(() => {
     const raw = searchParams.get(HIDDEN_COLS_KEY);
     if (!raw) return new Set<string>();
@@ -48,6 +37,10 @@ export function useItemsTableUrlState() {
             if (value === null || value === "") next.delete(key);
             else next.set(key, value);
           }
+          // Legacy URL params — odstrán pri každom update
+          next.delete("mode");
+          next.delete("group");
+          next.delete("q");
           return next;
         },
         { replace: true },
@@ -56,12 +49,8 @@ export function useItemsTableUrlState() {
     [setSearchParams],
   );
 
-  const setMode = useCallback(
-    (m: TableMode) => patchParams({ [MODE_KEY]: m === "tree" ? null : m }),
-    [patchParams],
-  );
-  const setGlobalFilter = useCallback(
-    (q: string) => patchParams({ [Q_KEY]: q.trim() ? q : null }),
+  const setSearch = useCallback(
+    (q: string) => patchParams({ [SEARCH_KEY]: q || null }),
     [patchParams],
   );
   const setTypeFilters = useCallback(
@@ -81,10 +70,6 @@ export function useItemsTableUrlState() {
     (v: boolean) => patchParams({ [HAS_PHOTO_KEY]: v ? "1" : null }),
     [patchParams],
   );
-  const setGroupBy = useCallback(
-    (g: GroupBy) => patchParams({ [GROUP_KEY]: g || null }),
-    [patchParams],
-  );
   const setHiddenColumns = useCallback(
     (cols: Set<string>) =>
       patchParams({
@@ -95,31 +80,30 @@ export function useItemsTableUrlState() {
 
   const clearFilters = useCallback(() => {
     patchParams({
-      [Q_KEY]: null,
+      [SEARCH_KEY]: null,
       [TYPES_KEY]: null,
       [STATUS_KEY]: null,
       [HAS_QR_KEY]: null,
       [HAS_PHOTO_KEY]: null,
-      [GROUP_KEY]: null,
     });
   }, [patchParams]);
 
+  const hasActiveFilters =
+    !!search.trim() || typeFilters.length > 0 || !!statusFilter || hasQr || hasPhoto;
+
   return {
-    mode,
-    globalFilter,
+    search,
     typeFilters,
     statusFilter,
     hasQr,
     hasPhoto,
-    groupBy,
     hiddenColumns,
-    setMode,
-    setGlobalFilter,
+    hasActiveFilters,
+    setSearch,
     setTypeFilters,
     setStatusFilter,
     setHasQr,
     setHasPhoto,
-    setGroupBy,
     setHiddenColumns,
     clearFilters,
     ALL_TYPES,

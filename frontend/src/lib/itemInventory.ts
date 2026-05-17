@@ -8,7 +8,6 @@ export function buildItemTree(items: InventoryItem[]): InventoryTreeRow[] {
   const idSet = new Set(items.map((it) => it.id));
   const byParent = new Map<string | null, InventoryItem[]>();
   for (const item of items) {
-    // Pri filtrovaní typu rodič často nie je v množine — zobraz položku ako koreň.
     const key =
       item.parent_id && idSet.has(item.parent_id) ? item.parent_id : null;
     const list = byParent.get(key) ?? [];
@@ -78,24 +77,80 @@ export function includeAncestors(
   return allItems.filter((it) => include.has(it.id));
 }
 
+/** Všetci potomkovia zhodných položiek (celé podstromy). */
+export function includeDescendants(
+  allItems: InventoryItem[],
+  matching: InventoryItem[],
+): InventoryItem[] {
+  if (matching.length === 0) return [];
+  const byParent = new Map<string, InventoryItem[]>();
+  for (const item of allItems) {
+    if (!item.parent_id) continue;
+    const list = byParent.get(item.parent_id) ?? [];
+    list.push(item);
+    byParent.set(item.parent_id, list);
+  }
+  const include = new Set(matching.map((m) => m.id));
+  const queue = [...matching];
+  while (queue.length > 0) {
+    const cur = queue.shift()!;
+    for (const child of byParent.get(cur.id) ?? []) {
+      if (!include.has(child.id)) {
+        include.add(child.id);
+        queue.push(child);
+      }
+    }
+  }
+  return allItems.filter((it) => include.has(it.id));
+}
+
+/**
+ * Položky viditeľné v strome pri filtroch: predkovia (kontext) + zhody + potomkovia (ďalšie úrovne).
+ */
+export function itemsForFilteredTree(
+  allItems: InventoryItem[],
+  matching: InventoryItem[],
+): InventoryItem[] {
+  if (matching.length === 0) return [];
+  const ids = new Set<string>();
+  for (const it of includeAncestors(allItems, matching)) ids.add(it.id);
+  for (const it of includeDescendants(allItems, matching)) ids.add(it.id);
+  return allItems.filter((it) => ids.has(it.id));
+}
+
+function stripDiacritics(s: string): string {
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+export function itemMatchesQuery(item: InventoryItem, query: string): boolean {
+  const q = stripDiacritics(query.trim());
+  if (!q) return true;
+  const hay = stripDiacritics(
+    [item.name, item.qr_code, item.note, item.ocr_text].filter(Boolean).join(" "),
+  );
+  return hay.includes(q);
+}
+
+/** Vráti snippet z OCR textu ±60 znakov okolo prvého výskytu query. */
+export function ocrSnippet(item: InventoryItem, query: string): string | null {
+  if (!item.ocr_text || !query.trim()) return null;
+  const q = stripDiacritics(query.trim());
+  const normOcr = stripDiacritics(item.ocr_text);
+  const idx = normOcr.indexOf(q);
+  if (idx < 0) return null;
+  const start = Math.max(0, idx - 60);
+  const end = Math.min(item.ocr_text.length, idx + q.length + 60);
+  const raw = item.ocr_text.slice(start, end).replace(/\s+/g, " ").trim();
+  return `${start > 0 ? "…" : ""}${raw}${end < item.ocr_text.length ? "…" : ""}`;
+}
+
+/** @deprecated use itemMatchesQuery */
 export function itemMatchesGlobalFilter(
   item: InventoryItem,
   query: string,
-  labels: { type: Record<string, string>; status: Record<string, string> },
+  _labels: unknown,
 ): boolean {
-  const q = query.trim().toLowerCase();
-  if (!q) return true;
-  const hay = [
-    item.name,
-    item.qr_code,
-    item.note,
-    labels.type[item.type_code],
-    labels.status[item.status],
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-  return hay.includes(q);
+  return itemMatchesQuery(item, query);
 }
 
 export function collectExpandableIds(rows: InventoryTreeRow[]): Record<string, boolean> {

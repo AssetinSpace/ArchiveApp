@@ -72,7 +72,7 @@ export type Item = {
   parent?: Item | null;
 };
 
-/** Položka z GET /items/inventory — bez deleted_at, s agregátmi pre tabuľku. */
+/** Položka z GET /items/inventory — bez deleted_at, s agregátmi a OCR textom pre tabuľku. */
 export type InventoryItem = {
   id: string;
   type_code: string;
@@ -83,6 +83,8 @@ export type InventoryItem = {
   status: Status;
   created_at: string;
   updated_at: string;
+  /** Zreťazený OCR text z max 3 najnovších DONE fotiek. Null ak žiadna fotka s OCR. */
+  ocr_text: string | null;
   _count: {
     children: number;
     photos: number;
