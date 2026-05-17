@@ -72,6 +72,23 @@ export type Item = {
   parent?: Item | null;
 };
 
+/** Položka z GET /items/inventory — bez deleted_at, s agregátmi pre tabuľku. */
+export type InventoryItem = {
+  id: string;
+  type_code: string;
+  name: string | null;
+  parent_id: string | null;
+  qr_code: string | null;
+  note: string | null;
+  status: Status;
+  created_at: string;
+  updated_at: string;
+  _count: {
+    children: number;
+    photos: number;
+  };
+};
+
 export type QrStatus = "FREE" | "ASSIGNED";
 
 export type QRTag = {
@@ -256,6 +273,7 @@ export const api = {
     const q = qs.toString();
     return request<Item[]>(`/items${q ? `?${q}` : ""}`);
   },
+  inventoryItems: () => request<InventoryItem[]>("/items/inventory"),
   getItem: (id: string) => request<Item & { _count: { children: number } }>(`/items/${id}`),
   getItemPath: (id: string) => request<Item[]>(`/items/${id}/path`),
   getChildren: (id: string) => request<Item[]>(`/items/${id}/children`),

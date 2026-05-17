@@ -1,138 +1,18 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { Link, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import {
   api,
   PARENT_TYPE_BY_CHILD,
   TYPE_LABEL,
+  type InventoryItem,
   type Item,
   type ItemType,
 } from "../api";
+import { ItemsDataTable } from "../components/ItemsDataTable";
 import { ItemSearchPanel } from "./SearchPage";
 
 type ItemsView = "tree" | "create" | "search";
-
-// ─── tree node ────────────────────────────────────────────────────────────────
-
-function TreeNode({ item, level }: { item: Item; level: number }) {
-  const [expanded, setExpanded] = useState(false);
-
-  const childrenQ = useQuery({
-    queryKey: ["items", "children", item.id],
-    queryFn: () => api.getChildren(item.id),
-    enabled: expanded,
-    staleTime: 30_000,
-  });
-
-  const children = childrenQ.data ?? [];
-  const isLoading = childrenQ.isFetching;
-  const mightHaveChildren = childrenQ.data === undefined || children.length > 0;
-  const isEmpty = childrenQ.data !== undefined && children.length === 0;
-
-  // Menší indent na mobile aby sa zmestili 4 úrovne do 375px.
-  const indent = level * 14;
-
-  return (
-    <div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          paddingLeft: indent + 4,
-          paddingRight: 4,
-          minHeight: 48,
-          borderRadius: 6,
-        }}
-      >
-        <button
-          type="button"
-          className="btn-ghost btn-small"
-          onClick={() => setExpanded((v) => !v)}
-          aria-label={expanded ? "Zbaliť" : "Rozbaliť"}
-          style={{
-            minWidth: 44,
-            minHeight: 44,
-            padding: 0,
-            color: mightHaveChildren ? "#374151" : "transparent",
-            visibility: mightHaveChildren ? "visible" : "hidden",
-          }}
-        >
-          {expanded ? "▼" : "▶"}
-        </button>
-
-        <span className={`badge badge-${item.type_code.toLowerCase()}`}>
-          {TYPE_LABEL[item.type_code] ?? item.type_code}
-        </span>
-
-        <Link
-          to={`/items/${item.id}`}
-          style={{
-            flexGrow: 1,
-            color: "#111827",
-            fontWeight: 500,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {item.name ?? <em className="muted">(bez názvu)</em>}
-        </Link>
-      </div>
-
-      {expanded && (
-        <div
-          style={{
-            borderLeft: "2px solid #e5e7eb",
-            marginLeft: indent + 14,
-          }}
-        >
-          {isLoading && (
-            <div className="muted" style={{ padding: "6px 12px", fontSize: 13 }}>
-              Načítavam…
-            </div>
-          )}
-          {children.map((child) => (
-            <TreeNode key={child.id} item={child} level={level + 1} />
-          ))}
-          {isEmpty && (
-            <div
-              className="muted"
-              style={{ padding: "6px 12px", fontSize: 12, color: "#d1d5db" }}
-            >
-              Žiadne položky
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── tree root ────────────────────────────────────────────────────────────────
-
-function TreeView() {
-  const rootQ = useQuery({
-    queryKey: ["items", "root"],
-    queryFn: () => api.listItems({ parent_id: null }),
-  });
-
-  if (rootQ.isLoading) return <p className="muted">Načítavam…</p>;
-  if (rootQ.error)
-    return <p className="error">Chyba: {(rootQ.error as Error).message}</p>;
-  const roots = rootQ.data ?? [];
-  if (roots.length === 0) return <p className="muted">Žiadne položky</p>;
-
-  return (
-    <div>
-      {roots.map((item) => (
-        <TreeNode key={item.id} item={item} level={0} />
-      ))}
-    </div>
-  );
-}
-
-// ─── main page ────────────────────────────────────────────────────────────────
 
 export function ItemsPage() {
   const qc = useQueryClient();
@@ -140,16 +20,20 @@ export function ItemsPage() {
   const [view, setView] = useState<ItemsView>("tree");
 
   const typesQ = useQuery({ queryKey: ["item-types"], queryFn: () => api.itemTypes() });
-  const itemsQ = useQuery({ queryKey: ["items", "all"], queryFn: () => api.listItems() });
+  const itemsQ = useQuery({
+    queryKey: ["items", "inventory"],
+    queryFn: () => api.inventoryItems(),
+    staleTime: 60_000,
+  });
 
   const items = itemsQ.data ?? [];
   const types = typesQ.data ?? [];
 
   const byId = useMemo(() => new Map(items.map((it) => [it.id, it])), [items]);
 
-  function getFullPath(item: Item): string {
+  function getFullPath(item: InventoryItem | Item): string {
     const parts: string[] = [];
-    let cur: Item | undefined = item;
+    let cur: InventoryItem | Item | undefined = item;
     const seen = new Set<string>();
     while (cur) {
       if (seen.has(cur.id)) break;
@@ -172,9 +56,13 @@ export function ItemsPage() {
   function switchView(next: ItemsView) {
     setView(next);
     if (next === "tree") {
-      setSearchParams({}, { replace: true });
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete("panel");
+      setSearchParams(nextParams, { replace: true });
     } else {
-      setSearchParams({ panel: next }, { replace: true });
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.set("panel", next);
+      setSearchParams(nextParams, { replace: true });
     }
   }
 
@@ -216,18 +104,8 @@ export function ItemsPage() {
       </div>
 
       {view === "tree" && (
-        <section className="card">
-          <div
-            className="row"
-            style={{ justifyContent: "space-between", marginBottom: 12 }}
-          >
-            <h2 style={{ margin: 0 }}>Strom položiek</h2>
-            <Legend />
-          </div>
-          <p className="muted" style={{ margin: "0 0 12px" }}>
-            Klikni na šípku pre rozbalenie, na názov pre detail.
-          </p>
-          <TreeView />
+        <section className="stack">
+          <ItemsDataTable onAdvancedSearch={() => switchView("search")} />
         </section>
       )}
 
@@ -239,6 +117,7 @@ export function ItemsPage() {
             items={items}
             getFullPath={getFullPath}
             onCreated={() => {
+              qc.invalidateQueries({ queryKey: ["items", "inventory"] });
               qc.invalidateQueries({ queryKey: ["items", "all"] });
               qc.invalidateQueries({ queryKey: ["items", "root"] });
               switchView("tree");
@@ -252,8 +131,6 @@ export function ItemsPage() {
   );
 }
 
-// ─── Reusable create-item form ────────────────────────────────────────────────
-
 function CreateItemFormContent({
   types,
   items,
@@ -261,8 +138,8 @@ function CreateItemFormContent({
   onCreated,
 }: {
   types: ItemType[];
-  items: Item[];
-  getFullPath: (item: Item) => string;
+  items: InventoryItem[];
+  getFullPath: (item: InventoryItem) => string;
   onCreated: (created: Item) => void;
 }) {
   const qc = useQueryClient();
@@ -278,13 +155,14 @@ function CreateItemFormContent({
   );
   const parentNeeded = typeCode !== "" && typeCode !== "SKLAD";
   const eligibleParents = useMemo(
-    () => expectedParentType ? items.filter((it) => it.type_code === expectedParentType) : [],
+    () => (expectedParentType ? items.filter((it) => it.type_code === expectedParentType) : []),
     [items, expectedParentType],
   );
 
   const createMut = useMutation({
     mutationFn: api.createItem,
     onSuccess: (created) => {
+      qc.invalidateQueries({ queryKey: ["items", "inventory"] });
       qc.invalidateQueries({ queryKey: ["items", "all"] });
       if (!created.parent_id) {
         qc.invalidateQueries({ queryKey: ["items", "root"] });
@@ -303,7 +181,10 @@ function CreateItemFormContent({
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     setFormError(null);
-    if (!typeCode) { setFormError("Vyber typ položky"); return; }
+    if (!typeCode) {
+      setFormError("Vyber typ položky");
+      return;
+    }
     if (parentNeeded && !parentId) {
       setFormError(
         `Pre typ ${TYPE_LABEL[typeCode] ?? typeCode} musíš vybrať nadradenú položku (${
@@ -324,16 +205,30 @@ function CreateItemFormContent({
     <form className="form" onSubmit={onSubmit}>
       <label className="form-label">
         Typ
-        <select value={typeCode} onChange={(e) => { setTypeCode(e.target.value); setParentId(""); }} required>
+        <select
+          value={typeCode}
+          onChange={(e) => {
+            setTypeCode(e.target.value);
+            setParentId("");
+          }}
+          required
+        >
           <option value="">— vyber typ —</option>
           {types.map((t: ItemType) => (
-            <option key={t.code} value={t.code}>{t.label} ({t.code})</option>
+            <option key={t.code} value={t.code}>
+              {t.label} ({t.code})
+            </option>
           ))}
         </select>
       </label>
       <label className="form-label">
         Názov
-        <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="napr. Krabica pri okne" />
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="napr. Krabica pri okne"
+        />
       </label>
       <label className="form-label">
         Nadradená položka
@@ -341,33 +236,30 @@ function CreateItemFormContent({
         {typeCode === "SKLAD" && <input value="(žiadny — sklad je koreň)" disabled />}
         {typeCode !== "" && typeCode !== "SKLAD" && (
           <select value={parentId} onChange={(e) => setParentId(e.target.value)} required>
-            <option value="">— vyber {TYPE_LABEL[expectedParentType ?? ""] ?? "nadradenú položku"} —</option>
+            <option value="">
+              — vyber {TYPE_LABEL[expectedParentType ?? ""] ?? "nadradenú položku"} —
+            </option>
             {eligibleParents.map((p) => (
-              <option key={p.id} value={p.id}>{getFullPath(p)}</option>
+              <option key={p.id} value={p.id}>
+                {getFullPath(p)}
+              </option>
             ))}
           </select>
         )}
       </label>
       <label className="form-label">
         Poznámka
-        <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} placeholder="(voliteľné)" />
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          rows={2}
+          placeholder="(voliteľné)"
+        />
       </label>
       {formError && <div className="error">{formError}</div>}
       <button type="submit" className="btn-primary btn-block" disabled={createMut.isPending}>
         {createMut.isPending ? "Ukladám…" : "Vytvoriť"}
       </button>
     </form>
-  );
-}
-
-function Legend() {
-  return (
-    <div className="row" style={{ gap: 4 }}>
-      {Object.entries(TYPE_LABEL).map(([code, label]) => (
-        <span key={code} className={`badge badge-${code.toLowerCase()}`}>
-          {label}
-        </span>
-      ))}
-    </div>
   );
 }

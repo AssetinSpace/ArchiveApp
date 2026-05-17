@@ -130,6 +130,36 @@ itemsRouter.get("/", async (req, res, next) => {
   }
 });
 
+// GET /api/items/inventory — flat list pre tabuľku (všetky aktívne položky + počty).
+itemsRouter.get("/inventory", async (_req, res, next) => {
+  try {
+    const items = await prisma.item.findMany({
+      where: { deleted_at: null },
+      orderBy: [{ type_code: "asc" }, { name: "asc" }, { created_at: "asc" }],
+      select: {
+        id: true,
+        type_code: true,
+        name: true,
+        parent_id: true,
+        qr_code: true,
+        note: true,
+        status: true,
+        created_at: true,
+        updated_at: true,
+        _count: {
+          select: {
+            children: { where: { deleted_at: null } },
+            photos: { where: { deleted_at: null } },
+          },
+        },
+      },
+    });
+    res.json(items);
+  } catch (e) {
+    next(e);
+  }
+});
+
 itemsRouter.post("/", async (req, res, next) => {
   try {
     const body = CreateItemSchema.parse(req.body);
