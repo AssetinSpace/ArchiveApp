@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import QRCode from "qrcode";
 import {
@@ -19,10 +19,32 @@ const STATUS_LABEL: Record<Status, string> = {
   NEZNAME: "Neznáme",
 };
 
+type DetailTab = "edit" | "qr" | "photos" | "children";
+
+const DETAIL_TABS: DetailTab[] = ["edit", "qr", "photos", "children"];
+
+function isDetailTab(value: string | null): value is DetailTab {
+  return value !== null && DETAIL_TABS.includes(value as DetailTab);
+}
+
 export function ItemDetailPage() {
   const { id = "" } = useParams<{ id: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const qc = useQueryClient();
   const [fabOpen, setFabOpen] = useState(false);
+
+  const tabParam = searchParams.get("tab");
+  const activeTab: DetailTab = isDetailTab(tabParam) ? tabParam : "edit";
+
+  function setActiveTab(next: DetailTab) {
+    const nextParams = new URLSearchParams(searchParams);
+    if (next === "edit") {
+      nextParams.delete("tab");
+    } else {
+      nextParams.set("tab", next);
+    }
+    setSearchParams(nextParams, { replace: true });
+  }
 
   const itemQ = useQuery({
     queryKey: ["items", "one", id],
@@ -77,79 +99,128 @@ export function ItemDetailPage() {
         })}
       </nav>
 
-      {/* Info card */}
-      <section className="card">
+      {/* Základné metadáta */}
+      <section className="card item-detail-header">
         <h1 style={{ marginBottom: 8 }}>{item.name ?? "(bez názvu)"}</h1>
-        <div className="row" style={{ marginBottom: 12 }}>
+        <div className="row" style={{ marginBottom: item.note ? 0 : 12, flexWrap: "wrap" }}>
           <span className={`badge badge-${item.type_code.toLowerCase()}`}>
             {TYPE_LABEL[item.type_code] ?? item.type_code}
           </span>
           <span className={`badge badge-${item.status.toLowerCase()}`}>
             {STATUS_LABEL[item.status]}
           </span>
+          {item.qr_code && (
+            <span className="muted" style={{ fontSize: 13, fontFamily: "monospace" }}>
+              {item.qr_code}
+            </span>
+          )}
         </div>
-        <dl className="info-list" style={{ margin: 0 }}>
-          <InfoRow label="QR kód" value={item.qr_code ?? "—"} />
+        {item.note && <p className="item-detail-note">{item.note}</p>}
+        <dl className="info-list" style={{ margin: item.note ? "12px 0 0" : 0 }}>
           <InfoRow label="Vytvorené" value={new Date(item.created_at).toLocaleString("sk-SK")} />
           <InfoRow label="Upravené" value={new Date(item.updated_at).toLocaleString("sk-SK")} />
         </dl>
       </section>
 
-      {/* Status + note editor */}
-      <section className="card">
-        <h2>Stav a poznámka</h2>
-        <ItemEditor item={item} onSaved={invalidateAll} />
-      </section>
+      <nav className="item-detail-tabs" aria-label="Sekcie detailu">
+        <button
+          type="button"
+          className={`item-detail-tab ${activeTab === "edit" ? "item-detail-tab-active" : ""}`}
+          onClick={() => setActiveTab("edit")}
+          aria-current={activeTab === "edit" ? "page" : undefined}
+        >
+          Upraviť
+        </button>
+        <button
+          type="button"
+          className={`item-detail-tab ${activeTab === "qr" ? "item-detail-tab-active" : ""}`}
+          onClick={() => setActiveTab("qr")}
+          aria-current={activeTab === "qr" ? "page" : undefined}
+        >
+          QR kód
+        </button>
+        <button
+          type="button"
+          className={`item-detail-tab ${activeTab === "photos" ? "item-detail-tab-active" : ""}`}
+          onClick={() => setActiveTab("photos")}
+          aria-current={activeTab === "photos" ? "page" : undefined}
+        >
+          Fotky
+        </button>
+        <button
+          type="button"
+          className={`item-detail-tab ${activeTab === "children" ? "item-detail-tab-active" : ""}`}
+          onClick={() => setActiveTab("children")}
+          aria-current={activeTab === "children" ? "page" : undefined}
+        >
+          Podradené
+          {!childrenQ.isLoading && (
+            <span style={{ marginLeft: 4, opacity: activeTab === "children" ? 0.9 : 0.7 }}>
+              ({childrenQ.data?.length ?? 0})
+            </span>
+          )}
+        </button>
+      </nav>
 
-      {/* QR section */}
-      <section className="card">
-        <h2>QR kód</h2>
-        <QRSection item={item} onAssigned={invalidateAll} />
-      </section>
+      {activeTab === "edit" && (
+        <section className="card item-detail-panel">
+          <h2>Stav a poznámka</h2>
+          <ItemEditor item={item} onSaved={invalidateAll} />
+        </section>
+      )}
 
-      {/* Photos */}
-      <section className="card">
-        <h2>Fotky</h2>
-        <PhotoUpload itemId={item.id} />
-        <div style={{ marginTop: 12 }}>
-          <PhotoGallery itemId={item.id} />
-        </div>
-      </section>
+      {activeTab === "qr" && (
+        <section className="card item-detail-panel">
+          <h2>QR kód</h2>
+          <QRSection item={item} onAssigned={invalidateAll} />
+        </section>
+      )}
 
-      {/* Children */}
-      <section className="card">
-        <h2>Podradené položky ({childrenQ.data?.length ?? 0})</h2>
-        {childrenQ.isLoading && <p className="muted">Načítavam…</p>}
-        {childrenQ.data && childrenQ.data.length === 0 && (
-          <p className="muted">Žiadne podradené položky</p>
-        )}
-        {childrenQ.data?.map((c) => (
-          <Link key={c.id} to={`/items/${c.id}`} className="card-link">
-            <div className="row" style={{ gap: 8 }}>
-              <span className={`badge badge-${c.type_code.toLowerCase()}`}>
-                {TYPE_LABEL[c.type_code] ?? c.type_code}
-              </span>
-              <strong style={{ flexGrow: 1 }}>{c.name ?? "(bez názvu)"}</strong>
-            </div>
-            {c.note && (
-              <p
-                className="muted"
-                style={{
-                  margin: "6px 0 0",
-                  overflow: "hidden",
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
-                }}
-              >
-                {c.note}
-              </p>
-            )}
-          </Link>
-        ))}
+      {activeTab === "photos" && (
+        <section className="card item-detail-panel">
+          <h2>Fotky</h2>
+          <PhotoUpload itemId={item.id} />
+          <div style={{ marginTop: 12 }}>
+            <PhotoGallery itemId={item.id} />
+          </div>
+        </section>
+      )}
 
-        <AddChildForm parent={item} onAdded={invalidateAll} />
-      </section>
+      {activeTab === "children" && (
+        <section className="card item-detail-panel">
+          <h2>Podradené položky ({childrenQ.data?.length ?? 0})</h2>
+          {childrenQ.isLoading && <p className="muted">Načítavam…</p>}
+          {childrenQ.data && childrenQ.data.length === 0 && (
+            <p className="muted">Žiadne podradené položky</p>
+          )}
+          {childrenQ.data?.map((c) => (
+            <Link key={c.id} to={`/items/${c.id}`} className="card-link">
+              <div className="row" style={{ gap: 8 }}>
+                <span className={`badge badge-${c.type_code.toLowerCase()}`}>
+                  {TYPE_LABEL[c.type_code] ?? c.type_code}
+                </span>
+                <strong style={{ flexGrow: 1 }}>{c.name ?? "(bez názvu)"}</strong>
+              </div>
+              {c.note && (
+                <p
+                  className="muted"
+                  style={{
+                    margin: "6px 0 0",
+                    overflow: "hidden",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                  }}
+                >
+                  {c.note}
+                </p>
+              )}
+            </Link>
+          ))}
+
+          <AddChildForm parent={item} onAdded={invalidateAll} />
+        </section>
+      )}
 
       {/* FAB — skrátený prístup k "Pridať podradeú položku" */}
       {CHILD_TYPE_BY_PARENT[item.type_code] && createPortal(

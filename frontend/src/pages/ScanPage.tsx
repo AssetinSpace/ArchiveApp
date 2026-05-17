@@ -336,7 +336,7 @@ export function ScanPage() {
         <AssignToItemSection
           lookup={state.lookup}
           assignToItem={assignToQ.data ?? null}
-          onAssigned={() => navigate(`/items/${assignToId}`)}
+          onAssigned={() => navigate(`/items/${assignToId}?tab=qr`)}
         />
       )}
       {state.kind === "free" && !assignToId && (
