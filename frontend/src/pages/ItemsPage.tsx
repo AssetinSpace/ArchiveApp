@@ -80,8 +80,9 @@ export function ItemsPage() {
                 type="button"
                 className="btn-ghost btn-small"
                 onClick={() => switchView("search")}
+                title="Fulltext v názve, poznámke a OCR texte fotiek"
               >
-                Hľadať
+                Hľadať (OCR)
               </button>
               <button
                 type="button"
@@ -105,7 +106,7 @@ export function ItemsPage() {
 
       {view === "tree" && (
         <section className="stack">
-          <ItemsDataTable onAdvancedSearch={() => switchView("search")} />
+          <ItemsDataTable />
         </section>
       )}
 

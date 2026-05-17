@@ -1,11 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
   flexRender,
   getCoreRowModel,
   getExpandedRowModel,
-  getFilteredRowModel,
   getGroupedRowModel,
   useReactTable,
   type ColumnDef,
@@ -23,11 +22,13 @@ import {
   buildItemTree,
   buildPathMap,
   collectExpandableIds,
+  includeAncestors,
+  itemMatchesGlobalFilter,
   type InventoryTreeRow,
 } from "../lib/itemInventory";
 import { useItemsTableUrlState, type GroupBy } from "../hooks/useItemsTableUrlState";
 
-const STATUS_LABEL: Record<Status, string> = {
+const STATUS_LABEL: Record<string, string> = {
   NA_MIESTE: "Na mieste",
   VYNESENE: "Vynesené",
   NEZNAME: "Neznáme",
@@ -57,32 +58,27 @@ function formatDate(iso: string): string {
   });
 }
 
-function globalFilterFn(
-  row: { original: InventoryItem },
-  _columnId: string,
-  filterValue: string,
-): boolean {
-  const q = String(filterValue).toLowerCase().trim();
-  if (!q) return true;
-  const item = row.original;
-  const hay = [
-    item.name,
-    item.qr_code,
-    item.note,
-    TYPE_LABEL[item.type_code],
-    STATUS_LABEL[item.status],
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-  return hay.includes(q);
+function applyStructuredFilters(
+  items: InventoryItem[],
+  filters: {
+    typeFilters: string[];
+    statusFilter: string;
+    hasQr: boolean;
+    hasPhoto: boolean;
+  },
+): InventoryItem[] {
+  return items.filter((item) => {
+    if (filters.typeFilters.length > 0 && !filters.typeFilters.includes(item.type_code)) {
+      return false;
+    }
+    if (filters.statusFilter && item.status !== filters.statusFilter) return false;
+    if (filters.hasQr && !item.qr_code) return false;
+    if (filters.hasPhoto && item._count.photos === 0) return false;
+    return true;
+  });
 }
 
-type ItemsDataTableProps = {
-  onAdvancedSearch?: () => void;
-};
-
-export function ItemsDataTable({ onAdvancedSearch }: ItemsDataTableProps) {
+export function ItemsDataTable() {
   const url = useItemsTableUrlState();
   const inventoryQ = useQuery({
     queryKey: ["items", "inventory"],
@@ -92,38 +88,74 @@ export function ItemsDataTable({ onAdvancedSearch }: ItemsDataTableProps) {
 
   const allItems = inventoryQ.data ?? [];
 
-  const filteredItems = useMemo(() => {
-    return allItems.filter((item) => {
-      if (url.typeFilters.length > 0 && !url.typeFilters.includes(item.type_code)) {
-        return false;
-      }
-      if (url.statusFilter && item.status !== url.statusFilter) return false;
-      if (url.hasQr && !item.qr_code) return false;
-      if (url.hasPhoto && item._count.photos === 0) return false;
-      return true;
-    });
-  }, [allItems, url.typeFilters, url.statusFilter, url.hasQr, url.hasPhoto]);
+  const hasStructuredFilters =
+    url.typeFilters.length > 0 || !!url.statusFilter || url.hasQr || url.hasPhoto;
 
-  const pathMap = useMemo(() => buildPathMap(filteredItems), [filteredItems]);
-  const treeData = useMemo(() => buildItemTree(filteredItems), [filteredItems]);
-
-  const tableData: InventoryTreeRow[] = useMemo(
-    () => (url.mode === "tree" ? treeData : filteredItems),
-    [url.mode, treeData, filteredItems],
+  const structuredFiltered = useMemo(
+    () =>
+      applyStructuredFilters(allItems, {
+        typeFilters: url.typeFilters,
+        statusFilter: url.statusFilter,
+        hasQr: url.hasQr,
+        hasPhoto: url.hasPhoto,
+      }),
+    [allItems, url.typeFilters, url.statusFilter, url.hasQr, url.hasPhoto],
   );
+
+  const globalQ = url.globalFilter.trim();
+
+  const effectiveFlat = url.mode === "flat" || hasStructuredFilters;
+
+  const pathMap = useMemo(() => buildPathMap(allItems), [allItems]);
+
+  const { tableData, treeForExpand } = useMemo(() => {
+    const labels = { type: TYPE_LABEL, status: STATUS_LABEL };
+
+    if (effectiveFlat) {
+      let flat = structuredFiltered;
+      if (globalQ) {
+        flat = flat.filter((item) =>
+          itemMatchesGlobalFilter(item, globalQ, labels),
+        );
+      }
+      return { tableData: flat as InventoryTreeRow[], treeForExpand: [] as InventoryTreeRow[] };
+    }
+
+    let forTree = allItems;
+    if (globalQ) {
+      const matching = allItems.filter((item) =>
+        itemMatchesGlobalFilter(item, globalQ, labels),
+      );
+      forTree = includeAncestors(allItems, matching);
+    }
+
+    const tree = buildItemTree(forTree);
+    return { tableData: tree, treeForExpand: tree };
+  }, [effectiveFlat, structuredFiltered, allItems, globalQ]);
 
   const [expanded, setExpanded] = useState<ExpandedState>({});
   const [grouping, setGrouping] = useState<GroupingState>([]);
+  const [columnsOpen, setColumnsOpen] = useState(false);
+  const columnsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (url.mode === "tree") {
-      setGrouping([]);
-    } else if (url.groupBy) {
-      setGrouping([url.groupBy]);
+    if (!columnsOpen) return;
+    function onPointerDown(e: MouseEvent) {
+      if (columnsRef.current && !columnsRef.current.contains(e.target as Node)) {
+        setColumnsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, [columnsOpen]);
+
+  useEffect(() => {
+    if (effectiveFlat) {
+      setGrouping(url.groupBy ? [url.groupBy] : []);
     } else {
       setGrouping([]);
     }
-  }, [url.mode, url.groupBy]);
+  }, [effectiveFlat, url.groupBy]);
 
   const columnVisibility = useMemo((): VisibilityState => {
     const vis: VisibilityState = {};
@@ -131,17 +163,17 @@ export function ItemsDataTable({ onAdvancedSearch }: ItemsDataTableProps) {
     for (const id of DEFAULT_HIDDEN) {
       if (!url.hiddenColumns.has(id)) vis[id] = false;
     }
-    if (url.mode === "tree") vis.path = false;
+    if (!effectiveFlat) vis.path = false;
     else vis.expand = false;
     return vis;
-  }, [url.hiddenColumns, url.mode]);
+  }, [url.hiddenColumns, effectiveFlat]);
 
   const columns = useMemo((): ColumnDef<InventoryTreeRow>[] => {
-    const cols: ColumnDef<InventoryTreeRow>[] = [
+    return [
       {
         id: "expand",
         header: () => null,
-        size: 44,
+        size: 40,
         cell: ({ row }) => {
           if (!row.getCanExpand()) {
             return <span className="data-table-expand-spacer" aria-hidden />;
@@ -149,7 +181,7 @@ export function ItemsDataTable({ onAdvancedSearch }: ItemsDataTableProps) {
           return (
             <button
               type="button"
-              className="btn-ghost btn-small data-table-expand-btn"
+              className="items-table-icon-btn"
               onClick={row.getToggleExpandedHandler()}
               aria-label={row.getIsExpanded() ? "Zbaliť" : "Rozbaliť"}
             >
@@ -256,7 +288,6 @@ export function ItemsDataTable({ onAdvancedSearch }: ItemsDataTableProps) {
         cell: ({ getValue }) => formatDate(getValue<string>()),
       },
     ];
-    return cols;
   }, [pathMap]);
 
   const table = useReactTable({
@@ -265,32 +296,24 @@ export function ItemsDataTable({ onAdvancedSearch }: ItemsDataTableProps) {
     state: {
       expanded,
       grouping,
-      globalFilter: url.globalFilter,
       columnVisibility,
     },
     onExpandedChange: setExpanded,
     onGroupingChange: setGrouping,
-    onGlobalFilterChange: (updater) => {
-      const next = typeof updater === "function" ? updater(url.globalFilter) : updater;
-      url.setGlobalFilter(String(next ?? ""));
-    },
-    getSubRows:
-      url.mode === "tree" ? (row: InventoryTreeRow) => row.subRows : undefined,
+    getSubRows: effectiveFlat ? undefined : (row: InventoryTreeRow) => row.subRows,
     getRowId: (row) => row.id,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getGroupedRowModel: getGroupedRowModel(),
-    globalFilterFn,
-    filterFromLeafRows: url.mode === "tree",
-    enableGrouping: url.mode === "flat",
+    enableGrouping: effectiveFlat,
   });
 
-  const visibleCount = table.getFilteredRowModel().rows.length;
-  const totalCount = filteredItems.length;
+  const rows = table.getRowModel().rows;
+  const visibleCount = rows.length;
+  const totalCount = structuredFiltered.length;
 
   function expandAll() {
-    setExpanded(collectExpandableIds(treeData));
+    setExpanded(collectExpandableIds(treeForExpand));
   }
 
   function collapseAll() {
@@ -331,7 +354,7 @@ export function ItemsDataTable({ onAdvancedSearch }: ItemsDataTableProps) {
   return (
     <div className="items-data-table">
       <div className="items-table-toolbar card">
-        <div className="items-table-toolbar-row">
+        <div className="items-table-toolbar-row items-table-toolbar-main">
           <label className="items-table-search-label">
             <span className="sr-only">Hľadať v tabuľke</span>
             <input
@@ -339,20 +362,20 @@ export function ItemsDataTable({ onAdvancedSearch }: ItemsDataTableProps) {
               className="items-table-search-input"
               value={url.globalFilter}
               onChange={(e) => url.setGlobalFilter(e.target.value)}
-              placeholder="Hľadať v tabuľke…"
+              placeholder="Filtrovať zobrazené riadky…"
             />
           </label>
           <div className="items-table-mode-toggle" role="group" aria-label="Režim zobrazenia">
             <button
               type="button"
-              className={`btn-small ${url.mode === "tree" ? "btn-primary" : "btn-ghost"}`}
+              className={`btn-small ${!effectiveFlat ? "btn-primary" : "btn-ghost"}`}
               onClick={() => url.setMode("tree")}
             >
               Strom
             </button>
             <button
               type="button"
-              className={`btn-small ${url.mode === "flat" ? "btn-primary" : "btn-ghost"}`}
+              className={`btn-small ${effectiveFlat && url.mode === "flat" ? "btn-primary" : "btn-ghost"}`}
               onClick={() => url.setMode("flat")}
             >
               Zoznam
@@ -360,20 +383,34 @@ export function ItemsDataTable({ onAdvancedSearch }: ItemsDataTableProps) {
           </div>
         </div>
 
+        <p className="items-table-hint muted">
+          Rýchly filter nad načítanými položkami. Fulltext vrátane OCR textu z fotiek je v tlačidle{" "}
+          <strong>Hľadať (OCR)</strong> hore vpravo.
+        </p>
+
+        {hasStructuredFilters && url.mode === "tree" && (
+          <p className="items-table-hint items-table-hint-filter muted">
+            Aktívny filter typu/statusu — zobrazujem plochý zoznam. Pre hierarchiu zrušte filtre.
+          </p>
+        )}
+
         <div className="items-table-toolbar-row items-table-filters">
-          <span className="items-table-filter-label">Typ:</span>
+          <span className="items-table-filter-label">Typ</span>
           {url.ALL_TYPES.map((code) => (
             <button
               key={code}
               type="button"
-              className={`btn-small ${
-                url.typeFilters.includes(code) ? "btn-primary" : "btn-ghost"
+              className={`items-table-chip ${
+                url.typeFilters.includes(code) ? "items-table-chip-active" : ""
               }`}
               onClick={() => toggleTypeFilter(code)}
             >
               {TYPE_LABEL[code]}
             </button>
           ))}
+        </div>
+
+        <div className="items-table-toolbar-row items-table-filters-secondary">
           <select
             className="items-table-select"
             value={url.statusFilter}
@@ -403,111 +440,142 @@ export function ItemsDataTable({ onAdvancedSearch }: ItemsDataTableProps) {
             />
             Má foto
           </label>
-        </div>
-
-        <div className="items-table-toolbar-row">
-          {url.mode === "tree" && (
-            <>
-              <button type="button" className="btn-ghost btn-small" onClick={expandAll}>
-                Rozbaliť všetko
-              </button>
-              <button type="button" className="btn-ghost btn-small" onClick={collapseAll}>
-                Zbaliť všetko
-              </button>
-            </>
-          )}
-          {url.mode === "flat" && (
+          {effectiveFlat && (
             <label className="items-table-group-label">
-              Zoskupiť:
+              Zoskupiť
               <select
                 className="items-table-select"
                 value={url.groupBy}
                 onChange={(e) => handleGroupChange(e.target.value)}
               >
-                <option value="">— žiadne —</option>
+                <option value="">—</option>
                 <option value="type_code">Typ</option>
                 <option value="status">Status</option>
               </select>
             </label>
           )}
-          <details className="items-table-columns-details">
-            <summary className="btn-ghost btn-small">Stĺpce</summary>
-            <div className="items-table-columns-menu">
-              {toggleableColumns.map((col) => {
-                const id = col.id;
-                const visible = col.getIsVisible();
-                return (
-                  <label key={id} className="items-table-check">
-                    <input
-                      type="checkbox"
-                      checked={visible}
-                      onChange={() => toggleColumn(id)}
-                    />
-                    {COLUMN_LABELS[id] ?? id}
-                  </label>
-                );
-              })}
+        </div>
+
+        <div className="items-table-toolbar-row items-table-actions">
+          {!effectiveFlat && (
+            <div className="items-table-icon-group" role="group" aria-label="Rozbalenie stromu">
+              <button
+                type="button"
+                className="items-table-icon-btn"
+                onClick={expandAll}
+                title="Rozbaliť všetko"
+                aria-label="Rozbaliť všetko"
+              >
+                ⬇
+              </button>
+              <button
+                type="button"
+                className="items-table-icon-btn"
+                onClick={collapseAll}
+                title="Zbaliť všetko"
+                aria-label="Zbaliť všetko"
+              >
+                ⬆
+              </button>
             </div>
-          </details>
-          <button type="button" className="btn-ghost btn-small" onClick={url.clearFilters}>
+          )}
+
+          <div className="items-table-columns-wrap" ref={columnsRef}>
+            <button
+              type="button"
+              className={`items-table-chip ${columnsOpen ? "items-table-chip-active" : ""}`}
+              onClick={() => setColumnsOpen((v) => !v)}
+              aria-expanded={columnsOpen}
+              aria-haspopup="true"
+            >
+              Stĺpce ▾
+            </button>
+            {columnsOpen && (
+              <div className="items-table-columns-menu">
+                {toggleableColumns.map((col) => {
+                  const id = col.id;
+                  return (
+                    <label key={id} className="items-table-check">
+                      <input
+                        type="checkbox"
+                        checked={col.getIsVisible()}
+                        onChange={() => toggleColumn(id)}
+                      />
+                      {COLUMN_LABELS[id] ?? id}
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <button type="button" className="items-table-chip" onClick={url.clearFilters}>
             Zrušiť filtre
           </button>
-          {onAdvancedSearch && (
-            <button type="button" className="btn-ghost btn-small" onClick={onAdvancedSearch}>
-              Pokročilé hľadanie (OCR)
-            </button>
-          )}
+
           <span className="items-table-count muted">
-            Zobrazených: <strong>{visibleCount}</strong> / {totalCount}
+            <strong>{visibleCount}</strong>
+            {globalQ || hasStructuredFilters ? ` / ${totalCount}` : ` položiek`}
           </span>
         </div>
       </div>
 
-      <div className="data-table-wrap card data-table-scroll">
-        <table className="data-table">
-          <thead>
-            {table.getHeaderGroups().map((hg) => (
-              <tr key={hg.id}>
-                {hg.headers.map((header) => (
-                  <th key={header.id} style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.length === 0 ? (
-              <tr>
-                <td colSpan={columns.length} className="data-table-empty">
-                  Žiadne položky nevyhovujú filtrom.
-                </td>
-              </tr>
-            ) : (
-              table.getRowModel().rows.map((row) => (
-                <tr key={row.id} className={row.depth > 0 ? "data-table-row-child" : undefined}>
-                  {row.getVisibleCells().map((cell) => (
-                    <td
-                      key={cell.id}
+      <div className="data-table-wrap card">
+        <div className="data-table-scroll">
+          <table className="data-table">
+            <thead>
+              {table.getHeaderGroups().map((hg) => (
+                <tr key={hg.id}>
+                  {hg.headers.map((header) => (
+                    <th
+                      key={header.id}
                       style={{
-                        paddingLeft:
-                          cell.column.id === "name" && url.mode === "tree"
-                            ? `${8 + row.depth * 16}px`
-                            : undefined,
+                        width: header.getSize() !== 150 ? header.getSize() : undefined,
                       }}
                     >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.header, header.getContext())}
+                    </th>
                   ))}
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ))}
+            </thead>
+            <tbody>
+              {rows.length === 0 ? (
+                <tr>
+                  <td colSpan={columns.length} className="data-table-empty">
+                    {hasStructuredFilters || globalQ
+                      ? "Žiadne položky nevyhovujú filtrom."
+                      : "Žiadne položky."}
+                  </td>
+                </tr>
+              ) : (
+                rows.map((row) => (
+                  <tr
+                    key={row.id}
+                    className={row.depth > 0 ? "data-table-row-child" : undefined}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <td
+                        key={cell.id}
+                        style={{
+                          paddingLeft:
+                            cell.column.id === "name" && !effectiveFlat
+                              ? `${8 + row.depth * 16}px`
+                              : undefined,
+                        }}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 }
-

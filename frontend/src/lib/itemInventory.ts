@@ -5,9 +5,12 @@ export type InventoryTreeRow = InventoryItem & {
 };
 
 export function buildItemTree(items: InventoryItem[]): InventoryTreeRow[] {
+  const idSet = new Set(items.map((it) => it.id));
   const byParent = new Map<string | null, InventoryItem[]>();
   for (const item of items) {
-    const key = item.parent_id;
+    // Pri filtrovaní typu rodič často nie je v množine — zobraz položku ako koreň.
+    const key =
+      item.parent_id && idSet.has(item.parent_id) ? item.parent_id : null;
     const list = byParent.get(key) ?? [];
     list.push(item);
     byParent.set(key, list);
@@ -55,6 +58,44 @@ export function buildPathMap(items: InventoryItem[]): Map<string, string> {
     pathFor(item.id);
   }
   return cache;
+}
+
+/** Pri fulltext filtri v strome ponechaj aj predkov zhodných položiek. */
+export function includeAncestors(
+  allItems: InventoryItem[],
+  matching: InventoryItem[],
+): InventoryItem[] {
+  if (matching.length === 0) return [];
+  const byId = new Map(allItems.map((it) => [it.id, it]));
+  const include = new Set(matching.map((m) => m.id));
+  for (const m of matching) {
+    let pid = m.parent_id;
+    while (pid) {
+      include.add(pid);
+      pid = byId.get(pid)?.parent_id ?? null;
+    }
+  }
+  return allItems.filter((it) => include.has(it.id));
+}
+
+export function itemMatchesGlobalFilter(
+  item: InventoryItem,
+  query: string,
+  labels: { type: Record<string, string>; status: Record<string, string> },
+): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  const hay = [
+    item.name,
+    item.qr_code,
+    item.note,
+    labels.type[item.type_code],
+    labels.status[item.status],
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  return hay.includes(q);
 }
 
 export function collectExpandableIds(rows: InventoryTreeRow[]): Record<string, boolean> {
