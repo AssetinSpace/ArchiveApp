@@ -3,7 +3,7 @@
 // Mount: app.use("/api/llm-title", basicAuth, llmTitleRouter) v index.ts.
 //
 // Workflow:
-//  1) POST /process       → spustí batch (Anthropic Haiku), uloží SUGGESTED
+//  1) POST /process       → spustí batch (Gemini 2.5 Flash), uloží SUGGESTED
 //  2) GET  /pending-review → vráti SUGGESTED položky (s thumbnail + breadcrumb)
 //  3) POST /:id/confirm   → name = ocr_title, status = CONFIRMED
 //  4) POST /:id/reject    → status = REJECTED, name nezmenený
@@ -28,10 +28,10 @@ import { getSignedUrlForKey } from "../services/r2.js";
 export const llmTitleRouter: Router = Router();
 
 const NO_API_KEY_MSG =
-  "LLM title extraction is not configured. Set ANTHROPIC_API_KEY in Railway Variables.";
+  "LLM title extraction is not configured. Set GEMINI_API_KEY in Railway Variables.";
 
 function hasApiKey(): boolean {
-  return !!process.env.ANTHROPIC_API_KEY;
+  return !!process.env.GEMINI_API_KEY;
 }
 
 // ─── POST /api/llm-title/process ──────────────────────────────────────────────
@@ -122,7 +122,7 @@ llmTitleRouter.get("/status", async (_req, res, next) => {
       suggested,
       confirmed,
       rejected,
-      noApiKey: !hasApiKey(),
+      noApiKey: !process.env.GEMINI_API_KEY,
     });
   } catch (e) {
     next(e);

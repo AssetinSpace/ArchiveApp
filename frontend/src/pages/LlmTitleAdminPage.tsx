@@ -8,17 +8,17 @@ import {
   type PendingReviewItem,
 } from "../api";
 
-// LlmTitleAdminPage — Sprint 5
+// LlmTitleAdminPage — Sprint 5 (patched: Gemini 2.5 Flash)
 //
 // Funkcionalita:
 // - 6 stat cards (Eligible / Suggested / Confirmed / Rejected / Total / API Key)
 // - Tlačidlo "Spustiť LLM extraction" → POST /api/llm-title/process
 // - Polling /status každé 3s počas spracovania (synchronné fetch ostane pending,
-//   ale paralelný status query občerství eligible/suggested ako sa Anthropic
+//   ale paralelný status query občerství eligible/suggested ako sa Gemini
 //   postupne dokončuje)
 // - Review queue — kartičky pre SUGGESTED items s confirm / edit / reject
 // - Offset pagination (20/page, "Načítať ďalšie")
-// - Ak chýba ANTHROPIC_API_KEY → banner s návodom
+// - Ak chýba GEMINI_API_KEY → banner s návodom
 
 const STATUS_KEY = ["llm-title", "status"] as const;
 const PENDING_KEY = ["llm-title", "pending"] as const;
@@ -93,8 +93,8 @@ export function LlmTitleAdminPage() {
       <h1>AI Názvy — LLM extraction</h1>
 
       <p className="muted" style={{ marginTop: -4 }}>
-        LLM (Claude Haiku) navrhne názov dokumentu z OCR textu na štítku. Konzultant
-        návrh review-uje a potvrdí, upraví alebo zamietne.
+        LLM (Gemini 2.5 Flash) navrhne názov dokumentu z OCR textu na štítku.
+        Konzultant návrh review-uje a potvrdí, upraví alebo zamietne.
       </p>
 
       {statusQ.isLoading && <p className="muted">Načítavam štatistiky…</p>}
@@ -158,11 +158,11 @@ export function LlmTitleAdminPage() {
           onClick={() => startMut.mutate()}
         >
           {isProcessing
-            ? "Spracovávam… (Anthropic Haiku)"
+            ? "Spracovávam… (Gemini 2.5 Flash)"
             : startMut.isPending
               ? "Spúšťam…"
               : noApiKey
-                ? "Chýba ANTHROPIC_API_KEY"
+                ? "Chýba GEMINI_API_KEY"
                 : status.eligible === 0
                   ? "Žiadne položky na spracovanie"
                   : `Spustiť LLM extraction (${status.eligible})`}
@@ -176,8 +176,9 @@ export function LlmTitleAdminPage() {
 
         {isProcessing && (
           <p className="muted" style={{ marginTop: 8 }}>
-            Sériové volania Claude Haiku, 500 ms pauza medzi nimi. Trvanie závisí
-            od počtu položiek (~3 s per kus). Štatistiky sa občerstvia každé 3 s.
+            Sériové volania Gemini 2.5 Flash, 500 ms pauza medzi nimi. Trvanie
+            závisí od počtu položiek (~3 s per kus). Štatistiky sa občerstvia
+            každé 3 s.
           </p>
         )}
       </section>
@@ -269,34 +270,34 @@ function ApiKeyHelpBanner() {
       }}
     >
       <h2 style={{ marginTop: 0, color: "#92400e" }}>
-        ⚠️ Chýba ANTHROPIC_API_KEY
+        ⚠️ Chýba GEMINI_API_KEY
       </h2>
       <p className="muted" style={{ marginTop: 0 }}>
-        LLM title extraction vyžaduje Anthropic API key. Postup:
+        LLM title extraction vyžaduje Google Gemini API key.
       </p>
       <ol style={{ paddingLeft: 20, lineHeight: 1.7, fontSize: 14 }}>
         <li>
           Choď na{" "}
           <a
-            href="https://console.anthropic.com"
+            href="https://aistudio.google.com"
             target="_blank"
             rel="noreferrer noopener"
           >
-            console.anthropic.com
+            aistudio.google.com
           </a>{" "}
-          → Settings → API Keys → "Create Key"
+          → API Keys → Create API key
         </li>
         <li>
-          Skopíruj key (začína na <code>sk-ant-...</code>)
+          Skopíruj key (začína na <code>AIzaSy...</code>)
         </li>
         <li>
           V Railway dashboarde → tvoj backend service → Variables → pridaj{" "}
-          <code>ANTHROPIC_API_KEY</code>
+          <code>GEMINI_API_KEY</code>
         </li>
         <li>Railway automaticky redeployuje</li>
         <li>
-          V Anthropic console → Settings → Limits → nastav <strong>Spending Limit
-          $10</strong> (bezpečnostná poistka — pri 1000 štítkoch miniete ~$0.40)
+          V Google Cloud Console → Billing → Budgets &amp; alerts → nastav alert
+          na <strong>$5</strong>
         </li>
       </ol>
     </section>

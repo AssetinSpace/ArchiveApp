@@ -1,6 +1,6 @@
 # ArchiveApp — PROJECT.md
 > Živý dokument. Aktualizovať po každom rozhodnutí alebo sprinte.
-> Verzia 2.5 — Sprint 5 HOTOVÝ. Auto-naming + LLM title extraction live.
+> Verzia 2.5.1 — Sprint 5 HOTOVÝ. Auto-naming + LLM title extraction live (Gemini 2.5 Flash).
 
 ---
 
@@ -49,10 +49,10 @@ Výstup: exportovateľný inventár.
 | 16 | JSON export bez signed URL pre fotky | Signed URLs sú efemérne (15 min) — fotky sa stiahnu z R2 bucket-u cez rclone (PROJECT.md §11) |
 | 17 | Sprint 4 endpoints používajú `prisma.$queryRaw` | Prisma neumožňuje volať `unaccent()` ani `WITH RECURSIVE` priamo v `where` — raw SQL je čistejšie ako Unsupported workaround |
 | 18 | Auto-name z pozície v hierarchii (`sklX_palNNN_kraNNN_zloNNN`) | Terénny flow scan → fotka → ďalší — bez ručného písania názvu. Generuje sa pri POST /items, immutable po vytvorení, slúži ako stabilný pozičný identifikátor aj keď sa neskôr `name` prepíše OCR titulkom |
-| 19 | LLM title extraction cez Claude Haiku API, batch + manual review, nie automatic | Halucinácie sú reálne, konzultant musí návrh potvrdiť. Batch je manuálne spustený z `/admin/llm-titles`, sériový s 500 ms pauzou (rate limit + cost control) |
+| 19 | LLM title extraction cez Gemini 2.5 Flash API, batch + manual review, nie automatic | Halucinácie sú reálne, konzultant musí návrh potvrdiť. Batch je manuálne spustený z `/admin/llm-titles`, sériový s 500 ms pauzou (rate limit + cost control) |
 | 20 | Potvrdiť OCR title prepisuje `name`, `auto_name` ostáva immutable | OCR titulok je čitateľnejší pre vyhľadávanie ("Kolaudácia X"), `auto_name` ostáva ako stabilný pozičný identifikátor pre referenciu (footer Item detailu) |
 | 21 | JSONB `metadata` pole pripravené pre Sprint 6, nenaplňuje sa v Sprint 5 | Schéma metadata sa odvodí z analýzy ~200 reálnych OCR textov po field work — predčasná štandardizácia by viedla k zlej štruktúre |
-| 22 | Haiku namiesto Sonnet pre OCR extraction | 12× lacnejšie (~$0.40 / 1000 štítkov vs $4), kvalita pre štruktúrovanú extraction zo štítkov je dostatočná. Pri kvalitatívnom probléme TD-13 môžeme prepnúť |
+| 22 | Gemini 2.5 Flash namiesto Claude Haiku pre LLM title extraction | 6–7× lacnejší (~$0.27 za celý archív batch), dostatočná kvalita pre OCR text extraction zo slovenských stavebných štítkov. Free tier pre testovanie, platená úroveň pred ostrým nasadením. |
 
 ---
 
@@ -178,7 +178,7 @@ Export → CSV/JSON so všetkými položkami, lokáciou, statusom, poznámkami
 | Search | Fulltext ILIKE cez name, ocr_title, note, ocr_raw_text + `strip_diacritics()` | ✓ live (Sprint 4, rozšírené Sprint 5) |
 | Export | CSV (BOM/`;`/CRLF) + JSON hierarchický | ✓ live (Sprint 4) |
 | Auto-name | Pozičný identifikátor `sklX_palNNN_kraNNN_zloNNN` pri POST /items | ✓ live (Sprint 5) |
-| LLM Title | Claude Haiku API, batch + manual review | ✓ live (Sprint 5) |
+| LLM Title | Google Gemini 2.5 Flash API, batch + manual review | ✓ live (Sprint 5) |
 
 ---
 
@@ -200,14 +200,14 @@ R2_ACCESS_KEY_ID      [z Cloudflare Account API tokenu]
 R2_SECRET_ACCESS_KEY  [z Cloudflare Account API tokenu]
 R2_BUCKET_NAME        archiveapp-photos
 R2_PUBLIC_URL         [R2 public URL]
-ANTHROPIC_API_KEY     [sk-ant-... z console.anthropic.com — Sprint 5]
+GEMINI_API_KEY        [API key z aistudio.google.com]
 NODE_ENV              production
 ```
 
 **Sprint 5 LLM cost control (povinný setup pred prvým použitím):**
-1. console.anthropic.com → Settings → API Keys → Create Key (sk-ant-...)
-2. Settings → Limits → Spending Limit = **$10** (poistka — pri 1000 štítkoch ~$0.40)
-3. Railway dashboard → backend service → Variables → `ANTHROPIC_API_KEY` = key
+1. aistudio.google.com → API Keys → Create API key (začína na `AIzaSy...`)
+2. Google Cloud Console → Billing → Budgets & alerts → nastav alert na **$5** (poistka — celý archív batch ~$0.27)
+3. Railway dashboard → backend service → Variables → `GEMINI_API_KEY` = key
 4. Bez kľúča vrátia LLM endpointy 503 s návodom; appka inak nepadne.
 
 **Pozor:** R2_ACCOUNT_ID = `324e558ab210cbc41f1f20e2a3aa4a01` (správny hash z S3 API URL).
@@ -315,8 +315,8 @@ AssetinSpace/ArchiveApp (private)
 - ✓ services/autoName.ts: `generateAutoName(parentId, typeCode)` — sklA_pal003_kra004_zlo015 (preferuje `auto_name` ancestora ak existuje, inak path-from-scratch)
 - ✓ Integrácia do POST /api/items (oba branchy s/bez QR) — `name = body.name ?? autoName`, `auto_name = autoName`
 - ✓ services/llmTitle.ts: `extractTitleFromOcr` (fetch + 30s AbortController) + `processPendingTitles` (sériový, 500ms pauza, max 50 per batch)
-- ✓ Model: `claude-haiku-4-5-20251001`, `max_tokens: 150`, OCR vstup orezaný na 2000 znakov, výstup na 200 znakov
-- ✓ routes/llmTitle.ts: POST /process (503 ak chýba ANTHROPIC_API_KEY), GET /status (vrátane `noApiKey` flag), GET /pending-review (offset paging), POST /:id/confirm|reject|edit
+- ✓ Model: `gemini-2.5-flash` (Google Generative Language API v1beta), `maxOutputTokens: 150`, `temperature: 0.1`, OCR vstup orezaný na 2000 znakov, výstup na 200 znakov *(pôvodne Claude Haiku, prepnuté na Gemini v patch v2.5.1)*
+- ✓ routes/llmTitle.ts: POST /process (503 ak chýba GEMINI_API_KEY), GET /status (vrátane `noApiKey` flag), GET /pending-review (offset paging), POST /:id/confirm|reject|edit
 - ✓ Confirm/edit prepíše `name` na ocr_title bez uniqueness check (LLM-derived duplicates povolené)
 - ✓ services/search.ts rozšírené: ocr_title v ILIKE WHERE + CASE WHEN priorita `name > ocr_title > note > ocr`, snippet aj pre `ocr_title`
 - ✓ routes/export.ts: CSV stĺpce `autoName, ocrTitle, ocrTitleStatus, metadataStatus`, JSON polia + `metadata`
@@ -386,8 +386,8 @@ IT tím objednávateľa dostane:
 | TD-10 | GIN index `to_tsvector('simple', unaccent(name‖note))` ak search > 500 ms na reálnom seede | Sledovať po naplnení skladu (~5000 items) |
 | TD-11 | Search pagination (cursor alebo offset) keď výsledkov > 200 | Po naplnení skladu, ak limit 200 začne obmedzovať |
 | TD-12 | `dump.sql` (pg_dump) a `README.md` (popis schémy + import postup) pre finálne odovzdanie IT tímu | Pred odovzdaním (po dokončení field work) |
-| TD-13 | LLM retry pre REJECTED items — re-extract s upraveným promptom (variant „presnejšie", „kratšie", alebo iný model — Sonnet ako fallback ak Haiku halucinoval) | Po Sprint 6 ak field work odhalí systematické problémy s Haiku |
-| TD-14 | Anthropic Batch API namiesto real-time pre ešte lacnejšie spracovanie (~50% sleva), neblokuje Express request | Až keď bude konzultant chcieť spracovať >100 položiek naraz |
+| TD-13 | LLM retry pre REJECTED items — re-extract s upraveným promptom (variant „presnejšie", „kratšie", alebo iný model — Gemini 2.5 Pro ako fallback ak Flash halucinoval) | Po Sprint 6 ak field work odhalí systematické problémy s Gemini Flash |
+| TD-14 | Gemini Batch Mode namiesto real-time pre ešte lacnejšie spracovanie (~50% sleva), neblokuje Express request | Až keď bude konzultant chcieť spracovať >100 položiek naraz |
 
 ---
 
@@ -401,5 +401,5 @@ IT tím objednávateľa dostane:
 
 ---
 
-*Posledná aktualizácia: v2.5 — Sprint 5 HOTOVÝ. Auto-naming + LLM title extraction live.*
-*Ďalší krok: Sprint 2 Bugfix (TD-5/6/7), nastaviť ANTHROPIC_API_KEY na Railway, field work v sklade (DoD body 1+2), potom Sprint 6 (metadata extraction po analýze ~200 OCR textov), nakoniec dump.sql + README.md pre odovzdanie (TD-12).*
+*Posledná aktualizácia: v2.5.1 — Sprint 5 HOTOVÝ + provider switch Claude Haiku → Gemini 2.5 Flash.*
+*Ďalší krok: Sprint 2 Bugfix (TD-5/6/7), nastaviť `GEMINI_API_KEY` na Railway, field work v sklade (DoD body 1+2), potom Sprint 6 (metadata extraction po analýze ~200 OCR textov), nakoniec dump.sql + README.md pre odovzdanie (TD-12).*

@@ -1,7 +1,7 @@
-// LLM title extraction service — Sprint 5.
+// LLM title extraction service — Sprint 5 (patched: Gemini 2.5 Flash).
 //
-// Anthropic Claude Haiku API (claude-haiku-4-5-20251001) — 12× lacnejší ako
-// Sonnet a pre extraction z OCR textu úplne postačuje (~$0.40 / 1000 štítkov).
+// Google Gemini 2.5 Flash — 6–7× lacnejší ako Claude Haiku a pre extraction
+// z OCR textu úplne postačuje (~$0.27 za celý archív batch).
 //
 // Princípy (Sprint 5 spec):
 // - Sériové volania (nie parallel) + 500ms pauza medzi nimi — rate limit
@@ -9,19 +9,17 @@
 // - Per-call AbortController s 30s timeout.
 // - OCR vstup orezaný na 2000 znakov (väčšina štítkov je kratšia, šetrí tokeny).
 // - Výstup orezaný na 200 znakov.
-// - Ak ANTHROPIC_API_KEY nie je nastavený, extractTitleFromOcr hodí —
+// - Ak GEMINI_API_KEY nie je nastavený, extractTitleFromOcr hodí —
 //   route handler to chytí a vráti 503 s jasnou hláškou.
 // - processPendingTitles vráti pole výsledkov (úspechy + chyby) aby admin UI
 //   mohlo zobraziť prehľad po batchi.
 
 import type { PrismaClient } from "@prisma/client";
 
-const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
-const LLM_MODEL = "claude-haiku-4-5-20251001";
+const GEMINI_API_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 const LLM_TIMEOUT_MS = 30_000;
 const LLM_DELAY_MS = 500;
-const OCR_INPUT_MAX_CHARS = 2000;
-const TITLE_OUTPUT_MAX_CHARS = 200;
 
 export const LLM_BATCH_LIMIT_MAX = 50;
 
@@ -32,60 +30,48 @@ export interface LlmTitleResult {
   error: string | null;
 }
 
-// Volá Anthropic API a vráti extrahovaný titulok alebo null pre prázdny/šum
-// vstup. Hodí ak chýba API key alebo HTTP zlyhá / timeout-uje.
-export async function extractTitleFromOcr(
-  ocrRawText: string,
-): Promise<string | null> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) throw new Error("ANTHROPIC_API_KEY not configured");
+export async function extractTitleFromOcr(ocrRawText: string): Promise<string | null> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error('GEMINI_API_KEY not configured');
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), LLM_TIMEOUT_MS);
 
   try {
-    const response = await fetch(ANTHROPIC_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
+    const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       signal: controller.signal,
       body: JSON.stringify({
-        model: LLM_MODEL,
-        max_tokens: 150,
-        messages: [
-          {
-            role: "user",
-            content: `Toto je OCR text zo štítku archívnej zložky s projektovou dokumentáciou (stavebníctvo, Slovensko). Vytiahni z neho najvýstižnejší názov dokumentu/projektu — max 120 znakov, slovenčina. Ak text je nezmyselný šum alebo prázdny, odpovedz prázdnym reťazcom.
+        contents: [{
+          parts: [{
+            text: `Toto je OCR text zo štítku archívnej zložky s projektovou dokumentáciou (stavebníctvo, Slovensko). Vytiahni z neho najvýstižnejší názov dokumentu/projektu — max 120 znakov, slovenčina. Ak text je nezmyselný šum alebo prázdny, odpovedz prázdnym reťazcom.
 
 Odpovedz LEN samotným názvom, nič iné — žiadne úvodzovky, žiadne vysvetlenie.
 
 OCR text:
-${ocrRawText.substring(0, OCR_INPUT_MAX_CHARS)}`,
-          },
-        ],
+${ocrRawText.substring(0, 2000)}`
+          }]
+        }],
+        generationConfig: {
+          maxOutputTokens: 150,
+          temperature: 0.1,
+        }
       }),
     });
 
     if (!response.ok) {
-      const body = await response.text();
-      throw new Error(`Anthropic API ${response.status}: ${body}`);
+      throw new Error(`Gemini API ${response.status}: ${await response.text()}`);
     }
 
     const data = (await response.json()) as {
-      content?: Array<{ type: string; text?: string }>;
+      candidates?: Array<{
+        content?: { parts?: Array<{ text?: string }> };
+      }>;
     };
-    const text =
-      data.content
-        ?.filter((b) => b.type === "text" && typeof b.text === "string")
-        .map((b) => b.text as string)
-        .join("")
-        .trim() ?? "";
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    return text && text.length > 0 ? text.substring(0, 200) : null;
 
-    if (text.length === 0) return null;
-    return text.substring(0, TITLE_OUTPUT_MAX_CHARS);
   } finally {
     clearTimeout(timeout);
   }
