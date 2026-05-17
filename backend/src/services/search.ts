@@ -143,7 +143,7 @@ export async function searchItems(query: string, limit: number): Promise<SearchH
     thumbs = await prisma.$queryRaw<ThumbRow[]>`
       SELECT DISTINCT ON (item_id) item_id, storage_key
       FROM "Photo"
-      WHERE item_id = ANY(${hitIds}::uuid[]) AND deleted_at IS NULL
+      WHERE item_id = ANY(${hitIds}::text[]) AND deleted_at IS NULL
       ORDER BY item_id, created_at DESC;
     `;
   } catch (err) {
@@ -164,7 +164,7 @@ export async function searchItems(query: string, limit: number): Promise<SearchH
       const ocrRows = await prisma.$queryRaw<OcrTextRow[]>`
         SELECT DISTINCT ON (item_id) item_id, ocr_raw_text
         FROM "Photo"
-        WHERE item_id = ANY(${ocrHitIds}::uuid[])
+        WHERE item_id = ANY(${ocrHitIds}::text[])
           AND deleted_at IS NULL
           AND ocr_raw_text IS NOT NULL
           AND strip_diacritics(ocr_raw_text) LIKE strip_diacritics(${like})

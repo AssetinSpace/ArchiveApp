@@ -243,7 +243,7 @@ itemsRouter.get("/by-qr/:qrCode/contents", async (req, res, next) => {
       WITH RECURSIVE descendants AS (
         SELECT id, parent_id, type_code, name, qr_code, status::text AS status, note
         FROM "Item"
-        WHERE parent_id = ${box.id}::uuid AND deleted_at IS NULL
+        WHERE parent_id = ${box.id} AND deleted_at IS NULL
         UNION ALL
         SELECT c.id, c.parent_id, c.type_code, c.name, c.qr_code, c.status::text AS status, c.note
         FROM "Item" c
@@ -264,7 +264,7 @@ itemsRouter.get("/by-qr/:qrCode/contents", async (req, res, next) => {
       ? await prisma.$queryRaw<ThumbRow[]>`
           SELECT DISTINCT ON (item_id) item_id, storage_key
           FROM "Photo"
-          WHERE item_id = ANY(${folderIds}::uuid[]) AND deleted_at IS NULL
+          WHERE item_id = ANY(${folderIds}::text[]) AND deleted_at IS NULL
           ORDER BY item_id, created_at DESC;
         `
       : [];
@@ -276,7 +276,7 @@ itemsRouter.get("/by-qr/:qrCode/contents", async (req, res, next) => {
       ? await prisma.$queryRaw<CountRow[]>`
           SELECT item_id, COUNT(*) AS count
           FROM "Photo"
-          WHERE item_id = ANY(${folderIds}::uuid[]) AND deleted_at IS NULL
+          WHERE item_id = ANY(${folderIds}::text[]) AND deleted_at IS NULL
           GROUP BY item_id;
         `
       : [];
