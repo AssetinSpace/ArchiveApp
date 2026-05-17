@@ -1391,6 +1391,11 @@ p { margin: 0 0 12px; }
   margin-right: 4px;
 }
 
+.items-table-filter-hint {
+  font-size: 12px;
+  margin-left: 4px;
+}
+
 .items-table-chip {
   display: inline-flex;
   align-items: center;
