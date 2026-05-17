@@ -3,6 +3,7 @@ import { ItemsPage } from "./pages/ItemsPage";
 import { ScanPage } from "./pages/ScanPage";
 import { ItemDetailPage } from "./pages/ItemDetailPage";
 import { QRAdminPage } from "./pages/QRAdminPage";
+import { OCRAdminPage } from "./pages/OCRAdminPage";
 import { LoginGate } from "./components/LoginGate";
 import { Navbar } from "./components/Navbar";
 
@@ -17,6 +18,7 @@ export function App() {
             <Route path="/scan" element={<ScanPage />} />
             <Route path="/items/:id" element={<ItemDetailPage />} />
             <Route path="/admin/qr" element={<QRAdminPage />} />
+            <Route path="/admin/ocr" element={<OCRAdminPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

@@ -504,3 +504,171 @@ p { margin: 0 0 12px; }
   background: rgba(255, 255, 255, 0.3);
   outline: none;
 }
+
+/* ─── OCR Admin ────────────────────────────────────────────────────────── */
+
+.ocr-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .ocr-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.ocr-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 80px;
+  padding: 12px 8px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.ocr-stat-number {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.ocr-stat-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.ocr-stat-pending .ocr-stat-number { color: #92400e; }
+.ocr-stat-done    .ocr-stat-number { color: #166534; }
+.ocr-stat-failed  .ocr-stat-number { color: #b91c1c; }
+.ocr-stat-total   .ocr-stat-number { color: #111827; }
+
+.ocr-process-btn {
+  width: 100%;
+  min-height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.ocr-banner-success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  color: #065f46;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.ocr-failed-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+.ocr-failed-thumb {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+  background: #f3f4f6;
+}
+.ocr-failed-meta {
+  flex-grow: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ocr-failed-name {
+  font-weight: 500;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ocr-failed-date {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* ─── Photo gallery — OCR extensions ──────────────────────────────────── */
+
+.photo-badge-done-empty {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #e5e7eb;
+  color: #4b5563;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.photo-badge-failed {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.ocr-text-toggle {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 10px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+.ocr-text-toggle:not(:disabled):hover {
+  background: #e5e7eb;
+}
+
+.ocr-text-body {
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #1f2937;
+}
+
+.ocr-text-empty {
+  font-size: 12px;
+  color: #6b7280;
+  font-style: italic;
+  padding: 6px 10px;
+}

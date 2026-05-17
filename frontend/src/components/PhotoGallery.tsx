@@ -23,6 +23,20 @@ export function PhotoGallery({ itemId }: Props): React.JSX.Element {
     },
   });
 
+  // Retry je tu (nie v každom Tile) lebo `variables` na mutation drží len posledné
+  // volanie — pre per-row disabled stačí porovnať s photo.id.
+  const retryMut = useMutation({
+    mutationFn: (photoId: string) => api.retryOcr(photoId),
+    onSuccess: async () => {
+      // Invaliduje aj OCR-admin status/failed cache ak je otvorený inde.
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["items", itemId, "photos"] }),
+        qc.invalidateQueries({ queryKey: ["ocr-status"] }),
+        qc.invalidateQueries({ queryKey: ["ocr-failed"] }),
+      ]);
+    },
+  });
+
   function onDelete(photoId: string): void {
     if (confirm("Naozaj zmazať fotku? Pôjde do koša (R2 sa zachová pre orphan cleanup).")) {
       deleteMut.mutate(photoId);
@@ -44,29 +58,15 @@ export function PhotoGallery({ itemId }: Props): React.JSX.Element {
     <>
       <div className="photo-grid">
         {photos.map((p) => (
-          <div key={p.id} className="photo-tile">
-            <button
-              type="button"
-              className="photo-tile-img-btn"
-              onClick={() => setLightboxPhoto(p)}
-              aria-label="Otvoriť fotku vo veľkom"
-            >
-              <img src={p.signed_url} alt="" className="photo-tile-img" loading="lazy" />
-            </button>
-            <div className="photo-tile-meta">
-              {p.ocr_status === "PENDING" && (
-                <span className="photo-badge-pending">Čaká na OCR</span>
-              )}
-              <button
-                type="button"
-                className="btn-danger btn-small"
-                onClick={() => onDelete(p.id)}
-                disabled={deleteMut.isPending}
-              >
-                Zmazať
-              </button>
-            </div>
-          </div>
+          <PhotoTile
+            key={p.id}
+            photo={p}
+            onOpen={() => setLightboxPhoto(p)}
+            onDelete={() => onDelete(p.id)}
+            deleting={deleteMut.isPending}
+            onRetryOcr={() => retryMut.mutate(p.id)}
+            retrying={retryMut.isPending && retryMut.variables === p.id}
+          />
         ))}
       </div>
 
@@ -74,6 +74,99 @@ export function PhotoGallery({ itemId }: Props): React.JSX.Element {
         <Lightbox photo={lightboxPhoto} onClose={() => setLightboxPhoto(null)} />
       )}
     </>
+  );
+}
+
+// ─── PhotoTile ────────────────────────────────────────────────────────────────
+
+function PhotoTile({
+  photo,
+  onOpen,
+  onDelete,
+  deleting,
+  onRetryOcr,
+  retrying,
+}: {
+  photo: Photo;
+  onOpen: () => void;
+  onDelete: () => void;
+  deleting: boolean;
+  onRetryOcr: () => void;
+  retrying: boolean;
+}): React.JSX.Element {
+  const [ocrOpen, setOcrOpen] = useState(false);
+
+  // OCR text considered "present" len keď je DONE a non-empty po trime.
+  const hasOcrText =
+    photo.ocr_status === "DONE" &&
+    photo.ocr_raw_text !== null &&
+    photo.ocr_raw_text.trim().length > 0;
+  const isDoneEmpty =
+    photo.ocr_status === "DONE" &&
+    (photo.ocr_raw_text === null || photo.ocr_raw_text.trim().length === 0);
+
+  return (
+    <div className="photo-tile">
+      <button
+        type="button"
+        className="photo-tile-img-btn"
+        onClick={onOpen}
+        aria-label="Otvoriť fotku vo veľkom"
+      >
+        <img src={photo.signed_url} alt="" className="photo-tile-img" loading="lazy" />
+      </button>
+
+      <div className="photo-tile-meta">
+        {photo.ocr_status === "PENDING" && (
+          <span className="photo-badge-pending">Čaká na OCR</span>
+        )}
+        {isDoneEmpty && (
+          <span className="photo-badge-done-empty">Spracované (bez textu)</span>
+        )}
+        {photo.ocr_status === "FAILED" && (
+          <span className="photo-badge-failed">OCR zlyhalo</span>
+        )}
+        <button
+          type="button"
+          className="btn-danger btn-small"
+          onClick={onDelete}
+          disabled={deleting}
+        >
+          Zmazať
+        </button>
+      </div>
+
+      {/* DONE + non-empty text → collapsible. Default zbalené pre šetrenie miesta. */}
+      {hasOcrText && (
+        <div>
+          <button
+            type="button"
+            className="ocr-text-toggle"
+            onClick={() => setOcrOpen((v) => !v)}
+            aria-expanded={ocrOpen}
+          >
+            <span>OCR text</span>
+            <span aria-hidden="true">{ocrOpen ? "▲" : "▼"}</span>
+          </button>
+          {ocrOpen && (
+            <pre className="ocr-text-body">{photo.ocr_raw_text}</pre>
+          )}
+        </div>
+      )}
+
+      {/* FAILED → tlačidlo na opakovanie. */}
+      {photo.ocr_status === "FAILED" && (
+        <button
+          type="button"
+          className="btn-small"
+          onClick={onRetryOcr}
+          disabled={retrying}
+          style={{ minHeight: 44, width: "100%" }}
+        >
+          {retrying ? "Spracovávam…" : "Skúsiť znova"}
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -86,13 +179,11 @@ function Lightbox({
   photo: Photo;
   onClose: () => void;
 }): React.JSX.Element {
-  // Escape klávesa = zatvoriť. Listener pridáme len kým je lightbox otvorený.
   useEffect(() => {
     function onKey(e: KeyboardEvent): void {
       if (e.key === "Escape") onClose();
     }
     window.addEventListener("keydown", onKey);
-    // Zabráň body scrollu pod overlayom — najmä na iOS.
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
@@ -123,7 +214,6 @@ function Lightbox({
         src={photo.signed_url}
         alt=""
         className="lightbox-img"
-        // Klik na samotný obrázok NEZATVORÍ (aby používateľ mohol napr. zoomnúť).
         onClick={(e) => e.stopPropagation()}
       />
     </div>

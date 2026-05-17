@@ -125,6 +125,28 @@ export type UploadPhotoResponse = {
   created_at: string;
 };
 
+// ─── OCR types ───────────────────────────────────────────────────────────────
+
+export type OcrStatusCounts = {
+  pending: number;
+  done: number;
+  failed: number;
+  total: number;
+};
+
+export type FailedPhoto = {
+  id: string;
+  item_id: string;
+  item_name: string | null;
+  signed_url: string;
+  created_at: string;
+};
+
+export type ProcessPendingResponse = {
+  started: boolean;
+  queuedCount: number;
+};
+
 async function handle<T>(res: Response): Promise<T> {
   if (res.status === 204) return undefined as T;
   const text = await res.text();
@@ -229,6 +251,19 @@ export const api = {
   getPhoto: (id: string) => request<Photo>(`/photos/${id}`),
   deletePhoto: (id: string) =>
     request<{ id: string; deleted: true }>(`/photos/${id}`, { method: "DELETE" }),
+
+  // ─── OCR ───────────────────────────────────────────────────────────────────
+  fetchOcrStatus: () => request<OcrStatusCounts>("/ocr/status"),
+  processOcrPending: (limit?: number) =>
+    request<ProcessPendingResponse>("/ocr/process-pending", {
+      method: "POST",
+      json: limit !== undefined ? { limit } : {},
+    }),
+  // Vracia Photo v rovnakom tvare ako getPhoto (vrátane item_id) — backend
+  // /ocr/retry/:id zámerne mirroruje shape /photos/:id.
+  retryOcr: (photoId: string) =>
+    request<Photo>(`/ocr/retry/${photoId}`, { method: "POST" }),
+  fetchFailedPhotos: () => request<FailedPhoto[]>("/ocr/failed"),
 
   // Upload ide mimo request() — FormData potrebuje aby fetch sám nastavil
   // multipart/form-data Content-Type s boundary stringom. Keby sme nastavili

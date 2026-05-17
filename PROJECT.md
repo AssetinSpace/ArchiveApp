@@ -1,6 +1,6 @@
 # ArchiveApp — PROJECT.md
 > Živý dokument. Aktualizovať po každom rozhodnutí alebo sprinte.
-> Verzia 2.1 — Sprint 3a dokončený (fotky + R2), OCR odložené do 3b.
+> Verzia 2.2 — Sprint 3b: kód OCR napísaný (Tesseract na Railway cez nixpacks), čaká na deploy verifikáciu.
 
 ---
 
@@ -155,7 +155,7 @@ Export → CSV/JSON so všetkými položkami, lokáciou, statusom, poznámkami
 | Backend hosting | Railway | ✓ live |
 | Foto storage | Cloudflare R2 (archiveapp-photos) | ✓ live (Sprint 3a) |
 | QR scan | @zxing/browser (kamera) + manuálny input | ✓ live |
-| OCR | Tesseract na Railway, batch endpoint | ⬜ Sprint 3b |
+| OCR | Tesseract na Railway (nixpacks), batch endpoint | 🟡 Sprint 3b kód hotový, čaká deploy |
 | Auth MVP | HTTP Basic Auth | ✓ live |
 | Auth fáza 2 | Microsoft OAuth (passport-azure-ad) | ⬜ po MVP |
 | Export | CSV + JSON endpoint | ⬜ Sprint 4 |
@@ -254,10 +254,16 @@ AssetinSpace/ArchiveApp (private)
 - ✓ FE `PhotoGallery` (grid 2/3 col, PENDING badge, vlastný lightbox s Escape + klik mimo)
 - ✓ Integrácia v `ItemDetailPage` (sekcia Fotky)
 
-### Sprint 3b — OCR ⬜ NASLEDUJÚCI
-- [ ] nixpacks.toml: Tesseract system dependency na Railway
-- [ ] POST /api/ocr/process-pending endpoint (batch nad `ocr_status = PENDING`)
-- [ ] Zobrazenie OCR textu pod fotkou + filter PENDING/DONE/FAILED v UI
+### Sprint 3b — OCR 🟡 KÓD HOTOVÝ (čaká Railway deploy verifikáciu)
+- ✓ `backend/nixpacks.toml`: Tesseract + leptonica system dependencies pre Railway
+- ✓ `backend/src/types/node-tesseract-ocr.d.ts`: lokálna deklarácia typov (chýbajúce @types)
+- ✓ `backend/src/services/ocr.ts`: `processPhoto` (idempotent), `processPending` (sériový batch, lang=eng, OEM=1, PSM=6)
+- ✓ `backend/src/routes/ocr.ts`: 4 endpointy — `POST /api/ocr/process-pending` (async fire-and-forget cez `setImmediate`), `GET /api/ocr/status`, `POST /api/ocr/retry/:photoId` (sync), `GET /api/ocr/failed`
+- ✓ `frontend/src/api.ts`: `fetchOcrStatus`, `processOcrPending`, `retryOcr`, `fetchFailedPhotos`
+- ✓ `frontend/src/pages/OCRAdminPage.tsx` (route `/admin/ocr`, navbar link): štatistiky 2×2 grid, polling 3s počas spracovania, banner "Hotovo", sekcia FAILED s Retry
+- ✓ `frontend/src/components/PhotoGallery.tsx` rozšírené: DONE → collapsible OCR text, DONE bez textu → sivý badge, FAILED → červený badge + Retry
+- ⬜ **Deploy verifikácia:** Railway Deploy Logs → potvrď `tesseract --version` funguje; testovací scenár z chatu (3 fotky → batch → OCR text v galérii)
+- 📝 Lokálny test OCR preskočený — Tesseract binary nie je v Windows PATH, plán to predpokladá (testuje sa len na Railway)
 
 ### Sprint 4 — Search + Export ⬜
 - [ ] Fulltext search (ILIKE cez name, note, ocr_raw_text)
@@ -313,5 +319,5 @@ IT tím objednávateľa dostane:
 
 ---
 
-*Posledná aktualizácia: v2.1 — Sprint 3a hotový (fotky uploadované na R2, galéria + lightbox v UI), OCR ako 3b.*
-*Ďalší krok: Sprint 3b — Tesseract OCR na Railway, vyplnenie `ocr_raw_text` pre PENDING fotky.*
+*Posledná aktualizácia: v2.2 — Sprint 3b kód napísaný a buildy prešli (backend `tsc` ✓, frontend `tsc && vite build` ✓). Čaká push + Railway deploy + overenie Tesseract binary v Deploy Logs.*
+*Ďalší krok: push → Railway redeploy → otvor `/admin/ocr` → spusti batch nad reálnymi PENDING fotkami → odhad presnosti pre slovenské štítky → rozhodnúť o slovenskom language packu.*

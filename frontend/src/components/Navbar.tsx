@@ -4,6 +4,7 @@ const links: Array<{ to: string; icon: string; label: string }> = [
   { to: "/", icon: "□", label: "Položky" },
   { to: "/scan", icon: "▣", label: "Scan" },
   { to: "/admin/qr", icon: "≡", label: "QR" },
+  { to: "/admin/ocr", icon: "T", label: "OCR" },
 ];
 
 export function Navbar() {

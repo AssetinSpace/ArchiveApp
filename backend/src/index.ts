@@ -8,6 +8,7 @@ import { itemTypesRouter } from "./routes/itemTypes.js";
 import { itemsRouter } from "./routes/items.js";
 import { qrRouter } from "./routes/qr.js";
 import { photosRouter } from "./routes/photos.js";
+import { ocrRouter } from "./routes/ocr.js";
 
 const app = express();
 
@@ -44,6 +45,7 @@ app.use("/api/items", basicAuth, itemsRouter);
 // photosRouter mountujeme na /api (nie /api/photos) lebo jeho routes obsahujú
 // aj /items/:id/photos (nested) aj /photos/:id (flat).
 app.use("/api", basicAuth, photosRouter);
+app.use("/api/ocr", basicAuth, ocrRouter);
 
 const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof ZodError) {

@@ -1,0 +1,23 @@
+# Railway nixpacks konfigurácia pre ArchiveApp backend (Sprint 3b — OCR).
+#
+# Default nixpacks detekcia by nainštalovala iba Node.js. Tesseract OCR je
+# system binary (volaný z node-tesseract-ocr cez child_process), preto ho
+# musíme deklarovať explicitne v setup phase ako nix package.
+#
+# Po deployi over v Railway Deploy Logs že obsahuje:
+#   "Setting up tesseract..."   (alebo podobné z nix-env output)
+#
+# Sanity check v Railway shelli (ak je k dispozícii):
+#   tesseract --version
+#   which tesseract
+#
+# Fallback ak Tesseract binary chýba po deployi (poradie preferencie):
+#   1) Zameň "tesseract" za "tesseract-ocr" (iný nix package name)
+#   2) Pridaj "tesseract-ocr-data" pre language data
+#   3) (posledná možnosť, vyžaduje refactor) prepnúť na tesseract.js (WASM)
+#
+# Jazyk: zatiaľ len angličtina (lang: 'eng' v ocr.ts). Slovenský language
+# pack pridáme až po otestovaní reálnej presnosti na štítkoch — viď PROJECT.md.
+
+[phases.setup]
+nixPkgs = ["nodejs_20", "tesseract", "leptonica"]
