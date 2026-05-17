@@ -63,10 +63,11 @@ export function ExportPage() {
         <h2>CSV (plochý)</h2>
         <p className="muted" style={{ marginTop: 0 }}>
           Pre Excel / Google Sheets. UTF-8 s BOM, oddelovač <code>;</code>,
-          CRLF (SK locale). Stĺpce: <code>id, qrCode, typeCode, name, note,
-          status, path, photoCount, hasOcrText, ocrTextPreview, createdAt,
-          updatedAt</code>. Cesta je v tvare <code>Sklad A &gt; Paleta 7 &gt;
-          Krabica 23 &gt; Zložka X</code>.
+          CRLF (SK locale). Stĺpce: <code>id, qrCode, typeCode, name,
+          autoName, ocrTitle, ocrTitleStatus, metadataStatus, note, status,
+          path, photoCount, hasOcrText, ocrTextPreview, createdAt, updatedAt</code>.
+          Cesta je v tvare <code>Sklad A &gt; Paleta 7 &gt; Krabica 23 &gt;
+          Zložka X</code>.
         </p>
         <ExportButton
           kind="csv"

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -68,6 +68,10 @@ export function ItemDetailPage() {
   if (!itemQ.data) return <p className="muted">Položka nenájdená.</p>;
 
   const item = itemQ.data;
+  const showAutoNameLabel =
+    !!item.auto_name && item.name !== item.auto_name;
+  const showOcrSuggestedBanner = item.ocr_title_status === "SUGGESTED";
+  const showOcrConfirmedBadge = item.ocr_title_status === "CONFIRMED";
 
   // Prefix-match invalidácia: jedna volanie pokryje všetky ["items", ...] queries
   // (one/path/children/all/root) v celej aplikácii. Vraciame Promise, aby ho
@@ -99,9 +103,30 @@ export function ItemDetailPage() {
         })}
       </nav>
 
+      {showAutoNameLabel && (
+        <div className="item-autoname-label">
+          Pôvodné ID: <code>{item.auto_name}</code>
+        </div>
+      )}
+
+      {showOcrSuggestedBanner && (
+        <OcrTitleBanner item={item} onDone={invalidateAll} />
+      )}
+
       {/* Základné metadáta */}
       <section className="card item-detail-header">
-        <h1 style={{ marginBottom: 8 }}>{item.name ?? "(bez názvu)"}</h1>
+        <h1 style={{ marginBottom: 8 }}>
+          {item.name ?? "(bez názvu)"}
+          {showOcrConfirmedBadge && (
+            <span
+              className="badge-ocr-confirmed"
+              style={{ marginLeft: 8, verticalAlign: "middle" }}
+              title="Názov potvrdený z OCR návrhu (Sprint 5)"
+            >
+              z OCR
+            </span>
+          )}
+        </h1>
         <div className="row" style={{ marginBottom: item.note ? 0 : 12, flexWrap: "wrap" }}>
           <span className={`badge badge-${item.type_code.toLowerCase()}`}>
             {TYPE_LABEL[item.type_code] ?? item.type_code}
@@ -666,5 +691,133 @@ function AddChildForm({
         onCancel={() => setOpen(false)}
       />
     </div>
+  );
+}
+
+// ─── OCR title banner (Sprint 5) ─────────────────────────────────────────────
+// Zobrazí sa pre Item s ocr_title_status === 'SUGGESTED'. Tri akcie volajú
+// /api/llm-title/:id/{confirm|reject|edit} a po úspechu refetchnú Item.
+
+function OcrTitleBanner({
+  item,
+  onDone,
+}: {
+  item: Item;
+  onDone: () => Promise<void> | void;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(item.ocr_title ?? "");
+  const editInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEditing && editInputRef.current) {
+      editInputRef.current.focus();
+      editInputRef.current.select();
+    }
+  }, [isEditing]);
+
+  const confirmMut = useMutation({
+    mutationFn: () => api.confirmLlmTitle(item.id),
+    onSuccess: async () => {
+      await onDone();
+    },
+  });
+  const rejectMut = useMutation({
+    mutationFn: () => api.rejectLlmTitle(item.id),
+    onSuccess: async () => {
+      await onDone();
+    },
+  });
+  const editMut = useMutation({
+    mutationFn: (title: string) => api.editLlmTitle(item.id, title),
+    onSuccess: async () => {
+      setIsEditing(false);
+      await onDone();
+    },
+  });
+
+  const isPending =
+    confirmMut.isPending || rejectMut.isPending || editMut.isPending;
+  const error =
+    confirmMut.error ?? rejectMut.error ?? editMut.error ?? null;
+
+  return (
+    <section className="item-ocr-banner" aria-label="AI návrh názvu">
+      <div className="item-ocr-banner-label">AI navrhol názov:</div>
+      {isEditing ? (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const v = editValue.trim();
+            if (v) editMut.mutate(v);
+          }}
+          style={{ display: "flex", flexDirection: "column", gap: 8 }}
+        >
+          <input
+            ref={editInputRef}
+            type="text"
+            value={editValue}
+            maxLength={200}
+            onChange={(e) => setEditValue(e.target.value)}
+            disabled={editMut.isPending}
+          />
+          <div className="item-ocr-banner-actions">
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={editMut.isPending || editValue.trim().length === 0}
+            >
+              {editMut.isPending ? "Ukladám…" : "Uložiť"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsEditing(false);
+                setEditValue(item.ocr_title ?? "");
+              }}
+              disabled={editMut.isPending}
+            >
+              Zrušiť
+            </button>
+          </div>
+        </form>
+      ) : (
+        <>
+          <div className="item-ocr-banner-title">
+            {item.ocr_title ?? "(prázdny návrh)"}
+          </div>
+          <div className="item-ocr-banner-actions">
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => confirmMut.mutate()}
+              disabled={isPending}
+            >
+              {confirmMut.isPending ? "Potvrdzujem…" : "✓ Potvrdiť"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              disabled={isPending}
+            >
+              ✏️ Upraviť
+            </button>
+            <button
+              type="button"
+              className="btn-danger"
+              onClick={() => rejectMut.mutate()}
+              disabled={isPending}
+            >
+              {rejectMut.isPending ? "Zamietam…" : "✗ Zamietnuť"}
+            </button>
+          </div>
+        </>
+      )}
+      {error && (
+        <p className="error" style={{ margin: 0 }}>
+          Chyba: {(error as Error).message}
+        </p>
+      )}
+    </section>
   );
 }

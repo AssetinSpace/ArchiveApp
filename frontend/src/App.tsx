@@ -4,6 +4,7 @@ import { ScanPage } from "./pages/ScanPage";
 import { ItemDetailPage } from "./pages/ItemDetailPage";
 import { QRAdminPage } from "./pages/QRAdminPage";
 import { OCRAdminPage } from "./pages/OCRAdminPage";
+import { LlmTitleAdminPage } from "./pages/LlmTitleAdminPage";
 import { BoxContentsPage } from "./pages/BoxContentsPage";
 import { ExportPage } from "./pages/ExportPage";
 import { LoginGate } from "./components/LoginGate";
@@ -23,6 +24,7 @@ export function App() {
             <Route path="/items/:id" element={<ItemDetailPage />} />
             <Route path="/admin/qr" element={<QRAdminPage />} />
             <Route path="/admin/ocr" element={<OCRAdminPage />} />
+            <Route path="/admin/llm-titles" element={<LlmTitleAdminPage />} />
             <Route path="/admin/export" element={<ExportPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

@@ -1,6 +1,6 @@
 # ArchiveApp — PROJECT.md
 > Živý dokument. Aktualizovať po každom rozhodnutí alebo sprinte.
-> Verzia 2.4 — Sprint 4 HOTOVÝ. Search + Export live, MVP uzavretý.
+> Verzia 2.5 — Sprint 5 HOTOVÝ. Auto-naming + LLM title extraction live.
 
 ---
 
@@ -48,6 +48,11 @@ Výstup: exportovateľný inventár.
 | 15 | CSV export = UTF-8 s BOM, oddelovač `;`, CRLF | Default Excel SK — bez BOM stratí diakritiku, bez `;` zlúči stĺpce, bez CRLF prerieduje riadky |
 | 16 | JSON export bez signed URL pre fotky | Signed URLs sú efemérne (15 min) — fotky sa stiahnu z R2 bucket-u cez rclone (PROJECT.md §11) |
 | 17 | Sprint 4 endpoints používajú `prisma.$queryRaw` | Prisma neumožňuje volať `unaccent()` ani `WITH RECURSIVE` priamo v `where` — raw SQL je čistejšie ako Unsupported workaround |
+| 18 | Auto-name z pozície v hierarchii (`sklX_palNNN_kraNNN_zloNNN`) | Terénny flow scan → fotka → ďalší — bez ručného písania názvu. Generuje sa pri POST /items, immutable po vytvorení, slúži ako stabilný pozičný identifikátor aj keď sa neskôr `name` prepíše OCR titulkom |
+| 19 | LLM title extraction cez Claude Haiku API, batch + manual review, nie automatic | Halucinácie sú reálne, konzultant musí návrh potvrdiť. Batch je manuálne spustený z `/admin/llm-titles`, sériový s 500 ms pauzou (rate limit + cost control) |
+| 20 | Potvrdiť OCR title prepisuje `name`, `auto_name` ostáva immutable | OCR titulok je čitateľnejší pre vyhľadávanie ("Kolaudácia X"), `auto_name` ostáva ako stabilný pozičný identifikátor pre referenciu (footer Item detailu) |
+| 21 | JSONB `metadata` pole pripravené pre Sprint 6, nenaplňuje sa v Sprint 5 | Schéma metadata sa odvodí z analýzy ~200 reálnych OCR textov po field work — predčasná štandardizácia by viedla k zlej štruktúre |
+| 22 | Haiku namiesto Sonnet pre OCR extraction | 12× lacnejšie (~$0.40 / 1000 štítkov vs $4), kvalita pre štruktúrovanú extraction zo štítkov je dostatočná. Pri kvalitatívnom probléme TD-13 môžeme prepnúť |
 
 ---
 
@@ -75,11 +80,16 @@ Neriešime špeciálne — KRABICA s popisným názvom (napr. "Tubus").
 ### 4.1 Item
 - `id` — UUID (interné)
 - `type_code` — SKLAD / PALETA / KRABICA / ZLOZKA (MVP)
-- `name` — voliteľný ľudský názov
+- `name` — voliteľný ľudský názov (Sprint 5: prepisovaný pri CONFIRMED OCR titulku)
 - `parent_id` — UUID rodiča (nullable = koreň)
 - `qr_code` — externý kód z nálepky, napr. `QR-000042` (nullable, unique)
 - `note` — voľné textové pole (nullable)
 - `status` — NA_MIESTE / VYNESENE / NEZNAME
+- `auto_name` — Sprint 5: pozičný identifikátor (`sklA_pal003_kra004_zlo015`), generovaný pri POST /items, **immutable** po vytvorení. NULL pre legacy items pred Sprint 5.
+- `ocr_title` — Sprint 5: LLM-extrahovaný titulok zo OCR textu. NULL kým LLM extraction nezbehol.
+- `ocr_title_status` — Sprint 5: TEXT, hodnoty `NONE` (default) / `SUGGESTED` (LLM navrhol) / `CONFIRMED` (konzultant potvrdil → `name` prepísaný) / `REJECTED` (konzultant zamietol).
+- `metadata` — Sprint 5: JSONB, default `{}`. Pripravené pre Sprint 6 metadata extraction (projektant, dátum, adresa, typ dokumentu...). V Sprint 5 sa nenaplňuje.
+- `metadata_status` — Sprint 5: TEXT, hodnoty `NONE` (default) / `EXTRACTED` (Sprint 6) / `REVIEWED` (Sprint 6).
 - `deleted_at` — soft delete (nikdy hard delete)
 - `created_at`, `updated_at`
 
@@ -165,8 +175,10 @@ Export → CSV/JSON so všetkými položkami, lokáciou, statusom, poznámkami
 | OCR | Tesseract 5.3.0 na Railway, slk+eng, PSM 1, batch endpoint | ✓ live (Sprint 3b) |
 | Auth MVP | HTTP Basic Auth | ✓ live |
 | Auth fáza 2 | Microsoft OAuth (passport-azure-ad) | ⬜ po MVP |
-| Search | Fulltext ILIKE cez name, note, ocr_raw_text + `unaccent` | ✓ live (Sprint 4) |
+| Search | Fulltext ILIKE cez name, ocr_title, note, ocr_raw_text + `strip_diacritics()` | ✓ live (Sprint 4, rozšírené Sprint 5) |
 | Export | CSV (BOM/`;`/CRLF) + JSON hierarchický | ✓ live (Sprint 4) |
+| Auto-name | Pozičný identifikátor `sklX_palNNN_kraNNN_zloNNN` pri POST /items | ✓ live (Sprint 5) |
+| LLM Title | Claude Haiku API, batch + manual review | ✓ live (Sprint 5) |
 
 ---
 
@@ -188,8 +200,15 @@ R2_ACCESS_KEY_ID      [z Cloudflare Account API tokenu]
 R2_SECRET_ACCESS_KEY  [z Cloudflare Account API tokenu]
 R2_BUCKET_NAME        archiveapp-photos
 R2_PUBLIC_URL         [R2 public URL]
+ANTHROPIC_API_KEY     [sk-ant-... z console.anthropic.com — Sprint 5]
 NODE_ENV              production
 ```
+
+**Sprint 5 LLM cost control (povinný setup pred prvým použitím):**
+1. console.anthropic.com → Settings → API Keys → Create Key (sk-ant-...)
+2. Settings → Limits → Spending Limit = **$10** (poistka — pri 1000 štítkoch ~$0.40)
+3. Railway dashboard → backend service → Variables → `ANTHROPIC_API_KEY` = key
+4. Bez kľúča vrátia LLM endpointy 503 s návodom; appka inak nepadne.
 
 **Pozor:** R2_ACCOUNT_ID = `324e558ab210cbc41f1f20e2a3aa4a01` (správny hash z S3 API URL).
 Pôvodne bola tam chybne skopírovaná hodnota Access Key ID — opravené v Sprint 3a.
@@ -291,6 +310,22 @@ AssetinSpace/ArchiveApp (private)
 - ✓ PhotoGallery rozšírené: DONE collapsible, DONE bez textu badge, FAILED retry mutation
 - ✓ Reálny test (štítok RODINNÝ DOM): 95%+ presnosť, diakritika OK
 
+### Sprint 5 — Auto-naming + LLM Title Extraction ✓ HOTOVÝ
+- ✓ Prisma migrácia `add_auto_name_ocr_title_metadata` (auto_name, ocr_title, ocr_title_status, metadata JSONB, metadata_status, index ocr_title_status)
+- ✓ services/autoName.ts: `generateAutoName(parentId, typeCode)` — sklA_pal003_kra004_zlo015 (preferuje `auto_name` ancestora ak existuje, inak path-from-scratch)
+- ✓ Integrácia do POST /api/items (oba branchy s/bez QR) — `name = body.name ?? autoName`, `auto_name = autoName`
+- ✓ services/llmTitle.ts: `extractTitleFromOcr` (fetch + 30s AbortController) + `processPendingTitles` (sériový, 500ms pauza, max 50 per batch)
+- ✓ Model: `claude-haiku-4-5-20251001`, `max_tokens: 150`, OCR vstup orezaný na 2000 znakov, výstup na 200 znakov
+- ✓ routes/llmTitle.ts: POST /process (503 ak chýba ANTHROPIC_API_KEY), GET /status (vrátane `noApiKey` flag), GET /pending-review (offset paging), POST /:id/confirm|reject|edit
+- ✓ Confirm/edit prepíše `name` na ocr_title bez uniqueness check (LLM-derived duplicates povolené)
+- ✓ services/search.ts rozšírené: ocr_title v ILIKE WHERE + CASE WHEN priorita `name > ocr_title > note > ocr`, snippet aj pre `ocr_title`
+- ✓ routes/export.ts: CSV stĺpce `autoName, ocrTitle, ocrTitleStatus, metadataStatus`, JSON polia + `metadata`
+- ✓ FE api.ts: 6 nových api.* metód, typy `LlmTitleStatusResponse / LlmTitleProcessResponse / PendingReviewItem / PendingReviewResponse / OcrTitleStatus / MetadataStatus`
+- ✓ FE pages/LlmTitleAdminPage.tsx (/admin/llm-titles): 6 stat cards, no-API-key banner s návodom, batch tlačidlo, polling 3s počas processing, review queue (offset 20/page) s confirm/edit/reject (44px+ tap targets, kbd Enter/Esc shortcuts)
+- ✓ FE ItemDetailPage: auto_name label, OcrTitleBanner pre SUGGESTED, "z OCR" badge pre CONFIRMED
+- ✓ FE Navbar: nový link "AI Názvy" + ikonka, App.tsx route `/admin/llm-titles`
+- ✓ TypeScript build prejde na FE aj BE
+
 ### Sprint 4 — Search + Export ✓ HOTOVÝ
 - ✓ Prisma migrácia `add_unaccent_extension` (CREATE EXTENSION IF NOT EXISTS unaccent)
 - ✓ services/search.ts: `searchItems()` cez `prisma.$queryRaw` s `unaccent(lower(...)) LIKE` cez Item.name/note + Photo.ocr_raw_text
@@ -351,6 +386,8 @@ IT tím objednávateľa dostane:
 | TD-10 | GIN index `to_tsvector('simple', unaccent(name‖note))` ak search > 500 ms na reálnom seede | Sledovať po naplnení skladu (~5000 items) |
 | TD-11 | Search pagination (cursor alebo offset) keď výsledkov > 200 | Po naplnení skladu, ak limit 200 začne obmedzovať |
 | TD-12 | `dump.sql` (pg_dump) a `README.md` (popis schémy + import postup) pre finálne odovzdanie IT tímu | Pred odovzdaním (po dokončení field work) |
+| TD-13 | LLM retry pre REJECTED items — re-extract s upraveným promptom (variant „presnejšie", „kratšie", alebo iný model — Sonnet ako fallback ak Haiku halucinoval) | Po Sprint 6 ak field work odhalí systematické problémy s Haiku |
+| TD-14 | Anthropic Batch API namiesto real-time pre ešte lacnejšie spracovanie (~50% sleva), neblokuje Express request | Až keď bude konzultant chcieť spracovať >100 položiek naraz |
 
 ---
 
@@ -364,5 +401,5 @@ IT tím objednávateľa dostane:
 
 ---
 
-*Posledná aktualizácia: v2.4 — Sprint 4 HOTOVÝ. Search + Export live, MVP uzavretý (technicky).*
-*Ďalší krok: Sprint 2 Bugfix (TD-5/6/7), field work v sklade (DoD body 1+2), potom dump.sql + README.md pre odovzdanie (TD-12).*
+*Posledná aktualizácia: v2.5 — Sprint 5 HOTOVÝ. Auto-naming + LLM title extraction live.*
+*Ďalší krok: Sprint 2 Bugfix (TD-5/6/7), nastaviť ANTHROPIC_API_KEY na Railway, field work v sklade (DoD body 1+2), potom Sprint 6 (metadata extraction po analýze ~200 OCR textov), nakoniec dump.sql + README.md pre odovzdanie (TD-12).*

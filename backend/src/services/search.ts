@@ -20,7 +20,7 @@ import { prisma } from "../prisma.js";
 import { getItemPath, type PathNode } from "../lib/itemPath.js";
 import { getSignedUrlForKey } from "./r2.js";
 
-export type MatchSource = "name" | "note" | "ocr";
+export type MatchSource = "name" | "ocr_title" | "note" | "ocr";
 
 export type SearchHit = {
   item: {
@@ -42,6 +42,7 @@ type SearchRow = {
   id: string;
   type_code: string;
   name: string | null;
+  ocr_title: string | null;
   note: string | null;
   qr_code: string | null;
   status: string;
@@ -100,9 +101,11 @@ export async function searchItems(query: string, limit: number): Promise<SearchH
   let rows: SearchRow[];
   try {
     rows = await prisma.$queryRaw<SearchRow[]>`
-      SELECT i.id, i.type_code, i.name, i.note, i.qr_code, i.status::text AS status, i.updated_at,
+      SELECT i.id, i.type_code, i.name, i.ocr_title, i.note, i.qr_code,
+        i.status::text AS status, i.updated_at,
         CASE
           WHEN strip_diacritics(i.name) LIKE strip_diacritics(${like}) THEN 'name'
+          WHEN strip_diacritics(i.ocr_title) LIKE strip_diacritics(${like}) THEN 'ocr_title'
           WHEN strip_diacritics(i.note) LIKE strip_diacritics(${like}) THEN 'note'
           ELSE 'ocr'
         END AS match_source
@@ -110,6 +113,7 @@ export async function searchItems(query: string, limit: number): Promise<SearchH
       WHERE i.deleted_at IS NULL
         AND (
           strip_diacritics(i.name) LIKE strip_diacritics(${like})
+          OR strip_diacritics(i.ocr_title) LIKE strip_diacritics(${like})
           OR strip_diacritics(i.note) LIKE strip_diacritics(${like})
           OR EXISTS (
             SELECT 1 FROM "Photo" p
@@ -196,10 +200,12 @@ export async function searchItems(query: string, limit: number): Promise<SearchH
   );
 
   return rows.map((r, idx) => {
-    const snippet =
-      r.match_source === "ocr"
-        ? extractSnippet(ocrTextByItem.get(r.id) ?? "", query)
-        : null;
+    let snippet: string | null = null;
+    if (r.match_source === "ocr") {
+      snippet = extractSnippet(ocrTextByItem.get(r.id) ?? "", query);
+    } else if (r.match_source === "ocr_title") {
+      snippet = extractSnippet(r.ocr_title ?? "", query);
+    }
     return {
       item: {
         id: r.id,

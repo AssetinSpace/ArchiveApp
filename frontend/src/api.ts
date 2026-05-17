@@ -58,6 +58,9 @@ export type ItemType = {
 
 export type Status = "NA_MIESTE" | "VYNESENE" | "NEZNAME";
 
+export type OcrTitleStatus = "NONE" | "SUGGESTED" | "CONFIRMED" | "REJECTED";
+export type MetadataStatus = "NONE" | "EXTRACTED" | "REVIEWED";
+
 export type Item = {
   id: string;
   type_code: string;
@@ -66,6 +69,13 @@ export type Item = {
   qr_code: string | null;
   note: string | null;
   status: Status;
+  // Sprint 5: pozičný identifikátor (sklA_pal003_kra004_zlo015) — nullable lebo
+  // existujúce položky pred Sprint 5 nemajú backfill.
+  auto_name?: string | null;
+  ocr_title?: string | null;
+  ocr_title_status?: OcrTitleStatus;
+  metadata?: Record<string, unknown>;
+  metadata_status?: MetadataStatus;
   deleted_at: string | null;
   created_at: string;
   updated_at: string;
@@ -177,9 +187,9 @@ export type ProcessPendingResponse = {
   queuedCount: number;
 };
 
-// ─── Search types (Sprint 4) ─────────────────────────────────────────────────
+// ─── Search types (Sprint 4 + Sprint 5) ──────────────────────────────────────
 
-export type MatchSource = "name" | "note" | "ocr";
+export type MatchSource = "name" | "ocr_title" | "note" | "ocr";
 
 export type SearchHit = {
   item: {
@@ -231,6 +241,49 @@ export type ExportKind = "csv" | "json";
 export type ExportDownload = {
   blob: Blob;
   filename: string;
+};
+
+// ─── LLM Title types (Sprint 5) ──────────────────────────────────────────────
+
+export type LlmTitleStatusResponse = {
+  total: number;
+  none: number;
+  eligible: number;
+  suggested: number;
+  confirmed: number;
+  rejected: number;
+  noApiKey: boolean;
+};
+
+export type LlmTitleResult = {
+  photoId: string;
+  itemId: string;
+  suggestedTitle: string | null;
+  error: string | null;
+};
+
+export type LlmTitleProcessResponse = {
+  processed: number;
+  results: LlmTitleResult[];
+};
+
+export type PendingReviewItem = {
+  id: string;
+  typeCode: string;
+  name: string | null;
+  autoName: string | null;
+  ocrTitle: string | null;
+  ocrTitleStatus: OcrTitleStatus;
+  qrCode: string | null;
+  path: PathNode[];
+  photo: { storageKey: string; signedUrl: string } | null;
+};
+
+export type PendingReviewResponse = {
+  total: number;
+  limit: number;
+  offset: number;
+  items: PendingReviewItem[];
 };
 
 async function handle<T>(res: Response): Promise<T> {
@@ -402,6 +455,32 @@ export const api = {
   // ─── Box contents (Sprint 4) ───────────────────────────────────────────────
   fetchBoxContents: (qrCode: string) =>
     request<BoxContents>(`/items/by-qr/${encodeURIComponent(qrCode)}/contents`),
+
+  // ─── LLM Title (Sprint 5) ──────────────────────────────────────────────────
+  fetchLlmTitleStatus: () =>
+    request<LlmTitleStatusResponse>("/llm-title/status"),
+  processLlmTitles: (limit?: number) =>
+    request<LlmTitleProcessResponse>("/llm-title/process", {
+      method: "POST",
+      json: limit !== undefined ? { limit } : {},
+    }),
+  fetchPendingReview: (limit = 20, offset = 0) => {
+    const qs = new URLSearchParams();
+    qs.set("limit", String(limit));
+    qs.set("offset", String(offset));
+    return request<PendingReviewResponse>(
+      `/llm-title/pending-review?${qs.toString()}`,
+    );
+  },
+  confirmLlmTitle: (itemId: string) =>
+    request<Item>(`/llm-title/${itemId}/confirm`, { method: "POST" }),
+  rejectLlmTitle: (itemId: string) =>
+    request<Item>(`/llm-title/${itemId}/reject`, { method: "POST" }),
+  editLlmTitle: (itemId: string, title: string) =>
+    request<Item>(`/llm-title/${itemId}/edit`, {
+      method: "POST",
+      json: { title },
+    }),
 
   // ─── Export (Sprint 4) ─────────────────────────────────────────────────────
   // Stiahne CSV/JSON ako Blob. Basic Auth musí ísť cez fetch header — <a href>

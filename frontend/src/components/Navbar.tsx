@@ -1,12 +1,13 @@
 import { NavLink } from "react-router-dom";
 
-type IconName = "items" | "scan" | "qr" | "ocr" | "export";
+type IconName = "items" | "scan" | "qr" | "ocr" | "ai" | "export";
 
 const links: Array<{ to: string; icon: IconName; label: string }> = [
   { to: "/", icon: "items", label: "Položky" },
   { to: "/scan", icon: "scan", label: "Scan" },
   { to: "/admin/qr", icon: "qr", label: "QR" },
   { to: "/admin/ocr", icon: "ocr", label: "OCR" },
+  { to: "/admin/llm-titles", icon: "ai", label: "AI Názvy" },
   { to: "/admin/export", icon: "export", label: "Export" },
 ];
 
@@ -49,6 +50,13 @@ function NavIcon({ name }: { name: IconName }) {
       return (
         <svg {...common} aria-hidden="true">
           <path d="M7 7h10M12 7v10" />
+        </svg>
+      );
+    case "ai":
+      return (
+        <svg {...common} aria-hidden="true">
+          <path d="M12 4l1.5 4 4 1.5-4 1.5L12 15l-1.5-4-4-1.5 4-1.5z" />
+          <path d="M18 16l.6 1.6 1.6.6-1.6.6L18 20.4l-.6-1.6-1.6-.6 1.6-.6z" />
         </svg>
       );
     case "export":

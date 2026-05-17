@@ -4,6 +4,7 @@ import { prisma } from "../prisma.js";
 import { PARENT_TYPE_BY_CHILD } from "../constants.js";
 import { getItemPath, type PathNode } from "../lib/itemPath.js";
 import { getSignedUrlForKey } from "../services/r2.js";
+import { generateAutoName } from "../services/autoName.js";
 
 export const itemsRouter: Router = Router();
 
@@ -205,6 +206,12 @@ itemsRouter.post("/", async (req, res, next) => {
       }
     }
 
+    // Sprint 5: vygenerujeme auto_name (pozičný identifikátor sklA_pal003_...).
+    // Vracia null pre koreňový SKLAD alebo neznáme typy. Ak user pošle name
+    // ručne, použije sa user name; inak fallback name = autoName (terénny flow).
+    const autoName = await generateAutoName(body.parent_id ?? null, body.type_code);
+    const finalName = body.name ?? autoName;
+
     // Ak je qr_code zadané: musí to byť existujúci FREE QRTag.
     // Vytvorenie itemu + assign QRTag prebehne atomicky v transakcii aby
     // sa zachovala konzistencia Item.qr_code ↔ QRTag.assigned_item_id.
@@ -218,7 +225,8 @@ itemsRouter.post("/", async (req, res, next) => {
         const item = await tx.item.create({
           data: {
             type_code: body.type_code,
-            name: body.name ?? null,
+            name: finalName,
+            auto_name: autoName,
             parent_id: body.parent_id ?? null,
             note: body.note ?? null,
             qr_code: body.qr_code,
@@ -243,7 +251,8 @@ itemsRouter.post("/", async (req, res, next) => {
     const created = await prisma.item.create({
       data: {
         type_code: body.type_code,
-        name: body.name ?? null,
+        name: finalName,
+        auto_name: autoName,
         parent_id: body.parent_id ?? null,
         note: body.note ?? null,
         qr_code: null,

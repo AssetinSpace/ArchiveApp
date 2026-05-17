@@ -29,6 +29,11 @@ type ExportItem = {
   id: string;
   type_code: string;
   name: string | null;
+  auto_name: string | null;
+  ocr_title: string | null;
+  ocr_title_status: string;
+  metadata: unknown;
+  metadata_status: string;
   parent_id: string | null;
   qr_code: string | null;
   note: string | null;
@@ -113,6 +118,11 @@ async function loadActiveItems(): Promise<ExportItem[]> {
       id: true,
       type_code: true,
       name: true,
+      auto_name: true,
+      ocr_title: true,
+      ocr_title_status: true,
+      metadata: true,
+      metadata_status: true,
       parent_id: true,
       qr_code: true,
       note: true,
@@ -126,6 +136,11 @@ async function loadActiveItems(): Promise<ExportItem[]> {
     id: i.id,
     type_code: i.type_code,
     name: i.name,
+    auto_name: i.auto_name,
+    ocr_title: i.ocr_title,
+    ocr_title_status: i.ocr_title_status,
+    metadata: i.metadata,
+    metadata_status: i.metadata_status,
     parent_id: i.parent_id,
     qr_code: i.qr_code,
     note: i.note,
@@ -174,6 +189,10 @@ exportRouter.get("/csv", async (_req, res, next) => {
       "qrCode",
       "typeCode",
       "name",
+      "autoName",
+      "ocrTitle",
+      "ocrTitleStatus",
+      "metadataStatus",
       "note",
       "status",
       "path",
@@ -205,6 +224,10 @@ exportRouter.get("/csv", async (_req, res, next) => {
           item.qr_code ?? "",
           item.type_code,
           item.name ?? "",
+          item.auto_name ?? "",
+          item.ocr_title ?? "",
+          item.ocr_title_status,
+          item.metadata_status,
           item.note ?? "",
           item.status,
           path,
@@ -238,6 +261,11 @@ type JsonNode = {
   id: string;
   type_code: string;
   name: string | null;
+  auto_name: string | null;
+  ocr_title: string | null;
+  ocr_title_status: string;
+  metadata: unknown;
+  metadata_status: string;
   parent_id: string | null;
   qr_code: string | null;
   note: string | null;
@@ -278,6 +306,11 @@ exportRouter.get("/json", async (_req, res, next) => {
         id: item.id,
         type_code: item.type_code,
         name: item.name,
+        auto_name: item.auto_name,
+        ocr_title: item.ocr_title,
+        ocr_title_status: item.ocr_title_status,
+        metadata: item.metadata,
+        metadata_status: item.metadata_status,
         parent_id: item.parent_id,
         qr_code: item.qr_code,
         note: item.note,
