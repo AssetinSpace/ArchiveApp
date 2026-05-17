@@ -17,6 +17,7 @@ type LookupState =
   | { kind: "loading" }
   | { kind: "free"; lookup: QRLookup }
   | { kind: "assign_to"; lookup: QRLookup }
+  | { kind: "assigned_box"; lookup: QRLookup }
   | { kind: "not_found"; code: string }
   | { kind: "error"; message: string };
 
@@ -61,6 +62,12 @@ export function ScanPage() {
     try {
       const lookup = await api.qrLookup(trimmed);
       if (lookup.status === "ASSIGNED" && lookup.assignedItem) {
+        // Pre KRABICA ponúkneme chooser (detail vs obsah krabice). Pre ostatné
+        // typy zachovávame pôvodné správanie — priamy redirect na detail.
+        if (lookup.assignedItem.type_code === "KRABICA") {
+          setState({ kind: "assigned_box", lookup });
+          return;
+        }
         navigate(`/items/${lookup.assignedItem.id}`);
         return;
       }
@@ -279,6 +286,51 @@ export function ScanPage() {
             Vygeneruj nové QR kódy v sekcii QR Admin alebo skontroluj že máš správny kód.
           </p>
         </div>
+      )}
+      {state.kind === "assigned_box" && state.lookup.assignedItem && (
+        <section className="card">
+          <h2>
+            Krabica <code>{state.lookup.code}</code>
+          </h2>
+          <div className="row" style={{ gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+            <span className="badge badge-krabica">Krabica</span>
+            <strong>{state.lookup.assignedItem.name ?? "(bez názvu)"}</strong>
+          </div>
+          <div className="scan-box-chooser">
+            <Link
+              to={`/items/${state.lookup.assignedItem.id}`}
+              className="btn-primary btn-block"
+              style={{
+                minHeight: 52,
+                fontSize: 17,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textDecoration: "none",
+              }}
+            >
+              Otvoriť detail
+            </Link>
+            <Link
+              to={`/box/${encodeURIComponent(state.lookup.code)}`}
+              className="btn-block"
+              style={{
+                minHeight: 52,
+                fontSize: 17,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textDecoration: "none",
+                background: "#fff",
+                border: "1px solid #d1d5db",
+                color: "#111827",
+                borderRadius: 6,
+              }}
+            >
+              Pozrieť obsah
+            </Link>
+          </div>
+        </section>
       )}
       {state.kind === "assign_to" && assignToId && (
         <AssignToItemSection

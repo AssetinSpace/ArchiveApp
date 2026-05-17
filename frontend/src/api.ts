@@ -158,6 +158,62 @@ export type ProcessPendingResponse = {
   queuedCount: number;
 };
 
+// ─── Search types (Sprint 4) ─────────────────────────────────────────────────
+
+export type MatchSource = "name" | "note" | "ocr";
+
+export type SearchHit = {
+  item: {
+    id: string;
+    typeCode: string;
+    name: string | null;
+    qrCode: string | null;
+    status: Status;
+    note: string | null;
+  };
+  path: PathNode[];
+  matchSource: MatchSource;
+  matchSnippet: string | null;
+  photo: { storageKey: string; signedUrl: string } | null;
+};
+
+export type SearchResponse = {
+  query: string;
+  count: number;
+  hits: SearchHit[];
+};
+
+// ─── Box contents types (Sprint 4) ───────────────────────────────────────────
+
+export type BoxFolder = {
+  id: string;
+  name: string | null;
+  qrCode: string | null;
+  status: Status;
+  note: string | null;
+  photo: { storageKey: string; signedUrl: string } | null;
+  photoCount: number;
+};
+
+export type BoxContents = {
+  box: {
+    id: string;
+    name: string | null;
+    qrCode: string | null;
+    path: PathNode[];
+  };
+  folders: BoxFolder[];
+};
+
+// ─── Export types (Sprint 4) ─────────────────────────────────────────────────
+
+export type ExportKind = "csv" | "json";
+
+export type ExportDownload = {
+  blob: Blob;
+  filename: string;
+};
+
 async function handle<T>(res: Response): Promise<T> {
   if (res.status === 204) return undefined as T;
   const text = await res.text();
@@ -313,5 +369,44 @@ export const api = {
       throw new Error(msg);
     }
     return await res.blob();
+  },
+
+  // ─── Search (Sprint 4) ─────────────────────────────────────────────────────
+  searchItems: (q: string, limit = 50) => {
+    const qs = new URLSearchParams();
+    qs.set("q", q);
+    qs.set("limit", String(limit));
+    return request<SearchResponse>(`/search?${qs.toString()}`);
+  },
+
+  // ─── Box contents (Sprint 4) ───────────────────────────────────────────────
+  fetchBoxContents: (qrCode: string) =>
+    request<BoxContents>(`/items/by-qr/${encodeURIComponent(qrCode)}/contents`),
+
+  // ─── Export (Sprint 4) ─────────────────────────────────────────────────────
+  // Stiahne CSV/JSON ako Blob. Basic Auth musí ísť cez fetch header — <a href>
+  // ho nepošle. Volajúci si vytvorí object URL a klikne na dočasný <a download>.
+  exportBlob: async (kind: ExportKind): Promise<ExportDownload> => {
+    const creds = getCredentials();
+    const res = await fetch(`${API_URL}/export/${kind}`, {
+      headers: creds ? { Authorization: authHeader(creds) } : {},
+    });
+    if (!res.ok) {
+      let msg = `${res.status} ${res.statusText}`;
+      try {
+        const body = await res.json();
+        if (body && body.error) msg = String(body.error);
+      } catch {
+        // not JSON; keep the default message
+      }
+      throw new Error(msg);
+    }
+    // Parse filename z Content-Disposition: attachment; filename="..."
+    // Fallback: archiveapp-export-YYYY-MM-DD.{csv|json}
+    const disposition = res.headers.get("Content-Disposition") ?? "";
+    const filenameMatch = disposition.match(/filename="?([^"]+)"?/i);
+    const filename =
+      filenameMatch?.[1] ?? `archiveapp-export-${new Date().toISOString().slice(0, 10)}.${kind}`;
+    return { blob: await res.blob(), filename };
   },
 };

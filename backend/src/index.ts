@@ -9,6 +9,8 @@ import { itemsRouter } from "./routes/items.js";
 import { qrRouter } from "./routes/qr.js";
 import { photosRouter } from "./routes/photos.js";
 import { ocrRouter } from "./routes/ocr.js";
+import { searchRouter } from "./routes/search.js";
+import { exportRouter } from "./routes/export.js";
 
 const app = express();
 
@@ -46,6 +48,8 @@ app.use("/api/items", basicAuth, itemsRouter);
 // aj /items/:id/photos (nested) aj /photos/:id (flat).
 app.use("/api", basicAuth, photosRouter);
 app.use("/api/ocr", basicAuth, ocrRouter);
+app.use("/api/search", basicAuth, searchRouter);
+app.use("/api/export", basicAuth, exportRouter);
 
 const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof ZodError) {

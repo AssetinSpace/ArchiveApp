@@ -2,6 +2,8 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma.js";
 import { PARENT_TYPE_BY_CHILD } from "../constants.js";
+import { getItemPath, type PathNode } from "../lib/itemPath.js";
+import { getSignedUrlForKey } from "../services/r2.js";
 
 export const itemsRouter: Router = Router();
 
@@ -198,6 +200,117 @@ itemsRouter.post("/", async (req, res, next) => {
       include: { parent: true },
     });
     res.status(201).json(created);
+  } catch (e) {
+    next(e);
+  }
+});
+
+// GET /api/items/by-qr/:qrCode/contents — Sprint 4 (box contents).
+// Najde KRABICA-u podľa QR kódu a vráti všetky aktívne ZLOZKA descendants
+// (rekurzívne, cez WITH RECURSIVE) s thumbnailmi a photoCount-om.
+// 400 ak QR nie je priradený KRABICA-e, 404 ak neexistuje.
+itemsRouter.get("/by-qr/:qrCode/contents", async (req, res, next) => {
+  try {
+    const qrCode = req.params.qrCode;
+    const box = await prisma.item.findFirst({
+      where: { qr_code: qrCode, deleted_at: null },
+      select: { id: true, name: true, qr_code: true, type_code: true },
+    });
+    if (!box) {
+      res.status(404).json({ error: "Item with this QR code not found" });
+      return;
+    }
+    if (box.type_code !== "KRABICA") {
+      res.status(400).json({
+        error: `QR ${qrCode} is assigned to ${box.type_code}, not KRABICA`,
+      });
+      return;
+    }
+
+    // Recursive CTE: zber všetkých descendants, filter na ZLOZKA na konci.
+    // D-5: filter na výstupe (nie vo WHERE rekurzie) aby sme v budúcnosti
+    // vedeli vrátiť aj DOKUMENT pod ZLOZKA-mi keď príde fáza 2.
+    type FolderRow = {
+      id: string;
+      parent_id: string | null;
+      type_code: string;
+      name: string | null;
+      qr_code: string | null;
+      status: string;
+      note: string | null;
+    };
+    const folders = await prisma.$queryRaw<FolderRow[]>`
+      WITH RECURSIVE descendants AS (
+        SELECT id, parent_id, type_code, name, qr_code, status::text AS status, note
+        FROM "Item"
+        WHERE parent_id = ${box.id}::uuid AND deleted_at IS NULL
+        UNION ALL
+        SELECT c.id, c.parent_id, c.type_code, c.name, c.qr_code, c.status::text AS status, c.note
+        FROM "Item" c
+        JOIN descendants d ON c.parent_id = d.id
+        WHERE c.deleted_at IS NULL
+      )
+      SELECT id, parent_id, type_code, name, qr_code, status, note
+      FROM descendants
+      WHERE type_code = 'ZLOZKA'
+      ORDER BY name NULLS LAST, id;
+    `;
+
+    const folderIds = folders.map((f) => f.id);
+
+    // Latest photo per folder.
+    type ThumbRow = { item_id: string; storage_key: string };
+    const thumbs: ThumbRow[] = folderIds.length
+      ? await prisma.$queryRaw<ThumbRow[]>`
+          SELECT DISTINCT ON (item_id) item_id, storage_key
+          FROM "Photo"
+          WHERE item_id = ANY(${folderIds}::uuid[]) AND deleted_at IS NULL
+          ORDER BY item_id, created_at DESC;
+        `
+      : [];
+    const thumbByItem = new Map(thumbs.map((t) => [t.item_id, t.storage_key]));
+
+    // Photo count per folder.
+    type CountRow = { item_id: string; count: bigint };
+    const counts: CountRow[] = folderIds.length
+      ? await prisma.$queryRaw<CountRow[]>`
+          SELECT item_id, COUNT(*) AS count
+          FROM "Photo"
+          WHERE item_id = ANY(${folderIds}::uuid[]) AND deleted_at IS NULL
+          GROUP BY item_id;
+        `
+      : [];
+    const countByItem = new Map(counts.map((c) => [c.item_id, Number(c.count)]));
+
+    // Sign URLs paralelne.
+    const signed = await Promise.all(
+      folders.map(async (f) => {
+        const key = thumbByItem.get(f.id);
+        if (!key) return null;
+        const url = await getSignedUrlForKey(key, 900);
+        return { storageKey: key, signedUrl: url };
+      }),
+    );
+
+    const path: PathNode[] = await getItemPath(box.id);
+
+    res.json({
+      box: {
+        id: box.id,
+        name: box.name,
+        qrCode: box.qr_code,
+        path,
+      },
+      folders: folders.map((f, idx) => ({
+        id: f.id,
+        name: f.name,
+        qrCode: f.qr_code,
+        status: f.status,
+        note: f.note,
+        photo: signed[idx],
+        photoCount: countByItem.get(f.id) ?? 0,
+      })),
+    });
   } catch (e) {
     next(e);
   }
