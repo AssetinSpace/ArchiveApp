@@ -161,7 +161,11 @@ itemsRouter.get("/inventory", async (_req, res, next) => {
           },
         },
         photos: {
-          where: { deleted_at: null, ocr_status: "DONE" },
+          where: {
+            deleted_at: null,
+            photo_type: "LABEL",
+            ocr_status: "DONE",
+          },
           orderBy: { created_at: "desc" },
           take: 3,
           select: { ocr_raw_text: true },

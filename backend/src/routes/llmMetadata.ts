@@ -17,7 +17,8 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma.js";
 import {
-  extractMetadataFromOcr,
+  extractMetadataForItem,
+  getLabelOcrTextForItem,
   processPendingMetadata,
   KNOWN_METADATA_KEYS,
   LLM_METADATA_BATCH_LIMIT_MAX,
@@ -111,6 +112,7 @@ llmMetadataRouter.get("/status", async (_req, res, next) => {
       WHERE i.deleted_at IS NULL
         AND i.metadata_status = 'NONE'
         AND p.deleted_at IS NULL
+        AND p.photo_type = 'LABEL'
         AND p.ocr_status = 'DONE'
         AND p.ocr_raw_text IS NOT NULL
         AND length(trim(p.ocr_raw_text)) > 5;
@@ -176,6 +178,7 @@ llmMetadataRouter.get("/pending-review", async (req, res, next) => {
           FROM "Photo"
           WHERE item_id = ANY(${itemIds}::text[])
             AND deleted_at IS NULL
+            AND photo_type = 'LABEL'
             AND ocr_status = 'DONE'
           ORDER BY item_id, created_at DESC;
         `
@@ -189,6 +192,10 @@ llmMetadataRouter.get("/pending-review", async (req, res, next) => {
         const photo = key
           ? { storageKey: key, signedUrl: await getSignedUrlForKey(key, 900) }
           : null;
+        const ocrBundle = await getLabelOcrTextForItem(prisma, it.id);
+        const ocrTextPreview = ocrBundle
+          ? ocrBundle.ocrText.replace(/\s+/g, " ").trim().slice(0, 280)
+          : null;
         return {
           id: it.id,
           typeCode: it.type_code,
@@ -199,11 +206,44 @@ llmMetadataRouter.get("/pending-review", async (req, res, next) => {
           qrCode: it.qr_code,
           path,
           photo,
+          ocrTextPreview,
         };
       }),
     );
 
     res.json({ total, limit, offset, items: enriched });
+  } catch (e) {
+    next(e);
+  }
+});
+
+// ─── POST /api/llm-metadata/:itemId/extract ───────────────────────────────────
+// Jedna položka — znovu načíta OCR text z LABEL fotiek (nie obrázok) a zavolá Gemini.
+
+llmMetadataRouter.post("/:itemId/extract", async (req, res, next) => {
+  try {
+    if (!hasApiKey()) {
+      res.status(503).json({ error: NO_API_KEY_MSG });
+      return;
+    }
+
+    const itemId = req.params.itemId;
+    const result: LlmMetadataResult = await extractMetadataForItem(prisma, itemId);
+
+    if (result.error === "Item not found") {
+      res.status(404).json({ error: result.error });
+      return;
+    }
+    if (result.error?.startsWith("No LABEL photo")) {
+      res.status(400).json({ error: result.error });
+      return;
+    }
+    if (result.error) {
+      res.status(502).json({ error: result.error, result });
+      return;
+    }
+
+    res.json(result);
   } catch (e) {
     next(e);
   }
@@ -305,4 +345,4 @@ llmMetadataRouter.post("/:itemId/reject", async (req, res, next) => {
   }
 });
 
-export { extractMetadataFromOcr };
+export { extractMetadataForItem, getLabelOcrTextForItem };

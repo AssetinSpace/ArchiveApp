@@ -122,6 +122,10 @@ export function ItemDetailPage() {
         </div>
       )}
 
+      {item.metadata_status === "NONE" && (
+        <MetadataExtractSection itemId={item.id} onDone={invalidateAll} />
+      )}
+
       {showMetadataBanner && (
         <MetadataBanner item={item} onDone={invalidateAll} />
       )}
@@ -771,6 +775,46 @@ function AddChildForm({
     </div>
   );
 }
+function MetadataExtractSection({
+  itemId,
+  onDone,
+}: {
+  itemId: string;
+  onDone: () => Promise<void> | void;
+}) {
+  const extractMut = useMutation({
+    mutationFn: () => api.extractLlmMetadata(itemId),
+    onSuccess: async (result) => {
+      if (result.error) throw new Error(result.error);
+      await onDone();
+    },
+  });
+
+  return (
+    <section className="card" aria-label="Extrakcia metadát z OCR">
+      <h2 style={{ margin: "0 0 8px", fontSize: 16 }}>AI metadata z OCR textu</h2>
+      <p className="muted" style={{ margin: "0 0 12px", fontSize: 13 }}>
+        Gemini číta uložený OCR text zo štítkových fotiek (LABEL), nie samotný
+        obrázok. Najprv musí byť OCR hotové v sekcii Fotky.
+      </p>
+      <button
+        type="button"
+        className="btn-primary"
+        style={{ minHeight: 44 }}
+        disabled={extractMut.isPending}
+        onClick={() => extractMut.mutate()}
+      >
+        {extractMut.isPending ? "Extrahujem…" : "Extrahovať metadata z OCR"}
+      </button>
+      {extractMut.error && (
+        <p className="error" style={{ margin: "8px 0 0" }}>
+          Chyba: {(extractMut.error as Error).message}
+        </p>
+      )}
+    </section>
+  );
+}
+
 // ─── Metadata banner (Sprint 7) ──────────────────────────────────────────────
 // Zobrazí sa pre Item s metadata_status === 'EXTRACTED'. "Potvrdiť všetko"
 // pošle aktuálne hodnoty (vrátane prípadných úprav v editovacom režime), ktoré
@@ -814,9 +858,21 @@ function MetadataBanner({
       await onDone();
     },
   });
+  const reextractMut = useMutation({
+    mutationFn: () => api.extractLlmMetadata(item.id),
+    onSuccess: async (result) => {
+      if (result.error) throw new Error(result.error);
+      await onDone();
+    },
+  });
 
-  const isPending = confirmMut.isPending || editMut.isPending || rejectMut.isPending;
-  const error = confirmMut.error ?? editMut.error ?? rejectMut.error ?? null;
+  const isPending =
+    confirmMut.isPending ||
+    editMut.isPending ||
+    rejectMut.isPending ||
+    reextractMut.isPending;
+  const error =
+    confirmMut.error ?? editMut.error ?? rejectMut.error ?? reextractMut.error ?? null;
 
   const knownSet = new Set<string>(KNOWN_METADATA_KEYS);
   const meta = item.metadata ?? {};
@@ -925,6 +981,15 @@ function MetadataBanner({
               style={{ minHeight: 44 }}
             >
               ✏️ Upraviť
+            </button>
+            <button
+              type="button"
+              onClick={() => reextractMut.mutate()}
+              disabled={isPending}
+              style={{ minHeight: 44 }}
+              title="Znova spustí LLM nad OCR textom štítku"
+            >
+              {reextractMut.isPending ? "Extrahujem…" : "↻ Z OCR znova"}
             </button>
             <button
               type="button"

@@ -122,11 +122,20 @@ function stripDiacritics(s: string): string {
   return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
+function metadataHaystack(metadata: InventoryItem["metadata"]): string {
+  if (!metadata || typeof metadata !== "object") return "";
+  return Object.values(metadata)
+    .filter((v): v is string => typeof v === "string" && v.trim() !== "")
+    .join(" ");
+}
+
 export function itemMatchesQuery(item: InventoryItem, query: string): boolean {
   const q = stripDiacritics(query.trim());
   if (!q) return true;
   const hay = stripDiacritics(
-    [item.name, item.qr_code, item.note, item.ocr_text].filter(Boolean).join(" "),
+    [item.name, item.qr_code, item.note, item.ocr_text, metadataHaystack(item.metadata)]
+      .filter(Boolean)
+      .join(" "),
   );
   return hay.includes(q);
 }

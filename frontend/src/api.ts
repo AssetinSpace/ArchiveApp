@@ -305,10 +305,11 @@ export type LlmMetadataStatusResponse = {
 };
 
 export type LlmMetadataResult = {
-  photoId: string;
+  photoId: string | null;
   itemId: string;
   metadata: ItemMetadata | null;
   error: string | null;
+  ocrTextChars?: number;
 };
 
 export type LlmMetadataProcessResponse = {
@@ -326,6 +327,8 @@ export type PendingMetadataReviewItem = {
   qrCode: string | null;
   path: PathNode[];
   photo: { storageKey: string; signedUrl: string } | null;
+  /** OCR text poslaný do LLM (náhľad pre review). */
+  ocrTextPreview: string | null;
 };
 
 export type PendingMetadataReviewResponse = {
@@ -558,6 +561,8 @@ export const api = {
     }),
   rejectLlmMetadata: (itemId: string) =>
     request<Item>(`/llm-metadata/${itemId}/reject`, { method: "POST" }),
+  extractLlmMetadata: (itemId: string) =>
+    request<LlmMetadataResult>(`/llm-metadata/${itemId}/extract`, { method: "POST" }),
 
   // ─── Export (Sprint 4) ─────────────────────────────────────────────────────
   // Stiahne CSV/JSON ako Blob. Basic Auth musí ísť cez fetch header — <a href>

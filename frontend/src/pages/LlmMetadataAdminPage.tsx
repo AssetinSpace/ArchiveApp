@@ -59,7 +59,14 @@ export function LlmMetadataAdminPage() {
     onSettled: (data) => {
       setIsProcessing(false);
       if (data) {
-        const extracted = data.results.filter((r) => r.metadata && !r.error).length;
+        const extracted = data.results.filter(
+          (r) =>
+            !r.error &&
+            r.metadata &&
+            Object.values(r.metadata).some(
+              (v) => typeof v === "string" && v.trim() !== "",
+            ),
+        ).length;
         const failed = data.results.filter((r) => r.error).length;
         setCompletedBanner({
           processed: data.processed,
@@ -394,6 +401,12 @@ function MetadataReviewCard({ item }: { item: PendingMetadataReviewItem }) {
           <div className="llm-review-autoname">
             Pôvodné ID: <code>{item.autoName}</code>
           </div>
+        )}
+        {item.ocrTextPreview && (
+          <p className="muted" style={{ margin: "6px 0 0", fontSize: 12, lineHeight: 1.4 }}>
+            OCR vstup do LLM: <em>{item.ocrTextPreview}</em>
+            {item.ocrTextPreview.length >= 280 ? "…" : ""}
+          </p>
         )}
         <div className="llm-review-suggestion">
           <div className="llm-review-suggestion-label">Návrh AI:</div>
