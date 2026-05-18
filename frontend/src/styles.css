@@ -659,6 +659,19 @@ p { margin: 0 0 12px; }
   margin-bottom: 0;
 }
 
+.item-delete-section {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid #fecaca;
+}
+
+.item-delete-heading {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #b91c1c;
+}
+
 .item-detail-panel h2 {
   margin-bottom: 12px;
 }

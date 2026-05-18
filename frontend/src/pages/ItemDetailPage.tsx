@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import QRCode from "qrcode";
 import {
@@ -206,6 +206,11 @@ export function ItemDetailPage() {
         <section className="card item-detail-panel">
           <h2>Stav a poznámka</h2>
           <ItemEditor item={item} onSaved={invalidateAll} />
+          <ItemDeleteSection
+            item={item}
+            childCount={item._count?.children ?? childrenQ.data?.length ?? 0}
+            onDeleted={invalidateAll}
+          />
         </section>
       )}
 
@@ -323,6 +328,67 @@ function InfoRow({ label, value }: { label: string; value: string }) {
       <dd style={{ margin: 0, fontWeight: 500, textAlign: "right", wordBreak: "break-word" }}>
         {value}
       </dd>
+    </div>
+  );
+}
+
+// ─── Delete item (soft) ───────────────────────────────────────────────────────
+
+function ItemDeleteSection({
+  item,
+  childCount,
+  onDeleted,
+}: {
+  item: Item;
+  childCount: number;
+  onDeleted: () => Promise<void>;
+}) {
+  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
+  const deleteMut = useMutation({
+    mutationFn: () => api.deleteItem(item.id),
+    onSuccess: async () => {
+      setError(null);
+      await onDeleted();
+      navigate(item.parent_id ? `/items/${item.parent_id}` : "/");
+    },
+    onError: (e: Error) => setError(e.message),
+  });
+
+  const displayName = item.name ?? item.auto_name ?? "(bez názvu)";
+
+  return (
+    <div className="item-delete-section">
+      <h3 className="item-delete-heading">Zmazať položku</h3>
+      {childCount > 0 ? (
+        <p className="muted" style={{ margin: "0 0 12px" }}>
+          Položku nemožno zmazať — má{" "}
+          <strong>{childCount}</strong>{" "}
+          {childCount === 1 ? "podradenú položku" : childCount < 5 ? "podradené položky" : "podradených položiek"}.
+          Najprv ich zmazať v záložke Podradené.
+        </p>
+      ) : (
+        <p className="muted" style={{ margin: "0 0 12px" }}>
+          Položka pôjde do koša (soft delete). Fotky v R2 a priradený QR kód zostanú v systéme.
+        </p>
+      )}
+      {error && <p className="error">{error}</p>}
+      <button
+        type="button"
+        className="btn-danger"
+        disabled={childCount > 0 || deleteMut.isPending}
+        onClick={() => {
+          if (
+            confirm(
+              `Naozaj zmazať položku „${displayName}" (${TYPE_LABEL[item.type_code] ?? item.type_code})?`,
+            )
+          ) {
+            deleteMut.mutate();
+          }
+        }}
+      >
+        {deleteMut.isPending ? "Mažem…" : "Zmazať položku"}
+      </button>
     </div>
   );
 }
