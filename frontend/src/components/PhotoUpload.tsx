@@ -16,19 +16,64 @@ type Props = {
   itemId: string;
 };
 
-// Sprint 6: dve oddelené upload akcie — LABEL (fotka štítku → OCR pipeline)
-// vs OVERVIEW (vizuálna referencia ako vyzerá krabica/paleta, OCR sa preskočí).
-// Každé tlačidlo má vlastný skrytý <input> aby `accept`/`capture` ostali
-// nezávislé a šlo budúcne odlišovať napr. zdroj kamery; medzitým zdieľajú
-// rovnakú mutáciu cez `photoType` argument.
+type UploadSource = "camera" | "gallery";
+
+type UploadSlot = {
+  key: string;
+  photoType: PhotoType;
+  source: UploadSource;
+  icon: string;
+  title: string;
+  hint: string;
+  btnClass: string;
+};
+
+// Sprint 6: LABEL (štítok → OCR) vs OVERVIEW (referencia, OCR sa preskočí).
+// Na mobile `capture="environment"` otvorí kameru; input bez capture ponúkne galériu.
+const UPLOAD_SLOTS: UploadSlot[] = [
+  {
+    key: "label-camera",
+    photoType: "LABEL",
+    source: "camera",
+    icon: "📄",
+    title: "Odfotiť štítok",
+    hint: "Pôjde do OCR",
+    btnClass: "photo-upload-btn-label",
+  },
+  {
+    key: "label-gallery",
+    photoType: "LABEL",
+    source: "gallery",
+    icon: "🖼️",
+    title: "Štítok z galérie",
+    hint: "Pôjde do OCR",
+    btnClass: "photo-upload-btn-label photo-upload-btn-gallery",
+  },
+  {
+    key: "overview-camera",
+    photoType: "OVERVIEW",
+    source: "camera",
+    icon: "📦",
+    title: "Odfotiť položku",
+    hint: "Iba ako referencia",
+    btnClass: "photo-upload-btn-overview",
+  },
+  {
+    key: "overview-gallery",
+    photoType: "OVERVIEW",
+    source: "gallery",
+    icon: "🖼️",
+    title: "Položka z galérie",
+    hint: "Iba ako referencia",
+    btnClass: "photo-upload-btn-overview photo-upload-btn-gallery",
+  },
+];
+
 export function PhotoUpload({ itemId }: Props): React.JSX.Element {
   const qc = useQueryClient();
-  const labelInputRef = useRef<HTMLInputElement>(null);
-  const overviewInputRef = useRef<HTMLInputElement>(null);
+  const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const [busyLabel, setBusyLabel] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  // Drží typ ktorý práve uploadujeme — používame ho na disabled stav druhého
-  // tlačidla a na zobrazenie správneho busy textu.
   const [activeType, setActiveType] = useState<PhotoType | null>(null);
 
   const uploadMut = useMutation({
@@ -37,8 +82,6 @@ export function PhotoUpload({ itemId }: Props): React.JSX.Element {
       if (file.size > COMPRESS_THRESHOLD_BYTES) {
         setBusyLabel("Komprimujem fotku…");
         const compressed = await imageCompression(file, COMPRESS_OPTIONS);
-        // browser-image-compression vracia Blob na niektorých build targetoch;
-        // pretypujeme na File aby multer videl pôvodné meno/MIME.
         payload =
           compressed instanceof File
             ? compressed
@@ -51,23 +94,23 @@ export function PhotoUpload({ itemId }: Props): React.JSX.Element {
       setError(null);
       setBusyLabel(null);
       setActiveType(null);
-      // Invalidácia musí matchnúť presne queryKey z PhotoGallery — bez tohto by
-      // sa nová fotka nezobrazila kým používateľ nerefreshne. OCR status sa
-      // tiež zmenil (LABEL → nové PENDING, OVERVIEW → nové DONE), invalidate
-      // aj ocr-status aby OCR Admin pollol čerstvý počet.
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["items", itemId, "photos"] }),
         qc.invalidateQueries({ queryKey: ["ocr-status"] }),
       ]);
-      if (labelInputRef.current) labelInputRef.current.value = "";
-      if (overviewInputRef.current) overviewInputRef.current.value = "";
+      for (const slot of UPLOAD_SLOTS) {
+        const el = inputRefs.current[slot.key];
+        if (el) el.value = "";
+      }
     },
     onError: (e: Error) => {
       setError(e.message);
       setBusyLabel(null);
       setActiveType(null);
-      if (labelInputRef.current) labelInputRef.current.value = "";
-      if (overviewInputRef.current) overviewInputRef.current.value = "";
+      for (const slot of UPLOAD_SLOTS) {
+        const el = inputRefs.current[slot.key];
+        if (el) el.value = "";
+      }
     },
   });
 
@@ -82,63 +125,48 @@ export function PhotoUpload({ itemId }: Props): React.JSX.Element {
   }
 
   const busy = uploadMut.isPending;
-  const labelId = `photo-upload-label-${itemId}`;
-  const overviewId = `photo-upload-overview-${itemId}`;
 
   return (
     <div className="stack" style={{ gap: 8 }}>
       <div className="photo-upload-buttons">
-        <input
-          ref={labelInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={makeOnFileChosen("LABEL")}
-          disabled={busy}
-          style={{ display: "none" }}
-          id={labelId}
-        />
-        <label
-          htmlFor={labelId}
-          className={`photo-upload-btn photo-upload-btn-label ${busy ? "is-disabled" : ""}`}
-          aria-disabled={busy}
-        >
-          {busy && activeType === "LABEL" ? (
-            <span className="photo-upload-btn-busy">{busyLabel ?? "Pracujem…"}</span>
-          ) : (
-            <>
-              <span className="photo-upload-btn-icon" aria-hidden="true">📄</span>
-              <span className="photo-upload-btn-title">Odfotiť štítok</span>
-              <span className="photo-upload-btn-hint">Pôjde do OCR</span>
-            </>
-          )}
-        </label>
+        {UPLOAD_SLOTS.map((slot) => {
+          const inputId = `photo-upload-${slot.key}-${itemId}`;
+          const isActive = busy && activeType === slot.photoType;
 
-        <input
-          ref={overviewInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={makeOnFileChosen("OVERVIEW")}
-          disabled={busy}
-          style={{ display: "none" }}
-          id={overviewId}
-        />
-        <label
-          htmlFor={overviewId}
-          className={`photo-upload-btn photo-upload-btn-overview ${busy ? "is-disabled" : ""}`}
-          aria-disabled={busy}
-        >
-          {busy && activeType === "OVERVIEW" ? (
-            <span className="photo-upload-btn-busy">{busyLabel ?? "Pracujem…"}</span>
-          ) : (
-            <>
-              <span className="photo-upload-btn-icon" aria-hidden="true">📦</span>
-              <span className="photo-upload-btn-title">Odfotiť položku</span>
-              <span className="photo-upload-btn-hint">Iba ako referencia</span>
-            </>
-          )}
-        </label>
+          return (
+            <div key={slot.key}>
+              <input
+                ref={(el) => {
+                  inputRefs.current[slot.key] = el;
+                }}
+                type="file"
+                accept="image/*"
+                {...(slot.source === "camera" ? { capture: "environment" } : {})}
+                onChange={makeOnFileChosen(slot.photoType)}
+                disabled={busy}
+                style={{ display: "none" }}
+                id={inputId}
+              />
+              <label
+                htmlFor={inputId}
+                className={`photo-upload-btn ${slot.btnClass} ${busy ? "is-disabled" : ""}`}
+                aria-disabled={busy}
+              >
+                {isActive ? (
+                  <span className="photo-upload-btn-busy">{busyLabel ?? "Pracujem…"}</span>
+                ) : (
+                  <>
+                    <span className="photo-upload-btn-icon" aria-hidden="true">
+                      {slot.icon}
+                    </span>
+                    <span className="photo-upload-btn-title">{slot.title}</span>
+                    <span className="photo-upload-btn-hint">{slot.hint}</span>
+                  </>
+                )}
+              </label>
+            </div>
+          );
+        })}
       </div>
       {error && <div className="error">{error}</div>}
     </div>

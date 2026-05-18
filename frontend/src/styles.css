@@ -730,15 +730,16 @@ p { margin: 0 0 12px; }
 
 /* ─── Photo upload (Sprint 6: LABEL vs OVERVIEW) ───────────────────────── */
 
-/* Dvojica akcií vedľa seba aj na mobile (≥375px je dosť) — full-width
-   grid 1fr/1fr zabezpečí rovnaké tap targets. Pri veľmi úzkych viewportoch
-   < 360px pad sa zmenší ale tlačidlá ostanú vedľa seba; ak by sa to v praxi
-   ukázalo ako problém, zmeníme na grid-template-columns: 1fr v media query. */
+/* 2×2 mriežka: kamera + galéria pre štítok aj prehľadovú fotku. */
 .photo-upload-buttons {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   width: 100%;
+}
+
+.photo-upload-btn-gallery .photo-upload-btn-title {
+  font-size: 13px;
 }
 
 .photo-upload-btn {
@@ -747,7 +748,7 @@ p { margin: 0 0 12px; }
   align-items: center;
   justify-content: center;
   gap: 2px;
-  min-height: 88px;
+  min-height: 80px;
   padding: 10px 12px;
   border-radius: 8px;
   border: 1.5px solid var(--color-border);
