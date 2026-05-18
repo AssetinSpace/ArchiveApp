@@ -193,6 +193,61 @@ qrRouter.get("/print", async (req, res, next) => {
   }
 });
 
+// ─── POST /api/qr/bulk-delete ───────────────────────────────────────────────────
+
+const BulkDeleteSchema = z.object({
+  codes: z.array(z.string().min(1).max(64)).min(1).max(500),
+});
+
+async function deleteQrTagsByCodes(codes: string[]): Promise<{
+  deleted: number;
+  not_found: number;
+  requested: number;
+}> {
+  const unique = Array.from(new Set(codes.map((c) => c.trim()).filter(Boolean)));
+
+  return prisma.$transaction(async (tx) => {
+    const tags = await tx.qRTag.findMany({
+      where: { code: { in: unique } },
+      select: { code: true, status: true, assigned_item_id: true },
+    });
+    const tagByCode = new Map(tags.map((t) => [t.code, t]));
+
+    let deleted = 0;
+    let not_found = 0;
+
+    for (const code of unique) {
+      const tag = tagByCode.get(code);
+      if (!tag) {
+        not_found += 1;
+        continue;
+      }
+
+      if (tag.status === "ASSIGNED" && tag.assigned_item_id) {
+        await tx.item.updateMany({
+          where: { id: tag.assigned_item_id, qr_code: code },
+          data: { qr_code: null },
+        });
+      }
+
+      await tx.qRTag.delete({ where: { code } });
+      deleted += 1;
+    }
+
+    return { deleted, not_found, requested: unique.length };
+  });
+}
+
+qrRouter.post("/bulk-delete", async (req, res, next) => {
+  try {
+    const body = BulkDeleteSchema.parse(req.body);
+    const result = await deleteQrTagsByCodes(body.codes);
+    res.json(result);
+  } catch (e) {
+    next(e);
+  }
+});
+
 // ─── GET /api/qr ──────────────────────────────────────────────────────────────
 
 const ListQuerySchema = z.object({
@@ -349,6 +404,22 @@ qrRouter.post("/:code/unassign", async (req, res, next) => {
       return;
     }
     res.json(result.tag);
+  } catch (e) {
+    next(e);
+  }
+});
+
+// ─── DELETE /api/qr/:code ─────────────────────────────────────────────────────
+
+qrRouter.delete("/:code", async (req, res, next) => {
+  try {
+    const code = req.params.code;
+    const result = await deleteQrTagsByCodes([code]);
+    if (result.deleted === 0) {
+      res.status(404).json({ error: "QR code not found" });
+      return;
+    }
+    res.json({ deleted: true, code });
   } catch (e) {
     next(e);
   }

@@ -2,7 +2,7 @@
 //
 // Mount: app.use("/api/llm-metadata", basicAuth, llmMetadataRouter) v index.ts.
 //
-// Workflow (paralelný k Sprint 5 ocr_title):
+// Workflow metadata-only (JSONB hybrid schéma):
 //  1) POST /process        → spustí batch (Gemini), uloží metadata + EXTRACTED
 //  2) GET  /status         → counts per status + eligible + noApiKey flag
 //  3) GET  /pending-review → vráti EXTRACTED items s thumbnail/breadcrumb
@@ -156,7 +156,6 @@ llmMetadataRouter.get("/pending-review", async (req, res, next) => {
         type_code: true,
         name: true,
         auto_name: true,
-        ocr_title: true,
         metadata: true,
         metadata_status: true,
         parent_id: true,
@@ -195,7 +194,6 @@ llmMetadataRouter.get("/pending-review", async (req, res, next) => {
           typeCode: it.type_code,
           name: it.name,
           autoName: it.auto_name,
-          ocrTitle: it.ocr_title,
           metadata: (it.metadata ?? {}) as MetadataPayload,
           metadataStatus: it.metadata_status,
           qrCode: it.qr_code,

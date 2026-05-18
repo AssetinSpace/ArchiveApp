@@ -1,10 +1,8 @@
 // LLM metadata extraction service — Sprint 7.
 //
-// Druhý LLM workflow (paralelný k Sprint 5 ocr_title). Z OCR textu vytiahne
-// 7 štruktúrovaných polí (stavba, cast, projektant, adresa, cislo, datum,
-// stupen) ako JSONB. Schéma je permisívna — backend ukladá aj neznáme kľúče
-// ktoré LLM prípadne navrhne (forward-compat). Konzultant musí každý návrh
-// review-uť rovnako ako pri ocr_title.
+// Metadata-only LLM workflow. Z OCR textu navrhne 3–10 relevantných polí
+// ako JSONB (hybrid schéma: typické polia ako príklady, LLM môže pridať ďalšie).
+// Backend ukladá všetky kľúče permisívne; konzultant review v /admin/llm-metadata.
 //
 // Princípy (kópia zo Sprintu 5):
 // - Sériové volania, 500 ms pauza — cost control + rate limit poistka.
@@ -22,10 +20,8 @@ const LLM_DELAY_MS = 500;
 
 export const LLM_METADATA_BATCH_LIMIT_MAX = 50;
 
-// Známe polia — prompt ich žiada explicitne. Permisívna validácia v route
-// znamená že LLM môže vrátiť aj iné kľúče (napr. "investor", "objekt"); tie
-// sa uložia bez výnimky, len sa zalogujú ako warning. Konzultant ich vidí
-// v review UI a môže ich potvrdiť alebo prepísať.
+// Odporúčané polia pre UI/export (nie povinná schéma). LLM môže vrátiť aj iné
+// kľúče; tie sa uložia a v review UI sú editovateľné.
 export const KNOWN_METADATA_KEYS = [
   "stavba",
   "cast",
@@ -106,18 +102,23 @@ export async function extractMetadataFromOcr(
           {
             parts: [
               {
-                text: `Z OCR textu slovenského stavebného štítku vytiahni nasledujúce polia.
-Ak pole nevieš jednoznačne určiť, daj null. Nevymýšľaj, nehádaj.
-Odpovedz LEN validný JSON objekt, nič iné — žiadny markdown, žiadny text navyše.
+                text: `Z OCR textu slovenského stavebného štítka archívnej zložky navrhni 3–10 relevantných polí ako JSON objekt.
+Kľúče v snake_case (slovensky, bez diakritiky v názve kľúča). Hodnota je string alebo null.
+Ak informáciu nevieš jednoznačne určiť z textu, daj null. Nevymýšľaj, nehádaj.
+Odpovedz LEN validný JSON objekt — žiadny markdown, žiadny text navyše.
 
-Polia:
-- stavba: názov objektu/stavby (napr. "Rodinný dom August")
-- cast: časť projektu/profesia (napr. "Zdravotechnika", "Statika", "Architektúra")
-- projektant: meno autora/projektanta
-- adresa: lokalita stavby
-- cislo: číslo projektu/výkresu
-- datum: rok alebo dátum (vo formáte ako je v texte)
-- stupen: stupeň dokumentácie (napr. "DSP", "DRS", "DUR")
+Typické polia (použi len ak sú v texte, inak ignoruj):
+- stavba: názov objektu/stavby
+- cast: časť projektu / profesia
+- projektant: meno autora
+- adresa: lokalita
+- cislo: číslo projektu alebo výkresu
+- datum: rok alebo dátum (ako na štítku)
+- stupen: stupeň dokumentácie (DSP, DRS, DUR…)
+- typ_dokumentu: typ dokumentácie na štítku
+- investor: investor / objednávateľ
+
+Môžeš pridať ďalšie polia, ak štítok obsahuje iné jednoznačné informácie.
 
 OCR text:
 ${ocrRawText.substring(0, 2000)}`,
@@ -126,7 +127,7 @@ ${ocrRawText.substring(0, 2000)}`,
           },
         ],
         generationConfig: {
-          maxOutputTokens: 500,
+          maxOutputTokens: 800,
           temperature: 0.1,
         },
       }),

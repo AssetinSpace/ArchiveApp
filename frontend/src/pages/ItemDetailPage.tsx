@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -13,6 +13,13 @@ import {
   type ItemMetadata,
   type Status,
 } from "../api";
+import {
+  metadataEditKeys,
+  metadataFieldLabel,
+  normalizeMetadataDraft,
+  serializeMetadataDraft,
+} from "../lib/metadataDraft";
+import { AutoNamePreview } from "../components/AutoNamePreview";
 import { PhotoUpload } from "../components/PhotoUpload";
 import { PhotoGallery } from "../components/PhotoGallery";
 
@@ -73,8 +80,6 @@ export function ItemDetailPage() {
   const item = itemQ.data;
   const showAutoNameLabel =
     !!item.auto_name && item.name !== item.auto_name;
-  const showOcrSuggestedBanner = item.ocr_title_status === "SUGGESTED";
-  const showOcrConfirmedBadge = item.ocr_title_status === "CONFIRMED";
   const showMetadataBanner = item.metadata_status === "EXTRACTED";
   const showMetadataReadonly =
     item.metadata_status === "REVIEWED" &&
@@ -117,10 +122,6 @@ export function ItemDetailPage() {
         </div>
       )}
 
-      {showOcrSuggestedBanner && (
-        <OcrTitleBanner item={item} onDone={invalidateAll} />
-      )}
-
       {showMetadataBanner && (
         <MetadataBanner item={item} onDone={invalidateAll} />
       )}
@@ -128,16 +129,7 @@ export function ItemDetailPage() {
       {/* Základné metadáta */}
       <section className="card item-detail-header">
         <h1 style={{ marginBottom: 8 }}>
-          {item.name ?? "(bez názvu)"}
-          {showOcrConfirmedBadge && (
-            <span
-              className="badge-ocr-confirmed"
-              style={{ marginLeft: 8, verticalAlign: "middle" }}
-              title="Názov potvrdený z OCR návrhu (Sprint 5)"
-            >
-              z OCR
-            </span>
-          )}
+          {item.name ?? item.auto_name ?? "(bez názvu)"}
         </h1>
         <div className="row" style={{ marginBottom: item.note ? 0 : 12, flexWrap: "wrap" }}>
           <span className={`badge badge-${item.type_code.toLowerCase()}`}>
@@ -676,9 +668,14 @@ function AddChildFormContent({
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="napr. Krabica 3"
+          placeholder="(voliteľné — inak sa vygeneruje automaticky)"
         />
       </label>
+      <AutoNamePreview
+        typeCode={allowedChildType}
+        parentId={parent.id}
+        manualName={name}
+      />
       <label className="form-label">
         Poznámka
         <textarea
@@ -774,135 +771,6 @@ function AddChildForm({
     </div>
   );
 }
-
-// ─── OCR title banner (Sprint 5) ─────────────────────────────────────────────
-// Zobrazí sa pre Item s ocr_title_status === 'SUGGESTED'. Tri akcie volajú
-// /api/llm-title/:id/{confirm|reject|edit} a po úspechu refetchnú Item.
-
-function OcrTitleBanner({
-  item,
-  onDone,
-}: {
-  item: Item;
-  onDone: () => Promise<void> | void;
-}) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(item.ocr_title ?? "");
-  const editInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (isEditing && editInputRef.current) {
-      editInputRef.current.focus();
-      editInputRef.current.select();
-    }
-  }, [isEditing]);
-
-  const confirmMut = useMutation({
-    mutationFn: () => api.confirmLlmTitle(item.id),
-    onSuccess: async () => {
-      await onDone();
-    },
-  });
-  const rejectMut = useMutation({
-    mutationFn: () => api.rejectLlmTitle(item.id),
-    onSuccess: async () => {
-      await onDone();
-    },
-  });
-  const editMut = useMutation({
-    mutationFn: (title: string) => api.editLlmTitle(item.id, title),
-    onSuccess: async () => {
-      setIsEditing(false);
-      await onDone();
-    },
-  });
-
-  const isPending =
-    confirmMut.isPending || rejectMut.isPending || editMut.isPending;
-  const error =
-    confirmMut.error ?? rejectMut.error ?? editMut.error ?? null;
-
-  return (
-    <section className="item-ocr-banner" aria-label="AI návrh názvu">
-      <div className="item-ocr-banner-label">AI navrhol názov:</div>
-      {isEditing ? (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const v = editValue.trim();
-            if (v) editMut.mutate(v);
-          }}
-          style={{ display: "flex", flexDirection: "column", gap: 8 }}
-        >
-          <input
-            ref={editInputRef}
-            type="text"
-            value={editValue}
-            maxLength={200}
-            onChange={(e) => setEditValue(e.target.value)}
-            disabled={editMut.isPending}
-          />
-          <div className="item-ocr-banner-actions">
-            <button
-              type="submit"
-              className="btn-primary"
-              disabled={editMut.isPending || editValue.trim().length === 0}
-            >
-              {editMut.isPending ? "Ukladám…" : "Uložiť"}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setIsEditing(false);
-                setEditValue(item.ocr_title ?? "");
-              }}
-              disabled={editMut.isPending}
-            >
-              Zrušiť
-            </button>
-          </div>
-        </form>
-      ) : (
-        <>
-          <div className="item-ocr-banner-title">
-            {item.ocr_title ?? "(prázdny návrh)"}
-          </div>
-          <div className="item-ocr-banner-actions">
-            <button
-              type="button"
-              className="btn-primary"
-              onClick={() => confirmMut.mutate()}
-              disabled={isPending}
-            >
-              {confirmMut.isPending ? "Potvrdzujem…" : "✓ Potvrdiť"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsEditing(true)}
-              disabled={isPending}
-            >
-              ✏️ Upraviť
-            </button>
-            <button
-              type="button"
-              className="btn-danger"
-              onClick={() => rejectMut.mutate()}
-              disabled={isPending}
-            >
-              {rejectMut.isPending ? "Zamietam…" : "✗ Zamietnuť"}
-            </button>
-          </div>
-        </>
-      )}
-      {error && (
-        <p className="error" style={{ margin: 0 }}>
-          Chyba: {(error as Error).message}
-        </p>
-      )}
-    </section>
-  );
-}
-
 // ─── Metadata banner (Sprint 7) ──────────────────────────────────────────────
 // Zobrazí sa pre Item s metadata_status === 'EXTRACTED'. "Potvrdiť všetko"
 // pošle aktuálne hodnoty (vrátane prípadných úprav v editovacom režime), ktoré
@@ -966,10 +834,10 @@ function MetadataBanner({
       {isEditing ? (
         <>
           <div className="metadata-fields-grid">
-            {KNOWN_METADATA_KEYS.map((key) => (
+            {metadataEditKeys(draft).map((key) => (
               <label key={key} className="metadata-field">
                 <span className="metadata-field-label">
-                  {METADATA_LABELS[key]}
+                  {metadataFieldLabel(key)}
                 </span>
                 <input
                   type="text"
@@ -1030,7 +898,7 @@ function MetadataBanner({
               ))}
               {unknownEntries.map(([k, v]) => (
                 <div key={k} style={{ display: "contents" }}>
-                  <dt>{k}</dt>
+                  <dt>{metadataFieldLabel(k)}</dt>
                   <dd>
                     <em>{String(v)}</em>
                   </dd>
@@ -1043,7 +911,9 @@ function MetadataBanner({
               type="button"
               className="btn-primary"
               style={{ minHeight: 44 }}
-              onClick={() => confirmMut.mutate(undefined)}
+              onClick={() =>
+                confirmMut.mutate(serializeMetadataDraft(normalizeMetadataDraft(item.metadata)))
+              }
               disabled={isPending}
             >
               {confirmMut.isPending ? "Potvrdzujem…" : "✓ Potvrdiť všetko"}
@@ -1100,7 +970,7 @@ function ReadonlyMetadataList({ metadata }: { metadata: ItemMetadata }) {
       ))}
       {unknownEntries.map(([k, v]) => (
         <div key={k} style={{ display: "contents" }}>
-          <dt>{k}</dt>
+          <dt>{metadataFieldLabel(k)}</dt>
           <dd>
             <em>{String(v)}</em>
           </dd>
@@ -1110,21 +980,3 @@ function ReadonlyMetadataList({ metadata }: { metadata: ItemMetadata }) {
   );
 }
 
-function normalizeMetadataDraft(metadata: ItemMetadata | undefined): ItemMetadata {
-  const out: ItemMetadata = {};
-  const src = metadata ?? {};
-  for (const k of KNOWN_METADATA_KEYS) {
-    const v = src[k];
-    out[k] = typeof v === "string" ? v : "";
-  }
-  return out;
-}
-
-function serializeMetadataDraft(draft: ItemMetadata): ItemMetadata {
-  const out: ItemMetadata = {};
-  for (const k of KNOWN_METADATA_KEYS) {
-    const v = draft[k];
-    out[k] = typeof v === "string" && v.trim() !== "" ? v.trim() : null;
-  }
-  return out;
-}

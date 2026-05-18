@@ -58,11 +58,9 @@ export type ItemType = {
 
 export type Status = "NA_MIESTE" | "VYNESENE" | "NEZNAME";
 
-export type OcrTitleStatus = "NONE" | "SUGGESTED" | "CONFIRMED" | "REJECTED";
 export type MetadataStatus = "NONE" | "EXTRACTED" | "REVIEWED";
 
-// Sprint 7: 7 navrhovaných polí + permisívne ďalšie kľúče (LLM môže navrhnúť
-// aj iné polia, backend ich ukladá a tu necháme `[k: string]` pre forward-compat).
+// Hybrid metadata: odporúčané polia + ľubovoľné ďalšie kľúče z LLM.
 export type ItemMetadata = {
   stavba?: string | null;
   cast?: string | null;
@@ -92,6 +90,8 @@ export const METADATA_LABELS: Record<string, string> = {
   cislo: "Číslo",
   datum: "Dátum",
   stupen: "Stupeň",
+  typ_dokumentu: "Typ dokumentu",
+  investor: "Investor",
 };
 
 export type Item = {
@@ -105,8 +105,6 @@ export type Item = {
   // Sprint 5: pozičný identifikátor (sklA_pal003_kra004_zlo015) — nullable lebo
   // existujúce položky pred Sprint 5 nemajú backfill.
   auto_name?: string | null;
-  ocr_title?: string | null;
-  ocr_title_status?: OcrTitleStatus;
   metadata?: ItemMetadata;
   metadata_status?: MetadataStatus;
   deleted_at: string | null;
@@ -126,8 +124,6 @@ export type InventoryItem = {
   status: Status;
   // Sprint 5/7: rozšírené polia pre tabuľku — backend ich vracia z /items/inventory.
   auto_name: string | null;
-  ocr_title: string | null;
-  ocr_title_status: OcrTitleStatus;
   metadata: ItemMetadata;
   metadata_status: MetadataStatus;
   created_at: string;
@@ -237,11 +233,11 @@ export type ProcessPendingResponse = {
 
 export type MatchSource =
   | "name"
-  | "ocr_title"
   | "meta_stavba"
   | "meta_cast"
   | "meta_projektant"
   | "meta_adresa"
+  | "meta"
   | "note"
   | "ocr";
 
@@ -297,49 +293,6 @@ export type ExportDownload = {
   filename: string;
 };
 
-// ─── LLM Title types (Sprint 5) ──────────────────────────────────────────────
-
-export type LlmTitleStatusResponse = {
-  total: number;
-  none: number;
-  eligible: number;
-  suggested: number;
-  confirmed: number;
-  rejected: number;
-  noApiKey: boolean;
-};
-
-export type LlmTitleResult = {
-  photoId: string;
-  itemId: string;
-  suggestedTitle: string | null;
-  error: string | null;
-};
-
-export type LlmTitleProcessResponse = {
-  processed: number;
-  results: LlmTitleResult[];
-};
-
-export type PendingReviewItem = {
-  id: string;
-  typeCode: string;
-  name: string | null;
-  autoName: string | null;
-  ocrTitle: string | null;
-  ocrTitleStatus: OcrTitleStatus;
-  qrCode: string | null;
-  path: PathNode[];
-  photo: { storageKey: string; signedUrl: string } | null;
-};
-
-export type PendingReviewResponse = {
-  total: number;
-  limit: number;
-  offset: number;
-  items: PendingReviewItem[];
-};
-
 // ─── LLM Metadata types (Sprint 7) ───────────────────────────────────────────
 
 export type LlmMetadataStatusResponse = {
@@ -368,7 +321,6 @@ export type PendingMetadataReviewItem = {
   typeCode: string;
   name: string | null;
   autoName: string | null;
-  ocrTitle: string | null;
   metadata: ItemMetadata;
   metadataStatus: MetadataStatus;
   qrCode: string | null;
@@ -426,6 +378,13 @@ export const api = {
     return request<Item[]>(`/items${q ? `?${q}` : ""}`);
   },
   inventoryItems: () => request<InventoryItem[]>("/items/inventory"),
+  previewAutoName: (params: { type_code: string; parent_id: string }) => {
+    const qs = new URLSearchParams({
+      type_code: params.type_code,
+      parent_id: params.parent_id,
+    });
+    return request<{ auto_name: string | null }>(`/items/auto-name-preview?${qs}`);
+  },
   getItem: (id: string) => request<Item & { _count: { children: number } }>(`/items/${id}`),
   getItemPath: (id: string) => request<Item[]>(`/items/${id}/path`),
   getChildren: (id: string) => request<Item[]>(`/items/${id}/children`),
@@ -481,6 +440,15 @@ export const api = {
     }),
   qrUnassign: (code: string) =>
     request<QRTag>(`/qr/${encodeURIComponent(code)}/unassign`, { method: "POST" }),
+  qrBulkDelete: (codes: string[]) =>
+    request<{ deleted: number; not_found: number; requested: number }>("/qr/bulk-delete", {
+      method: "POST",
+      json: { codes },
+    }),
+  qrDelete: (code: string) =>
+    request<{ deleted: true; code: string }>(`/qr/${encodeURIComponent(code)}`, {
+      method: "DELETE",
+    }),
 
   // ─── Photos ────────────────────────────────────────────────────────────────
   listPhotos: (itemId: string) =>
@@ -561,32 +529,6 @@ export const api = {
   // ─── Box contents (Sprint 4) ───────────────────────────────────────────────
   fetchBoxContents: (qrCode: string) =>
     request<BoxContents>(`/items/by-qr/${encodeURIComponent(qrCode)}/contents`),
-
-  // ─── LLM Title (Sprint 5) ──────────────────────────────────────────────────
-  fetchLlmTitleStatus: () =>
-    request<LlmTitleStatusResponse>("/llm-title/status"),
-  processLlmTitles: (limit?: number) =>
-    request<LlmTitleProcessResponse>("/llm-title/process", {
-      method: "POST",
-      json: limit !== undefined ? { limit } : {},
-    }),
-  fetchPendingReview: (limit = 20, offset = 0) => {
-    const qs = new URLSearchParams();
-    qs.set("limit", String(limit));
-    qs.set("offset", String(offset));
-    return request<PendingReviewResponse>(
-      `/llm-title/pending-review?${qs.toString()}`,
-    );
-  },
-  confirmLlmTitle: (itemId: string) =>
-    request<Item>(`/llm-title/${itemId}/confirm`, { method: "POST" }),
-  rejectLlmTitle: (itemId: string) =>
-    request<Item>(`/llm-title/${itemId}/reject`, { method: "POST" }),
-  editLlmTitle: (itemId: string, title: string) =>
-    request<Item>(`/llm-title/${itemId}/edit`, {
-      method: "POST",
-      json: { title },
-    }),
 
   // ─── LLM Metadata (Sprint 7) ───────────────────────────────────────────────
   fetchLlmMetadataStatus: () =>

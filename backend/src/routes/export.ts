@@ -31,8 +31,6 @@ type ExportItem = {
   type_code: string;
   name: string | null;
   auto_name: string | null;
-  ocr_title: string | null;
-  ocr_title_status: string;
   metadata: unknown;
   metadata_status: string;
   parent_id: string | null;
@@ -121,8 +119,6 @@ async function loadActiveItems(): Promise<ExportItem[]> {
       type_code: true,
       name: true,
       auto_name: true,
-      ocr_title: true,
-      ocr_title_status: true,
       metadata: true,
       metadata_status: true,
       parent_id: true,
@@ -139,8 +135,6 @@ async function loadActiveItems(): Promise<ExportItem[]> {
     type_code: i.type_code,
     name: i.name,
     auto_name: i.auto_name,
-    ocr_title: i.ocr_title,
-    ocr_title_status: i.ocr_title_status,
     metadata: i.metadata,
     metadata_status: i.metadata_status,
     parent_id: i.parent_id,
@@ -194,9 +188,8 @@ exportRouter.get("/csv", async (_req, res, next) => {
       "typeCode",
       "name",
       "autoName",
-      "ocrTitle",
-      "ocrTitleStatus",
       "metadataStatus",
+      "metadataJson",
       "metaStavba",
       "metaCast",
       "metaProjektant",
@@ -240,14 +233,16 @@ exportRouter.get("/csv", async (_req, res, next) => {
             .slice(0, 100)
         : "";
       const path = buildPath(item, byId).join(" > ");
-      // Sprint 7: 7 plochých metadata stĺpcov vytiahnutých z JSONB. Neznáme
-      // kľúče (LLM môže vrátiť aj iné pole) v CSV NEzobrazujeme — JSON export
-      // ostáva plný zdroj pravdy.
+      // 7 plochých stĺpcov pre časté polia + metadataJson pre dynamické kľúče.
       const meta = (item.metadata ?? {}) as Record<string, unknown>;
       const metaCell = (key: string): string => {
         const v = meta[key];
         return typeof v === "string" ? v : "";
       };
+      const metadataJson =
+        meta && typeof meta === "object" && Object.keys(meta).length > 0
+          ? JSON.stringify(meta)
+          : "";
       lines.push(
         joinCsvRow([
           item.id,
@@ -255,9 +250,8 @@ exportRouter.get("/csv", async (_req, res, next) => {
           item.type_code,
           item.name ?? "",
           item.auto_name ?? "",
-          item.ocr_title ?? "",
-          item.ocr_title_status,
           item.metadata_status,
+          metadataJson,
           metaCell("stavba"),
           metaCell("cast"),
           metaCell("projektant"),
@@ -301,8 +295,6 @@ type JsonNode = {
   type_code: string;
   name: string | null;
   auto_name: string | null;
-  ocr_title: string | null;
-  ocr_title_status: string;
   metadata: unknown;
   metadata_status: string;
   parent_id: string | null;
@@ -348,8 +340,6 @@ exportRouter.get("/json", async (_req, res, next) => {
         type_code: item.type_code,
         name: item.name,
         auto_name: item.auto_name,
-        ocr_title: item.ocr_title,
-        ocr_title_status: item.ocr_title_status,
         metadata: item.metadata,
         metadata_status: item.metadata_status,
         parent_id: item.parent_id,

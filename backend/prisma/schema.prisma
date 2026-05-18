@@ -53,12 +53,7 @@ model Item {
   // Sprint 5: pozičný identifikátor generovaný pri POST /items (sklA_pal003_kra004_zlo015).
   // Immutable po vytvorení. Existujúce položky majú NULL (žiadny backfill).
   auto_name        String?
-  // Sprint 5: LLM-extrahovaný titulok zo OCR textu — workflow NONE → SUGGESTED → CONFIRMED|REJECTED.
-  // Status je TEXT (nie Postgres ENUM) pre jednoduchšie rozšírenie v budúcich sprintoch.
-  ocr_title        String?
-  ocr_title_status String    @default("NONE")
-  // Sprint 5: pripravené pre Sprint 6 metadata extraction (projektant, dátum, adresa, typ dokumentu...).
-  // V Sprint 5 sa nikde nenaplňuje, len migrácia + export.
+  // Sprint 7+: LLM-extrahované štruktúrované polia zo štítku (hybrid JSONB schéma).
   metadata         Json      @default("{}")
   metadata_status  String    @default("NONE")
   deleted_at       DateTime?
@@ -74,7 +69,6 @@ model Item {
   @@index([parent_id])
   @@index([type_code])
   @@index([deleted_at])
-  @@index([ocr_title_status])
 }
 
 model QRTag {

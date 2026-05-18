@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BrowserQRCodeReader, type IScannerControls } from "@zxing/browser";
+import { AutoNamePreview } from "../components/AutoNamePreview";
 import {
   api,
   CHILD_TYPE_BY_PARENT,
@@ -553,9 +554,14 @@ function CreateForLookupForm({
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="(voliteľné)"
+            placeholder="(voliteľné — inak sa vygeneruje automaticky)"
           />
         </label>
+        <AutoNamePreview
+          typeCode={typeCode}
+          parentId={parentId}
+          manualName={name}
+        />
 
         <label className="form-label">
           Poznámka

@@ -55,6 +55,7 @@ export function QRAdminPage() {
 
   function refresh() {
     qc.invalidateQueries({ queryKey: ["qr"] });
+    qc.invalidateQueries({ queryKey: ["items"] });
   }
 
   return (
@@ -119,7 +120,16 @@ export function QRAdminPage() {
               <option value="ASSIGNED">Priradené (ASSIGNED)</option>
             </select>
           </label>
-          <PrintButton selectedCodes={selectedVisible} />
+          <div className="row" style={{ gap: 8, alignItems: "flex-end" }}>
+            <DeleteButton
+              selectedCodes={selectedVisible}
+              onDone={() => {
+                setSelected(new Set());
+                refresh();
+              }}
+            />
+            <PrintButton selectedCodes={selectedVisible} />
+          </div>
         </div>
 
         {tagsQ.isLoading && <p className="muted">Načítavam…</p>}
@@ -191,6 +201,10 @@ function QRRow({
     mutationFn: () => api.qrUnassign(tag.code),
     onSuccess: () => onChanged(),
   });
+  const deleteMut = useMutation({
+    mutationFn: () => api.qrDelete(tag.code),
+    onSuccess: () => onChanged(),
+  });
 
   return (
     <tr>
@@ -225,21 +239,37 @@ function QRRow({
         )}
       </td>
       <td>
-        {tag.status === "ASSIGNED" && (
+        <div className="row" style={{ gap: 6, flexWrap: "wrap" }}>
+          {tag.status === "ASSIGNED" && (
+            <button
+              type="button"
+              className="btn-small btn-danger"
+              disabled={unassignMut.isPending || deleteMut.isPending}
+              onClick={() => {
+                if (confirm(`Uvoľniť QR ${tag.code}?`)) unassignMut.mutate();
+              }}
+            >
+              {unassignMut.isPending ? "…" : "Uvoľniť"}
+            </button>
+          )}
           <button
             type="button"
             className="btn-small btn-danger"
-            disabled={unassignMut.isPending}
+            disabled={unassignMut.isPending || deleteMut.isPending}
             onClick={() => {
-              if (confirm(`Uvoľniť QR ${tag.code}?`)) unassignMut.mutate();
+              const msg =
+                tag.status === "ASSIGNED"
+                  ? `Zmazať QR ${tag.code}? Kód bude uvoľnený z položky a natrvalo odstránený.`
+                  : `Zmazať QR ${tag.code}? Táto akcia je nevratná.`;
+              if (confirm(msg)) deleteMut.mutate();
             }}
           >
-            {unassignMut.isPending ? "…" : "Uvoľniť"}
+            {deleteMut.isPending ? "…" : "Zmazať"}
           </button>
-        )}
-        {unassignMut.error && (
+        </div>
+        {(unassignMut.error || deleteMut.error) && (
           <div className="error" style={{ fontSize: 12 }}>
-            {(unassignMut.error as Error).message}
+            {((unassignMut.error ?? deleteMut.error) as Error).message}
           </div>
         )}
       </td>
@@ -376,6 +406,50 @@ function ImportForm({ onDone }: { onDone: () => void }) {
         {mut.isPending ? "Importujem…" : "Importovať"}
       </button>
     </form>
+  );
+}
+
+// ─── Bulk delete button ───────────────────────────────────────────────────────
+
+function DeleteButton({
+  selectedCodes,
+  onDone,
+}: {
+  selectedCodes: string[];
+  onDone: () => void;
+}) {
+  const [error, setError] = useState<string | null>(null);
+
+  const mut = useMutation({
+    mutationFn: () => api.qrBulkDelete(selectedCodes),
+    onSuccess: () => {
+      setError(null);
+      onDone();
+    },
+    onError: (e: Error) => setError(e.message),
+  });
+
+  function onClick() {
+    setError(null);
+    if (selectedCodes.length === 0) return;
+    const msg =
+      `Naozaj zmazať ${selectedCodes.length} QR kódov?\n\n` +
+      "Priradené kódy budú najprv uvoľnené z položiek. Táto akcia je nevratná.";
+    if (confirm(msg)) mut.mutate();
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+      <button
+        type="button"
+        className="btn-danger"
+        onClick={onClick}
+        disabled={selectedCodes.length === 0 || mut.isPending}
+      >
+        {mut.isPending ? "Mažem…" : `Zmazať vybrané (${selectedCodes.length})`}
+      </button>
+      {error && <div className="error" style={{ marginTop: 4 }}>{error}</div>}
+    </div>
   );
 }
 

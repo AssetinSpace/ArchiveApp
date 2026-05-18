@@ -39,7 +39,6 @@ const COLUMN_LABELS: Record<string, string> = {
   type_code: "Typ",
   name: "Názov",
   auto_name: "Auto-name",
-  ocr_title: "OCR titul",
   meta_stavba: "Stavba",
   meta_cast: "Časť",
   meta_projektant: "Projektant",
@@ -64,7 +63,6 @@ const COLUMN_LABELS: Record<string, string> = {
 const DEFAULT_HIDDEN = new Set([
   "updated_at",
   "auto_name",
-  "ocr_title",
   "meta_stavba",
   "meta_cast",
   "meta_projektant",
@@ -100,6 +98,8 @@ export function ItemsDataTable() {
     queryFn: () => api.inventoryItems(),
     staleTime: 60_000,
   });
+  const fullscreenPinnedRef = useRef(false);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   const deleteMut = useMutation({
     mutationFn: (id: string) => api.deleteItem(id),
@@ -107,6 +107,19 @@ export function ItemsDataTable() {
     onSettled: () => setDeletingId(null),
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["items"] });
+      // Po confirm() prehliadač často vypne natívny fullscreen — obnov, ak používateľ
+      // stále chce celú obrazovku (CSS overlay medzitým ostáva).
+      if (
+        fullscreenPinnedRef.current &&
+        rootRef.current &&
+        document.fullscreenElement !== rootRef.current
+      ) {
+        try {
+          await rootRef.current.requestFullscreen();
+        } catch {
+          /* CSS režim stačí */
+        }
+      }
     },
     onError: (e: Error) => {
       window.alert(e.message);
@@ -180,7 +193,6 @@ export function ItemsDataTable() {
   const [columnsOpen, setColumnsOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const columnsRef = useRef<HTMLDivElement>(null);
-  const rootRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!columnsOpen) return;
     function onDown(e: MouseEvent) {
@@ -194,11 +206,19 @@ export function ItemsDataTable() {
 
   useEffect(() => {
     function onFullscreenChange() {
-      const active =
+      const nativeActive =
         document.fullscreenElement === rootRef.current ||
         (document as Document & { webkitFullscreenElement?: Element }).webkitFullscreenElement ===
           rootRef.current;
-      setIsFullscreen(active);
+      if (nativeActive) {
+        setIsFullscreen(true);
+        return;
+      }
+      // Prehliadač opustil natívny fullscreen (confirm, alert, Esc) — CSS overlay
+      // necháme, ak používateľ explicitne neukončil celú obrazovku tlačidlom.
+      if (!fullscreenPinnedRef.current) {
+        setIsFullscreen(false);
+      }
     }
     document.addEventListener("fullscreenchange", onFullscreenChange);
     document.addEventListener("webkitfullscreenchange", onFullscreenChange);
@@ -208,12 +228,51 @@ export function ItemsDataTable() {
     };
   }, []);
 
+  // Druhé Esc ukončí CSS režim, keď natívny fullscreen už nie je aktívny.
   useEffect(() => {
-    if (!isFullscreen || document.fullscreenElement === rootRef.current) return;
+    if (!isFullscreen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== "Escape") return;
+      if (document.fullscreenElement === rootRef.current) return;
+      fullscreenPinnedRef.current = false;
+      setIsFullscreen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isFullscreen]);
+
+  useEffect(() => {
+    if (!isFullscreen) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = prev;
+    };
+  }, [isFullscreen]);
+
+  // iOS/Android v landscape menia visualViewport — bez toho flex scroll nefunguje.
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const el = rootRef.current;
+    if (!el) return;
+
+    function syncViewportHeight() {
+      const node = rootRef.current;
+      if (!node) return;
+      const h = window.visualViewport?.height ?? window.innerHeight;
+      node.style.setProperty("--items-fs-height", `${Math.round(h)}px`);
+    }
+
+    syncViewportHeight();
+    const vv = window.visualViewport;
+    vv?.addEventListener("resize", syncViewportHeight);
+    vv?.addEventListener("scroll", syncViewportHeight);
+    window.addEventListener("orientationchange", syncViewportHeight);
+    return () => {
+      vv?.removeEventListener("resize", syncViewportHeight);
+      vv?.removeEventListener("scroll", syncViewportHeight);
+      window.removeEventListener("orientationchange", syncViewportHeight);
+      rootRef.current?.style.removeProperty("--items-fs-height");
     };
   }, [isFullscreen]);
 
@@ -222,6 +281,7 @@ export function ItemsDataTable() {
     if (!el) return;
 
     if (isFullscreen) {
+      fullscreenPinnedRef.current = false;
       if (document.fullscreenElement) {
         try {
           await document.exitFullscreen();
@@ -233,12 +293,12 @@ export function ItemsDataTable() {
       return;
     }
 
+    fullscreenPinnedRef.current = true;
+    setIsFullscreen(true);
     try {
       await el.requestFullscreen();
-      setIsFullscreen(true);
     } catch {
-      // iOS / staršie prehliadače — fixed overlay
-      setIsFullscreen(true);
+      // iOS / staršie prehliadače — len CSS overlay
     }
   }
 
@@ -320,27 +380,6 @@ export function ItemsDataTable() {
         return v
           ? <code className="data-table-qr">{v}</code>
           : <span className="muted">—</span>;
-      },
-    },
-    {
-      accessorKey: "ocr_title",
-      header: "OCR titul",
-      size: 200,
-      cell: ({ row, getValue }) => {
-        const v = getValue<string | null>();
-        const status = row.original.ocr_title_status;
-        if (!v) return <span className="muted">—</span>;
-        return (
-          <span title={v}>
-            <span className="data-table-note" style={{ display: "inline-block" }}>{v}</span>
-            {status === "SUGGESTED" && (
-              <span className="data-table-meta-suggested-badge">návrh</span>
-            )}
-            {status === "CONFIRMED" && (
-              <span className="badge-ocr-confirmed" style={{ marginLeft: 4 }}>z OCR</span>
-            )}
-          </span>
-        );
       },
     },
     ...KNOWN_METADATA_KEYS.map<ColumnDef<InventoryTreeRow>>((key) => ({

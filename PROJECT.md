@@ -1,6 +1,6 @@
 # ArchiveApp — PROJECT.md
 > Živý dokument. Aktualizovať po každom rozhodnutí alebo sprinte.
-> Verzia 2.7.0 — Sprint 7 HOTOVÝ. JSONB metadata extraction (Gemini → 7 polí, konzultantský review).
+> Verzia 2.8.0 — Metadata-only: LLM title workflow zrušený, hybrid JSONB metadata, search cez celé JSONB.
 
 ---
 
@@ -48,15 +48,16 @@ Výstup: exportovateľný inventár.
 | 15 | CSV export = UTF-8 s BOM, oddelovač `;`, CRLF | Default Excel SK — bez BOM stratí diakritiku, bez `;` zlúči stĺpce, bez CRLF prerieduje riadky |
 | 16 | JSON export bez signed URL pre fotky | Signed URLs sú efemérne (15 min) — fotky sa stiahnu z R2 bucket-u cez rclone (PROJECT.md §11) |
 | 17 | Sprint 4 endpoints používajú `prisma.$queryRaw` | Prisma neumožňuje volať `unaccent()` ani `WITH RECURSIVE` priamo v `where` — raw SQL je čistejšie ako Unsupported workaround |
-| 18 | Auto-name z pozície v hierarchii (`sklX_palNNN_kraNNN_zloNNN`) | Terénny flow scan → fotka → ďalší — bez ručného písania názvu. Generuje sa pri POST /items, immutable po vytvorení, slúži ako stabilný pozičný identifikátor aj keď sa neskôr `name` prepíše OCR titulkom |
-| 19 | LLM title extraction cez Gemini 2.5 Flash API, batch + manual review, nie automatic | Halucinácie sú reálne, konzultant musí návrh potvrdiť. Batch je manuálne spustený z `/admin/llm-titles`, sériový s 500 ms pauzou (rate limit + cost control) |
-| 20 | Potvrdiť OCR title prepisuje `name`, `auto_name` ostáva immutable | OCR titulok je čitateľnejší pre vyhľadávanie ("Kolaudácia X"), `auto_name` ostáva ako stabilný pozičný identifikátor pre referenciu (footer Item detailu) |
+| 18 | Auto-name z pozície v hierarchii (`sklX_palNNN_kraNNN_zloNNN`) | Terénny flow scan → fotka → ďalší — bez ručného písania názvu. Generuje sa pri POST /items, immutable po vytvorení, slúži ako stabilný pozičný identifikátor (aj keď sa `name` neskôr ručne prepíše) |
+| 19 | ~~LLM title extraction~~ (Sprint 5, **zrušené v 2.8**) | Nahradené rozhodnutím #27 — metadata-only |
+| 20 | ~~Potvrdiť OCR title → `name`~~ (Sprint 5, **zrušené v 2.8**) | `name` ostáva len ručný popis; štruktúrované info ide do JSONB metadata |
 | 21 | JSONB `metadata` pole pripravené pre Sprint 6, nenaplňuje sa v Sprint 5 | Schéma metadata sa odvodí z analýzy ~200 reálnych OCR textov po field work — predčasná štandardizácia by viedla k zlej štruktúre |
 | 22 | Gemini 2.5 Flash namiesto Claude Haiku pre LLM title extraction | 6–7× lacnejší (~$0.27 za celý archív batch), dostatočná kvalita pre OCR text extraction zo slovenských stavebných štítkov. Free tier pre testovanie, platená úroveň pred ostrým nasadením. |
 | 23 | Photo má `photo_type` enum LABEL/OVERVIEW; LABEL ide do OCR pipeline, OVERVIEW slúži ako vizuálna referencia (krabica/paleta) | V teréne konzultant často odfotí aj samotnú krabicu/paletu, nielen štítok — bez rozlíšenia by tieto fotky inflovali PENDING/FAILED OCR štatistiky a LLM batch by ich zbytočne ťahal. OVERVIEW dostane pri uploade rovno `ocr_status = DONE` aby PENDING count zodpovedal reálnej fronte štítkov; OCR endpointy navyše filtrujú `photo_type = 'LABEL'` (dvojitá ochrana proti legacy dátam). |
 | 24 | Metadata extraction = separátny LLM call od `ocr_title` (paralelné workflows) | Halucinácia v jednom poli (napr. dátum) nesmie zrušiť potvrdený titul. Stavy `metadata_status` (NONE → EXTRACTED → REVIEWED) bežia nezávisle od `ocr_title_status`, vlastný route `/api/llm-metadata/*`, vlastná admin stránka `/admin/llm-metadata`. Konfirm metadata neprepisuje `name`. |
-| 25 | Metadata JSONB schéma je permisívna — backend ukladá aj neznáme kľúče (forward-compat), prompt navrhuje 7 fixných polí (stavba, cast, projektant, adresa, cislo, datum, stupen) | Štítky sú variabilné (rozhodnutie #1) — kým sa po ~200 zložkách neusadí konečná schéma, povoľujeme LLM-u navrhnúť aj polia mimo zoznamu. Známe polia logujeme bez warning, neznáme s warning. Konzultant rozhodne v review UI či hodnotu ponechá. |
+| 25 | Metadata JSONB hybrid schéma — prompt dáva **príklady** typických polí, LLM môže pridať ďalšie kľúče; backend ukladá permisívne | Štítky sú variabilné (rozhodnutie #1). UI/export majú labels pre odporúčané polia (stavba, cast, …); neznáme kľúče sa zobrazia a dajú editovať v review. Známe polia log bez warning, neznáme s warning. |
 | 26 | Items table tree-style ostáva default; Sprint 7 metadata stĺpce sa pridávajú do existujúceho `ItemsDataTable` s warning štýlom pre `EXTRACTED` hodnoty (žltkasté pozadie + badge „návrh") | Konzistentnosť cez celý produkt — žiadna paralelná „flat 17-stĺpcová" tabuľka. Default sú nové stĺpce skryté (úzke obrazovky), konzultant si zapne v "Stĺpce ▾" dropdowne. URL state pre column toggle ostáva (existujúci pattern, žiadny localStorage). |
+| 27 | **Metadata-only** — LLM title workflow (`ocr_title`, `/admin/llm-titles`) zrušený | Jeden AI kanál: hybrid JSONB metadata z OCR. `name` len ručne (voliteľne), identita = `auto_name` + QR. Prompt dáva príklady polí (nie povinnú 7-polovú schému), LLM môže pridať ďalšie kľúče. Search prehľadá celé `metadata` cez `jsonb_each_text`. CSV má `metadataJson` + flat stĺpce pre časté polia. |
 
 ---
 
@@ -84,15 +85,13 @@ Neriešime špeciálne — KRABICA s popisným názvom (napr. "Tubus").
 ### 4.1 Item
 - `id` — UUID (interné)
 - `type_code` — SKLAD / PALETA / KRABICA / ZLOZKA (MVP)
-- `name` — voliteľný ľudský názov (Sprint 5: prepisovaný pri CONFIRMED OCR titulku)
+- `name` — voliteľný ľudský názov (len ručne v editore; default pri vytvorení = `auto_name`)
 - `parent_id` — UUID rodiča (nullable = koreň)
 - `qr_code` — externý kód z nálepky, napr. `QR-000042` (nullable, unique)
 - `note` — voľné textové pole (nullable)
 - `status` — NA_MIESTE / VYNESENE / NEZNAME
 - `auto_name` — Sprint 5: pozičný identifikátor (`sklA_pal003_kra004_zlo015`), generovaný pri POST /items, **immutable** po vytvorení. NULL pre legacy items pred Sprint 5.
-- `ocr_title` — Sprint 5: LLM-extrahovaný titulok zo OCR textu. NULL kým LLM extraction nezbehol.
-- `ocr_title_status` — Sprint 5: TEXT, hodnoty `NONE` (default) / `SUGGESTED` (LLM navrhol) / `CONFIRMED` (konzultant potvrdil → `name` prepísaný) / `REJECTED` (konzultant zamietol).
-- `metadata` — Sprint 5 (schema) + Sprint 7 (LLM napĺňanie): JSONB, default `{}`. LLM (Gemini 2.5 Flash) navrhne 7 polí (stavba, cast, projektant, adresa, cislo, datum, stupen). Schéma je permisívna — ukladajú sa aj neznáme kľúče ktoré LLM prípadne pridá (forward-compat).
+- `metadata` — JSONB, default `{}`. LLM (Gemini 2.5 Flash) navrhne 3–10 polí z OCR (hybrid: typické polia ako príklady + ľubovoľné ďalšie kľúče). Permisívne ukladanie, konzultantský review.
 - `metadata_status` — Sprint 5 (schema) + Sprint 7 (workflow): TEXT, hodnoty `NONE` (default) / `EXTRACTED` (LLM navrhol) / `REVIEWED` (konzultant potvrdil).
 - `deleted_at` — soft delete (nikdy hard delete)
 - `created_at`, `updated_at`
@@ -180,11 +179,10 @@ Export → CSV/JSON so všetkými položkami, lokáciou, statusom, poznámkami
 | OCR | Tesseract 5.3.0 na Railway, slk+eng, PSM 1, batch endpoint | ✓ live (Sprint 3b) |
 | Auth MVP | HTTP Basic Auth | ✓ live |
 | Auth fáza 2 | Microsoft OAuth (passport-azure-ad) | ⬜ po MVP |
-| Search | Fulltext ILIKE cez name, ocr_title, note, ocr_raw_text + `strip_diacritics()` | ✓ live (Sprint 4, rozšírené Sprint 5) |
-| Export | CSV (BOM/`;`/CRLF) + JSON hierarchický | ✓ live (Sprint 4) |
+| Search | Fulltext ILIKE cez name, note, celé JSONB metadata, ocr_raw_text + `strip_diacritics()` | ✓ live (Sprint 4 + 7 + 2.8) |
+| Export | CSV (BOM/`;`/CRLF, `metadataJson`) + JSON hierarchický | ✓ live (Sprint 4) |
 | Auto-name | Pozičný identifikátor `sklX_palNNN_kraNNN_zloNNN` pri POST /items | ✓ live (Sprint 5) |
-| LLM Title | Google Gemini 2.5 Flash API, batch + manual review | ✓ live (Sprint 5) |
-| LLM Metadata | Gemini 2.5 Flash → JSONB (7 polí, permisívna schéma), batch + review | ✓ live (Sprint 7) |
+| LLM Metadata | Gemini 2.5 Flash → hybrid JSONB, batch + review (`/admin/llm-metadata`) | ✓ live (Sprint 7, metadata-only od 2.8) |
 
 ---
 
@@ -434,5 +432,5 @@ IT tím objednávateľa dostane:
 
 ---
 
-*Posledná aktualizácia: v2.7.0 — Sprint 7 (JSONB metadata extraction) HOTOVÝ. Sprint 6 (Photo LABEL/OVERVIEW) ostáva v progrese, čaká na field test.*
+*Posledná aktualizácia: v2.8.0 — metadata-only refactor (zrušený LLM title workflow, hybrid metadata prompt, search cez celé JSONB). Sprint 6 (Photo LABEL/OVERVIEW) ostáva v progrese, čaká na field test.*
 *Ďalší krok: Sprint 2 Bugfix (TD-5/6/7), nastaviť `GEMINI_API_KEY` na Railway, field work v sklade (DoD body 1+2 + overiť LABEL/OVERVIEW UX + spustiť metadata batch na reálnom korpuse), nakoniec dump.sql + README.md pre odovzdanie (TD-12).*

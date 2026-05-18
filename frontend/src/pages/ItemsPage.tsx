@@ -9,6 +9,7 @@ import {
   type Item,
   type ItemType,
 } from "../api";
+import { AutoNamePreview } from "../components/AutoNamePreview";
 import { ItemsDataTable } from "../components/ItemsDataTable";
 import { ItemSearchPanel } from "./SearchPage";
 
@@ -38,7 +39,7 @@ export function ItemsPage() {
     while (cur) {
       if (seen.has(cur.id)) break;
       seen.add(cur.id);
-      parts.unshift(cur.name ?? "(bez názvu)");
+      parts.unshift(cur.name ?? cur.auto_name ?? "(bez názvu)");
       cur = cur.parent_id ? byId.get(cur.parent_id) : undefined;
     }
     return parts.join(" › ");
@@ -213,15 +214,6 @@ function CreateItemFormContent({
         </select>
       </label>
       <label className="form-label">
-        Názov
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="napr. Krabica pri okne"
-        />
-      </label>
-      <label className="form-label">
         Nadradená položka
         {typeCode === "" && <input value="" disabled placeholder="(vyber najprv typ)" />}
         {typeCode === "SKLAD" && <input value="(žiadny — sklad je koreň)" disabled />}
@@ -238,6 +230,20 @@ function CreateItemFormContent({
           </select>
         )}
       </label>
+      <label className="form-label">
+        Názov
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="(voliteľné — inak sa vygeneruje automaticky)"
+        />
+      </label>
+      <AutoNamePreview
+        typeCode={typeCode}
+        parentId={parentId}
+        manualName={name}
+      />
       <label className="form-label">
         Poznámka
         <textarea

@@ -3,17 +3,21 @@ import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   api,
-  KNOWN_METADATA_KEYS,
-  METADATA_LABELS,
   TYPE_LABEL,
   type ItemMetadata,
   type LlmMetadataStatusResponse,
   type PendingMetadataReviewItem,
 } from "../api";
+import {
+  metadataEditKeys,
+  metadataFieldLabel,
+  normalizeMetadataDraft,
+  serializeMetadataDraft,
+} from "../lib/metadataDraft";
 
-// LlmMetadataAdminPage — Sprint 7
+// LlmMetadataAdminPage — metadata-only AI extraction
 //
-// Paralelný workflow ku Sprint 5 LlmTitleAdminPage. Štruktúra je rovnaká:
+// Štruktúra:
 // stat cards, batch tlačidlo, polling 3s počas processing, review queue
 // s offset paging-om. Hlavný rozdiel: review karta zobrazuje 7 polí ako
 // editovateľné inputy a pri confirm posielame celý objekt (zachovaj prípadné
@@ -86,9 +90,8 @@ export function LlmMetadataAdminPage() {
       <h1>AI Metadata — JSONB extraction</h1>
 
       <p className="muted" style={{ marginTop: -4 }}>
-        LLM (Gemini 2.5 Flash) z OCR textu navrhne 7 polí (stavba, časť,
-        projektant, adresa, číslo, dátum, stupeň). Konzultant každý návrh
-        review-uje, môže upraviť hodnoty alebo zamietnuť.
+        LLM (Gemini 2.5 Flash) z OCR textu navrhne relevantné polia (hybrid JSONB).
+        Konzultant každý návrh review-uje, môže upraviť hodnoty alebo zamietnuť.
       </p>
 
       {statusQ.isLoading && <p className="muted">Načítavam štatistiky…</p>}
@@ -291,13 +294,13 @@ function ApiKeyHelpBanner() {
 function MetadataReviewCard({ item }: { item: PendingMetadataReviewItem }) {
   const qc = useQueryClient();
   const [draft, setDraft] = useState<ItemMetadata>(() =>
-    normalizeDraft(item.metadata),
+    normalizeMetadataDraft(item.metadata),
   );
   const cardRef = useRef<HTMLDivElement>(null);
 
   // Ak sa item zmení (refetch po confirm/reject), reinit draft.
   useEffect(() => {
-    setDraft(normalizeDraft(item.metadata));
+    setDraft(normalizeMetadataDraft(item.metadata));
   }, [item.id, item.metadata]);
 
   function invalidate() {
@@ -322,8 +325,12 @@ function MetadataReviewCard({ item }: { item: PendingMetadataReviewItem }) {
   const isPending = confirmMut.isPending || rejectMut.isPending || editMut.isPending;
 
   const isDirty = useMemo(() => {
-    const orig = normalizeDraft(item.metadata);
-    return KNOWN_METADATA_KEYS.some((k) => (orig[k] ?? "") !== (draft[k] ?? ""));
+    const orig = normalizeMetadataDraft(item.metadata);
+    const keys = new Set([...Object.keys(orig), ...Object.keys(draft)]);
+    for (const k of keys) {
+      if ((orig[k] ?? "") !== (draft[k] ?? "")) return true;
+    }
+    return false;
   }, [draft, item.metadata]);
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
@@ -335,7 +342,7 @@ function MetadataReviewCard({ item }: { item: PendingMetadataReviewItem }) {
       rejectMut.mutate();
     } else if (e.key === "Enter" && target.tagName !== "INPUT") {
       e.preventDefault();
-      confirmMut.mutate(serializeDraft(draft));
+      confirmMut.mutate(serializeMetadataDraft(draft));
     }
   }
 
@@ -348,13 +355,6 @@ function MetadataReviewCard({ item }: { item: PendingMetadataReviewItem }) {
       : "";
 
   const error = confirmMut.error ?? rejectMut.error ?? editMut.error ?? null;
-
-  // Neznáme polia (LLM mohol navrhnúť iné kľúče) — zobrazíme ich pod 7 fixnými,
-  // ale read-only, aby sa nestratili pri save.
-  const knownSet = new Set<string>(KNOWN_METADATA_KEYS);
-  const unknownEntries = Object.entries(item.metadata).filter(
-    ([k, v]) => !knownSet.has(k) && v != null && v !== "",
-  );
 
   return (
     <div
@@ -395,19 +395,13 @@ function MetadataReviewCard({ item }: { item: PendingMetadataReviewItem }) {
             Pôvodné ID: <code>{item.autoName}</code>
           </div>
         )}
-        {item.ocrTitle && (
-          <div className="llm-review-autoname">
-            OCR titul: <em>{item.ocrTitle}</em>
-          </div>
-        )}
-
         <div className="llm-review-suggestion">
           <div className="llm-review-suggestion-label">Návrh AI:</div>
           <div className="metadata-fields-grid">
-            {KNOWN_METADATA_KEYS.map((key) => (
+            {metadataEditKeys(draft).map((key) => (
               <label key={key} className="metadata-field">
                 <span className="metadata-field-label">
-                  {METADATA_LABELS[key]}
+                  {metadataFieldLabel(key)}
                 </span>
                 <input
                   type="text"
@@ -422,26 +416,13 @@ function MetadataReviewCard({ item }: { item: PendingMetadataReviewItem }) {
               </label>
             ))}
           </div>
-
-          {unknownEntries.length > 0 && (
-            <div className="metadata-unknown-fields">
-              <div className="muted" style={{ fontSize: 12, marginTop: 8 }}>
-                Ďalšie polia (LLM navrhol nad rámec):
-              </div>
-              {unknownEntries.map(([k, v]) => (
-                <div key={k} style={{ fontSize: 13 }}>
-                  <strong>{k}</strong>: {String(v)}
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         <div className="llm-review-actions">
           <button
             type="button"
             className="btn-primary"
-            onClick={() => confirmMut.mutate(serializeDraft(draft))}
+            onClick={() => confirmMut.mutate(serializeMetadataDraft(draft))}
             disabled={isPending}
           >
             {confirmMut.isPending
@@ -453,7 +434,7 @@ function MetadataReviewCard({ item }: { item: PendingMetadataReviewItem }) {
           {isDirty && (
             <button
               type="button"
-              onClick={() => editMut.mutate(serializeDraft(draft))}
+              onClick={() => editMut.mutate(serializeMetadataDraft(draft))}
               disabled={isPending}
               title="Uložiť úpravy bez potvrdenia (status ostane EXTRACTED)"
             >
@@ -478,27 +459,6 @@ function MetadataReviewCard({ item }: { item: PendingMetadataReviewItem }) {
       </div>
     </div>
   );
-}
-
-// Pre input field-y potrebujeme všetky kľúče ako string (prázdne = ""), null
-// hodnoty sa renderujú ako "" v inpute. Pri save back konvertujeme prázdne
-// stringy späť na null.
-function normalizeDraft(metadata: ItemMetadata): ItemMetadata {
-  const out: ItemMetadata = {};
-  for (const k of KNOWN_METADATA_KEYS) {
-    const v = metadata[k];
-    out[k] = typeof v === "string" ? v : "";
-  }
-  return out;
-}
-
-function serializeDraft(draft: ItemMetadata): ItemMetadata {
-  const out: ItemMetadata = {};
-  for (const k of KNOWN_METADATA_KEYS) {
-    const v = draft[k];
-    out[k] = typeof v === "string" && v.trim() !== "" ? v.trim() : null;
-  }
-  return out;
 }
 
 function plural(n: number, one: string, few: string, many: string): string {

@@ -148,12 +148,8 @@ itemsRouter.get("/inventory", async (_req, res, next) => {
         qr_code: true,
         note: true,
         status: true,
-        // Sprint 5/7: rozšírené polia pre tabuľku — auto_name (pozičný ID),
-        // ocr_title + status (Sprint 5 LLM titul), metadata + status
-        // (Sprint 7 LLM metadata).
+        // auto_name (pozičný ID) + metadata (LLM JSONB).
         auto_name: true,
-        ocr_title: true,
-        ocr_title_status: true,
         metadata: true,
         metadata_status: true,
         created_at: true,
@@ -185,6 +181,36 @@ itemsRouter.get("/inventory", async (_req, res, next) => {
     });
 
     res.json(result);
+  } catch (e) {
+    next(e);
+  }
+});
+
+const AutoNamePreviewQuerySchema = z.object({
+  type_code: z.string().min(1),
+  parent_id: z.string().uuid(),
+});
+
+// GET /api/items/auto-name-preview — náhľad pozičného ID pred vytvorením položky.
+// Rovnaká logika ako POST /items (generateAutoName), bez zápisu do DB.
+itemsRouter.get("/auto-name-preview", async (req, res, next) => {
+  try {
+    const q = AutoNamePreviewQuerySchema.parse(req.query);
+
+    const type = await prisma.itemType.findUnique({ where: { code: q.type_code } });
+    if (!type) {
+      res.status(400).json({ error: `Unknown type_code: ${q.type_code}` });
+      return;
+    }
+
+    const parentErr = await validateParentType(q.type_code, q.parent_id);
+    if (parentErr) {
+      res.status(400).json({ error: parentErr });
+      return;
+    }
+
+    const auto_name = await generateAutoName(q.parent_id, q.type_code);
+    res.json({ auto_name });
   } catch (e) {
     next(e);
   }
