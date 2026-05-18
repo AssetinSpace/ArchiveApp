@@ -1834,6 +1834,23 @@ p { margin: 0 0 12px; }
   padding: 0 !important;
 }
 
+.data-table-delete-btn {
+  color: #9ca3af;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.data-table-delete-btn:not(:disabled):hover {
+  color: #dc2626;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.data-table-delete-btn--blocked:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 .data-table-expand-spacer {
   display: inline-block;
   width: 36px;

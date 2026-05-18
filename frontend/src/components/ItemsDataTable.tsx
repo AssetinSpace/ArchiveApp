@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   flexRender,
   getCoreRowModel,
@@ -93,11 +93,37 @@ function formatDate(iso: string): string {
 
 export function ItemsDataTable() {
   const url = useItemsTableUrlState();
+  const qc = useQueryClient();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const inventoryQ = useQuery({
     queryKey: ["items", "inventory"],
     queryFn: () => api.inventoryItems(),
     staleTime: 60_000,
   });
+
+  const deleteMut = useMutation({
+    mutationFn: (id: string) => api.deleteItem(id),
+    onMutate: (id) => setDeletingId(id),
+    onSettled: () => setDeletingId(null),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["items"] });
+    },
+    onError: (e: Error) => {
+      window.alert(e.message);
+    },
+  });
+
+  const handleDeleteItem = useCallback(
+    (item: InventoryTreeRow) => {
+      if (item._count.children > 0) return;
+      const label = item.name ?? item.auto_name ?? "(bez názvu)";
+      const type = TYPE_LABEL[item.type_code] ?? item.type_code;
+      if (confirm(`Naozaj zmazať položku „${label}" (${type})?`)) {
+        deleteMut.mutate(item.id);
+      }
+    },
+    [deleteMut],
+  );
 
   const allItems = inventoryQ.data ?? [];
   const searchQ = url.search.trim();
@@ -416,9 +442,38 @@ export function ItemsDataTable() {
       size: 100,
       cell: ({ getValue }) => formatDate(getValue<string>()),
     },
-  // searchQ v cell rendereri — pri jeho zmene sa stĺpce prepočítajú
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  ], [searchQ]);
+    {
+      id: "delete",
+      header: () => <span className="sr-only">Zmazať</span>,
+      size: 48,
+      enableHiding: false,
+      cell: ({ row }) => {
+        const item = row.original;
+        const childCount = item._count.children;
+        const isDeleting = deletingId === item.id;
+        const blocked = childCount > 0;
+        return (
+          <button
+            type="button"
+            className={`items-table-icon-btn data-table-delete-btn${blocked ? " data-table-delete-btn--blocked" : ""}`}
+            title={
+              blocked
+                ? `Najprv zmazať ${childCount} podradených položiek`
+                : "Zmazať položku"
+            }
+            disabled={blocked || isDeleting}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteItem(item);
+            }}
+            aria-label={blocked ? "Nemožno zmazať — má podradené položky" : "Zmazať položku"}
+          >
+            {isDeleting ? "…" : "✕"}
+          </button>
+        );
+      },
+    },
+  ], [searchQ, deletingId, handleDeleteItem]);
 
   const table = useReactTable({
     data: treeData,
@@ -456,7 +511,7 @@ export function ItemsDataTable() {
 
   const toggleableColumns = table
     .getAllLeafColumns()
-    .filter((c) => c.id !== "expand" && c.getCanHide());
+    .filter((c) => c.id !== "expand" && c.id !== "delete" && c.getCanHide());
 
   const matchCount = coreMatches.length;
 
