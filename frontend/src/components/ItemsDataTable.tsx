@@ -511,21 +511,18 @@ export function ItemsDataTable() {
       accessorKey: "level",
       header: "L",
       size: 48,
-      cell: ({ row, getValue }) => (
-        <span style={{ paddingLeft: row.depth * TREE_INDENT_PX }}>{getValue<number>()}</span>
-      ),
+      minSize: 40,
+      cell: ({ getValue }) => <span>{getValue<number>()}</span>,
     },
     {
       accessorKey: "kind",
       header: "Typ",
       size: 100,
-      cell: ({ row, getValue }) => {
+      minSize: 80,
+      cell: ({ getValue }) => {
         const code = getValue<string>();
         return (
-          <div
-            className="data-table-type-cell"
-            style={{ paddingLeft: row.depth * TREE_INDENT_PX }}
-          >
+          <div className="data-table-type-cell">
             <span className={`badge badge-${code.toLowerCase()}`}>
               {TYPE_LABEL[code] ?? code}
             </span>
@@ -541,7 +538,10 @@ export function ItemsDataTable() {
         const item = row.original;
         const snippet = searchQ ? ocrSnippet(item, searchQ) : null;
         return (
-          <div>
+          <div
+            className="data-table-name-cell"
+            style={{ paddingLeft: row.depth * TREE_INDENT_PX }}
+          >
             <Link to={`/items/${item.id}`} className="data-table-name-link">
               {name ?? <em className="muted">(bez názvu)</em>}
             </Link>
@@ -1051,6 +1051,7 @@ export function ItemsDataTable() {
         entries={columnPickerEntries}
         visibleIds={visibleColumnIds}
         portalTarget={modalPortalRef.current}
+        fullscreen={isFullscreen}
         onClose={() => setColumnsModalOpen(false)}
         onApply={(visible) => {
           applyColumnVisibility(visible, toggleableIds);

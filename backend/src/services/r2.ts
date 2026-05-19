@@ -62,6 +62,15 @@ export async function getSignedUrlForKey(
   );
 }
 
+/** Verejná URL z R2 custom domény / public bucketu (R2_PUBLIC_URL). */
+export function getPublicUrlForKey(key: string): string | null {
+  const base = process.env.R2_PUBLIC_URL?.trim();
+  if (!base) return null;
+  const normalizedBase = base.replace(/\/$/, "");
+  const normalizedKey = key.replace(/^\//, "");
+  return `${normalizedBase}/${normalizedKey}`;
+}
+
 export async function getObjectAsBuffer(key: string): Promise<Buffer> {
   const response = await r2.send(
     new GetObjectCommand({ Bucket: BUCKET, Key: key }),

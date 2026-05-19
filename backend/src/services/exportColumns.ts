@@ -1,4 +1,6 @@
 // Export column catalog — metadata keys as flat columns, user-selectable export.
+import { formatMetadataFieldLabel } from "../lib/metadataLabels.js";
+import { getPublicUrlForKey, getSignedUrlForKey } from "./r2.js";
 import { KNOWN_METADATA_KEYS } from "./llmMetadata.js";
 
 export type ExportColumnGroup = "item" | "metadata" | "photos" | "technical";
@@ -44,19 +46,10 @@ export type ItemExportContext = {
   overviewPhotoCount: number;
   hasOcrText: boolean;
   ocrTextPreview: string;
-};
-
-const METADATA_LABELS: Record<string, string> = {
-  stavba: "Stavba",
-  cast: "Časť",
-  projektant: "Projektant",
-  adresa: "Adresa",
-  cislo: "Číslo",
-  datum: "Dátum",
-  stupen: "Stupeň",
-  typ_dokumentu: "Typ dokumentu",
-  investor: "Investor",
-  autor_casti: "Autor časti",
+  ocrRawText: string;
+  scanPhotoUrl: string;
+  photoUrls: string;
+  urlForKey: (storageKey: string) => string;
 };
 
 const BASE_COLUMNS: ExportColumnDef[] = [
@@ -75,15 +68,15 @@ const BASE_COLUMNS: ExportColumnDef[] = [
   { id: "overview_photo_count", label: "OVERVIEW fotiek", group: "photos" },
   { id: "has_ocr_text", label: "Má OCR text", group: "photos" },
   { id: "ocr_text_preview", label: "Náhľad OCR", group: "photos" },
+  { id: "ocr_raw_text", label: "OCR text (celý)", group: "photos" },
+  { id: "scan_photo_url", label: "Odkaz na sken (foto)", group: "photos" },
+  { id: "photo_urls", label: "Odkazy na všetky fotky", group: "photos" },
   { id: "photos", label: "Fotky (detail)", group: "photos" },
   { id: "created_at", label: "Vytvorené", group: "technical" },
   { id: "updated_at", label: "Upravené", group: "technical" },
   { id: "metadata_json", label: "Surové metadata (JSON)", group: "technical" },
 ];
 
-function metadataFieldLabel(key: string): string {
-  return METADATA_LABELS[key] ?? key.replace(/_/g, " ");
-}
 
 export function discoverMetadataKeys(items: ExportItemRow[]): string[] {
   const knownSet = new Set<string>(KNOWN_METADATA_KEYS);
@@ -102,7 +95,7 @@ export function discoverMetadataKeys(items: ExportItemRow[]): string[] {
 export function buildExportCatalog(metadataKeys: string[]): ExportColumnDef[] {
   const metaCols: ExportColumnDef[] = metadataKeys.map((key) => ({
     id: `meta_${key}`,
-    label: metadataFieldLabel(key),
+    label: formatMetadataFieldLabel(key),
     group: "metadata",
   }));
   return [...BASE_COLUMNS, ...metaCols];
@@ -139,10 +132,64 @@ function metaString(item: ExportItemRow, key: string): string {
   return typeof v === "string" ? v : "";
 }
 
+/** 7 dní — záloha ak nie je nastavené R2_PUBLIC_URL (CSV odkazy by inak čoskoro expirovali). */
+const EXPORT_SIGNED_URL_TTL_SEC = 604800;
+
+export async function buildPhotoUrlMap(storageKeys: string[]): Promise<Map<string, string>> {
+  const unique = [...new Set(storageKeys.filter(Boolean))];
+  const map = new Map<string, string>();
+  const usePublic = !!process.env.R2_PUBLIC_URL?.trim();
+  if (usePublic) {
+    for (const key of unique) {
+      const url = getPublicUrlForKey(key);
+      if (url) map.set(key, url);
+    }
+    return map;
+  }
+  await Promise.all(
+    unique.map(async (key) => {
+      map.set(key, await getSignedUrlForKey(key, EXPORT_SIGNED_URL_TTL_SEC));
+    }),
+  );
+  return map;
+}
+
+function sortedPhotos(photoList: ExportPhotoRow[]): ExportPhotoRow[] {
+  return photoList.slice().sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+}
+
+function pickPrimaryScanPhoto(photoList: ExportPhotoRow[]): ExportPhotoRow | undefined {
+  const sorted = sortedPhotos(photoList);
+  return (
+    sorted.find(
+      (p) =>
+        p.photoType === "LABEL" &&
+        p.ocrStatus === "DONE" &&
+        p.ocrRawText &&
+        p.ocrRawText.trim() !== "",
+    ) ??
+    sorted.find((p) => p.photoType === "LABEL") ??
+    sorted.find(
+      (p) => p.ocrStatus === "DONE" && p.ocrRawText && p.ocrRawText.trim() !== "",
+    ) ??
+    sorted[0]
+  );
+}
+
+function fullOcrText(photoList: ExportPhotoRow[]): string {
+  const primary = pickPrimaryScanPhoto(photoList);
+  if (primary?.ocrRawText?.trim()) return primary.ocrRawText.trim();
+  const parts = sortedPhotos(photoList)
+    .map((p) => p.ocrRawText?.trim())
+    .filter((t): t is string => !!t);
+  return parts.join("\n\n");
+}
+
 export function buildItemExportContext(
   item: ExportItemRow,
   photoList: ExportPhotoRow[],
   path: string,
+  urlForKey: (storageKey: string) => string,
 ): ItemExportContext {
   const photoCount = photoList.length;
   const labelPhotoCount = photoList.filter((p) => p.photoType === "LABEL").length;
@@ -158,6 +205,13 @@ export function buildItemExportContext(
   const ocrTextPreview = firstDoneWithText
     ? (firstDoneWithText.ocrRawText ?? "").replace(/\s+/g, " ").trim().slice(0, 100)
     : "";
+  const ocrRawText = fullOcrText(photoList);
+  const primary = pickPrimaryScanPhoto(photoList);
+  const scanPhotoUrl = primary ? urlForKey(primary.storageKey) : "";
+  const photoUrls = sortedPhotos(photoList)
+    .map((p) => urlForKey(p.storageKey))
+    .filter(Boolean)
+    .join("\n");
   return {
     path,
     photoList,
@@ -166,28 +220,34 @@ export function buildItemExportContext(
     overviewPhotoCount,
     hasOcrText,
     ocrTextPreview,
+    ocrRawText,
+    scanPhotoUrl,
+    photoUrls,
+    urlForKey,
   };
 }
 
-function serializePhotos(photoList: ExportPhotoRow[]): Array<{
+function serializePhotos(
+  photoList: ExportPhotoRow[],
+  urlForKey: (storageKey: string) => string,
+): Array<{
   id: string;
   storageKey: string;
+  url: string;
   ocrRawText: string | null;
   ocrStatus: string;
   photoType: string;
   createdAt: string;
 }> {
-  return photoList
-    .slice()
-    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-    .map((p) => ({
-      id: p.id,
-      storageKey: p.storageKey,
-      ocrRawText: p.ocrRawText,
-      ocrStatus: p.ocrStatus,
-      photoType: p.photoType,
-      createdAt: p.createdAt.toISOString(),
-    }));
+  return sortedPhotos(photoList).map((p) => ({
+    id: p.id,
+    storageKey: p.storageKey,
+    url: urlForKey(p.storageKey),
+    ocrRawText: p.ocrRawText,
+    ocrStatus: p.ocrStatus,
+    photoType: p.photoType,
+    createdAt: p.createdAt.toISOString(),
+  }));
 }
 
 export function getColumnValue(
@@ -229,8 +289,14 @@ export function getColumnValue(
       return ctx.hasOcrText ? "true" : "false";
     case "ocr_text_preview":
       return ctx.ocrTextPreview;
+    case "ocr_raw_text":
+      return ctx.ocrRawText;
+    case "scan_photo_url":
+      return ctx.scanPhotoUrl;
+    case "photo_urls":
+      return ctx.photoUrls;
     case "photos":
-      return serializePhotos(ctx.photoList);
+      return serializePhotos(ctx.photoList, ctx.urlForKey);
     case "created_at":
       return item.created_at.toISOString();
     case "updated_at":
@@ -283,7 +349,7 @@ export function buildTreeNodeFields(
 
   for (const col of columns) {
     if (col.id === "photos") {
-      node.photos = serializePhotos(ctx.photoList);
+      node.photos = serializePhotos(ctx.photoList, ctx.urlForKey);
       continue;
     }
     if (col.id === "path") {
@@ -312,7 +378,10 @@ export function buildTreeNodeFields(
       col.id === "label_photo_count" ||
       col.id === "overview_photo_count" ||
       col.id === "has_ocr_text" ||
-      col.id === "ocr_text_preview"
+      col.id === "ocr_text_preview" ||
+      col.id === "ocr_raw_text" ||
+      col.id === "scan_photo_url" ||
+      col.id === "photo_urls"
     ) {
       node[col.id] = getColumnValue(col.id, item, ctx);
     }

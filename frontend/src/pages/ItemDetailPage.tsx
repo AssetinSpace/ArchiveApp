@@ -8,7 +8,6 @@ import {
   api,
   KIND_DEFAULTS,
   KNOWN_METADATA_KEYS,
-  METADATA_LABELS,
   TYPE_LABEL,
   type Item,
   type ItemMetadata,
@@ -1182,7 +1181,7 @@ function ReadonlyMetadataList({ metadata }: { metadata: ItemMetadata }) {
     <dl className="metadata-readonly-list">
       {knownEntries.map(([k, v]) => (
         <div key={k} style={{ display: "contents" }}>
-          <dt>{METADATA_LABELS[k]}</dt>
+          <dt>{metadataFieldLabel(k)}</dt>
           <dd>{v}</dd>
         </div>
       ))}

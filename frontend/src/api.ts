@@ -110,18 +110,7 @@ export const KNOWN_METADATA_KEYS = [
   "autor_casti",
 ] as const;
 
-export const METADATA_LABELS: Record<string, string> = {
-  stavba: "Stavba",
-  cast: "Časť",
-  projektant: "Projektant",
-  adresa: "Adresa",
-  cislo: "Číslo",
-  datum: "Dátum",
-  stupen: "Stupeň",
-  typ_dokumentu: "Typ dokumentu",
-  investor: "Investor",
-  autor_casti: "Autor časti",
-};
+export { METADATA_LABELS } from "./lib/metadataLabels";
 
 export type Item = {
   id: string;

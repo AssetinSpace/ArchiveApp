@@ -1,9 +1,5 @@
-import {
-  KNOWN_METADATA_KEYS,
-  METADATA_LABELS,
-  type InventoryItem,
-  type ItemMetadata,
-} from "../api";
+import { KNOWN_METADATA_KEYS, type InventoryItem, type ItemMetadata } from "../api";
+import { formatMetadataFieldLabel } from "./metadataLabels";
 
 /** Všetky kľúče z metadata → draft pre inputy (prázdne = ""). */
 export function normalizeMetadataDraft(
@@ -30,7 +26,7 @@ export function serializeMetadataDraft(draft: ItemMetadata): ItemMetadata {
 }
 
 export function metadataFieldLabel(key: string): string {
-  return METADATA_LABELS[key] ?? key.replace(/_/g, " ");
+  return formatMetadataFieldLabel(key);
 }
 
 export function metadataColumnId(key: string): string {

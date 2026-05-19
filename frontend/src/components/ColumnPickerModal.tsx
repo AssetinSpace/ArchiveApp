@@ -12,6 +12,8 @@ export type ColumnPickerGroupDef = {
   title: string;
 };
 
+type VisibilityFilter = "all" | "visible" | "hidden";
+
 type Props = {
   open: boolean;
   title: string;
@@ -26,7 +28,17 @@ type Props = {
   portalTarget?: HTMLElement | null;
   extraToolbar?: ReactNode;
   headerActions?: ReactNode;
+  /** Väčší layout pri otvorení z celoobrazovkovej tabuľky. */
+  fullscreen?: boolean;
 };
+
+function matchesColumnSearch(entry: ColumnPickerEntry, q: string): boolean {
+  return (
+    entry.label.toLowerCase().includes(q) ||
+    entry.id.toLowerCase().includes(q) ||
+    (entry.id.startsWith("meta_") && entry.id.slice(5).toLowerCase().includes(q))
+  );
+}
 
 function ColumnGroup({
   title,
@@ -96,27 +108,41 @@ export function ColumnPickerModal({
   portalTarget,
   extraToolbar,
   headerActions,
+  fullscreen = false,
 }: Props) {
   const [draft, setDraft] = useState<Set<string>>(visibleIds);
   const [query, setQuery] = useState("");
+  const [groupFilter, setGroupFilter] = useState<string | null>(null);
+  const [visibilityFilter, setVisibilityFilter] = useState<VisibilityFilter>("all");
 
   useEffect(() => {
     if (open) {
       setDraft(new Set(visibleIds));
       setQuery("");
+      setGroupFilter(null);
+      setVisibilityFilter("all");
     }
   }, [open, visibleIds]);
 
   const filtered = useMemo(() => {
+    let list = entries;
+    if (visibilityFilter === "visible") {
+      list = list.filter((e) => draft.has(e.id));
+    } else if (visibilityFilter === "hidden") {
+      list = list.filter((e) => !draft.has(e.id));
+    }
+    if (groupFilter) {
+      list = list.filter((e) => e.group === groupFilter);
+    }
     const q = query.trim().toLowerCase();
-    if (!q) return entries;
-    return entries.filter(
-      (e) =>
-        e.label.toLowerCase().includes(q) ||
-        e.id.toLowerCase().includes(q) ||
-        (e.id.startsWith("meta_") && e.id.slice(5).toLowerCase().includes(q)),
-    );
-  }, [entries, query]);
+    if (q) {
+      list = list.filter((e) => matchesColumnSearch(e, q));
+    }
+    return list;
+  }, [entries, query, groupFilter, visibilityFilter, draft]);
+
+  const hasListFilters =
+    !!query.trim() || groupFilter !== null || visibilityFilter !== "all";
 
   function toggle(id: string) {
     setDraft((prev) => {
@@ -151,7 +177,7 @@ export function ColumnPickerModal({
       }}
     >
       <div
-        className="create-modal-box items-columns-modal-box"
+        className={`create-modal-box items-columns-modal-box${fullscreen ? " items-columns-modal-box--fullscreen" : ""}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -162,18 +188,86 @@ export function ColumnPickerModal({
           <p className="muted items-columns-modal-sub">{subtitle}</p>
         </header>
 
-        <label className="items-columns-modal-search form-label">
-          <span className="sr-only">Hľadať stĺpec</span>
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Hľadať stĺpec…"
-            autoCapitalize="off"
-            autoCorrect="off"
-            spellCheck={false}
-          />
-        </label>
+        <div className="items-columns-modal-toolbar">
+          <label className="items-columns-modal-search form-label">
+            <span className="sr-only">Hľadať stĺpec</span>
+            <input
+              type="search"
+              className="items-table-search-input"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Hľadať stĺpec podľa názvu alebo kľúča…"
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck={false}
+            />
+          </label>
+
+          <div className="items-columns-modal-filters">
+            <span className="items-columns-modal-filter-label">Skupina</span>
+            <div
+              className="items-columns-modal-filter-chips"
+              role="group"
+              aria-label="Filter skupiny stĺpcov"
+            >
+              <button
+                type="button"
+                className={`items-table-chip${groupFilter === null ? " items-table-chip-active" : ""}`}
+                onClick={() => setGroupFilter(null)}
+              >
+                Všetky
+              </button>
+              {groups.map((g) => (
+                <button
+                  key={g.id}
+                  type="button"
+                  className={`items-table-chip${groupFilter === g.id ? " items-table-chip-active" : ""}`}
+                  onClick={() => setGroupFilter((prev) => (prev === g.id ? null : g.id))}
+                >
+                  {g.title}
+                </button>
+              ))}
+            </div>
+
+            <span className="items-columns-modal-filter-label">Stav</span>
+            <div
+              className="items-columns-modal-filter-chips"
+              role="group"
+              aria-label="Filter viditeľnosti stĺpcov"
+            >
+              {(
+                [
+                  ["all", "Všetky"],
+                  ["visible", "Zobrazené"],
+                  ["hidden", "Skryté"],
+                ] as const
+              ).map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  className={`items-table-chip${visibilityFilter === id ? " items-table-chip-active" : ""}`}
+                  onClick={() => setVisibilityFilter(id)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {hasListFilters && (
+              <button
+                type="button"
+                className="items-table-chip"
+                onClick={() => {
+                  setQuery("");
+                  setGroupFilter(null);
+                  setVisibilityFilter("all");
+                }}
+              >
+                Zrušiť filtre
+              </button>
+            )}
+          </div>
+        </div>
 
         <div className="items-columns-modal-quick">
           <button
@@ -193,29 +287,39 @@ export function ColumnPickerModal({
           {headerActions}
           <span className="muted">
             Vybraných: {draft.size} / {entries.length}
+            {hasListFilters && (
+              <>
+                {" "}
+                · v zozname {filtered.length}
+              </>
+            )}
           </span>
         </div>
 
         {extraToolbar}
 
         <div className="items-columns-modal-body">
-          {groups.map((g) => {
-            const groupEntries = filtered.filter((e) => e.group === g.id);
-            return (
-              <ColumnGroup
-                key={g.id}
-                title={g.title}
-                entries={groupEntries}
-                draft={draft}
-                onToggle={toggle}
-                onSelectAll={() => setGroup(groupEntries.map((e) => e.id), true)}
-                onSelectNone={() => setGroup(groupEntries.map((e) => e.id), false)}
-              />
-            );
-          })}
+          {groups
+            .filter((g) => !groupFilter || g.id === groupFilter)
+            .map((g) => {
+              const groupEntries = filtered.filter((e) => e.group === g.id);
+              return (
+                <ColumnGroup
+                  key={g.id}
+                  title={g.title}
+                  entries={groupEntries}
+                  draft={draft}
+                  onToggle={toggle}
+                  onSelectAll={() => setGroup(groupEntries.map((e) => e.id), true)}
+                  onSelectNone={() => setGroup(groupEntries.map((e) => e.id), false)}
+                />
+              );
+            })}
           {filtered.length === 0 && (
             <p className="muted" style={{ margin: 0 }}>
-              Žiadny stĺpec nevyhovuje hľadaniu.
+              {hasListFilters
+                ? "Žiadny stĺpec nevyhovuje filtrom ani hľadaniu."
+                : "Žiadny stĺpec v zozname."}
             </p>
           )}
         </div>

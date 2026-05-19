@@ -10,6 +10,7 @@ import {
   buildExportCatalog,
   buildFlatRow,
   buildItemExportContext,
+  buildPhotoUrlMap,
   buildTreeNodeFields,
   discoverMetadataKeys,
   ExportColumnsError,
@@ -160,12 +161,18 @@ async function loadExportData(): Promise<ExportData> {
 
 function makeContextGetter(
   data: ExportData,
+  urlForKey: (storageKey: string) => string,
 ): (item: ExportItemRow) => ReturnType<typeof buildItemExportContext> {
   return (item) => {
     const photoList = data.photosByItem.get(item.id) ?? [];
     const path = buildPath(item, data.byId);
-    return buildItemExportContext(item, photoList, path);
+    return buildItemExportContext(item, photoList, path, urlForKey);
   };
+}
+
+async function buildUrlForKey(data: ExportData): Promise<(storageKey: string) => string> {
+  const urlMap = await buildPhotoUrlMap(data.photos.map((p) => p.storageKey));
+  return (storageKey: string) => urlMap.get(storageKey) ?? "";
 }
 
 function sendExportError(res: import("express").Response, e: unknown, next: (err: unknown) => void) {
@@ -192,11 +199,12 @@ exportRouter.get("/columns", async (_req, res, next) => {
 
 // ─── CSV ─────────────────────────────────────────────────────────────────────
 
-function runCsvExport(
+async function runCsvExport(
   data: ExportData,
   columns: ReturnType<typeof resolveExportColumns>,
-): string {
-  const getContext = makeContextGetter(data);
+): Promise<string> {
+  const urlForKey = await buildUrlForKey(data);
+  const getContext = makeContextGetter(data, urlForKey);
   return generateCsvBody(data.items, columns, getContext);
 }
 
@@ -204,7 +212,7 @@ exportRouter.get("/csv", async (_req, res, next) => {
   try {
     const data = await loadExportData();
     const columns = resolveExportColumns(undefined, data.catalog);
-    const body = runCsvExport(data, columns);
+    const body = await runCsvExport(data, columns);
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
     res.setHeader(
       "Content-Disposition",
@@ -225,7 +233,7 @@ exportRouter.post("/csv", async (req, res, next) => {
       res.status(400).json({ error: "Vyber aspoň jeden stĺpec." });
       return;
     }
-    const body = runCsvExport(data, columns);
+    const body = await runCsvExport(data, columns);
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
     res.setHeader(
       "Content-Disposition",
@@ -250,8 +258,9 @@ type JsonTreeNode = Record<string, unknown> & {
 function buildJsonTree(
   data: ExportData,
   columns: ReturnType<typeof resolveExportColumns>,
+  urlForKey: (storageKey: string) => string,
 ): JsonTreeNode[] {
-  const getContext = makeContextGetter(data);
+  const getContext = makeContextGetter(data, urlForKey);
   const nodeById = new Map<string, JsonTreeNode>();
 
   for (const item of data.items) {
@@ -292,16 +301,18 @@ function buildJsonTree(
 function buildJsonFlat(
   data: ExportData,
   columns: ReturnType<typeof resolveExportColumns>,
+  urlForKey: (storageKey: string) => string,
 ): Record<string, unknown>[] {
-  const getContext = makeContextGetter(data);
+  const getContext = makeContextGetter(data, urlForKey);
   return data.items.map((item) => buildFlatRow(item, columns, getContext(item)));
 }
 
-function runJsonExport(
+async function runJsonExport(
   data: ExportData,
   columns: ReturnType<typeof resolveExportColumns>,
   format: ExportJsonFormat,
-): string {
+): Promise<string> {
+  const urlForKey = await buildUrlForKey(data);
   const payload =
     format === "flat"
       ? {
@@ -310,7 +321,7 @@ function runJsonExport(
           itemCount: data.items.length,
           photoCount: data.photos.length,
           columns: columns.map((c) => ({ id: c.id, label: c.label })),
-          rows: buildJsonFlat(data, columns),
+          rows: buildJsonFlat(data, columns, urlForKey),
         }
       : {
           exportedAt: new Date().toISOString(),
@@ -318,7 +329,7 @@ function runJsonExport(
           itemCount: data.items.length,
           photoCount: data.photos.length,
           columns: columns.map((c) => ({ id: c.id, label: c.label })),
-          roots: buildJsonTree(data, columns),
+          roots: buildJsonTree(data, columns, urlForKey),
         };
   return JSON.stringify(payload, null, 2);
 }
@@ -336,7 +347,7 @@ exportRouter.get("/json", async (_req, res, next) => {
   try {
     const data = await loadExportData();
     const columns = resolveExportColumns(undefined, data.catalog);
-    sendJson(res, runJsonExport(data, columns, "tree"));
+    sendJson(res, await runJsonExport(data, columns, "tree"));
   } catch (e) {
     sendExportError(res, e, next);
   }
@@ -352,7 +363,7 @@ exportRouter.post("/json", async (req, res, next) => {
       return;
     }
     const format: ExportJsonFormat = parsed.format ?? "tree";
-    sendJson(res, runJsonExport(data, columns, format));
+    sendJson(res, await runJsonExport(data, columns, format));
   } catch (e) {
     if (e instanceof z.ZodError) {
       res.status(400).json({ error: "Validation failed", issues: e.issues });
