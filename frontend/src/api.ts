@@ -238,11 +238,14 @@ export type UploadPhotoResponse = {
 
 // ─── OCR types ───────────────────────────────────────────────────────────────
 
+export type OcrEngine = "gemini" | "tesseract";
+
 export type OcrStatusCounts = {
   pending: number;
   done: number;
   failed: number;
   total: number;
+  engine?: OcrEngine;
 };
 
 export type FailedPhoto = {
@@ -257,7 +260,9 @@ export type RecentOcrPhoto = {
   id: string;
   item_id: string;
   item_name: string | null;
-  item_type_code: string;
+  item_level: number;
+  item_kind: string;
+  item_type_code?: string | null;
   signed_url: string;
   ocr_status: OcrStatus;
   ocr_text_preview: string | null;
@@ -267,6 +272,7 @@ export type RecentOcrPhoto = {
 export type ProcessPendingResponse = {
   started: boolean;
   queuedCount: number;
+  engine?: OcrEngine;
 };
 
 // ─── Search types (Sprint 4 + Sprint 5) ──────────────────────────────────────
@@ -361,9 +367,11 @@ export type LlmMetadataProcessResponse = {
 
 export type PendingMetadataReviewItem = {
   id: string;
-  typeCode: string;
+  level: number;
+  kind: string;
+  typeCode?: string | null;
   name: string | null;
-  autoName: string | null;
+  autoName?: string | null;
   metadata: ItemMetadata;
   metadataStatus: MetadataStatus;
   qrCode: string | null;

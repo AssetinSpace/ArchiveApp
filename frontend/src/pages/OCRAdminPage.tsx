@@ -92,9 +92,21 @@ export function OCRAdminPage() {
     total: 0,
   };
 
+  const engine = status.engine ?? "gemini";
+  const engineLabel = engine === "gemini" ? "Gemini Vision" : "Tesseract";
+
   return (
     <div className="stack">
-      <h1>OCR Admin</h1>
+      <div className="row" style={{ alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+        <h1 style={{ margin: 0 }}>OCR Admin</h1>
+        <span
+          className="badge badge-na_mieste"
+          title="OCR_ENGINE na serveri"
+          style={{ fontSize: 13 }}
+        >
+          Engine: {engineLabel}
+        </span>
+      </div>
 
       {statusQ.isLoading && <p className="muted">Načítavam štatistiky…</p>}
       {statusQ.error && (
@@ -272,7 +284,11 @@ function FailedRow({
 // ─── RecentRow ───────────────────────────────────────────────────────────────
 
 function RecentRow({ photo }: { photo: RecentOcrPhoto }) {
-  const typeLabel = TYPE_LABEL[photo.item_type_code] ?? photo.item_type_code;
+  const kind = photo.item_kind ?? photo.item_type_code ?? "";
+  const typeLabel =
+    photo.item_level != null
+      ? `L${photo.item_level} ${TYPE_LABEL[kind] ?? kind}`
+      : TYPE_LABEL[kind] ?? kind;
   const statusBadge = (() => {
     if (photo.ocr_status === "PENDING")
       return <span className="photo-badge-pending">PENDING</span>;
@@ -301,7 +317,7 @@ function RecentRow({ photo }: { photo: RecentOcrPhoto }) {
       />
       <div className="ocr-recent-meta">
         <div className="ocr-recent-name-row">
-          <span className={`badge badge-${photo.item_type_code.toLowerCase()}`}>
+          <span className={`badge badge-${kind.toLowerCase()}`}>
             {typeLabel}
           </span>
           {statusBadge}

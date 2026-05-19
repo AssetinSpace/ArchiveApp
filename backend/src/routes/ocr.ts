@@ -10,6 +10,30 @@ import { z } from "zod";
 import { prisma } from "../prisma.js";
 import { processPending, processPhoto } from "../services/ocr.js";
 import { getSignedUrlForKey } from "../services/r2.js";
+import {
+  getOcrEngine,
+  processOverviewForName,
+  processPendingVision,
+  processPhotoWithVision,
+} from "../services/visionProcessing.js";
+
+async function runPhotoOcr(photoId: string): Promise<void> {
+  const engine = getOcrEngine();
+  if (engine === "gemini") {
+    const photo = await prisma.photo.findFirst({
+      where: { id: photoId, deleted_at: null },
+      select: { photo_type: true },
+    });
+    if (!photo) return;
+    if (photo.photo_type === "OVERVIEW") {
+      await processOverviewForName(photoId);
+    } else {
+      await processPhotoWithVision(photoId);
+    }
+    return;
+  }
+  await processPhoto(photoId);
+}
 
 export const ocrRouter: Router = Router();
 
@@ -31,6 +55,12 @@ ocrRouter.post("/process-pending", async (req, res, next) => {
   try {
     const body = ProcessPendingSchema.parse(req.body ?? {});
     const limit = body.limit ?? 50;
+    const engine = getOcrEngine();
+
+    if (engine === "gemini" && !process.env.GEMINI_API_KEY) {
+      res.status(503).json({ error: "GEMINI_API_KEY nie je nastavený" });
+      return;
+    }
 
     // photo_type = 'LABEL' filter — OVERVIEW fotky nikdy nevstupujú do OCR
     // (Sprint 6). Bez tohto filtra by sa síce OVERVIEW nemali v PENDING
@@ -46,12 +76,16 @@ ocrRouter.post("/process-pending", async (req, res, next) => {
     const queuedCount = Math.min(pendingCount, limit);
 
     setImmediate(() => {
-      processPending(limit).catch((err) => {
-        console.error("[ocr] batch process-pending error:", err);
+      const batch =
+        engine === "gemini"
+          ? processPendingVision(limit)
+          : processPending(limit);
+      batch.catch((err) => {
+        console.error(`[ocr] batch process-pending (${engine}) error:`, err);
       });
     });
 
-    res.json({ started: true, queuedCount });
+    res.json({ started: true, queuedCount, engine });
   } catch (e) {
     next(e);
   }
@@ -82,7 +116,13 @@ ocrRouter.get("/status", async (_req, res, next) => {
       else if (g.ocr_status === "FAILED") failed = count;
     }
 
-    res.json({ pending, done, failed, total: pending + done + failed });
+    res.json({
+      pending,
+      done,
+      failed,
+      total: pending + done + failed,
+      engine: getOcrEngine(),
+    });
   } catch (e) {
     next(e);
   }
@@ -116,7 +156,13 @@ ocrRouter.post("/retry/:photoId", async (req, res, next) => {
       data: { ocr_status: "PENDING", ocr_raw_text: null },
     });
 
-    await processPhoto(photoId);
+    const engine = getOcrEngine();
+    if (engine === "gemini" && !process.env.GEMINI_API_KEY) {
+      res.status(503).json({ error: "GEMINI_API_KEY nie je nastavený" });
+      return;
+    }
+
+    await runPhotoOcr(photoId);
 
     const after = await prisma.photo.findUnique({
       where: { id: photoId },
@@ -182,7 +228,7 @@ ocrRouter.get("/recent", async (req, res, next) => {
         ocr_status: true,
         ocr_raw_text: true,
         created_at: true,
-        item: { select: { name: true, type_code: true } },
+        item: { select: { name: true, level: true, kind: true, type_code: true } },
       },
     });
 
@@ -191,6 +237,8 @@ ocrRouter.get("/recent", async (req, res, next) => {
         id: p.id,
         item_id: p.item_id,
         item_name: p.item.name,
+        item_level: p.item.level,
+        item_kind: p.item.kind,
         item_type_code: p.item.type_code,
         signed_url: await getSignedUrlForKey(p.storage_key),
         ocr_status: p.ocr_status,

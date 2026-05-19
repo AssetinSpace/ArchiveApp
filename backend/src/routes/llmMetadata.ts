@@ -155,6 +155,8 @@ llmMetadataRouter.get("/pending-review", async (req, res, next) => {
       skip: offset,
       select: {
         id: true,
+        level: true,
+        kind: true,
         type_code: true,
         name: true,
         auto_name: true,
@@ -198,7 +200,9 @@ llmMetadataRouter.get("/pending-review", async (req, res, next) => {
           : null;
         return {
           id: it.id,
-          typeCode: it.type_code,
+          level: it.level,
+          kind: it.kind,
+          typeCode: it.type_code ?? it.kind,
           name: it.name,
           autoName: it.auto_name,
           metadata: (it.metadata ?? {}) as MetadataPayload,

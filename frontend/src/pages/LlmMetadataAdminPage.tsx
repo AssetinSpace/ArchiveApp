@@ -357,7 +357,7 @@ function MetadataReviewCard({ item }: { item: PendingMetadataReviewItem }) {
     item.path.length > 0
       ? item.path
           .slice(0, -1)
-          .map((n) => n.name ?? n.type_code)
+          .map((n) => n.name ?? n.kind)
           .join(" › ")
       : "";
 
@@ -386,8 +386,8 @@ function MetadataReviewCard({ item }: { item: PendingMetadataReviewItem }) {
           <div className="llm-review-breadcrumb">{breadcrumb}</div>
         )}
         <div className="llm-review-header-row">
-          <span className={`badge badge-${item.typeCode.toLowerCase()}`}>
-            {TYPE_LABEL[item.typeCode] ?? item.typeCode}
+          <span className={`badge badge-${item.kind.toLowerCase()}`}>
+            L{item.level} {TYPE_LABEL[item.kind] ?? item.kind}
           </span>
           <Link
             to={`/items/${item.id}`}

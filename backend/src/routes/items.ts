@@ -28,6 +28,9 @@ async function validateLevelParent(
   if (parent.level >= level) {
     return `Child level (${level}) musí byť väčší ako parent level (${parent.level})`;
   }
+  if (level > parent.level + 1) {
+    return `Child level (${level}) musí byť najviac parent level + 1 (${parent.level + 1})`;
+  }
   if (parent.level === 7) {
     return "L7 nemôže mať deti";
   }

@@ -87,7 +87,9 @@ export function ItemDetailPage() {
   const item = itemQ.data;
   const showMetadataBanner = item.metadata_status === "EXTRACTED";
   const showOcrNameBanner =
-    !!item.ocr_name_suggestion && item.name_source === "GENERATED";
+    !!item.ocr_name_suggestion &&
+    item.name_source === "GENERATED" &&
+    [2, 3].includes(item.level);
   const showMetadataReadonly =
     item.metadata_status === "REVIEWED" &&
     !!item.metadata &&
@@ -416,12 +418,21 @@ function ItemEditor({
   }, [item.id, item.status, item.note, item.name]);
 
   const mut = useMutation({
-    mutationFn: () =>
-      api.updateItem(item.id, {
+    mutationFn: async () => {
+      const trimmedName = name.trim();
+      const trimmedNote = note.trim() || null;
+      const nameChanged = trimmedName !== (item.name ?? "").trim();
+      if (nameChanged) {
+        if (!trimmedName) {
+          throw new Error("Názov nemôže byť prázdny");
+        }
+        await api.updateItemName(item.id, trimmedName);
+      }
+      await api.updateItem(item.id, {
         status,
-        note: note.trim() || null,
-        name: name.trim() || null,
-      }),
+        note: trimmedNote,
+      });
+    },
     onSuccess: async () => {
       setError(null);
       await onSaved();

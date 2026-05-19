@@ -5,6 +5,19 @@ import { randomUUID } from "node:crypto";
 import { prisma } from "../prisma.js";
 import { uploadToR2, getSignedUrlForKey } from "../services/r2.js";
 import { processPhoto } from "../services/ocr.js";
+import {
+  getOcrEngine,
+  processOverviewForName,
+} from "../services/visionProcessing.js";
+
+function runOverviewOcr(photoId: string): void {
+  const engine = getOcrEngine();
+  const run =
+    engine === "gemini" ? processOverviewForName(photoId) : processPhoto(photoId);
+  run.catch((err) => {
+    console.error(`[photos] OVERVIEW OCR for ${photoId} failed:`, err);
+  });
+}
 
 export const photosRouter: Router = Router();
 
@@ -155,9 +168,7 @@ photosRouter.post(
       const signedUrl = await getSignedUrlForKey(storageKey);
 
       if (overviewOcrForName) {
-        processPhoto(photo.id).catch((err) => {
-          console.error(`[photos] OVERVIEW OCR for ${photo.id} failed:`, err);
-        });
+        runOverviewOcr(photo.id);
       }
 
       res.status(201).json({

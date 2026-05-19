@@ -193,7 +193,6 @@ exportRouter.get("/csv", async (_req, res, next) => {
     const header = joinCsvRow([
       "id",
       "qrCode",
-      "typeCode",
       "name",
       "level",
       "kind",
@@ -257,7 +256,6 @@ exportRouter.get("/csv", async (_req, res, next) => {
         joinCsvRow([
           item.id,
           item.qr_code ?? "",
-          item.type_code ?? "",
           item.name,
           item.level,
           item.kind,
@@ -308,8 +306,6 @@ type JsonNode = {
   kind: string;
   name: string;
   name_source: string;
-  type_code: string | null;
-  auto_name: string | null;
   metadata: unknown;
   metadata_status: string;
   parent_id: string | null;
@@ -356,8 +352,6 @@ exportRouter.get("/json", async (_req, res, next) => {
         kind: item.kind,
         name: item.name,
         name_source: item.name_source,
-        type_code: item.type_code,
-        auto_name: item.auto_name,
         metadata: item.metadata,
         metadata_status: item.metadata_status,
         parent_id: item.parent_id,
