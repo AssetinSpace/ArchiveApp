@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   api,
@@ -25,9 +25,13 @@ import {
 // Stats: 4 čísla navrchu viditeľné vždy
 //
 // S Gemini Vision (default) jeden batch call uloží OCR text aj metadata naraz.
-// Fallback batch extraction (tesseract path) je dostupná cez Item detail.
+// Textová extrakcia metadata (Tesseract / re-run) a review sú len na tejto stránke.
 
 type ProcessingTab = "photos" | "review";
+
+function isProcessingTab(value: string | null): value is ProcessingTab {
+  return value === "photos" || value === "review";
+}
 
 const OCR_STATUS_KEY = ["ocr-status"] as const;
 const FAILED_KEY = ["ocr-failed"] as const;
@@ -38,15 +42,39 @@ const PAGE_SIZE = 20;
 
 export function OCRAdminPage() {
   const qc = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // ── Tab state ──────────────────────────────────────────────────────────────
-  const [activeTab, setActiveTab] = useState<ProcessingTab>("photos");
+  const tabParam = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState<ProcessingTab>(() =>
+    isProcessingTab(tabParam) ? tabParam : "photos",
+  );
+
+  useEffect(() => {
+    if (isProcessingTab(tabParam)) setActiveTab(tabParam);
+  }, [tabParam]);
+
+  function selectTab(next: ProcessingTab) {
+    setActiveTab(next);
+    const nextParams = new URLSearchParams(searchParams);
+    if (next === "photos") {
+      nextParams.delete("tab");
+    } else {
+      nextParams.set("tab", next);
+    }
+    setSearchParams(nextParams, { replace: true });
+  }
 
   // ── Foto processing state ──────────────────────────────────────────────────
   const [isOcrProcessing, setIsOcrProcessing] = useState(false);
   const queuedRef = useRef<number>(0);
   const previousPendingRef = useRef<number>(0);
   const [ocrCompletedBanner, setOcrCompletedBanner] = useState<number | null>(null);
+  const [metadataCompletedBanner, setMetadataCompletedBanner] = useState<{
+    processed: number;
+    extracted: number;
+    failed: number;
+  } | null>(null);
+  const [isMetadataProcessing, setIsMetadataProcessing] = useState(false);
   const [reviewOffset, setReviewOffset] = useState(0);
 
   // ── Queries ────────────────────────────────────────────────────────────────
@@ -101,6 +129,36 @@ export function OCRAdminPage() {
     },
   });
 
+  const metadataStartMut = useMutation({
+    mutationFn: () => api.processLlmMetadata(),
+    onMutate: () => {
+      setMetadataCompletedBanner(null);
+      setIsMetadataProcessing(true);
+    },
+    onSettled: (data) => {
+      setIsMetadataProcessing(false);
+      if (data) {
+        const extracted = data.results.filter(
+          (r) =>
+            !r.error &&
+            r.metadata &&
+            Object.values(r.metadata).some(
+              (v) => typeof v === "string" && v.trim() !== "",
+            ),
+        ).length;
+        const failed = data.results.filter((r) => r.error).length;
+        setMetadataCompletedBanner({
+          processed: data.processed,
+          extracted,
+          failed,
+        });
+      }
+      qc.invalidateQueries({ queryKey: LLM_STATUS_KEY });
+      qc.invalidateQueries({ queryKey: PENDING_KEY });
+      qc.invalidateQueries({ queryKey: ["items"] });
+    },
+  });
+
   // ── Detect OCR batch completion ────────────────────────────────────────────
   useEffect(() => {
     if (!ocrStatusQ.data) return;
@@ -139,6 +197,11 @@ export function OCRAdminPage() {
   const pendingPhotos = recentQ.data?.filter((p) => p.ocr_status === "PENDING") ?? [];
   const donePhotos = recentQ.data?.filter((p) => p.ocr_status === "DONE") ?? [];
   const reviewCount = pendingReviewQ.data?.total ?? llmStatus.extracted;
+  const metadataStartDisabled =
+    llmStatus.noApiKey ||
+    llmStatus.eligible === 0 ||
+    isMetadataProcessing ||
+    metadataStartMut.isPending;
 
   return (
     <div className="stack">
@@ -175,7 +238,7 @@ export function OCRAdminPage() {
         <button
           type="button"
           className={`item-detail-tab${activeTab === "photos" ? " item-detail-tab-active" : ""}`}
-          onClick={() => setActiveTab("photos")}
+          onClick={() => selectTab("photos")}
           aria-current={activeTab === "photos" ? "page" : undefined}
         >
           Fotky
@@ -188,7 +251,7 @@ export function OCRAdminPage() {
         <button
           type="button"
           className={`item-detail-tab${activeTab === "review" ? " item-detail-tab-active" : ""}`}
-          onClick={() => setActiveTab("review")}
+          onClick={() => selectTab("review")}
           aria-current={activeTab === "review" ? "page" : undefined}
         >
           Review
@@ -233,6 +296,78 @@ export function OCRAdminPage() {
           {isOcrProcessing && (
             <p className="muted" style={{ marginTop: 8 }}>
               Spracovanie beží na pozadí. Štatistiky sa aktualizujú každé 3 sekundy.
+            </p>
+          )}
+
+          <hr style={{ margin: "20px 0", border: "none", borderTop: "1px solid #e5e7eb" }} />
+
+          <h3 style={{ margin: "0 0 8px", fontSize: 15 }}>Metadata z OCR textu</h3>
+          <p className="muted" style={{ margin: "0 0 12px", fontSize: 13 }}>
+            {engine === "gemini"
+              ? "Pri Gemini Vision sa metadata zvyčajne uložia už pri spracovaní fotky. Toto tlačidlo je pre položky s hotovým OCR, ktoré ešte nemajú návrh metadát (napr. po Tesseract behu)."
+              : "Po Tesseract OCR spustite textovú extrakciu metadát. Potom potvrďte návrhy na záložke Review."}
+          </p>
+
+          {metadataCompletedBanner && (
+            <div className="ocr-banner-success" style={{ marginBottom: 12 }}>
+              ✓ Hotovo — spracovaných {metadataCompletedBanner.processed}{" "}
+              {plural(metadataCompletedBanner.processed, "položka", "položky", "položiek")}
+              {", "}
+              {metadataCompletedBanner.extracted}{" "}
+              {plural(metadataCompletedBanner.extracted, "návrh", "návrhy", "návrhov")}
+              {metadataCompletedBanner.failed > 0 && (
+                <>
+                  {", "}
+                  <span style={{ color: "#b91c1c", fontWeight: 600 }}>
+                    {metadataCompletedBanner.failed}{" "}
+                    {plural(metadataCompletedBanner.failed, "chyba", "chyby", "chýb")}
+                  </span>
+                </>
+              )}
+            </div>
+          )}
+
+          <button
+            type="button"
+            className="btn-primary ocr-process-btn"
+            disabled={metadataStartDisabled}
+            onClick={() => metadataStartMut.mutate()}
+          >
+            {isMetadataProcessing
+              ? "Extrahujem metadata…"
+              : metadataStartMut.isPending
+                ? "Spúšťam…"
+                : llmStatus.noApiKey
+                  ? "Chýba GEMINI_API_KEY"
+                  : llmStatus.eligible === 0
+                    ? "Žiadne položky na extrakciu"
+                    : `Extrahovať metadata z OCR (${llmStatus.eligible})`}
+          </button>
+
+          {metadataStartMut.error && (
+            <p className="error" style={{ marginTop: 8 }}>
+              Chyba: {(metadataStartMut.error as Error).message}
+            </p>
+          )}
+          {isMetadataProcessing && (
+            <p className="muted" style={{ marginTop: 8 }}>
+              Sériové volania Gemini z uloženého OCR textu (~3 s na položku).
+            </p>
+          )}
+
+          {llmStatus.extracted > 0 && (
+            <p className="muted" style={{ marginTop: 12, fontSize: 13 }}>
+              {llmStatus.extracted}{" "}
+              {plural(llmStatus.extracted, "návrh", "návrhy", "návrhov")} čaká na potvrdenie —{" "}
+              <button
+                type="button"
+                className="btn-link"
+                onClick={() => selectTab("review")}
+                style={{ padding: 0, minHeight: 0, fontSize: "inherit" }}
+              >
+                prejsť na Review
+              </button>
+              .
             </p>
           )}
 

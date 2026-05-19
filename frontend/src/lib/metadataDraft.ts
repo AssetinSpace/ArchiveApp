@@ -37,12 +37,16 @@ export function metadataColumnId(key: string): string {
   return `meta_${key}`;
 }
 
-/** Stĺpce tabuľky: známe polia v pevnom poradí + ďalšie kľúče z inventára (AI / vlastné). */
+/** Stĺpce tabuľky: známe polia + registr z localStorage + kľúče z inventára (AI / vlastné). */
 export function metadataTableColumnKeys(
   items: Pick<InventoryItem, "metadata">[],
+  registryKeys: string[] = [],
 ): string[] {
   const knownSet = new Set<string>(KNOWN_METADATA_KEYS);
   const extra = new Set<string>();
+  for (const k of registryKeys) {
+    if (typeof k === "string" && k.trim()) extra.add(k);
+  }
   for (const item of items) {
     for (const k of Object.keys(item.metadata ?? {})) {
       if (typeof k === "string" && k.trim()) extra.add(k);

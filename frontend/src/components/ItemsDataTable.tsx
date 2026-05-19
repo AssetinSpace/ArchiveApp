@@ -30,9 +30,13 @@ import {
 import {
   metadataColumnId,
   metadataFieldLabel,
-  metadataTableColumnKeys,
 } from "../lib/metadataDraft";
+import { useItemsTableColumnPrefs } from "../hooks/useItemsTableColumnPrefs";
 import { useItemsTableUrlState } from "../hooks/useItemsTableUrlState";
+import {
+  ItemsTableColumnsModal,
+  type ColumnPickerEntry,
+} from "./ItemsTableColumnsModal";
 
 const STATUS_LABEL: Record<string, string> = {
   NA_MIESTE: "Na mieste",
@@ -90,6 +94,7 @@ function formatDate(iso: string): string {
 export function ItemsDataTable() {
   const url = useItemsTableUrlState();
   const qc = useQueryClient();
+  const [columnsModalOpen, setColumnsModalOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const inventoryQ = useQuery({
     queryKey: ["items", "inventory"],
@@ -128,10 +133,9 @@ export function ItemsDataTable() {
 
   const allItems = inventoryQ.data ?? [];
 
-  const metadataColumnKeys = useMemo(
-    () => metadataTableColumnKeys(allItems),
-    [allItems],
-  );
+  const columnPrefs = useItemsTableColumnPrefs(allItems);
+  const { hiddenColumns, shownColumns, metadataColumnKeys, applyColumnVisibility } =
+    columnPrefs;
 
   const descendantCountById = useMemo(() => {
     const map = new Map<string, number>();
@@ -210,20 +214,7 @@ export function ItemsDataTable() {
     }
   }, [hasAnyFilter, treeData]);
 
-  // ── Stĺpce dropdown ──────────────────────────────────────────────────────
-  const [columnsOpen, setColumnsOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const columnsRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!columnsOpen) return;
-    function onDown(e: MouseEvent) {
-      if (columnsRef.current && !columnsRef.current.contains(e.target as Node)) {
-        setColumnsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, [columnsOpen]);
 
   useEffect(() => {
     function onFullscreenChange() {
@@ -325,16 +316,61 @@ export function ItemsDataTable() {
 
   const columnVisibility = useMemo((): VisibilityState => {
     const vis: VisibilityState = {};
-    for (const col of url.hiddenColumns) vis[col] = false;
+    for (const col of hiddenColumns) vis[col] = false;
     for (const id of DEFAULT_HIDDEN) {
-      if (!url.shownColumns.has(id)) vis[id] = false;
+      if (!shownColumns.has(id)) vis[id] = false;
     }
     for (const key of metadataColumnKeys) {
       const id = metadataColumnId(key);
-      if (!url.shownColumns.has(id)) vis[id] = false;
+      if (!shownColumns.has(id)) vis[id] = false;
     }
     return vis;
-  }, [url.hiddenColumns, url.shownColumns, metadataColumnKeys]);
+  }, [hiddenColumns, shownColumns, metadataColumnKeys]);
+
+  const columnPickerEntries = useMemo((): ColumnPickerEntry[] => {
+    const baseOrder = [
+      "level",
+      "kind",
+      "name",
+      "name_source",
+      "metadata_status",
+      "qr_code",
+      "status",
+      "note",
+      "children",
+      "photos",
+      "created_at",
+      "updated_at",
+    ];
+    const base: ColumnPickerEntry[] = baseOrder.map((id) => ({
+      id,
+      label: columnDisplayLabel(id),
+      group: "base",
+    }));
+    const meta: ColumnPickerEntry[] = metadataColumnKeys.map((key) => ({
+      id: metadataColumnId(key),
+      label: metadataFieldLabel(key),
+      group: "metadata",
+    }));
+    return [...base, ...meta];
+  }, [metadataColumnKeys]);
+
+  const visibleColumnIds = useMemo(() => {
+    const visible = new Set<string>();
+    for (const entry of columnPickerEntries) {
+      const id = entry.id;
+      if (hiddenColumns.has(id)) continue;
+      if (DEFAULT_HIDDEN.has(id) && !shownColumns.has(id)) continue;
+      if (id.startsWith("meta_") && !shownColumns.has(id)) continue;
+      visible.add(id);
+    }
+    return visible;
+  }, [columnPickerEntries, hiddenColumns, shownColumns]);
+
+  const toggleableIds = useMemo(
+    () => columnPickerEntries.map((e) => e.id),
+    [columnPickerEntries],
+  );
 
   // ── Definícia stĺpcov ─────────────────────────────────────────────────────
   const columns = useMemo((): ColumnDef<InventoryTreeRow>[] => [
@@ -597,33 +633,10 @@ export function ItemsDataTable() {
     url.setLevelFilters(next);
   }
 
-  function toggleColumn(colId: string) {
-    const col = table.getColumn(colId);
-    if (!col) return;
-    const nextHidden = new Set(url.hiddenColumns);
-    const nextShown = new Set(url.shownColumns);
-    const isDefaultHidden =
-      DEFAULT_HIDDEN.has(colId) || colId.startsWith("meta_");
-
-    if (col.getIsVisible()) {
-      nextHidden.add(colId);
-      if (isDefaultHidden) nextShown.delete(colId);
-    } else {
-      nextHidden.delete(colId);
-      if (isDefaultHidden) nextShown.add(colId);
-    }
-    url.setHiddenColumns(nextHidden);
-    url.setShownColumns(nextShown);
-  }
-
   if (inventoryQ.isLoading) return <p className="muted">Načítavam inventár…</p>;
   if (inventoryQ.error) {
     return <p className="error">Chyba: {(inventoryQ.error as Error).message}</p>;
   }
-
-  const toggleableColumns = table
-    .getAllLeafColumns()
-    .filter((c) => c.id !== "expand" && c.id !== "delete" && c.getCanHide());
 
   const matchCount = coreMatches.length;
 
@@ -720,29 +733,13 @@ export function ItemsDataTable() {
             >⬆</button>
           </div>
 
-          <div className="items-table-columns-wrap" ref={columnsRef}>
-            <button
-              type="button"
-              className={`items-table-chip ${columnsOpen ? "items-table-chip-active" : ""}`}
-              onClick={() => setColumnsOpen((v) => !v)}
-            >
-              Stĺpce ▾
-            </button>
-            {columnsOpen && (
-              <div className="items-table-columns-menu">
-                {toggleableColumns.map((col) => (
-                  <label key={col.id} className="items-table-check">
-                    <input
-                      type="checkbox"
-                      checked={col.getIsVisible()}
-                      onChange={() => toggleColumn(col.id)}
-                    />
-                    {columnDisplayLabel(col.id)}
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
+          <button
+            type="button"
+            className={`items-table-chip ${columnsModalOpen ? "items-table-chip-active" : ""}`}
+            onClick={() => setColumnsModalOpen(true)}
+          >
+            Stĺpce…
+          </button>
 
           {hasAnyFilter && (
             <button type="button" className="items-table-chip" onClick={url.clearFilters}>
@@ -824,6 +821,17 @@ export function ItemsDataTable() {
           </table>
         </div>
       </div>
+
+      <ItemsTableColumnsModal
+        open={columnsModalOpen}
+        entries={columnPickerEntries}
+        visibleIds={visibleColumnIds}
+        onClose={() => setColumnsModalOpen(false)}
+        onApply={(visible) => {
+          applyColumnVisibility(visible, toggleableIds);
+          setColumnsModalOpen(false);
+        }}
+      />
     </div>
   );
 }

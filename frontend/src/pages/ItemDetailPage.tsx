@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -16,26 +16,21 @@ import {
   type PhotoType,
   type Status,
 } from "../api";
-import {
-  metadataEditKeys,
-  metadataFieldLabel,
-  normalizeMetadataDraft,
-  serializeMetadataDraft,
-} from "../lib/metadataDraft";
+import { metadataFieldLabel } from "../lib/metadataDraft";
 import { AutoNamePreview } from "../components/AutoNamePreview";
 import { PhotoUpload } from "../components/PhotoUpload";
 import { PhotoGallery } from "../components/PhotoGallery";
 
 const STATUS_LABEL: Record<Status, string> = {
   NA_MIESTE: "Na mieste",
-  VYNESENE: "Vynesené",
-  NEZNAME: "Neznáme",
+  VYNESENE: "VynesenĂ©",
+  NEZNAME: "NeznĂˇme",
 };
 
 const NAME_SOURCE_LABEL: Record<NameSource, string> = {
   GENERATED: "auto",
   OCR: "z OCR",
-  MANUAL: "ručne",
+  MANUAL: "ruÄŤne",
 };
 
 type DetailTab = "edit" | "qr" | "photos" | "children";
@@ -81,13 +76,13 @@ export function ItemDetailPage() {
     enabled: !!id,
   });
 
-  if (itemQ.isLoading) return <p className="muted">Načítavam…</p>;
+  if (itemQ.isLoading) return <p className="muted">NaÄŤĂ­tavamâ€¦</p>;
   if (itemQ.error)
     return <p className="error">Chyba: {(itemQ.error as Error).message}</p>;
-  if (!itemQ.data) return <p className="muted">Položka nenájdená.</p>;
+  if (!itemQ.data) return <p className="muted">PoloĹľka nenĂˇjdenĂˇ.</p>;
 
   const item = itemQ.data;
-  const showMetadataBanner = item.metadata_status === "EXTRACTED";
+  const showMetadataReviewNotice = item.metadata_status === "EXTRACTED";
   const showOcrNameBanner =
     !!item.ocr_name_suggestion &&
     item.name_source === "GENERATED" &&
@@ -97,10 +92,10 @@ export function ItemDetailPage() {
     !!item.metadata &&
     Object.values(item.metadata).some((v) => typeof v === "string" && v.trim() !== "");
 
-  // Prefix-match invalidácia: jedna volanie pokryje všetky ["items", ...] queries
-  // (one/path/children/all/root) v celej aplikácii. Vraciame Promise, aby ho
-  // mohli mutácie awaitnúť — bez toho sa formulár stihne zavrieť skôr než refetch
-  // dorazí a children list ostane vizuálne neaktuálny do ďalšieho triggeru.
+  // Prefix-match invalidĂˇcia: jedna volanie pokryje vĹˇetky ["items", ...] queries
+  // (one/path/children/all/root) v celej aplikĂˇcii. Vraciame Promise, aby ho
+  // mohli mutĂˇcie awaitnĂşĹĄ â€” bez toho sa formulĂˇr stihne zavrieĹĄ skĂ´r neĹľ refetch
+  // dorazĂ­ a children list ostane vizuĂˇlne neaktuĂˇlny do ÄŹalĹˇieho triggeru.
   async function invalidateAll() {
     await Promise.all([
       qc.invalidateQueries({ queryKey: ["items"] }),
@@ -117,29 +112,23 @@ export function ItemDetailPage() {
           return (
             <span key={node.id} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
               {isLast ? (
-                <span style={{ fontWeight: 600 }}>{node.name ?? "(bez názvu)"}</span>
+                <span style={{ fontWeight: 600 }}>{node.name ?? "(bez nĂˇzvu)"}</span>
               ) : (
-                <Link to={`/items/${node.id}`}>{node.name ?? "(bez názvu)"}</Link>
+                <Link to={`/items/${node.id}`}>{node.name ?? "(bez nĂˇzvu)"}</Link>
               )}
-              {!isLast && <span className="breadcrumb-sep">›</span>}
+              {!isLast && <span className="breadcrumb-sep">â€ş</span>}
             </span>
           );
         })}
       </nav>
 
-      {item.metadata_status === "NONE" && (
-        <MetadataExtractSection itemId={item.id} onDone={invalidateAll} />
-      )}
-
-      {showMetadataBanner && (
-        <MetadataBanner item={item} onDone={invalidateAll} />
-      )}
+      {showMetadataReviewNotice && <MetadataReviewLinkNotice />}
 
       {showOcrNameBanner && (
         <OcrNameBanner item={item} onDone={invalidateAll} />
       )}
 
-      {/* Základné metadáta */}
+      {/* ZĂˇkladnĂ© metadĂˇta */}
       <section className="card item-detail-header">
         <h1 style={{ marginBottom: 8 }}>{item.name}</h1>
         <div className="row" style={{ marginBottom: item.note ? 0 : 12, flexWrap: "wrap" }}>
@@ -160,8 +149,8 @@ export function ItemDetailPage() {
         </div>
         {item.note && <p className="item-detail-note">{item.note}</p>}
         <dl className="info-list" style={{ margin: item.note ? "12px 0 0" : 0 }}>
-          <InfoRow label="Vytvorené" value={new Date(item.created_at).toLocaleString("sk-SK")} />
-          <InfoRow label="Upravené" value={new Date(item.updated_at).toLocaleString("sk-SK")} />
+          <InfoRow label="VytvorenĂ©" value={new Date(item.created_at).toLocaleString("sk-SK")} />
+          <InfoRow label="UpravenĂ©" value={new Date(item.updated_at).toLocaleString("sk-SK")} />
         </dl>
         {showMetadataReadonly && item.metadata && (
           <ReadonlyMetadataList metadata={item.metadata} />
@@ -175,7 +164,7 @@ export function ItemDetailPage() {
           onClick={() => setActiveTab("edit")}
           aria-current={activeTab === "edit" ? "page" : undefined}
         >
-          Upraviť
+          UpraviĹĄ
         </button>
         <button
           type="button"
@@ -183,7 +172,7 @@ export function ItemDetailPage() {
           onClick={() => setActiveTab("qr")}
           aria-current={activeTab === "qr" ? "page" : undefined}
         >
-          QR kód
+          QR kĂłd
         </button>
         <button
           type="button"
@@ -199,7 +188,7 @@ export function ItemDetailPage() {
           onClick={() => setActiveTab("children")}
           aria-current={activeTab === "children" ? "page" : undefined}
         >
-          Podradené
+          PodradenĂ©
           {!childrenQ.isLoading && (
             <span style={{ marginLeft: 4, opacity: activeTab === "children" ? 0.9 : 0.7 }}>
               ({childrenQ.data?.length ?? 0})
@@ -210,7 +199,7 @@ export function ItemDetailPage() {
 
       {activeTab === "edit" && (
         <section className="card item-detail-panel">
-          <h2>Stav a poznámka</h2>
+          <h2>Stav a poznĂˇmka</h2>
           <ItemEditor item={item} onSaved={invalidateAll} />
           <ItemDeleteSection
             item={item}
@@ -222,7 +211,7 @@ export function ItemDetailPage() {
 
       {activeTab === "qr" && (
         <section className="card item-detail-panel">
-          <h2>QR kód</h2>
+          <h2>QR kĂłd</h2>
           <QRSection item={item} onAssigned={invalidateAll} />
         </section>
       )}
@@ -239,10 +228,10 @@ export function ItemDetailPage() {
 
       {activeTab === "children" && (
         <section className="card item-detail-panel">
-          <h2>Podradené položky ({childrenQ.data?.length ?? 0})</h2>
-          {childrenQ.isLoading && <p className="muted">Načítavam…</p>}
+          <h2>PodradenĂ© poloĹľky ({childrenQ.data?.length ?? 0})</h2>
+          {childrenQ.isLoading && <p className="muted">NaÄŤĂ­tavamâ€¦</p>}
           {childrenQ.data && childrenQ.data.length === 0 && (
-            <p className="muted">Žiadne podradené položky</p>
+            <p className="muted">Ĺ˝iadne podradenĂ© poloĹľky</p>
           )}
           {childrenQ.data?.map((c) => (
             <Link key={c.id} to={`/items/${c.id}`} className="card-link">
@@ -250,7 +239,7 @@ export function ItemDetailPage() {
                 <span className={`badge badge-${c.kind.toLowerCase()}`}>
                   L{c.level} {TYPE_LABEL[c.kind] ?? c.kind}
                 </span>
-                <strong style={{ flexGrow: 1 }}>{c.name ?? "(bez názvu)"}</strong>
+                <strong style={{ flexGrow: 1 }}>{c.name ?? "(bez nĂˇzvu)"}</strong>
               </div>
               {c.note && (
                 <p
@@ -273,14 +262,14 @@ export function ItemDetailPage() {
         </section>
       )}
 
-      {/* FAB — skrátený prístup k "Pridať podradeú položku" */}
+      {/* FAB â€” skrĂˇtenĂ˝ prĂ­stup k "PridaĹĄ podradeĂş poloĹľku" */}
       {item.level < 7 && createPortal(
         <button
           type="button"
           className="fab"
           onClick={() => setFabOpen(true)}
-          aria-label="Pridať podradeú položku"
-          title="Pridať podradeú položku"
+          aria-label="PridaĹĄ podradeĂş poloĹľku"
+          title="PridaĹĄ podradeĂş poloĹľku"
         >
           +
         </button>,
@@ -297,8 +286,8 @@ export function ItemDetailPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <h2 style={{ margin: 0 }}>Pridať podradeú položku</h2>
-              <button type="button" className="btn-ghost btn-small" onClick={() => setFabOpen(false)}>✕</button>
+              <h2 style={{ margin: 0 }}>PridaĹĄ podradeĂş poloĹľku</h2>
+              <button type="button" className="btn-ghost btn-small" onClick={() => setFabOpen(false)}>âś•</button>
             </div>
             <AddChildPanel
               parent={item}
@@ -316,7 +305,7 @@ export function ItemDetailPage() {
   );
 }
 
-// ─── Info row ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Info row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
@@ -338,7 +327,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-// ─── Delete item (soft) ───────────────────────────────────────────────────────
+// â”€â”€â”€ Delete item (soft) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function ItemDeleteSection({
   item,
@@ -368,13 +357,13 @@ function ItemDeleteSection({
     onError: (e: Error) => setError(e.message),
   });
 
-  const displayName = item.name ?? "(bez názvu)";
+  const displayName = item.name ?? "(bez nĂˇzvu)";
   const typeLabel = TYPE_LABEL[item.kind] ?? item.kind;
 
   function confirmDelete(cascade: boolean): void {
     const msg = cascade
-      ? `Naozaj zmazať „${displayName}" (L${item.level} ${typeLabel}) a všetkých ${descendantCount} podradených položiek (vrátane vnorených)?`
-      : `Naozaj zmazať položku „${displayName}" (L${item.level} ${typeLabel})?`;
+      ? `Naozaj zmazaĹĄ â€ž${displayName}" (L${item.level} ${typeLabel}) a vĹˇetkĂ˝ch ${descendantCount} podradenĂ˝ch poloĹľiek (vrĂˇtane vnorenĂ˝ch)?`
+      : `Naozaj zmazaĹĄ poloĹľku â€ž${displayName}" (L${item.level} ${typeLabel})?`;
     if (confirm(msg)) {
       deleteMut.mutate(cascade);
     }
@@ -382,17 +371,17 @@ function ItemDeleteSection({
 
   return (
     <div className="item-delete-section">
-      <h3 className="item-delete-heading">Zmazať položku</h3>
+      <h3 className="item-delete-heading">ZmazaĹĄ poloĹľku</h3>
       <p className="muted" style={{ margin: "0 0 12px" }}>
         {childCount > 0 ? (
           <>
-            Položka má{" "}
+            PoloĹľka mĂˇ{" "}
             <strong>{childCount}</strong>{" "}
             {childCount === 1
-              ? "priamu podradenú položku"
+              ? "priamu podradenĂş poloĹľku"
               : childCount < 5
-                ? "priame podradené položky"
-                : "priamych podradených položiek"}
+                ? "priame podradenĂ© poloĹľky"
+                : "priamych podradenĂ˝ch poloĹľiek"}
             {descendantsQ.isSuccess && descendantCount > childCount && (
               <>
                 {" "}
@@ -403,13 +392,13 @@ function ItemDeleteSection({
                     ? "potomkovia"
                     : "potomkov"}
                 {" "}
-                vrátane vnorených)
+                vrĂˇtane vnorenĂ˝ch)
               </>
             )}
-            . Môžete zmazať celú vetvu naraz.
+            . MĂ´Ĺľete zmazaĹĄ celĂş vetvu naraz.
           </>
         ) : (
-          <>Položka pôjde do koša (soft delete). Fotky v R2 a priradený QR kód zostanú v systéme.</>
+          <>PoloĹľka pĂ´jde do koĹˇa (soft delete). Fotky v R2 a priradenĂ˝ QR kĂłd zostanĂş v systĂ©me.</>
         )}
       </p>
       {error && <p className="error">{error}</p>}
@@ -421,7 +410,7 @@ function ItemDeleteSection({
             disabled={deleteMut.isPending}
             onClick={() => confirmDelete(false)}
           >
-            {deleteMut.isPending ? "Mažem…" : "Zmazať položku"}
+            {deleteMut.isPending ? "MaĹľemâ€¦" : "ZmazaĹĄ poloĹľku"}
           </button>
         )}
         {childCount > 0 && (
@@ -432,10 +421,10 @@ function ItemDeleteSection({
             onClick={() => confirmDelete(true)}
           >
             {deleteMut.isPending
-              ? "Mažem…"
+              ? "MaĹľemâ€¦"
               : descendantsQ.isLoading
-                ? "Počítam podradené…"
-                : `Zmazať vrátane podradených (${descendantCount})`}
+                ? "PoÄŤĂ­tam podradenĂ©â€¦"
+                : `ZmazaĹĄ vrĂˇtane podradenĂ˝ch (${descendantCount})`}
           </button>
         )}
       </div>
@@ -443,7 +432,7 @@ function ItemDeleteSection({
   );
 }
 
-// ─── Item editor (status + note) ──────────────────────────────────────────────
+// â”€â”€â”€ Item editor (status + note) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function ItemEditor({
   item,
@@ -470,7 +459,7 @@ function ItemEditor({
       const nameChanged = trimmedName !== (item.name ?? "").trim();
       if (nameChanged) {
         if (!trimmedName) {
-          throw new Error("Názov nemôže byť prázdny");
+          throw new Error("NĂˇzov nemĂ´Ĺľe byĹĄ prĂˇzdny");
         }
         await api.updateItemName(item.id, trimmedName);
       }
@@ -495,12 +484,12 @@ function ItemEditor({
       }}
     >
       <label className="form-label">
-        Názov
+        NĂˇzov
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="(bez názvu)"
+          placeholder="(bez nĂˇzvu)"
         />
       </label>
       <label className="form-label">
@@ -512,23 +501,23 @@ function ItemEditor({
         </select>
       </label>
       <label className="form-label">
-        Poznámka
+        PoznĂˇmka
         <textarea
           rows={3}
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="(voliteľné)"
+          placeholder="(voliteÄľnĂ©)"
         />
       </label>
       {error && <div className="error">{error}</div>}
       <button type="submit" className="btn-primary" disabled={mut.isPending}>
-        {mut.isPending ? "Ukladám…" : "Uložiť"}
+        {mut.isPending ? "UkladĂˇmâ€¦" : "UloĹľiĹĄ"}
       </button>
     </form>
   );
 }
 
-// ─── QR section ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ QR section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function QRSection({
   item,
@@ -592,11 +581,11 @@ function QRSection({
           type="button"
           className="btn-danger btn-small"
           onClick={() => {
-            if (confirm(`Naozaj uvoľniť QR kód ${item.qr_code}?`)) unassignMut.mutate();
+            if (confirm(`Naozaj uvoÄľniĹĄ QR kĂłd ${item.qr_code}?`)) unassignMut.mutate();
           }}
           disabled={unassignMut.isPending}
         >
-          {unassignMut.isPending ? "Uvoľňujem…" : "Uvoľniť QR"}
+          {unassignMut.isPending ? "UvoÄľĹujemâ€¦" : "UvoÄľniĹĄ QR"}
         </button>
       </div>
     );
@@ -605,10 +594,10 @@ function QRSection({
   return (
     <div className="stack">
       <p className="muted" style={{ margin: 0 }}>
-        Položka nemá pridelený QR kód.
+        PoloĹľka nemĂˇ pridelenĂ˝ QR kĂłd.
       </p>
 
-      {/* Primárna akcia: skenovanie */}
+      {/* PrimĂˇrna akcia: skenovanie */}
       <Link
         to={`/scan?assignTo=${item.id}`}
         style={{
@@ -626,10 +615,10 @@ function QRSection({
           fontSize: 16,
         }}
       >
-        ▣ Skenovať QR kód
+        â–Ł SkenovaĹĄ QR kĂłd
       </Link>
 
-      {/* Sekundárna akcia: manuálne zadanie (skryté) */}
+      {/* SekundĂˇrna akcia: manuĂˇlne zadanie (skrytĂ©) */}
       {!showManual ? (
         <button
           type="button"
@@ -637,7 +626,7 @@ function QRSection({
           onClick={() => setShowManual(true)}
           style={{ color: "#6b7280", fontSize: 13, minHeight: 44 }}
         >
-          Zadať QR kód ručne…
+          ZadaĹĄ QR kĂłd ruÄŤneâ€¦
         </button>
       ) : (
         <form
@@ -651,7 +640,7 @@ function QRSection({
           }}
         >
           <label className="form-label">
-            Kód
+            KĂłd
             <input
               type="text"
               value={codeInput}
@@ -666,10 +655,10 @@ function QRSection({
           <div className="row">
             <button type="submit" className="btn-primary" disabled={assignMut.isPending}
               style={{ flex: 1 }}>
-              {assignMut.isPending ? "Priradzujem…" : "Priradiť QR kód"}
+              {assignMut.isPending ? "Priradzujemâ€¦" : "PriradiĹĄ QR kĂłd"}
             </button>
             <button type="button" onClick={() => setShowManual(false)}>
-              Zrušiť
+              ZruĹˇiĹĄ
             </button>
           </div>
         </form>
@@ -678,7 +667,7 @@ function QRSection({
   );
 }
 
-// ─── Add child: výber metódy (QR / foto / ručný formulár) ─────────────────────
+// â”€â”€â”€ Add child: vĂ˝ber metĂłdy (QR / foto / ruÄŤnĂ˝ formulĂˇr) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const PHOTO_COMPRESS_THRESHOLD_BYTES = 2 * 1024 * 1024;
 const PHOTO_COMPRESS_OPTIONS = {
@@ -704,7 +693,7 @@ function AddChildPanel({
 
   if (parent.level >= 7) {
     return (
-      <p className="muted">Tento typ položky nemôže mať podradené položky.</p>
+      <p className="muted">Tento typ poloĹľky nemĂ´Ĺľe maĹĄ podradenĂ© poloĹľky.</p>
     );
   }
 
@@ -717,7 +706,7 @@ function AddChildPanel({
           onClick={() => setView("chooser")}
           style={{ alignSelf: "flex-start" }}
         >
-          ← Späť na výber
+          â† SpĂ¤ĹĄ na vĂ˝ber
         </button>
         <AddChildFormContent parent={parent} onAdded={onAdded} onCancel={onCancel} />
       </div>
@@ -757,23 +746,23 @@ function AddChildMethodChooser({
 
   const photoMut = useMutation({
     mutationFn: async (file: File) => {
-      if (!defaultKind) throw new Error("Neznáma úroveň položky");
+      if (!defaultKind) throw new Error("NeznĂˇma ĂşroveĹ poloĹľky");
       let payload: File = file;
       if (file.size > PHOTO_COMPRESS_THRESHOLD_BYTES) {
-        setBusyLabel("Komprimujem fotku…");
+        setBusyLabel("Komprimujem fotkuâ€¦");
         const compressed = await imageCompression(file, PHOTO_COMPRESS_OPTIONS);
         payload =
           compressed instanceof File
             ? compressed
             : new File([compressed], file.name, { type: file.type });
       }
-      setBusyLabel("Vytváram položku…");
+      setBusyLabel("VytvĂˇram poloĹľkuâ€¦");
       const item = await api.createItem({
         level: childLevel,
         kind: defaultKind,
         parent_id: parent.id,
       });
-      setBusyLabel("Nahrávam fotku…");
+      setBusyLabel("NahrĂˇvam fotkuâ€¦");
       await api.uploadPhoto(item.id, payload, photoType);
       return item;
     },
@@ -803,11 +792,11 @@ function AddChildMethodChooser({
   return (
     <div className="stack add-child-actions" style={{ gap: 10 }}>
       <p className="muted" style={{ margin: 0 }}>
-        Úroveň <strong>{childLevel}</strong>
+        ĂšroveĹ <strong>{childLevel}</strong>
         {defaultKind && (
           <>
             {" "}
-            · predvolený typ{" "}
+            Â· predvolenĂ˝ typ{" "}
             <strong>{TYPE_LABEL[defaultKind] ?? defaultKind}</strong>
           </>
         )}
@@ -819,12 +808,12 @@ function AddChildMethodChooser({
         onClick={onCancel}
       >
         <span className="add-child-action-icon" aria-hidden="true">
-          ▣
+          â–Ł
         </span>
         <span className="add-child-action-text">
-          <span className="add-child-action-title">Skenovať QR kód</span>
+          <span className="add-child-action-title">SkenovaĹĄ QR kĂłd</span>
           <span className="add-child-action-hint">
-            Vytvor položku a priraď nálepku
+            Vytvor poloĹľku a priraÄŹ nĂˇlepku
           </span>
         </span>
       </Link>
@@ -845,14 +834,14 @@ function AddChildMethodChooser({
         aria-disabled={busy}
       >
         <span className="add-child-action-icon" aria-hidden="true">
-          📷
+          đź“·
         </span>
         <span className="add-child-action-text">
           <span className="add-child-action-title">
-            {busy ? (busyLabel ?? "Pracujem…") : isLabelPhoto ? "Odfotiť štítok" : "Odfotiť položku"}
+            {busy ? (busyLabel ?? "Pracujemâ€¦") : isLabelPhoto ? "OdfotiĹĄ ĹˇtĂ­tok" : "OdfotiĹĄ poloĹľku"}
           </span>
           <span className="add-child-action-hint">
-            {isLabelPhoto ? "Vytvorí položku a nahraje štítok (OCR)" : "Vytvorí položku a nahraje fotku"}
+            {isLabelPhoto ? "VytvorĂ­ poloĹľku a nahraje ĹˇtĂ­tok (OCR)" : "VytvorĂ­ poloĹľku a nahraje fotku"}
           </span>
         </span>
       </label>
@@ -872,13 +861,13 @@ function AddChildMethodChooser({
         aria-disabled={busy}
       >
         <span className="add-child-action-icon" aria-hidden="true">
-          🖼️
+          đź–Ľď¸Ź
         </span>
         <span className="add-child-action-text">
           <span className="add-child-action-title">
-            {busy ? (busyLabel ?? "Pracujem…") : "Fotka z galérie"}
+            {busy ? (busyLabel ?? "Pracujemâ€¦") : "Fotka z galĂ©rie"}
           </span>
-          <span className="add-child-action-hint">Vyber existujúcu fotku v telefóne</span>
+          <span className="add-child-action-hint">Vyber existujĂşcu fotku v telefĂłne</span>
         </span>
       </label>
 
@@ -891,16 +880,16 @@ function AddChildMethodChooser({
         disabled={busy}
         style={{ marginTop: 4 }}
       >
-        Vyplniť údaje ručne…
+        VyplniĹĄ Ăşdaje ruÄŤneâ€¦
       </button>
       <button type="button" onClick={onCancel} disabled={busy}>
-        Zrušiť
+        ZruĹˇiĹĄ
       </button>
     </div>
   );
 }
 
-// ─── Add child form content (ručný formulár) ─────────────────────────────────
+// â”€â”€â”€ Add child form content (ruÄŤnĂ˝ formulĂˇr) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function AddChildFormContent({
   parent,
@@ -922,7 +911,7 @@ function AddChildFormContent({
   const mut = useMutation({
     mutationFn: () => {
       const kind = kindInput.trim();
-      if (!kind) throw new Error("Vyber alebo napíš typ položky");
+      if (!kind) throw new Error("Vyber alebo napĂ­Ĺˇ typ poloĹľky");
       return api.createItem({
         level: childLevel,
         kind,
@@ -942,7 +931,7 @@ function AddChildFormContent({
 
   if (parent.level >= 7) {
     return (
-      <p className="muted">Tento typ položky nemôže mať podradené položky.</p>
+      <p className="muted">Tento typ poloĹľky nemĂ´Ĺľe maĹĄ podradenĂ© poloĹľky.</p>
     );
   }
 
@@ -955,10 +944,10 @@ function AddChildFormContent({
       }}
     >
       <p className="muted" style={{ margin: 0 }}>
-        Úroveň: <strong>{childLevel}</strong>
+        ĂšroveĹ: <strong>{childLevel}</strong>
       </p>
       <label className="form-label">
-        Typ položky
+        Typ poloĹľky
         <select
           value={customKind ? "__custom__" : kindInput}
           onChange={(e) => {
@@ -976,15 +965,15 @@ function AddChildFormContent({
               {TYPE_LABEL[k] ?? k}
             </option>
           ))}
-          <option value="__custom__">Vlastné…</option>
+          <option value="__custom__">VlastnĂ©â€¦</option>
         </select>
       </label>
       {customKind && (
         <label className="form-label">
-          Vlastný typ
+          VlastnĂ˝ typ
           <input
             type="text"
-            placeholder="Napíš vlastný typ..."
+            placeholder="NapĂ­Ĺˇ vlastnĂ˝ typ..."
             value={kindInput}
             onChange={(e) => setKindInput(e.target.value)}
             autoFocus
@@ -992,39 +981,39 @@ function AddChildFormContent({
         </label>
       )}
       <label className="form-label">
-        Názov
+        NĂˇzov
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="(voliteľné — inak sa vygeneruje automaticky)"
+          placeholder="(voliteÄľnĂ© â€” inak sa vygeneruje automaticky)"
         />
       </label>
       <AutoNamePreview kind={kindInput} parentId={parent.id} manualName={name} />
       <label className="form-label">
-        Poznámka
+        PoznĂˇmka
         <textarea
           rows={2}
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="(voliteľné)"
+          placeholder="(voliteÄľnĂ©)"
         />
       </label>
       {error && <div className="error">{error}</div>}
       <div className="row">
         <button type="submit" className="btn-primary" disabled={mut.isPending}
           style={{ flex: 1 }}>
-          {mut.isPending ? "Pridávam…" : "Pridať"}
+          {mut.isPending ? "PridĂˇvamâ€¦" : "PridaĹĄ"}
         </button>
         <button type="button" onClick={onCancel} disabled={mut.isPending}>
-          Zrušiť
+          ZruĹˇiĹĄ
         </button>
       </div>
     </form>
   );
 }
 
-// ─── Add child form (inline wrapper with open/close) ─────────────────────────
+// â”€â”€â”€ Add child form (inline wrapper with open/close) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function AddChildForm({
   parent,
@@ -1038,7 +1027,7 @@ function AddChildForm({
   if (parent.level >= 7) {
     return (
       <p className="muted" style={{ marginTop: 12 }}>
-        Tento typ položky nemôže mať podradené položky.
+        Tento typ poloĹľky nemĂ´Ĺľe maĹĄ podradenĂ© poloĹľky.
       </p>
     );
   }
@@ -1051,7 +1040,7 @@ function AddChildForm({
         onClick={() => setOpen(true)}
         style={{ minHeight: 48, marginTop: 12 }}
       >
-        + Pridať podradenú položku (L{parent.level + 1})
+        + PridaĹĄ podradenĂş poloĹľku (L{parent.level + 1})
       </button>
     );
   }
@@ -1069,48 +1058,18 @@ function AddChildForm({
     </div>
   );
 }
-function MetadataExtractSection({
-  itemId,
-  onDone,
-}: {
-  itemId: string;
-  onDone: () => Promise<void> | void;
-}) {
-  const extractMut = useMutation({
-    mutationFn: () => api.extractLlmMetadata(itemId),
-    onSuccess: async (result) => {
-      if (result.error) throw new Error(result.error);
-      await onDone();
-    },
-  });
-
+function MetadataReviewLinkNotice() {
   return (
-    <section className="card" aria-label="Extrakcia metadát z OCR">
-      <h2 style={{ margin: "0 0 8px", fontSize: 16 }}>AI metadata z OCR textu</h2>
-      <p className="muted" style={{ margin: "0 0 12px", fontSize: 13 }}>
-        Extrahuje metadata z uloženého OCR textu (text LLM fallback). Pri Gemini
-        Vision sa metadata extrahujú automaticky pri spracovaní fotky — toto
-        tlačidlo je pre manuálnu re-extrakciu alebo po Tesseract behu.
+    <section className="card" aria-label="Metadata ÄŤakajĂş na review">
+      <p style={{ margin: 0, fontSize: 14 }}>
+        AI navrhol metadata â€” potvrdenie a Ăşprava sĂş v{" "}
+        <Link to="/admin/ocr?tab=review">Spracovanie â†’ Review</Link>.
       </p>
-      <button
-        type="button"
-        className="btn-primary"
-        style={{ minHeight: 44 }}
-        disabled={extractMut.isPending}
-        onClick={() => extractMut.mutate()}
-      >
-        {extractMut.isPending ? "Extrahujem…" : "Extrahovať metadata z OCR"}
-      </button>
-      {extractMut.error && (
-        <p className="error" style={{ margin: "8px 0 0" }}>
-          Chyba: {(extractMut.error as Error).message}
-        </p>
-      )}
     </section>
   );
 }
 
-// ─── OCR name suggestion banner (Sprint 8) ─────────────────────────────────
+// â”€â”€â”€ OCR name suggestion banner (Sprint 8) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function OcrNameBanner({
   item,
@@ -1140,8 +1099,8 @@ function OcrNameBanner({
   const error = confirmMut.error ?? dismissMut.error;
 
   return (
-    <section className="item-ocr-banner" aria-label="OCR návrh názvu">
-      <span className="item-ocr-banner-label">OCR navrhuje názov</span>
+    <section className="item-ocr-banner" aria-label="OCR nĂˇvrh nĂˇzvu">
+      <span className="item-ocr-banner-label">OCR navrhuje nĂˇzov</span>
       {!editing ? (
         <>
           <span className="item-ocr-banner-title">{item.ocr_name_suggestion}</span>
@@ -1152,7 +1111,7 @@ function OcrNameBanner({
               disabled={pending}
               onClick={() => confirmMut.mutate(undefined)}
             >
-              {confirmMut.isPending ? "Ukladám…" : "Použiť"}
+              {confirmMut.isPending ? "UkladĂˇmâ€¦" : "PouĹľiĹĄ"}
             </button>
             <button
               type="button"
@@ -1162,14 +1121,14 @@ function OcrNameBanner({
                 setEditing(true);
               }}
             >
-              Upraviť a použiť
+              UpraviĹĄ a pouĹľiĹĄ
             </button>
             <button
               type="button"
               disabled={pending}
               onClick={() => dismissMut.mutate()}
             >
-              Ignorovať
+              IgnorovaĹĄ
             </button>
           </div>
         </>
@@ -1190,10 +1149,10 @@ function OcrNameBanner({
               disabled={pending || !editValue.trim()}
               onClick={() => confirmMut.mutate(editValue.trim())}
             >
-              {confirmMut.isPending ? "Ukladám…" : "Potvrdiť"}
+              {confirmMut.isPending ? "UkladĂˇmâ€¦" : "PotvrdiĹĄ"}
             </button>
             <button type="button" disabled={pending} onClick={() => setEditing(false)}>
-              Zrušiť
+              ZruĹˇiĹĄ
             </button>
           </div>
         </>
@@ -1207,206 +1166,8 @@ function OcrNameBanner({
   );
 }
 
-// ─── Metadata banner (Sprint 7) ──────────────────────────────────────────────
-// Zobrazí sa pre Item s metadata_status === 'EXTRACTED'. "Potvrdiť všetko"
-// pošle aktuálne hodnoty (vrátane prípadných úprav v editovacom režime), ktoré
-// backend uloží a flagne REVIEWED. "Zamietnuť" vyčistí JSONB a vráti status na
-// NONE — položka pôjde znova do eligible fronty.
-
-function MetadataBanner({
-  item,
-  onDone,
-}: {
-  item: Item;
-  onDone: () => Promise<void> | void;
-}) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [draft, setDraft] = useState<ItemMetadata>(() =>
-    normalizeMetadataDraft(item.metadata),
-  );
-
-  useEffect(() => {
-    setDraft(normalizeMetadataDraft(item.metadata));
-  }, [item.id, item.metadata]);
-
-  const confirmMut = useMutation({
-    mutationFn: (metadata?: ItemMetadata) =>
-      api.confirmLlmMetadata(item.id, metadata),
-    onSuccess: async () => {
-      setIsEditing(false);
-      await onDone();
-    },
-  });
-  const editMut = useMutation({
-    mutationFn: (metadata: ItemMetadata) =>
-      api.editLlmMetadata(item.id, metadata),
-    onSuccess: async () => {
-      await onDone();
-    },
-  });
-  const rejectMut = useMutation({
-    mutationFn: () => api.rejectLlmMetadata(item.id),
-    onSuccess: async () => {
-      await onDone();
-    },
-  });
-  const reextractMut = useMutation({
-    mutationFn: () => api.extractLlmMetadata(item.id),
-    onSuccess: async (result) => {
-      if (result.error) throw new Error(result.error);
-      await onDone();
-    },
-  });
-
-  const isPending =
-    confirmMut.isPending ||
-    editMut.isPending ||
-    rejectMut.isPending ||
-    reextractMut.isPending;
-  const error =
-    confirmMut.error ?? editMut.error ?? rejectMut.error ?? reextractMut.error ?? null;
-
-  const knownSet = new Set<string>(KNOWN_METADATA_KEYS);
-  const meta = item.metadata ?? {};
-  const knownEntries = KNOWN_METADATA_KEYS.map((k) => [k, meta[k]] as const).filter(
-    ([, v]) => typeof v === "string" && v.trim() !== "",
-  );
-  const unknownEntries = Object.entries(meta).filter(
-    ([k, v]) => !knownSet.has(k) && typeof v === "string" && v.trim() !== "",
-  );
-
-  return (
-    <section className="metadata-banner" aria-label="AI návrh metadát">
-      <h2 className="metadata-banner-title">AI navrhol metadata:</h2>
-
-      {isEditing ? (
-        <>
-          <div className="metadata-fields-grid">
-            {metadataEditKeys(draft).map((key) => (
-              <label key={key} className="metadata-field">
-                <span className="metadata-field-label">
-                  {metadataFieldLabel(key)}
-                </span>
-                <input
-                  type="text"
-                  value={draft[key] ?? ""}
-                  onChange={(e) =>
-                    setDraft((d) => ({ ...d, [key]: e.target.value }))
-                  }
-                  placeholder="—"
-                  maxLength={500}
-                  disabled={isPending}
-                />
-              </label>
-            ))}
-          </div>
-          <div className="row" style={{ gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-            <button
-              type="button"
-              className="btn-primary"
-              style={{ minHeight: 44 }}
-              onClick={async () => {
-                const serialized = serializeMetadataDraft(draft);
-                await editMut.mutateAsync(serialized);
-                confirmMut.mutate(serialized);
-              }}
-              disabled={isPending}
-            >
-              {confirmMut.isPending || editMut.isPending
-                ? "Ukladám…"
-                : "✓ Uložiť a potvrdiť"}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setIsEditing(false);
-                setDraft(normalizeMetadataDraft(item.metadata));
-              }}
-              disabled={isPending}
-              style={{ minHeight: 44 }}
-            >
-              Zrušiť
-            </button>
-          </div>
-        </>
-      ) : (
-        <>
-          {knownEntries.length === 0 && unknownEntries.length === 0 ? (
-            <p className="muted" style={{ margin: 0, fontSize: 13 }}>
-              LLM nevedel jednoznačne určiť žiadne pole. Môžeš metadata upraviť
-              ručne alebo zamietnuť.
-            </p>
-          ) : (
-            <dl className="metadata-readonly-list">
-              {knownEntries.map(([k, v]) => (
-                <div key={k} style={{ display: "contents" }}>
-                  <dt>{METADATA_LABELS[k]}</dt>
-                  <dd>{v}</dd>
-                </div>
-              ))}
-              {unknownEntries.map(([k, v]) => (
-                <div key={k} style={{ display: "contents" }}>
-                  <dt>{metadataFieldLabel(k)}</dt>
-                  <dd>
-                    <em>{String(v)}</em>
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          )}
-          <div className="row" style={{ gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-            <button
-              type="button"
-              className="btn-primary"
-              style={{ minHeight: 44 }}
-              onClick={() =>
-                confirmMut.mutate(serializeMetadataDraft(normalizeMetadataDraft(item.metadata)))
-              }
-              disabled={isPending}
-            >
-              {confirmMut.isPending ? "Potvrdzujem…" : "✓ Potvrdiť všetko"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsEditing(true)}
-              disabled={isPending}
-              style={{ minHeight: 44 }}
-            >
-              ✏️ Upraviť
-            </button>
-            <button
-              type="button"
-              onClick={() => reextractMut.mutate()}
-              disabled={isPending}
-              style={{ minHeight: 44 }}
-              title="Znova spustí LLM nad OCR textom štítku"
-            >
-              {reextractMut.isPending ? "Extrahujem…" : "↻ Z OCR znova"}
-            </button>
-            <button
-              type="button"
-              className="btn-danger"
-              onClick={() => rejectMut.mutate()}
-              disabled={isPending}
-              style={{ minHeight: 44 }}
-            >
-              {rejectMut.isPending ? "Zamietam…" : "✗ Zamietnuť"}
-            </button>
-          </div>
-        </>
-      )}
-
-      {error && (
-        <p className="error" style={{ margin: "8px 0 0" }}>
-          Chyba: {(error as Error).message}
-        </p>
-      )}
-    </section>
-  );
-}
-
-// Read-only zobrazenie metadát keď je status REVIEWED — preskočí prázdne polia,
-// neznáme kľúče zobrazí kurzívou aby boli vizuálne odlíšené od 7 fixných polí.
+// Read-only zobrazenie metadĂˇt keÄŹ je status REVIEWED â€” preskoÄŤĂ­ prĂˇzdne polia,
+// neznĂˇme kÄľĂşÄŤe zobrazĂ­ kurzĂ­vou aby boli vizuĂˇlne odlĂ­ĹˇenĂ© od 7 fixnĂ˝ch polĂ­.
 function ReadonlyMetadataList({ metadata }: { metadata: ItemMetadata }) {
   const knownSet = new Set<string>(KNOWN_METADATA_KEYS);
   const knownEntries = KNOWN_METADATA_KEYS.map((k) => [k, metadata[k]] as const).filter(
