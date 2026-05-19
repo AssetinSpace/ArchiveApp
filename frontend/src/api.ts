@@ -80,6 +80,9 @@ export const KNOWN_METADATA_KEYS = [
   "cislo",
   "datum",
   "stupen",
+  "typ_dokumentu",
+  "investor",
+  "autor_casti",
 ] as const;
 
 export const METADATA_LABELS: Record<string, string> = {
@@ -92,6 +95,7 @@ export const METADATA_LABELS: Record<string, string> = {
   stupen: "Stupeň",
   typ_dokumentu: "Typ dokumentu",
   investor: "Investor",
+  autor_casti: "Autor časti",
 };
 
 export type Item = {

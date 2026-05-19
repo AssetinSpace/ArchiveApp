@@ -91,7 +91,7 @@ Neriešime špeciálne — KRABICA s popisným názvom (napr. "Tubus").
 - `note` — voľné textové pole (nullable)
 - `status` — NA_MIESTE / VYNESENE / NEZNAME
 - `auto_name` — Sprint 5: pozičný identifikátor (`sklA_pal003_kra004_zlo015`), generovaný pri POST /items, **immutable** po vytvorení. NULL pre legacy items pred Sprint 5.
-- `metadata` — JSONB, default `{}`. LLM (Gemini 2.5 Flash) navrhne 3–10 polí z OCR (hybrid: typické polia ako príklady + ľubovoľné ďalšie kľúče). Permisívne ukladanie, konzultantský review.
+- `metadata` — JSONB, default `{}`. LLM (Gemini 2.5 Flash) navrhne všetky relevantné polia z OCR (hybrid: typické polia ako príklady + ľubovoľné ďalšie kľúče, bez pevného počtu). Permisívne ukladanie, konzultantský review.
 - `metadata_status` — Sprint 5 (schema) + Sprint 7 (workflow): TEXT, hodnoty `NONE` (default) / `EXTRACTED` (LLM navrhol) / `REVIEWED` (konzultant potvrdil).
 - `deleted_at` — soft delete (nikdy hard delete)
 - `created_at`, `updated_at`

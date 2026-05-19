@@ -1,7 +1,7 @@
 // LLM metadata extraction service — Sprint 7.
 //
 // Metadata-only LLM workflow. Z OCR textu (Photo.ocr_raw_text, LABEL fotky)
-// navrhne 3–10 relevantných polí ako JSONB. Nepoužíva obrázok z R2.
+// navrhne všetky relevantné polia z OCR ako JSONB (bez pevného počtu). Nepoužíva obrázok z R2.
 //
 // Princípy:
 // - Sériové volania, 500 ms pauza — cost control + rate limit poistka.
@@ -29,6 +29,9 @@ export const KNOWN_METADATA_KEYS = [
   "cislo",
   "datum",
   "stupen",
+  "typ_dokumentu",
+  "investor",
+  "autor_casti",
 ] as const;
 
 export type MetadataPayload = Record<string, string | null>;
@@ -163,24 +166,28 @@ export async function extractMetadataFromOcr(
           {
             parts: [
               {
-                text: `Z nasledujúceho OCR textu slovenského stavebného štítka archívnej zložky navrhni 3–10 relevantných polí ako JSON objekt.
+                text: `Z nasledujúceho OCR textu slovenského stavebného štítka archívnej zložky extrahuj VŠETKY jednoznačné informácie ako JSON objekt.
+Počet polí NIE JE obmedzený — každá samostatná informácia na štítku = vlastné pole, ak ju vieš spoľahlivo vyčítať z textu.
+Nepridávaj prázdne polia len kvôli príkladom nižšie; kľúč uveď len ak má v texte zmysluplnú hodnotu.
+
 OCR môže obsahovať preklepy alebo chýbajúcu diakritiku — interpretuj rozumne podľa kontextu.
 Kľúče v snake_case (bez diakritiky v názve kľúča). Hodnota je string alebo null.
 Vyplň pole, ak je v texte aspoň čiastočná zmienka; null len ak informácia v texte vôbec nie je.
 Nevymýšľaj údaje, ktoré v texte nie sú. Odpovedz LEN validný JSON objekt.
 
-Typické polia (použi podľa obsahu štítku):
+Príklady často sa vyskytujúcich polí (použi len ak sú v texte):
 - stavba: názov objektu/stavby
 - cast: časť projektu / profesia
-- projektant: meno autora
+- projektant: meno autora / projektovej kancelárie
 - adresa: lokalita
 - cislo: číslo projektu alebo výkresu
 - datum: rok alebo dátum (ako na štítku)
 - stupen: stupeň dokumentácie (DSP, DRS, DUR…)
 - typ_dokumentu: typ dokumentácie na štítku
 - investor: investor / objednávateľ
+- autor_casti: autor časti / zodpovedný projektant časti
 
-Môžeš pridať ďalšie polia, ak štítok obsahuje ďalšie jednoznačné informácie.
+Môžeš použiť ľubovoľné ďalšie vhodné kľúče (napr. mesto, stat, objednavatel, vyhotovitel, revizia).
 
 OCR text:
 ${trimmed.substring(0, OCR_INPUT_MAX_CHARS)}`,

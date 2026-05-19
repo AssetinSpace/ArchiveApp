@@ -19,8 +19,8 @@ import {
 //
 // Štruktúra:
 // stat cards, batch tlačidlo, polling 3s počas processing, review queue
-// s offset paging-om. Hlavný rozdiel: review karta zobrazuje 7 polí ako
-// editovateľné inputy a pri confirm posielame celý objekt (zachovaj prípadné
+// s offset paging-om. Review karta zobrazuje dynamický počet polí z LLM návrhu;
+// pri confirm posielame celý objekt (zachovaj prípadné
 // úpravy konzultanta) — backend je tolerantný aj na neznáme kľúče.
 
 const STATUS_KEY = ["llm-metadata", "status"] as const;
