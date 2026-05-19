@@ -394,6 +394,7 @@ IT tím objednávateľa dostane:
 | TD-17 | Cron job pre automatické spúšťanie process-pending na Railway | Po MVP ak bude treba |
 | TD-18 | Odstrániť `services/llmMetadata.ts` a `services/llmTitle.ts` po overení zlúčeného Vision pipeline | 1 mesiac po Sprint 8 |
 | TD-19 | Tesseract balíčky z `railpack.json` odstrániť ak sa fallback nepoužíva 3+ mesiace | Po stabilizácii Gemini Vision |
+| TD-20 | Batch metadata extraction UI pre `OCR_ENGINE=tesseract` — `POST /api/llm-metadata/process` existuje v API ale nemá UI na stránke Spracovanie (odstránené v Sprint 8 refaktore). Pri Tesseract behu musí konzultant extrahovať metadata per-item cez Item detail → "Extrahovať metadata z OCR textu". Ak sa Tesseract path bude aktívne používať, pridať batch tlačidlo späť. | Nízka — iba pre tesseract fallback |
 
 ---
 
@@ -408,5 +409,5 @@ IT tím objednávateľa dostane:
 
 ---
 
-*Posledná aktualizácia: v2.9.1 — Gemini Vision namiesto Tesseract (rozhodnutie #34), prompt registry per level+kind (#35). Sprint 8 plánovaný.*
+*Posledná aktualizácia: v2.9.2 — Sprint 8 hotový. Stránka Spracovanie zjednotená do Kanban layoutu (Karta 1: čakajúce fotky, Karta 2: metadata na review). Gemini Vision extrahuje OCR text aj metadata v jednom API call.*
 *Ďalší krok: implementovať Sprint 8 podľa CURSOR_PROMPT_SPRINT8.md, potom field work v sklade.*

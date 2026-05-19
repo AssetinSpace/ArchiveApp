@@ -18,15 +18,14 @@ import {
   serializeMetadataDraft,
 } from "../lib/metadataDraft";
 
-// SpracovaniePage — Unified processing page (Sprint 8 merge)
+// SpracovaniePage — Kanban pipeline (Sprint 8)
 //
-// Kombinuje pôvodné OCRAdminPage a LlmMetadataAdminPage do jedného lineárneho
-// workflow: spracovať fotky → skontrolovať metadata.
+// Karta 1: Čakajúce na spracovanie (pending fotky + zlyhané + naposledy spracované)
+// Karta 2: Metadata na review (EXTRACTED → REVIEWED)
+// Stats: 4 čísla navrchu — pending fotky / done fotky / failed fotky / potvrdené metadáta
 //
-// S Gemini Vision (default) jedno tlačidlo "Spracuj PENDING" uloží OCR text
-// aj metadata naraz → review fronta sa naplní automaticky.
-//
-// S Tesseract: krok 1 = fotky, krok 2 = batch extraction z OCR textu.
+// S Gemini Vision (default) jeden batch call uloží OCR text aj metadata naraz.
+// Fallback batch extraction (tesseract path) je dostupná cez Item detail.
 
 const OCR_STATUS_KEY = ["ocr-status"] as const;
 const FAILED_KEY = ["ocr-failed"] as const;
@@ -43,14 +42,6 @@ export function OCRAdminPage() {
   const queuedRef = useRef<number>(0);
   const previousPendingRef = useRef<number>(0);
   const [ocrCompletedBanner, setOcrCompletedBanner] = useState<number | null>(null);
-
-  // ── Metadata batch state ───────────────────────────────────────────────────
-  const [isLlmProcessing, setIsLlmProcessing] = useState(false);
-  const [llmCompletedBanner, setLlmCompletedBanner] = useState<{
-    processed: number;
-    extracted: number;
-    failed: number;
-  } | null>(null);
   const [reviewOffset, setReviewOffset] = useState(0);
 
   // ── Queries ────────────────────────────────────────────────────────────────
@@ -75,7 +66,6 @@ export function OCRAdminPage() {
   const llmStatusQ = useQuery({
     queryKey: LLM_STATUS_KEY,
     queryFn: () => api.fetchLlmMetadataStatus(),
-    refetchInterval: isLlmProcessing ? 3000 : false,
     refetchOnMount: true,
   });
 
@@ -106,31 +96,6 @@ export function OCRAdminPage() {
     },
   });
 
-  const llmStartMut = useMutation({
-    mutationFn: () => api.processLlmMetadata(),
-    onMutate: () => {
-      setLlmCompletedBanner(null);
-      setIsLlmProcessing(true);
-    },
-    onSettled: (data) => {
-      setIsLlmProcessing(false);
-      if (data) {
-        const extracted = data.results.filter(
-          (r) =>
-            !r.error &&
-            r.metadata &&
-            Object.values(r.metadata).some(
-              (v) => typeof v === "string" && v.trim() !== "",
-            ),
-        ).length;
-        const failed = data.results.filter((r) => r.error).length;
-        setLlmCompletedBanner({ processed: data.processed, extracted, failed });
-      }
-      qc.invalidateQueries({ queryKey: LLM_STATUS_KEY });
-      qc.invalidateQueries({ queryKey: PENDING_KEY });
-    },
-  });
-
   // ── Detect OCR batch completion ────────────────────────────────────────────
   useEffect(() => {
     if (!ocrStatusQ.data) return;
@@ -141,7 +106,6 @@ export function OCRAdminPage() {
       qc.invalidateQueries({ queryKey: FAILED_KEY });
       qc.invalidateQueries({ queryKey: RECENT_KEY });
       qc.invalidateQueries({ queryKey: ["items"] });
-      // Refresh metadata status — gemini spracoval metadata naraz s OCR
       qc.invalidateQueries({ queryKey: LLM_STATUS_KEY });
       qc.invalidateQueries({ queryKey: PENDING_KEY });
     }
@@ -166,12 +130,9 @@ export function OCRAdminPage() {
 
   const engine = ocrStatus.engine ?? "gemini";
   const engineLabel = engine === "gemini" ? "Gemini Vision" : "Tesseract";
-  const isGemini = engine === "gemini";
 
-  // Batch extraction button: vždy pri tesseract, pri gemini len ak má eligible
-  const showLlmBatch = !isGemini || llmStatus.eligible > 0;
-  const llmBatchDisabled =
-    llmStatus.noApiKey || llmStatus.eligible === 0 || isLlmProcessing || llmStartMut.isPending;
+  const pendingPhotos = recentQ.data?.filter((p) => p.ocr_status === "PENDING") ?? [];
+  const donePhotos = recentQ.data?.filter((p) => p.ocr_status === "DONE") ?? [];
 
   return (
     <div className="stack">
@@ -187,28 +148,33 @@ export function OCRAdminPage() {
         </span>
       </div>
 
-      {/* ── FOTKY ─────────────────────────────────────────────────────────── */}
-      <h2 className="section-heading">Fotky</h2>
-
-      {ocrStatusQ.isLoading && <p className="muted">Načítavam štatistiky…</p>}
-      {ocrStatusQ.error && (
-        <p className="error">Chyba: {(ocrStatusQ.error as Error).message}</p>
-      )}
-
-      <section className="ocr-stats-grid" aria-label="Štatistiky fotiek">
-        <StatCard variant="pending" label="Pending" value={ocrStatus.pending} />
-        <StatCard variant="done" label="Done" value={ocrStatus.done} />
-        <StatCard variant="failed" label="Failed" value={ocrStatus.failed} />
-        <StatCard variant="total" label="Celkom" value={ocrStatus.total} />
+      {/* Stats — 4 čísla v jednom riadku */}
+      <section className="ocr-stats-grid" aria-label="Prehľad spracovania">
+        <StatCard variant="pending" label="Čakajú" value={ocrStatus.pending} />
+        <StatCard variant="done" label="Spracované" value={ocrStatus.done} />
+        <StatCard variant="failed" label="Zlyhané" value={ocrStatus.failed} />
+        <StatCard
+          variant="done"
+          label="Potvrdené"
+          value={
+            llmStatus.total > 0
+              ? `${llmStatus.reviewed} / ${llmStatus.total}`
+              : llmStatus.reviewed
+          }
+        />
       </section>
 
+      {/* ── KARTA 1: Čakajúce na spracovanie ─────────────────────────────── */}
       <section className="card">
-        <h2>Spracovať fotky</h2>
-        <p className="muted" style={{ marginTop: 0, marginBottom: 12, fontSize: 13 }}>
-          {isGemini
-            ? "Gemini Vision extrahuje OCR text aj metadata naraz. Po dokončení skontroluj návrhy metadát nižšie."
-            : "Tesseract extrahuje len OCR text. Metadata extrahovať manuálne v sekcii Metadata nižšie."}
-        </p>
+        <h2 style={{ marginTop: 0 }}>
+          Čakajúce na spracovanie
+          {ocrStatus.pending > 0 && (
+            <span style={{ marginLeft: 8, fontSize: 14, color: "#6b7280" }}>
+              ({ocrStatus.pending}{" "}
+              {plural(ocrStatus.pending, "fotka", "fotky", "fotiek")})
+            </span>
+          )}
+        </h2>
 
         {ocrCompletedBanner !== null && ocrCompletedBanner > 0 && (
           <div className="ocr-banner-success" style={{ marginBottom: 12 }}>
@@ -228,8 +194,8 @@ export function OCRAdminPage() {
             : ocrStartMut.isPending
               ? "Spúšťam…"
               : ocrStatus.pending === 0
-                ? "Žiadne PENDING fotky"
-                : `Spracuj PENDING (${ocrStatus.pending})`}
+                ? "Žiadne fotky na spracovanie"
+                : `Spracuj (${ocrStatus.pending})`}
         </button>
 
         {ocrStartMut.error && (
@@ -243,121 +209,73 @@ export function OCRAdminPage() {
             Spracovanie beží na pozadí. Štatistiky sa aktualizujú každé 3 sekundy.
           </p>
         )}
-      </section>
 
-      {/* Zlyhané fotky */}
-      {ocrStatus.failed > 0 && (
-        <section className="card">
-          <h2>Zlyhané fotky ({ocrStatus.failed})</h2>
-
-          {failedQ.isLoading && <p className="muted">Načítavam…</p>}
-          {failedQ.error && (
-            <p className="error">Chyba: {(failedQ.error as Error).message}</p>
-          )}
-
-          {failedQ.data?.map((p) => (
-            <FailedRow
-              key={p.id}
-              photo={p}
-              retrying={retryMut.isPending && retryMut.variables === p.id}
-              onRetry={() => retryMut.mutate(p.id)}
-            />
-          ))}
-
-          {failedQ.data && failedQ.data.length >= 100 && (
-            <p className="muted" style={{ marginTop: 8 }}>
-              Zobrazených prvých 100 záznamov.
-            </p>
-          )}
-
-          {retryMut.error && (
-            <p className="error" style={{ marginTop: 8 }}>
-              Retry chyba: {(retryMut.error as Error).message}
-            </p>
-          )}
-        </section>
-      )}
-
-      {/* Posledné fotky */}
-      <section className="card">
-        <h2>Posledné fotky</h2>
-
-        {recentQ.isLoading && <p className="muted">Načítavam…</p>}
-        {recentQ.error && (
-          <p className="error">Chyba: {(recentQ.error as Error).message}</p>
+        {/* Zlyhané — inline v karte, len ak existujú */}
+        {ocrStatus.failed > 0 && (
+          <>
+            <hr style={{ margin: "16px 0", border: "none", borderTop: "1px solid #e5e7eb" }} />
+            <h3 style={{ margin: "0 0 8px", fontSize: 14, color: "#b91c1c" }}>
+              Zlyhané fotky ({ocrStatus.failed})
+            </h3>
+            {failedQ.isLoading && <p className="muted">Načítavam…</p>}
+            {failedQ.data?.map((p) => (
+              <FailedRow
+                key={p.id}
+                photo={p}
+                retrying={retryMut.isPending && retryMut.variables === p.id}
+                onRetry={() => retryMut.mutate(p.id)}
+              />
+            ))}
+            {failedQ.data && failedQ.data.length >= 100 && (
+              <p className="muted" style={{ marginTop: 8 }}>
+                Zobrazených prvých 100 záznamov.
+              </p>
+            )}
+            {retryMut.error && (
+              <p className="error" style={{ marginTop: 8 }}>
+                Retry chyba: {(retryMut.error as Error).message}
+              </p>
+            )}
+          </>
         )}
 
-        {recentQ.data && recentQ.data.length === 0 && (
-          <p className="muted">Žiadne fotky.</p>
+        {/* Thumbnails čakajúcich fotiek */}
+        {pendingPhotos.length > 0 && (
+          <>
+            <hr style={{ margin: "16px 0", border: "none", borderTop: "1px solid #e5e7eb" }} />
+            <h3 style={{ margin: "0 0 8px", fontSize: 14, color: "#6b7280" }}>
+              Čakajúce fotky
+            </h3>
+            {recentQ.isLoading && <p className="muted">Načítavam…</p>}
+            {pendingPhotos.map((p) => (
+              <RecentRow key={p.id} photo={p} />
+            ))}
+          </>
         )}
 
-        {recentQ.data?.map((p) => (
-          <RecentRow key={p.id} photo={p} />
-        ))}
+        {/* Naposledy spracované */}
+        {donePhotos.length > 0 && (
+          <>
+            <hr style={{ margin: "16px 0", border: "none", borderTop: "1px solid #e5e7eb" }} />
+            <h3 style={{ margin: "0 0 8px", fontSize: 14, color: "#6b7280" }}>
+              Naposledy spracované
+            </h3>
+            {donePhotos.map((p) => (
+              <RecentRow key={p.id} photo={p} />
+            ))}
+          </>
+        )}
+
+        {recentQ.data?.length === 0 && ocrStatus.pending === 0 && ocrStatus.failed === 0 && (
+          <p className="muted" style={{ marginTop: 12 }}>Žiadne fotky.</p>
+        )}
       </section>
 
-      {/* ── METADATA ──────────────────────────────────────────────────────── */}
-      <h2 className="section-heading">Metadata</h2>
-
-      {llmStatusQ.isLoading && <p className="muted">Načítavam štatistiky metadát…</p>}
-      {llmStatusQ.error && (
-        <p className="error">Chyba: {(llmStatusQ.error as Error).message}</p>
-      )}
-
-      <section className="ocr-stats-grid" aria-label="Štatistiky metadát">
-        <StatCard variant="pending" label="Čakajú" value={llmStatus.eligible} />
-        <StatCard variant="pending" label="Extrahované" value={llmStatus.extracted} />
-        <StatCard variant="done" label="Potvrdené" value={llmStatus.reviewed} />
-        <StatCard variant="total" label="Položiek" value={llmStatus.total} />
-      </section>
-
-      {/* Batch extraction — pri gemini sekundárna/skrytá, pri tesseract prominentná */}
-      {showLlmBatch && (
-        <section className="card">
-          {isGemini ? (
-            <details>
-              <summary style={{ cursor: "pointer", fontWeight: 600, fontSize: 15 }}>
-                Extrahovať metadata z OCR textu (fallback)
-              </summary>
-              <p className="muted" style={{ margin: "8px 0" }}>
-                Pri Gemini Vision sa metadata extrahujú automaticky pri spracovaní fotiek.
-                Toto tlačidlo je fallback — pre položky, ktoré ešte nemajú metadata
-                (napr. staré záznamy alebo po Tesseract behu).
-              </p>
-              <LlmBatchContent
-                status={llmStatus}
-                completedBanner={llmCompletedBanner}
-                isProcessing={isLlmProcessing}
-                disabled={llmBatchDisabled}
-                onStart={() => llmStartMut.mutate()}
-                error={llmStartMut.error as Error | null}
-              />
-            </details>
-          ) : (
-            <>
-              <h2>Extrahovať metadata z OCR textu</h2>
-              <p className="muted" style={{ marginTop: 0, marginBottom: 12, fontSize: 13 }}>
-                Gemini 2.5 Flash číta uložený OCR text a navrhne relevantné polia (JSONB).
-                Spusti po dokončení OCR spracovania vyššie.
-              </p>
-              <LlmBatchContent
-                status={llmStatus}
-                completedBanner={llmCompletedBanner}
-                isProcessing={isLlmProcessing}
-                disabled={llmBatchDisabled}
-                onStart={() => llmStartMut.mutate()}
-                error={llmStartMut.error as Error | null}
-              />
-            </>
-          )}
-        </section>
-      )}
-
-      {/* Review fronta */}
+      {/* ── KARTA 2: Metadata na review ───────────────────────────────────── */}
       <section className="card">
-        <h2>
-          Review metadát
-          {pendingReviewQ.data && (
+        <h2 style={{ marginTop: 0 }}>
+          Metadata na review
+          {pendingReviewQ.data && pendingReviewQ.data.total > 0 && (
             <span style={{ marginLeft: 8, fontSize: 14, color: "#6b7280" }}>
               ({pendingReviewQ.data.total} čakajúcich)
             </span>
@@ -374,7 +292,7 @@ export function OCRAdminPage() {
         {pendingReviewQ.data && pendingReviewQ.data.items.length === 0 && (
           <p className="muted">
             {llmStatus.extracted === 0
-              ? "Žiadne návrhy na review. Spracuj fotky vyššie."
+              ? "Žiadne návrhy na review — spracuj fotky vyššie."
               : "Žiadne ďalšie návrhy na tejto stránke."}
           </p>
         )}
@@ -407,77 +325,14 @@ export function OCRAdminPage() {
             Späť na začiatok
           </button>
         )}
+
+        {llmStatus.reviewed > 0 && (
+          <p className="muted" style={{ marginTop: 16, fontSize: 13 }}>
+            Potvrdených: {llmStatus.reviewed} z {llmStatus.total} položiek
+          </p>
+        )}
       </section>
     </div>
-  );
-}
-
-// ─── LlmBatchContent — shared between gemini (in details) and tesseract ───────
-
-function LlmBatchContent({
-  status,
-  completedBanner,
-  isProcessing,
-  disabled,
-  onStart,
-  error,
-}: {
-  status: LlmMetadataStatusResponse;
-  completedBanner: { processed: number; extracted: number; failed: number } | null;
-  isProcessing: boolean;
-  disabled: boolean;
-  onStart: () => void;
-  error: Error | null;
-}) {
-  return (
-    <>
-      {completedBanner && (
-        <div className="ocr-banner-success" style={{ marginBottom: 12 }}>
-          ✓ Hotovo — spracovaných {completedBanner.processed}{" "}
-          {plural(completedBanner.processed, "položka", "položky", "položiek")}
-          {", "}
-          {completedBanner.extracted}{" "}
-          {plural(completedBanner.extracted, "návrh", "návrhy", "návrhov")}
-          {completedBanner.failed > 0 && (
-            <>
-              {", "}
-              <span style={{ color: "#b91c1c", fontWeight: 600 }}>
-                {completedBanner.failed}{" "}
-                {plural(completedBanner.failed, "chyba", "chyby", "chýb")}
-              </span>
-            </>
-          )}
-        </div>
-      )}
-
-      <button
-        type="button"
-        className="btn-primary ocr-process-btn"
-        disabled={disabled}
-        onClick={onStart}
-      >
-        {isProcessing
-          ? "Spracovávam… (Gemini 2.5 Flash)"
-          : status.noApiKey
-            ? "Chýba GEMINI_API_KEY"
-            : status.eligible === 0
-              ? "Žiadne položky na spracovanie"
-              : `Spustiť metadata extraction (${status.eligible})`}
-      </button>
-
-      {error && (
-        <p className="error" style={{ marginTop: 8 }}>
-          Chyba: {(error as Error).message}
-        </p>
-      )}
-
-      {isProcessing && (
-        <p className="muted" style={{ marginTop: 8 }}>
-          Sériové volania Gemini 2.5 Flash, 500 ms pauza medzi nimi.
-          Štatistiky sa aktualizujú každé 3 sekundy.
-        </p>
-      )}
-    </>
   );
 }
 
