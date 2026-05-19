@@ -24,8 +24,8 @@ import {
 // Tab "Review (N)": metadata na review (EXTRACTED → REVIEWED)
 // Stats: 4 čísla navrchu viditeľné vždy
 //
-// S Gemini Vision (default) jeden batch call uloží OCR text aj metadata naraz.
-// Textová extrakcia metadata (Tesseract / re-run) a review sú len na tejto stránke.
+// Jeden batch call (Gemini Vision) uloží OCR text aj metadata naraz.
+// Review návrhov je na záložke Review.
 
 type ProcessingTab = "photos" | "review";
 
@@ -39,6 +39,11 @@ const RECENT_KEY = ["ocr-recent"] as const;
 const LLM_STATUS_KEY = ["llm-metadata", "status"] as const;
 const PENDING_KEY = ["llm-metadata", "pending"] as const;
 const PAGE_SIZE = 20;
+const RETRY_FEEDBACK_MS = 12_000;
+
+type RetryRowFeedback =
+  | { type: "failed-again"; at: number }
+  | { type: "error"; at: number; message: string };
 
 export function OCRAdminPage() {
   const qc = useQueryClient();
@@ -69,13 +74,11 @@ export function OCRAdminPage() {
   const queuedRef = useRef<number>(0);
   const previousPendingRef = useRef<number>(0);
   const [ocrCompletedBanner, setOcrCompletedBanner] = useState<number | null>(null);
-  const [metadataCompletedBanner, setMetadataCompletedBanner] = useState<{
-    processed: number;
-    extracted: number;
-    failed: number;
-  } | null>(null);
-  const [isMetadataProcessing, setIsMetadataProcessing] = useState(false);
   const [reviewOffset, setReviewOffset] = useState(0);
+  /** Čas posledného Retry — na zoradenie zlyhaných navrch. */
+  const [retryBump, setRetryBump] = useState<Record<string, number>>({});
+  const [retryFeedback, setRetryFeedback] = useState<Record<string, RetryRowFeedback>>({});
+  const [retrySuccessMsg, setRetrySuccessMsg] = useState<string | null>(null);
 
   // ── Queries ────────────────────────────────────────────────────────────────
   const ocrStatusQ = useQuery({
@@ -121,43 +124,71 @@ export function OCRAdminPage() {
 
   const retryMut = useMutation({
     mutationFn: (photoId: string) => api.retryOcr(photoId),
-    onSuccess: () => {
+    onSuccess: (result, photoId) => {
+      const now = Date.now();
+      setRetryBump((prev) => ({ ...prev, [photoId]: now }));
+
+      if (result.ocr_status === "FAILED") {
+        setRetryFeedback((prev) => ({
+          ...prev,
+          [photoId]: { type: "failed-again", at: now },
+        }));
+        setRetrySuccessMsg(null);
+      } else if (result.ocr_status === "DONE") {
+        setRetryFeedback((prev) => {
+          const next = { ...prev };
+          delete next[photoId];
+          return next;
+        });
+        const name =
+          failedQ.data?.find((p) => p.id === photoId)?.item_name ??
+          result.item_id;
+        setRetrySuccessMsg(`„${name}“ úspešne spracované`);
+      }
+
       qc.invalidateQueries({ queryKey: OCR_STATUS_KEY });
       qc.invalidateQueries({ queryKey: FAILED_KEY });
       qc.invalidateQueries({ queryKey: RECENT_KEY });
       qc.invalidateQueries({ queryKey: ["items"] });
     },
+    onError: (err, photoId) => {
+      const now = Date.now();
+      setRetryBump((prev) => ({ ...prev, [photoId]: now }));
+      setRetryFeedback((prev) => ({
+        ...prev,
+        [photoId]: {
+          type: "error",
+          at: now,
+          message: err instanceof Error ? err.message : "Retry zlyhal",
+        },
+      }));
+    },
   });
 
-  const metadataStartMut = useMutation({
-    mutationFn: () => api.processLlmMetadata(),
-    onMutate: () => {
-      setMetadataCompletedBanner(null);
-      setIsMetadataProcessing(true);
-    },
-    onSettled: (data) => {
-      setIsMetadataProcessing(false);
-      if (data) {
-        const extracted = data.results.filter(
-          (r) =>
-            !r.error &&
-            r.metadata &&
-            Object.values(r.metadata).some(
-              (v) => typeof v === "string" && v.trim() !== "",
-            ),
-        ).length;
-        const failed = data.results.filter((r) => r.error).length;
-        setMetadataCompletedBanner({
-          processed: data.processed,
-          extracted,
-          failed,
-        });
-      }
-      qc.invalidateQueries({ queryKey: LLM_STATUS_KEY });
-      qc.invalidateQueries({ queryKey: PENDING_KEY });
-      qc.invalidateQueries({ queryKey: ["items"] });
-    },
-  });
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      const cutoff = Date.now() - RETRY_FEEDBACK_MS;
+      setRetryFeedback((prev) => {
+        let changed = false;
+        const next: Record<string, RetryRowFeedback> = {};
+        for (const [id, fb] of Object.entries(prev)) {
+          if (fb.at >= cutoff) {
+            next[id] = fb;
+          } else {
+            changed = true;
+          }
+        }
+        return changed ? next : prev;
+      });
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!retrySuccessMsg) return;
+    const timer = window.setTimeout(() => setRetrySuccessMsg(null), 6000);
+    return () => window.clearTimeout(timer);
+  }, [retrySuccessMsg]);
 
   // ── Detect OCR batch completion ────────────────────────────────────────────
   useEffect(() => {
@@ -197,11 +228,16 @@ export function OCRAdminPage() {
   const pendingPhotos = recentQ.data?.filter((p) => p.ocr_status === "PENDING") ?? [];
   const donePhotos = recentQ.data?.filter((p) => p.ocr_status === "DONE") ?? [];
   const reviewCount = pendingReviewQ.data?.total ?? llmStatus.extracted;
-  const metadataStartDisabled =
-    llmStatus.noApiKey ||
-    llmStatus.eligible === 0 ||
-    isMetadataProcessing ||
-    metadataStartMut.isPending;
+
+  const sortedFailed = useMemo(() => {
+    const list = failedQ.data ?? [];
+    return [...list].sort((a, b) => {
+      const bumpA = retryBump[a.id] ?? 0;
+      const bumpB = retryBump[b.id] ?? 0;
+      if (bumpB !== bumpA) return bumpB - bumpA;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  }, [failedQ.data, retryBump]);
 
   return (
     <div className="stack">
@@ -299,77 +335,6 @@ export function OCRAdminPage() {
             </p>
           )}
 
-          <hr style={{ margin: "20px 0", border: "none", borderTop: "1px solid #e5e7eb" }} />
-
-          <h3 style={{ margin: "0 0 8px", fontSize: 15 }}>Metadata z OCR textu</h3>
-          <p className="muted" style={{ margin: "0 0 12px", fontSize: 13 }}>
-            {engine === "gemini"
-              ? "Pri Gemini Vision sa metadata zvyčajne uložia už pri spracovaní fotky. Toto tlačidlo je pre položky s hotovým OCR, ktoré ešte nemajú návrh metadát (napr. po Tesseract behu)."
-              : "Po Tesseract OCR spustite textovú extrakciu metadát. Potom potvrďte návrhy na záložke Review."}
-          </p>
-
-          {metadataCompletedBanner && (
-            <div className="ocr-banner-success" style={{ marginBottom: 12 }}>
-              ✓ Hotovo — spracovaných {metadataCompletedBanner.processed}{" "}
-              {plural(metadataCompletedBanner.processed, "položka", "položky", "položiek")}
-              {", "}
-              {metadataCompletedBanner.extracted}{" "}
-              {plural(metadataCompletedBanner.extracted, "návrh", "návrhy", "návrhov")}
-              {metadataCompletedBanner.failed > 0 && (
-                <>
-                  {", "}
-                  <span style={{ color: "#b91c1c", fontWeight: 600 }}>
-                    {metadataCompletedBanner.failed}{" "}
-                    {plural(metadataCompletedBanner.failed, "chyba", "chyby", "chýb")}
-                  </span>
-                </>
-              )}
-            </div>
-          )}
-
-          <button
-            type="button"
-            className="btn-primary ocr-process-btn"
-            disabled={metadataStartDisabled}
-            onClick={() => metadataStartMut.mutate()}
-          >
-            {isMetadataProcessing
-              ? "Extrahujem metadata…"
-              : metadataStartMut.isPending
-                ? "Spúšťam…"
-                : llmStatus.noApiKey
-                  ? "Chýba GEMINI_API_KEY"
-                  : llmStatus.eligible === 0
-                    ? "Žiadne položky na extrakciu"
-                    : `Extrahovať metadata z OCR (${llmStatus.eligible})`}
-          </button>
-
-          {metadataStartMut.error && (
-            <p className="error" style={{ marginTop: 8 }}>
-              Chyba: {(metadataStartMut.error as Error).message}
-            </p>
-          )}
-          {isMetadataProcessing && (
-            <p className="muted" style={{ marginTop: 8 }}>
-              Sériové volania Gemini z uloženého OCR textu (~3 s na položku).
-            </p>
-          )}
-
-          {llmStatus.extracted > 0 && (
-            <p className="muted" style={{ marginTop: 12, fontSize: 13 }}>
-              {llmStatus.extracted}{" "}
-              {plural(llmStatus.extracted, "návrh", "návrhy", "návrhov")} čaká na potvrdenie —{" "}
-              <button
-                type="button"
-                className="btn-link"
-                onClick={() => selectTab("review")}
-                style={{ padding: 0, minHeight: 0, fontSize: "inherit" }}
-              >
-                prejsť na Review
-              </button>
-              .
-            </p>
-          )}
 
           {/* Zlyhané */}
           {ocrStatus.failed > 0 && (
@@ -378,22 +343,25 @@ export function OCRAdminPage() {
               <h3 style={{ margin: "0 0 8px", fontSize: 14, color: "#b91c1c" }}>
                 Zlyhané fotky ({ocrStatus.failed})
               </h3>
+              {retrySuccessMsg && (
+                <div className="ocr-retry-success-banner" role="status">
+                  ✓ {retrySuccessMsg}
+                </div>
+              )}
               {failedQ.isLoading && <p className="muted">Načítavam…</p>}
-              {failedQ.data?.map((p) => (
+              {sortedFailed.map((p) => (
                 <FailedRow
                   key={p.id}
                   photo={p}
                   retrying={retryMut.isPending && retryMut.variables === p.id}
                   onRetry={() => retryMut.mutate(p.id)}
+                  bumped={Boolean(retryBump[p.id])}
+                  lastRetryAt={retryBump[p.id]}
+                  feedback={retryFeedback[p.id] ?? null}
                 />
               ))}
               {failedQ.data && failedQ.data.length >= 100 && (
                 <p className="muted" style={{ marginTop: 8 }}>Zobrazených prvých 100 záznamov.</p>
-              )}
-              {retryMut.error && (
-                <p className="error" style={{ marginTop: 8 }}>
-                  Retry chyba: {(retryMut.error as Error).message}
-                </p>
               )}
             </>
           )}
@@ -512,21 +480,44 @@ function FailedRow({
   photo,
   retrying,
   onRetry,
+  bumped,
+  lastRetryAt,
+  feedback,
 }: {
   photo: FailedPhoto;
   retrying: boolean;
   onRetry: () => void;
+  bumped: boolean;
+  lastRetryAt?: number;
+  feedback: RetryRowFeedback | null;
 }) {
+  const feedbackMessage =
+    feedback?.type === "failed-again"
+      ? "Zlyhalo znova — skúste neskôr (limit API alebo výpadok)"
+      : feedback?.type === "error"
+        ? `Retry chyba: ${feedback.message}`
+        : null;
+
   return (
-    <div className="ocr-failed-row">
+    <div className={`ocr-failed-row${bumped ? " ocr-failed-row--bumped" : ""}`}>
       <img src={photo.signed_url} alt="" className="ocr-failed-thumb" loading="lazy" />
       <div className="ocr-failed-meta">
         <Link to={`/items/${photo.item_id}`} className="ocr-failed-name">
           {photo.item_name ?? "(bez názvu)"}
         </Link>
         <span className="ocr-failed-date">
-          {new Date(photo.created_at).toLocaleString("sk-SK")}
+          Nahraté: {new Date(photo.created_at).toLocaleString("sk-SK")}
         </span>
+        {lastRetryAt != null && (
+          <span className="ocr-failed-retry-at">
+            Posledný pokus: {new Date(lastRetryAt).toLocaleString("sk-SK")}
+          </span>
+        )}
+        {feedbackMessage && (
+          <span className="ocr-failed-retry-msg" role="alert">
+            {feedbackMessage}
+          </span>
+        )}
       </div>
       <button
         type="button"

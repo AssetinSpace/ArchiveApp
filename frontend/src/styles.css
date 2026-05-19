@@ -1120,6 +1120,31 @@ p { margin: 0 0 12px; }
   font-size: 12px;
   color: #6b7280;
 }
+.ocr-failed-retry-at {
+  font-size: 12px;
+  color: #92400e;
+  font-weight: 500;
+}
+.ocr-failed-retry-msg {
+  font-size: 12px;
+  color: #b91c1c;
+  font-weight: 500;
+  line-height: 1.35;
+}
+.ocr-failed-row--bumped {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+}
+.ocr-retry-success-banner {
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  color: #065f46;
+  font-size: 14px;
+  font-weight: 500;
+}
 
 /* ─── OCR Admin — Recent photos section ─────────────────────────────────── */
 

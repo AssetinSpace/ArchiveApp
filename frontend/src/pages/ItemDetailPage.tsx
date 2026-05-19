@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -16,12 +16,7 @@ import {
   type PhotoType,
   type Status,
 } from "../api";
-import {
-  metadataEditKeys,
-  metadataFieldLabel,
-  normalizeMetadataDraft,
-  serializeMetadataDraft,
-} from "../lib/metadataDraft";
+import { metadataFieldLabel } from "../lib/metadataDraft";
 import { AutoNamePreview } from "../components/AutoNamePreview";
 import { PhotoUpload } from "../components/PhotoUpload";
 import { PhotoGallery } from "../components/PhotoGallery";
@@ -87,7 +82,7 @@ export function ItemDetailPage() {
   if (!itemQ.data) return <p className="muted">Položka nenájdená.</p>;
 
   const item = itemQ.data;
-  const showMetadataBanner = item.metadata_status === "EXTRACTED";
+  const showMetadataReviewNotice = item.metadata_status === "EXTRACTED";
   const showOcrNameBanner =
     !!item.ocr_name_suggestion &&
     item.name_source === "GENERATED" &&
@@ -127,13 +122,7 @@ export function ItemDetailPage() {
         })}
       </nav>
 
-      {item.metadata_status === "NONE" && (
-        <MetadataExtractSection itemId={item.id} onDone={invalidateAll} />
-      )}
-
-      {showMetadataBanner && (
-        <MetadataBanner item={item} onDone={invalidateAll} />
-      )}
+      {showMetadataReviewNotice && <MetadataReviewLinkNotice />}
 
       {showOcrNameBanner && (
         <OcrNameBanner item={item} onDone={invalidateAll} />
@@ -1069,43 +1058,13 @@ function AddChildForm({
     </div>
   );
 }
-function MetadataExtractSection({
-  itemId,
-  onDone,
-}: {
-  itemId: string;
-  onDone: () => Promise<void> | void;
-}) {
-  const extractMut = useMutation({
-    mutationFn: () => api.extractLlmMetadata(itemId),
-    onSuccess: async (result) => {
-      if (result.error) throw new Error(result.error);
-      await onDone();
-    },
-  });
-
+function MetadataReviewLinkNotice() {
   return (
-    <section className="card" aria-label="Extrakcia metadát z OCR">
-      <h2 style={{ margin: "0 0 8px", fontSize: 16 }}>AI metadata z OCR textu</h2>
-      <p className="muted" style={{ margin: "0 0 12px", fontSize: 13 }}>
-        Extrahuje metadata z uloženého OCR textu (text LLM fallback). Pri Gemini
-        Vision sa metadata extrahujú automaticky pri spracovaní fotky — toto
-        tlačidlo je pre manuálnu re-extrakciu alebo po Tesseract behu.
+    <section className="card" aria-label="Metadata čakajú na review">
+      <p style={{ margin: 0, fontSize: 14 }}>
+        AI navrhol metadata — potvrdenie a úprava sú v{" "}
+        <Link to="/admin/ocr?tab=review">Spracovanie → Review</Link>.
       </p>
-      <button
-        type="button"
-        className="btn-primary"
-        style={{ minHeight: 44 }}
-        disabled={extractMut.isPending}
-        onClick={() => extractMut.mutate()}
-      >
-        {extractMut.isPending ? "Extrahujem…" : "Extrahovať metadata z OCR"}
-      </button>
-      {extractMut.error && (
-        <p className="error" style={{ margin: "8px 0 0" }}>
-          Chyba: {(extractMut.error as Error).message}
-        </p>
-      )}
     </section>
   );
 }
@@ -1201,204 +1160,6 @@ function OcrNameBanner({
       {error && (
         <p className="error" style={{ margin: "8px 0 0" }}>
           {(error as Error).message}
-        </p>
-      )}
-    </section>
-  );
-}
-
-// ─── Metadata banner (Sprint 7) ──────────────────────────────────────────────
-// Zobrazí sa pre Item s metadata_status === 'EXTRACTED'. "Potvrdiť všetko"
-// pošle aktuálne hodnoty (vrátane prípadných úprav v editovacom režime), ktoré
-// backend uloží a flagne REVIEWED. "Zamietnuť" vyčistí JSONB a vráti status na
-// NONE — položka pôjde znova do eligible fronty.
-
-function MetadataBanner({
-  item,
-  onDone,
-}: {
-  item: Item;
-  onDone: () => Promise<void> | void;
-}) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [draft, setDraft] = useState<ItemMetadata>(() =>
-    normalizeMetadataDraft(item.metadata),
-  );
-
-  useEffect(() => {
-    setDraft(normalizeMetadataDraft(item.metadata));
-  }, [item.id, item.metadata]);
-
-  const confirmMut = useMutation({
-    mutationFn: (metadata?: ItemMetadata) =>
-      api.confirmLlmMetadata(item.id, metadata),
-    onSuccess: async () => {
-      setIsEditing(false);
-      await onDone();
-    },
-  });
-  const editMut = useMutation({
-    mutationFn: (metadata: ItemMetadata) =>
-      api.editLlmMetadata(item.id, metadata),
-    onSuccess: async () => {
-      await onDone();
-    },
-  });
-  const rejectMut = useMutation({
-    mutationFn: () => api.rejectLlmMetadata(item.id),
-    onSuccess: async () => {
-      await onDone();
-    },
-  });
-  const reextractMut = useMutation({
-    mutationFn: () => api.extractLlmMetadata(item.id),
-    onSuccess: async (result) => {
-      if (result.error) throw new Error(result.error);
-      await onDone();
-    },
-  });
-
-  const isPending =
-    confirmMut.isPending ||
-    editMut.isPending ||
-    rejectMut.isPending ||
-    reextractMut.isPending;
-  const error =
-    confirmMut.error ?? editMut.error ?? rejectMut.error ?? reextractMut.error ?? null;
-
-  const knownSet = new Set<string>(KNOWN_METADATA_KEYS);
-  const meta = item.metadata ?? {};
-  const knownEntries = KNOWN_METADATA_KEYS.map((k) => [k, meta[k]] as const).filter(
-    ([, v]) => typeof v === "string" && v.trim() !== "",
-  );
-  const unknownEntries = Object.entries(meta).filter(
-    ([k, v]) => !knownSet.has(k) && typeof v === "string" && v.trim() !== "",
-  );
-
-  return (
-    <section className="metadata-banner" aria-label="AI návrh metadát">
-      <h2 className="metadata-banner-title">AI navrhol metadata:</h2>
-
-      {isEditing ? (
-        <>
-          <div className="metadata-fields-grid">
-            {metadataEditKeys(draft).map((key) => (
-              <label key={key} className="metadata-field">
-                <span className="metadata-field-label">
-                  {metadataFieldLabel(key)}
-                </span>
-                <input
-                  type="text"
-                  value={draft[key] ?? ""}
-                  onChange={(e) =>
-                    setDraft((d) => ({ ...d, [key]: e.target.value }))
-                  }
-                  placeholder="—"
-                  maxLength={500}
-                  disabled={isPending}
-                />
-              </label>
-            ))}
-          </div>
-          <div className="row" style={{ gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-            <button
-              type="button"
-              className="btn-primary"
-              style={{ minHeight: 44 }}
-              onClick={async () => {
-                const serialized = serializeMetadataDraft(draft);
-                await editMut.mutateAsync(serialized);
-                confirmMut.mutate(serialized);
-              }}
-              disabled={isPending}
-            >
-              {confirmMut.isPending || editMut.isPending
-                ? "Ukladám…"
-                : "✓ Uložiť a potvrdiť"}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setIsEditing(false);
-                setDraft(normalizeMetadataDraft(item.metadata));
-              }}
-              disabled={isPending}
-              style={{ minHeight: 44 }}
-            >
-              Zrušiť
-            </button>
-          </div>
-        </>
-      ) : (
-        <>
-          {knownEntries.length === 0 && unknownEntries.length === 0 ? (
-            <p className="muted" style={{ margin: 0, fontSize: 13 }}>
-              LLM nevedel jednoznačne určiť žiadne pole. Môžeš metadata upraviť
-              ručne alebo zamietnuť.
-            </p>
-          ) : (
-            <dl className="metadata-readonly-list">
-              {knownEntries.map(([k, v]) => (
-                <div key={k} style={{ display: "contents" }}>
-                  <dt>{METADATA_LABELS[k]}</dt>
-                  <dd>{v}</dd>
-                </div>
-              ))}
-              {unknownEntries.map(([k, v]) => (
-                <div key={k} style={{ display: "contents" }}>
-                  <dt>{metadataFieldLabel(k)}</dt>
-                  <dd>
-                    <em>{String(v)}</em>
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          )}
-          <div className="row" style={{ gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-            <button
-              type="button"
-              className="btn-primary"
-              style={{ minHeight: 44 }}
-              onClick={() =>
-                confirmMut.mutate(serializeMetadataDraft(normalizeMetadataDraft(item.metadata)))
-              }
-              disabled={isPending}
-            >
-              {confirmMut.isPending ? "Potvrdzujem…" : "✓ Potvrdiť všetko"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsEditing(true)}
-              disabled={isPending}
-              style={{ minHeight: 44 }}
-            >
-              ✏️ Upraviť
-            </button>
-            <button
-              type="button"
-              onClick={() => reextractMut.mutate()}
-              disabled={isPending}
-              style={{ minHeight: 44 }}
-              title="Znova spustí LLM nad OCR textom štítku"
-            >
-              {reextractMut.isPending ? "Extrahujem…" : "↻ Z OCR znova"}
-            </button>
-            <button
-              type="button"
-              className="btn-danger"
-              onClick={() => rejectMut.mutate()}
-              disabled={isPending}
-              style={{ minHeight: 44 }}
-            >
-              {rejectMut.isPending ? "Zamietam…" : "✗ Zamietnuť"}
-            </button>
-          </div>
-        </>
-      )}
-
-      {error && (
-        <p className="error" style={{ margin: "8px 0 0" }}>
-          Chyba: {(error as Error).message}
         </p>
       )}
     </section>
