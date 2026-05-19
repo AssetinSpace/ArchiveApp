@@ -1716,6 +1716,30 @@ p { margin: 0 0 12px; }
   border-color: var(--color-brand-green-hover);
 }
 
+.items-table-chip-level {
+  flex-direction: column;
+  gap: 2px;
+  min-width: 72px;
+  padding: 6px 10px;
+  white-space: normal;
+  line-height: 1.2;
+}
+
+.items-table-chip-level-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.items-table-chip-level-sub {
+  font-size: 11px;
+  font-weight: 400;
+  opacity: 0.88;
+}
+
+.items-table-chip-active .items-table-chip-level-sub {
+  opacity: 0.92;
+}
+
 .items-table-actions {
   gap: 8px;
   padding-top: 8px;

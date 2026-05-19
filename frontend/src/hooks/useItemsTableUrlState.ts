@@ -1,33 +1,32 @@
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
+import { ITEM_LEVELS } from "../api";
 
 const SEARCH_KEY = "s";
-const TYPES_KEY = "types";
+const LEVELS_KEY = "levels";
 const STATUS_KEY = "status";
 const HAS_QR_KEY = "hasQr";
 const HAS_PHOTO_KEY = "hasPhoto";
 const HIDDEN_COLS_KEY = "hide";
 
-const ALL_KINDS = [
-  "SKLAD",
-  "OHRADKA",
-  "POLICA",
-  "PALETA",
-  "KRABICA",
-  "ZLOZKA",
-  "TUBA",
-  "OBAL",
-] as const;
+const ALL_LEVELS = ITEM_LEVELS;
+
+function parseLevelFilters(raw: string | null): number[] {
+  if (!raw) return [];
+  return raw
+    .split(",")
+    .map((s) => parseInt(s, 10))
+    .filter((n) => ALL_LEVELS.includes(n as (typeof ALL_LEVELS)[number]));
+}
 
 export function useItemsTableUrlState() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const search = searchParams.get(SEARCH_KEY) ?? "";
-  const typeFilters = useMemo(() => {
-    const raw = searchParams.get(TYPES_KEY);
-    if (!raw) return [] as string[];
-    return raw.split(",").filter((t) => ALL_KINDS.includes(t as (typeof ALL_KINDS)[number]));
-  }, [searchParams]);
+  const levelFilters = useMemo(
+    () => parseLevelFilters(searchParams.get(LEVELS_KEY)),
+    [searchParams],
+  );
   const statusFilter = searchParams.get(STATUS_KEY) ?? "";
   const hasQr = searchParams.get(HAS_QR_KEY) === "1";
   const hasPhoto = searchParams.get(HAS_PHOTO_KEY) === "1";
@@ -50,6 +49,7 @@ export function useItemsTableUrlState() {
           next.delete("mode");
           next.delete("group");
           next.delete("q");
+          next.delete("types");
           return next;
         },
         { replace: true },
@@ -62,9 +62,11 @@ export function useItemsTableUrlState() {
     (q: string) => patchParams({ [SEARCH_KEY]: q || null }),
     [patchParams],
   );
-  const setTypeFilters = useCallback(
-    (types: string[]) =>
-      patchParams({ [TYPES_KEY]: types.length > 0 ? types.join(",") : null }),
+  const setLevelFilters = useCallback(
+    (levels: number[]) =>
+      patchParams({
+        [LEVELS_KEY]: levels.length > 0 ? levels.join(",") : null,
+      }),
     [patchParams],
   );
   const setStatusFilter = useCallback(
@@ -90,7 +92,7 @@ export function useItemsTableUrlState() {
   const clearFilters = useCallback(() => {
     patchParams({
       [SEARCH_KEY]: null,
-      [TYPES_KEY]: null,
+      [LEVELS_KEY]: null,
       [STATUS_KEY]: null,
       [HAS_QR_KEY]: null,
       [HAS_PHOTO_KEY]: null,
@@ -98,23 +100,23 @@ export function useItemsTableUrlState() {
   }, [patchParams]);
 
   const hasActiveFilters =
-    !!search.trim() || typeFilters.length > 0 || !!statusFilter || hasQr || hasPhoto;
+    !!search.trim() || levelFilters.length > 0 || !!statusFilter || hasQr || hasPhoto;
 
   return {
     search,
-    typeFilters,
+    levelFilters,
     statusFilter,
     hasQr,
     hasPhoto,
     hiddenColumns,
     hasActiveFilters,
     setSearch,
-    setTypeFilters,
+    setLevelFilters,
     setStatusFilter,
     setHasQr,
     setHasPhoto,
     setHiddenColumns,
     clearFilters,
-    ALL_KINDS,
+    ALL_LEVELS,
   };
 }

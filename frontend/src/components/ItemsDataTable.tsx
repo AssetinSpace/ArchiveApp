@@ -13,6 +13,7 @@ import {
 import {
   api,
   KNOWN_METADATA_KEYS,
+  levelKindHint,
   METADATA_LABELS,
   TYPE_LABEL,
   type InventoryItem,
@@ -148,20 +149,20 @@ export function ItemsDataTable() {
   const allItems = inventoryQ.data ?? [];
   const searchQ = url.search.trim();
   const hasAnyFilter =
-    url.typeFilters.length > 0 || !!url.statusFilter || url.hasQr || url.hasPhoto || !!searchQ;
+    url.levelFilters.length > 0 || !!url.statusFilter || url.hasQr || url.hasPhoto || !!searchQ;
 
-  // ── Krok 1: primárne filtre (typ, status, qr, foto) ─────────────────────
-  // Typ chip = chcem vidieť položky tohto TYPU (predkovia sa pridajú ako kontext).
+  // ── Krok 1: primárne filtre (úroveň, status, qr, foto) ──────────────────
+  // Úroveň chip = chcem vidieť položky na danej úrovni (predkovia ako kontext).
   const primaryMatches = useMemo<InventoryItem[]>(() => {
     let items = allItems;
-    if (url.typeFilters.length > 0)
-      items = items.filter((it) => url.typeFilters.includes(it.kind));
+    if (url.levelFilters.length > 0)
+      items = items.filter((it) => url.levelFilters.includes(it.level));
     if (url.statusFilter)
       items = items.filter((it) => it.status === url.statusFilter);
     if (url.hasQr) items = items.filter((it) => !!it.qr_code);
     if (url.hasPhoto) items = items.filter((it) => it._count.photos > 0);
     return items;
-  }, [allItems, url.typeFilters, url.statusFilter, url.hasQr, url.hasPhoto]);
+  }, [allItems, url.levelFilters, url.statusFilter, url.hasQr, url.hasPhoto]);
 
   // ── Krok 2: textové hľadanie ─────────────────────────────────────────────
   const coreMatches = useMemo<InventoryItem[]>(() => {
@@ -544,11 +545,11 @@ export function ItemsDataTable() {
 
   const rows = table.getRowModel().rows;
 
-  function toggleTypeFilter(code: string) {
-    const next = url.typeFilters.includes(code)
-      ? url.typeFilters.filter((t) => t !== code)
-      : [...url.typeFilters, code];
-    url.setTypeFilters(next);
+  function toggleLevelFilter(level: number) {
+    const next = url.levelFilters.includes(level)
+      ? url.levelFilters.filter((l) => l !== level)
+      : [...url.levelFilters, level];
+    url.setLevelFilters(next);
   }
 
   function toggleColumn(colId: string) {
@@ -598,18 +599,20 @@ export function ItemsDataTable() {
         {/* Filtre typov */}
         <div className="items-table-toolbar-row items-table-filters">
           <span className="items-table-filter-label">Zobraziť úrovne</span>
-          {url.ALL_KINDS.map((code) => (
+          {url.ALL_LEVELS.map((level) => (
             <button
-              key={code}
+              key={level}
               type="button"
-              className={`items-table-chip ${
-                url.typeFilters.length === 0 || url.typeFilters.includes(code)
+              className={`items-table-chip items-table-chip-level ${
+                url.levelFilters.length === 0 || url.levelFilters.includes(level)
                   ? "items-table-chip-active"
                   : ""
               }`}
-              onClick={() => toggleTypeFilter(code)}
+              onClick={() => toggleLevelFilter(level)}
+              aria-label={`Úroveň ${level}, ${levelKindHint(level)}`}
             >
-              {TYPE_LABEL[code]}
+              <span className="items-table-chip-level-title">Úroveň {level}</span>
+              <span className="items-table-chip-level-sub">{levelKindHint(level)}</span>
             </button>
           ))}
         </div>

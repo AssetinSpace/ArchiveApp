@@ -39,6 +39,17 @@ export const KIND_DEFAULTS: Record<number, string[]> = {
   7: ["DOKUMENT", "VYKRES", "FOTODOKUMENTACIA"],
 };
 
+export const ITEM_LEVELS = [1, 2, 3, 4, 5, 6, 7] as const;
+
+/** Krátky popis typického kind na danej úrovni (prvý predvolený z KIND_DEFAULTS). */
+export function levelKindHint(level: number): string {
+  const code = KIND_DEFAULTS[level]?.[0];
+  if (!code) return "";
+  if (TYPE_LABEL[code]) return TYPE_LABEL[code];
+  const lower = code.toLowerCase();
+  return lower.charAt(0).toUpperCase() + lower.slice(1);
+}
+
 // Credentials stored in sessionStorage so they survive React re-renders but reset on tab close.
 const STORAGE_KEY = "archiveapp_creds";
 
