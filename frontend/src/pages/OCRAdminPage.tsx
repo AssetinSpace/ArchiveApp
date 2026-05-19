@@ -18,14 +18,16 @@ import {
   serializeMetadataDraft,
 } from "../lib/metadataDraft";
 
-// SpracovaniePage — Kanban pipeline (Sprint 8)
+// SpracovaniePage — tab layout (Sprint 8)
 //
-// Karta 1: Čakajúce na spracovanie (pending fotky + zlyhané + naposledy spracované)
-// Karta 2: Metadata na review (EXTRACTED → REVIEWED)
-// Stats: 4 čísla navrchu — pending fotky / done fotky / failed fotky / potvrdené metadáta
+// Tab "Fotky": pending fotky + spracovanie + zlyhané + naposledy spracované
+// Tab "Review (N)": metadata na review (EXTRACTED → REVIEWED)
+// Stats: 4 čísla navrchu viditeľné vždy
 //
 // S Gemini Vision (default) jeden batch call uloží OCR text aj metadata naraz.
 // Fallback batch extraction (tesseract path) je dostupná cez Item detail.
+
+type ProcessingTab = "photos" | "review";
 
 const OCR_STATUS_KEY = ["ocr-status"] as const;
 const FAILED_KEY = ["ocr-failed"] as const;
@@ -36,6 +38,9 @@ const PAGE_SIZE = 20;
 
 export function OCRAdminPage() {
   const qc = useQueryClient();
+
+  // ── Tab state ──────────────────────────────────────────────────────────────
+  const [activeTab, setActiveTab] = useState<ProcessingTab>("photos");
 
   // ── Foto processing state ──────────────────────────────────────────────────
   const [isOcrProcessing, setIsOcrProcessing] = useState(false);
@@ -133,6 +138,7 @@ export function OCRAdminPage() {
 
   const pendingPhotos = recentQ.data?.filter((p) => p.ocr_status === "PENDING") ?? [];
   const donePhotos = recentQ.data?.filter((p) => p.ocr_status === "DONE") ?? [];
+  const reviewCount = pendingReviewQ.data?.total ?? llmStatus.extracted;
 
   return (
     <div className="stack">
@@ -148,7 +154,7 @@ export function OCRAdminPage() {
         </span>
       </div>
 
-      {/* Stats — 4 čísla v jednom riadku */}
+      {/* Stats — 4 čísla vždy viditeľné */}
       <section className="ocr-stats-grid" aria-label="Prehľad spracovania">
         <StatCard variant="pending" label="Čakajú" value={ocrStatus.pending} />
         <StatCard variant="done" label="Spracované" value={ocrStatus.done} />
@@ -164,174 +170,184 @@ export function OCRAdminPage() {
         />
       </section>
 
-      {/* ── KARTA 1: Čakajúce na spracovanie ─────────────────────────────── */}
-      <section className="card">
-        <h2 style={{ marginTop: 0 }}>
-          Čakajúce na spracovanie
-          {ocrStatus.pending > 0 && (
-            <span style={{ marginLeft: 8, fontSize: 14, color: "#6b7280" }}>
-              ({ocrStatus.pending}{" "}
-              {plural(ocrStatus.pending, "fotka", "fotky", "fotiek")})
-            </span>
-          )}
-        </h2>
-
-        {ocrCompletedBanner !== null && ocrCompletedBanner > 0 && (
-          <div className="ocr-banner-success" style={{ marginBottom: 12 }}>
-            ✓ Hotovo — spracovaných {ocrCompletedBanner}{" "}
-            {plural(ocrCompletedBanner, "fotka", "fotky", "fotiek")}
-          </div>
-        )}
-
+      {/* Tabs */}
+      <nav className="item-detail-tabs" aria-label="Sekcie spracovania">
         <button
           type="button"
-          className="btn-primary ocr-process-btn"
-          disabled={ocrStatus.pending === 0 || isOcrProcessing || ocrStartMut.isPending}
-          onClick={() => ocrStartMut.mutate()}
+          className={`item-detail-tab${activeTab === "photos" ? " item-detail-tab-active" : ""}`}
+          onClick={() => setActiveTab("photos")}
+          aria-current={activeTab === "photos" ? "page" : undefined}
         >
-          {isOcrProcessing
-            ? "Spracovávam…"
-            : ocrStartMut.isPending
-              ? "Spúšťam…"
-              : ocrStatus.pending === 0
-                ? "Žiadne fotky na spracovanie"
-                : `Spracuj (${ocrStatus.pending})`}
-        </button>
-
-        {ocrStartMut.error && (
-          <p className="error" style={{ marginTop: 8 }}>
-            Chyba: {(ocrStartMut.error as Error).message}
-          </p>
-        )}
-
-        {isOcrProcessing && (
-          <p className="muted" style={{ marginTop: 8 }}>
-            Spracovanie beží na pozadí. Štatistiky sa aktualizujú každé 3 sekundy.
-          </p>
-        )}
-
-        {/* Zlyhané — inline v karte, len ak existujú */}
-        {ocrStatus.failed > 0 && (
-          <>
-            <hr style={{ margin: "16px 0", border: "none", borderTop: "1px solid #e5e7eb" }} />
-            <h3 style={{ margin: "0 0 8px", fontSize: 14, color: "#b91c1c" }}>
-              Zlyhané fotky ({ocrStatus.failed})
-            </h3>
-            {failedQ.isLoading && <p className="muted">Načítavam…</p>}
-            {failedQ.data?.map((p) => (
-              <FailedRow
-                key={p.id}
-                photo={p}
-                retrying={retryMut.isPending && retryMut.variables === p.id}
-                onRetry={() => retryMut.mutate(p.id)}
-              />
-            ))}
-            {failedQ.data && failedQ.data.length >= 100 && (
-              <p className="muted" style={{ marginTop: 8 }}>
-                Zobrazených prvých 100 záznamov.
-              </p>
-            )}
-            {retryMut.error && (
-              <p className="error" style={{ marginTop: 8 }}>
-                Retry chyba: {(retryMut.error as Error).message}
-              </p>
-            )}
-          </>
-        )}
-
-        {/* Thumbnails čakajúcich fotiek */}
-        {pendingPhotos.length > 0 && (
-          <>
-            <hr style={{ margin: "16px 0", border: "none", borderTop: "1px solid #e5e7eb" }} />
-            <h3 style={{ margin: "0 0 8px", fontSize: 14, color: "#6b7280" }}>
-              Čakajúce fotky
-            </h3>
-            {recentQ.isLoading && <p className="muted">Načítavam…</p>}
-            {pendingPhotos.map((p) => (
-              <RecentRow key={p.id} photo={p} />
-            ))}
-          </>
-        )}
-
-        {/* Naposledy spracované */}
-        {donePhotos.length > 0 && (
-          <>
-            <hr style={{ margin: "16px 0", border: "none", borderTop: "1px solid #e5e7eb" }} />
-            <h3 style={{ margin: "0 0 8px", fontSize: 14, color: "#6b7280" }}>
-              Naposledy spracované
-            </h3>
-            {donePhotos.map((p) => (
-              <RecentRow key={p.id} photo={p} />
-            ))}
-          </>
-        )}
-
-        {recentQ.data?.length === 0 && ocrStatus.pending === 0 && ocrStatus.failed === 0 && (
-          <p className="muted" style={{ marginTop: 12 }}>Žiadne fotky.</p>
-        )}
-      </section>
-
-      {/* ── KARTA 2: Metadata na review ───────────────────────────────────── */}
-      <section className="card">
-        <h2 style={{ marginTop: 0 }}>
-          Metadata na review
-          {pendingReviewQ.data && pendingReviewQ.data.total > 0 && (
-            <span style={{ marginLeft: 8, fontSize: 14, color: "#6b7280" }}>
-              ({pendingReviewQ.data.total} čakajúcich)
+          Fotky
+          {ocrStatus.pending > 0 && (
+            <span style={{ marginLeft: 6, opacity: activeTab === "photos" ? 0.9 : 0.6 }}>
+              ({ocrStatus.pending})
             </span>
           )}
-        </h2>
-
-        {pendingReviewQ.isLoading && <p className="muted">Načítavam…</p>}
-        {pendingReviewQ.error && (
-          <p className="error">
-            Chyba: {(pendingReviewQ.error as Error).message}
-          </p>
-        )}
-
-        {pendingReviewQ.data && pendingReviewQ.data.items.length === 0 && (
-          <p className="muted">
-            {llmStatus.extracted === 0
-              ? "Žiadne návrhy na review — spracuj fotky vyššie."
-              : "Žiadne ďalšie návrhy na tejto stránke."}
-          </p>
-        )}
-
-        <div className="llm-review-list">
-          {pendingReviewQ.data?.items.map((item) => (
-            <MetadataReviewCard key={item.id} item={item} />
-          ))}
-        </div>
-
-        {pendingReviewQ.data &&
-          pendingReviewQ.data.total > reviewOffset + PAGE_SIZE && (
-            <button
-              type="button"
-              className="btn-block"
-              style={{ marginTop: 12, minHeight: 48 }}
-              onClick={() => setReviewOffset(reviewOffset + PAGE_SIZE)}
-              disabled={pendingReviewQ.isFetching}
-            >
-              {pendingReviewQ.isFetching ? "Načítavam…" : "Načítať ďalšie"}
-            </button>
+        </button>
+        <button
+          type="button"
+          className={`item-detail-tab${activeTab === "review" ? " item-detail-tab-active" : ""}`}
+          onClick={() => setActiveTab("review")}
+          aria-current={activeTab === "review" ? "page" : undefined}
+        >
+          Review
+          {reviewCount > 0 && (
+            <span style={{ marginLeft: 6, opacity: activeTab === "review" ? 0.9 : 0.6 }}>
+              ({reviewCount})
+            </span>
           )}
-        {reviewOffset > 0 && (
+        </button>
+      </nav>
+
+      {/* ── TAB: Fotky ────────────────────────────────────────────────────── */}
+      {activeTab === "photos" && (
+        <section className="card item-detail-panel">
+          {ocrCompletedBanner !== null && ocrCompletedBanner > 0 && (
+            <div className="ocr-banner-success" style={{ marginBottom: 12 }}>
+              ✓ Hotovo — spracovaných {ocrCompletedBanner}{" "}
+              {plural(ocrCompletedBanner, "fotka", "fotky", "fotiek")}
+            </div>
+          )}
+
           <button
             type="button"
-            className="btn-ghost btn-small"
-            style={{ marginTop: 8 }}
-            onClick={() => setReviewOffset(0)}
+            className="btn-primary ocr-process-btn"
+            disabled={ocrStatus.pending === 0 || isOcrProcessing || ocrStartMut.isPending}
+            onClick={() => ocrStartMut.mutate()}
           >
-            Späť na začiatok
+            {isOcrProcessing
+              ? "Spracovávam…"
+              : ocrStartMut.isPending
+                ? "Spúšťam…"
+                : ocrStatus.pending === 0
+                  ? "Žiadne fotky na spracovanie"
+                  : `Spracuj (${ocrStatus.pending})`}
           </button>
-        )}
 
-        {llmStatus.reviewed > 0 && (
-          <p className="muted" style={{ marginTop: 16, fontSize: 13 }}>
-            Potvrdených: {llmStatus.reviewed} z {llmStatus.total} položiek
-          </p>
-        )}
-      </section>
+          {ocrStartMut.error && (
+            <p className="error" style={{ marginTop: 8 }}>
+              Chyba: {(ocrStartMut.error as Error).message}
+            </p>
+          )}
+          {isOcrProcessing && (
+            <p className="muted" style={{ marginTop: 8 }}>
+              Spracovanie beží na pozadí. Štatistiky sa aktualizujú každé 3 sekundy.
+            </p>
+          )}
+
+          {/* Zlyhané */}
+          {ocrStatus.failed > 0 && (
+            <>
+              <hr style={{ margin: "16px 0", border: "none", borderTop: "1px solid #e5e7eb" }} />
+              <h3 style={{ margin: "0 0 8px", fontSize: 14, color: "#b91c1c" }}>
+                Zlyhané fotky ({ocrStatus.failed})
+              </h3>
+              {failedQ.isLoading && <p className="muted">Načítavam…</p>}
+              {failedQ.data?.map((p) => (
+                <FailedRow
+                  key={p.id}
+                  photo={p}
+                  retrying={retryMut.isPending && retryMut.variables === p.id}
+                  onRetry={() => retryMut.mutate(p.id)}
+                />
+              ))}
+              {failedQ.data && failedQ.data.length >= 100 && (
+                <p className="muted" style={{ marginTop: 8 }}>Zobrazených prvých 100 záznamov.</p>
+              )}
+              {retryMut.error && (
+                <p className="error" style={{ marginTop: 8 }}>
+                  Retry chyba: {(retryMut.error as Error).message}
+                </p>
+              )}
+            </>
+          )}
+
+          {/* Čakajúce fotky */}
+          {pendingPhotos.length > 0 && (
+            <>
+              <hr style={{ margin: "16px 0", border: "none", borderTop: "1px solid #e5e7eb" }} />
+              <h3 style={{ margin: "0 0 8px", fontSize: 14, color: "#6b7280" }}>
+                Čakajúce fotky
+              </h3>
+              {recentQ.isLoading && <p className="muted">Načítavam…</p>}
+              {pendingPhotos.map((p) => (
+                <RecentRow key={p.id} photo={p} />
+              ))}
+            </>
+          )}
+
+          {/* Naposledy spracované */}
+          {donePhotos.length > 0 && (
+            <>
+              <hr style={{ margin: "16px 0", border: "none", borderTop: "1px solid #e5e7eb" }} />
+              <h3 style={{ margin: "0 0 8px", fontSize: 14, color: "#6b7280" }}>
+                Naposledy spracované
+              </h3>
+              {donePhotos.map((p) => (
+                <RecentRow key={p.id} photo={p} />
+              ))}
+            </>
+          )}
+
+          {recentQ.data?.length === 0 && ocrStatus.pending === 0 && ocrStatus.failed === 0 && (
+            <p className="muted" style={{ marginTop: 12 }}>Žiadne fotky.</p>
+          )}
+        </section>
+      )}
+
+      {/* ── TAB: Review ───────────────────────────────────────────────────── */}
+      {activeTab === "review" && (
+        <section className="card item-detail-panel">
+          {pendingReviewQ.isLoading && <p className="muted">Načítavam…</p>}
+          {pendingReviewQ.error && (
+            <p className="error">Chyba: {(pendingReviewQ.error as Error).message}</p>
+          )}
+
+          {pendingReviewQ.data && pendingReviewQ.data.items.length === 0 && (
+            <p className="muted">
+              {llmStatus.extracted === 0
+                ? "Žiadne návrhy na review — spracuj fotky na záložke Fotky."
+                : "Žiadne ďalšie návrhy na tejto stránke."}
+            </p>
+          )}
+
+          <div className="llm-review-list">
+            {pendingReviewQ.data?.items.map((item) => (
+              <MetadataReviewCard key={item.id} item={item} />
+            ))}
+          </div>
+
+          {pendingReviewQ.data &&
+            pendingReviewQ.data.total > reviewOffset + PAGE_SIZE && (
+              <button
+                type="button"
+                className="btn-block"
+                style={{ marginTop: 12, minHeight: 48 }}
+                onClick={() => setReviewOffset(reviewOffset + PAGE_SIZE)}
+                disabled={pendingReviewQ.isFetching}
+              >
+                {pendingReviewQ.isFetching ? "Načítavam…" : "Načítať ďalšie"}
+              </button>
+            )}
+          {reviewOffset > 0 && (
+            <button
+              type="button"
+              className="btn-ghost btn-small"
+              style={{ marginTop: 8 }}
+              onClick={() => setReviewOffset(0)}
+            >
+              Späť na začiatok
+            </button>
+          )}
+
+          {llmStatus.reviewed > 0 && (
+            <p className="muted" style={{ marginTop: 16, fontSize: 13 }}>
+              Potvrdených: {llmStatus.reviewed} z {llmStatus.total} položiek
+            </p>
+          )}
+        </section>
+      )}
     </div>
   );
 }
