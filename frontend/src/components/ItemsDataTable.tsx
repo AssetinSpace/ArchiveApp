@@ -36,9 +36,10 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const COLUMN_LABELS: Record<string, string> = {
-  type_code: "Typ",
+  level: "Úroveň",
+  kind: "Typ",
   name: "Názov",
-  auto_name: "Auto-name",
+  name_source: "Zdroj názvu",
   meta_stavba: "Stavba",
   meta_cast: "Časť",
   meta_projektant: "Projektant",
@@ -60,9 +61,15 @@ const COLUMN_LABELS: Record<string, string> = {
 // si ich zapne v "Stĺpce ▾". Auto-name je len debug pomôcka, metadata polia
 // (cislo/datum/stupen) sú obvykle krátke ale na úzkych obrazovkách nepotrebné
 // na prvý pohľad.
+const NAME_SOURCE_LABEL: Record<string, string> = {
+  GENERATED: "auto",
+  OCR: "z OCR",
+  MANUAL: "ručne",
+};
+
 const DEFAULT_HIDDEN = new Set([
   "updated_at",
-  "auto_name",
+  "name_source",
   "meta_stavba",
   "meta_cast",
   "meta_projektant",
@@ -129,8 +136,8 @@ export function ItemsDataTable() {
   const handleDeleteItem = useCallback(
     (item: InventoryTreeRow) => {
       if (item._count.children > 0) return;
-      const label = item.name ?? item.auto_name ?? "(bez názvu)";
-      const type = TYPE_LABEL[item.type_code] ?? item.type_code;
+      const label = item.name;
+      const type = TYPE_LABEL[item.kind] ?? item.kind;
       if (confirm(`Naozaj zmazať položku „${label}" (${type})?`)) {
         deleteMut.mutate(item.id);
       }
@@ -148,7 +155,7 @@ export function ItemsDataTable() {
   const primaryMatches = useMemo<InventoryItem[]>(() => {
     let items = allItems;
     if (url.typeFilters.length > 0)
-      items = items.filter((it) => url.typeFilters.includes(it.type_code));
+      items = items.filter((it) => url.typeFilters.includes(it.kind));
     if (url.statusFilter)
       items = items.filter((it) => it.status === url.statusFilter);
     if (url.hasQr) items = items.filter((it) => !!it.qr_code);
@@ -333,7 +340,15 @@ export function ItemsDataTable() {
         ),
     },
     {
-      accessorKey: "type_code",
+      accessorKey: "level",
+      header: "L",
+      size: 48,
+      cell: ({ row, getValue }) => (
+        <span style={{ paddingLeft: row.depth * TREE_INDENT_PX }}>{getValue<number>()}</span>
+      ),
+    },
+    {
+      accessorKey: "kind",
       header: "Typ",
       size: 100,
       cell: ({ row, getValue }) => {
@@ -372,14 +387,16 @@ export function ItemsDataTable() {
       },
     },
     {
-      accessorKey: "auto_name",
-      header: "Auto-name",
-      size: 160,
+      accessorKey: "name_source",
+      header: "Zdroj názvu",
+      size: 90,
       cell: ({ getValue }) => {
-        const v = getValue<string | null>();
-        return v
-          ? <code className="data-table-qr">{v}</code>
-          : <span className="muted">—</span>;
+        const src = getValue<string>();
+        return (
+          <span className={`badge badge-name-source-${src.toLowerCase()}`}>
+            {NAME_SOURCE_LABEL[src] ?? src}
+          </span>
+        );
       },
     },
     ...KNOWN_METADATA_KEYS.map<ColumnDef<InventoryTreeRow>>((key) => ({
@@ -581,7 +598,7 @@ export function ItemsDataTable() {
         {/* Filtre typov */}
         <div className="items-table-toolbar-row items-table-filters">
           <span className="items-table-filter-label">Zobraziť úrovne</span>
-          {url.ALL_TYPES.map((code) => (
+          {url.ALL_KINDS.map((code) => (
             <button
               key={code}
               type="button"

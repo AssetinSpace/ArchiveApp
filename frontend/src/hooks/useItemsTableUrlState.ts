@@ -8,7 +8,16 @@ const HAS_QR_KEY = "hasQr";
 const HAS_PHOTO_KEY = "hasPhoto";
 const HIDDEN_COLS_KEY = "hide";
 
-const ALL_TYPES = ["SKLAD", "PALETA", "KRABICA", "ZLOZKA"] as const;
+const ALL_KINDS = [
+  "SKLAD",
+  "OHRADKA",
+  "POLICA",
+  "PALETA",
+  "KRABICA",
+  "ZLOZKA",
+  "TUBA",
+  "OBAL",
+] as const;
 
 export function useItemsTableUrlState() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -17,7 +26,7 @@ export function useItemsTableUrlState() {
   const typeFilters = useMemo(() => {
     const raw = searchParams.get(TYPES_KEY);
     if (!raw) return [] as string[];
-    return raw.split(",").filter((t) => ALL_TYPES.includes(t as (typeof ALL_TYPES)[number]));
+    return raw.split(",").filter((t) => ALL_KINDS.includes(t as (typeof ALL_KINDS)[number]));
   }, [searchParams]);
   const statusFilter = searchParams.get(STATUS_KEY) ?? "";
   const hasQr = searchParams.get(HAS_QR_KEY) === "1";
@@ -106,6 +115,6 @@ export function useItemsTableUrlState() {
     setHasPhoto,
     setHiddenColumns,
     clearFilters,
-    ALL_TYPES,
+    ALL_KINDS,
   };
 }

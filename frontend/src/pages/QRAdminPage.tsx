@@ -227,10 +227,12 @@ function QRRow({
         {tag.assigned_item ? (
           <Link to={`/items/${tag.assigned_item.id}`}>
             <span
-              className={`badge badge-${tag.assigned_item.type_code.toLowerCase()}`}
+              className={`badge badge-${(tag.assigned_item.kind ?? tag.assigned_item.type_code ?? "").toLowerCase()}`}
               style={{ marginRight: 6 }}
             >
-              {TYPE_LABEL[tag.assigned_item.type_code] ?? tag.assigned_item.type_code}
+              {TYPE_LABEL[tag.assigned_item.kind ?? ""] ??
+                tag.assigned_item.kind ??
+                tag.assigned_item.type_code}
             </span>
             {tag.assigned_item.name ?? "(bez názvu)"}
           </Link>

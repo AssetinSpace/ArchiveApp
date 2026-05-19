@@ -54,17 +54,19 @@ function skladDiscriminator(node: {
 // alebo zo sequence pozície medzi aktívnymi siblings (podľa created_at).
 async function computeAncestorSegment(node: {
   id: string;
-  type_code: string;
+  type_code: string | null;
+  kind?: string;
   name: string | null;
   qr_code: string | null;
   parent_id: string | null;
   created_at: Date;
 }): Promise<string> {
-  const prefix = TYPE_PREFIX[node.type_code];
+  const typeKey = node.type_code ?? node.kind ?? "item";
+  const prefix = TYPE_PREFIX[typeKey];
   if (!prefix) {
-    return node.type_code.toLowerCase().slice(0, 3) + node.id.slice(0, 3);
+    return typeKey.toLowerCase().slice(0, 3) + node.id.slice(0, 3);
   }
-  if (node.type_code === "SKLAD") {
+  if (typeKey === "SKLAD") {
     return prefix + skladDiscriminator(node);
   }
   // Sequence = počet aktívnych siblings vytvorených pred (alebo súčasne s)
@@ -73,7 +75,9 @@ async function computeAncestorSegment(node: {
   // používa konzistentne; v praxi sa kolízie nestávajú (ms presnosť).
   const seq = await prisma.item.count({
     where: {
-      type_code: node.type_code,
+      ...(node.type_code
+        ? { type_code: node.type_code }
+        : { kind: node.kind ?? typeKey }),
       parent_id: node.parent_id,
       deleted_at: null,
       created_at: { lte: node.created_at },
@@ -91,6 +95,7 @@ async function buildPathPrefix(itemId: string): Promise<string | null> {
     select: {
       id: true,
       type_code: true,
+      kind: true,
       name: true,
       qr_code: true,
       parent_id: true,
@@ -115,6 +120,7 @@ async function buildPathPrefix(itemId: string): Promise<string | null> {
       select: {
         id: true,
         type_code: true,
+        kind: true,
         name: true,
         qr_code: true,
         parent_id: true,

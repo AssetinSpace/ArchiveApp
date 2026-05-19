@@ -5,12 +5,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import QRCode from "qrcode";
 import {
   api,
-  CHILD_TYPE_BY_PARENT,
+  KIND_DEFAULTS,
   KNOWN_METADATA_KEYS,
   METADATA_LABELS,
   TYPE_LABEL,
   type Item,
   type ItemMetadata,
+  type NameSource,
   type Status,
 } from "../api";
 import {
@@ -27,6 +28,12 @@ const STATUS_LABEL: Record<Status, string> = {
   NA_MIESTE: "Na mieste",
   VYNESENE: "Vynesené",
   NEZNAME: "Neznáme",
+};
+
+const NAME_SOURCE_LABEL: Record<NameSource, string> = {
+  GENERATED: "auto",
+  OCR: "z OCR",
+  MANUAL: "ručne",
 };
 
 type DetailTab = "edit" | "qr" | "photos" | "children";
@@ -78,9 +85,9 @@ export function ItemDetailPage() {
   if (!itemQ.data) return <p className="muted">Položka nenájdená.</p>;
 
   const item = itemQ.data;
-  const showAutoNameLabel =
-    !!item.auto_name && item.name !== item.auto_name;
   const showMetadataBanner = item.metadata_status === "EXTRACTED";
+  const showOcrNameBanner =
+    !!item.ocr_name_suggestion && item.name_source === "GENERATED";
   const showMetadataReadonly =
     item.metadata_status === "REVIEWED" &&
     !!item.metadata &&
@@ -116,12 +123,6 @@ export function ItemDetailPage() {
         })}
       </nav>
 
-      {showAutoNameLabel && (
-        <div className="item-autoname-label">
-          Pôvodné ID: <code>{item.auto_name}</code>
-        </div>
-      )}
-
       {item.metadata_status === "NONE" && (
         <MetadataExtractSection itemId={item.id} onDone={invalidateAll} />
       )}
@@ -130,14 +131,19 @@ export function ItemDetailPage() {
         <MetadataBanner item={item} onDone={invalidateAll} />
       )}
 
+      {showOcrNameBanner && (
+        <OcrNameBanner item={item} onDone={invalidateAll} />
+      )}
+
       {/* Základné metadáta */}
       <section className="card item-detail-header">
-        <h1 style={{ marginBottom: 8 }}>
-          {item.name ?? item.auto_name ?? "(bez názvu)"}
-        </h1>
+        <h1 style={{ marginBottom: 8 }}>{item.name}</h1>
         <div className="row" style={{ marginBottom: item.note ? 0 : 12, flexWrap: "wrap" }}>
-          <span className={`badge badge-${item.type_code.toLowerCase()}`}>
-            {TYPE_LABEL[item.type_code] ?? item.type_code}
+          <span className={`badge badge-${item.kind.toLowerCase()}`}>
+            L{item.level} {TYPE_LABEL[item.kind] ?? item.kind}
+          </span>
+          <span className={`badge badge-name-source-${item.name_source.toLowerCase()}`}>
+            {NAME_SOURCE_LABEL[item.name_source]}
           </span>
           <span className={`badge badge-${item.status.toLowerCase()}`}>
             {STATUS_LABEL[item.status]}
@@ -237,8 +243,8 @@ export function ItemDetailPage() {
           {childrenQ.data?.map((c) => (
             <Link key={c.id} to={`/items/${c.id}`} className="card-link">
               <div className="row" style={{ gap: 8 }}>
-                <span className={`badge badge-${c.type_code.toLowerCase()}`}>
-                  {TYPE_LABEL[c.type_code] ?? c.type_code}
+                <span className={`badge badge-${c.kind.toLowerCase()}`}>
+                  L{c.level} {TYPE_LABEL[c.kind] ?? c.kind}
                 </span>
                 <strong style={{ flexGrow: 1 }}>{c.name ?? "(bez názvu)"}</strong>
               </div>
@@ -264,7 +270,7 @@ export function ItemDetailPage() {
       )}
 
       {/* FAB — skrátený prístup k "Pridať podradeú položku" */}
-      {CHILD_TYPE_BY_PARENT[item.type_code] && createPortal(
+      {item.level < 7 && createPortal(
         <button
           type="button"
           className="fab"
@@ -277,7 +283,7 @@ export function ItemDetailPage() {
         document.body,
       )}
 
-      {fabOpen && CHILD_TYPE_BY_PARENT[item.type_code] && createPortal(
+      {fabOpen && item.level < 7 && createPortal(
         <div
           className="create-modal-overlay"
           onClick={() => setFabOpen(false)}
@@ -351,7 +357,7 @@ function ItemDeleteSection({
     onError: (e: Error) => setError(e.message),
   });
 
-  const displayName = item.name ?? item.auto_name ?? "(bez názvu)";
+  const displayName = item.name;
 
   return (
     <div className="item-delete-section">
@@ -376,7 +382,7 @@ function ItemDeleteSection({
         onClick={() => {
           if (
             confirm(
-              `Naozaj zmazať položku „${displayName}" (${TYPE_LABEL[item.type_code] ?? item.type_code})?`,
+              `Naozaj zmazať položku „${displayName}" (L${item.level} ${TYPE_LABEL[item.kind] ?? item.kind})?`,
             )
           ) {
             deleteMut.mutate();
@@ -626,19 +632,26 @@ function AddChildFormContent({
   onAdded: () => Promise<void> | void;
   onCancel: () => void;
 }) {
-  const allowedChildType = CHILD_TYPE_BY_PARENT[parent.type_code];
+  const childLevel = parent.level + 1;
+  const defaults = KIND_DEFAULTS[childLevel] ?? [];
+  const [kindInput, setKindInput] = useState(defaults[0] ?? "");
+  const [customKind, setCustomKind] = useState(false);
   const [name, setName] = useState("");
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const mut = useMutation({
-    mutationFn: () =>
-      api.createItem({
-        type_code: allowedChildType ?? "",
+    mutationFn: () => {
+      const kind = kindInput.trim();
+      if (!kind) throw new Error("Vyber alebo napíš typ položky");
+      return api.createItem({
+        level: childLevel,
+        kind,
         name: name.trim() || null,
         note: note.trim() || null,
         parent_id: parent.id,
-      }),
+      });
+    },
     onSuccess: async () => {
       await onAdded();
       setName("");
@@ -648,7 +661,7 @@ function AddChildFormContent({
     onError: (e: Error) => setError(e.message),
   });
 
-  if (!allowedChildType) {
+  if (parent.level >= 7) {
     return (
       <p className="muted">Tento typ položky nemôže mať podradené položky.</p>
     );
@@ -663,9 +676,42 @@ function AddChildFormContent({
       }}
     >
       <p className="muted" style={{ margin: 0 }}>
-        Typ:{" "}
-        <strong>{TYPE_LABEL[allowedChildType] ?? allowedChildType}</strong>
+        Úroveň: <strong>{childLevel}</strong>
       </p>
+      <label className="form-label">
+        Typ položky
+        <select
+          value={customKind ? "__custom__" : kindInput}
+          onChange={(e) => {
+            if (e.target.value === "__custom__") {
+              setCustomKind(true);
+              setKindInput("");
+            } else {
+              setCustomKind(false);
+              setKindInput(e.target.value);
+            }
+          }}
+        >
+          {defaults.map((k) => (
+            <option key={k} value={k}>
+              {TYPE_LABEL[k] ?? k}
+            </option>
+          ))}
+          <option value="__custom__">Vlastné…</option>
+        </select>
+      </label>
+      {customKind && (
+        <label className="form-label">
+          Vlastný typ
+          <input
+            type="text"
+            placeholder="Napíš vlastný typ..."
+            value={kindInput}
+            onChange={(e) => setKindInput(e.target.value)}
+            autoFocus
+          />
+        </label>
+      )}
       <label className="form-label">
         Názov
         <input
@@ -675,11 +721,7 @@ function AddChildFormContent({
           placeholder="(voliteľné — inak sa vygeneruje automaticky)"
         />
       </label>
-      <AutoNamePreview
-        typeCode={allowedChildType}
-        parentId={parent.id}
-        manualName={name}
-      />
+      <AutoNamePreview kind={kindInput} parentId={parent.id} manualName={name} />
       <label className="form-label">
         Poznámka
         <textarea
@@ -717,10 +759,9 @@ function AddChildForm({
   parent: Item;
   onAdded: () => Promise<void> | void;
 }) {
-  const allowedChildType = CHILD_TYPE_BY_PARENT[parent.type_code];
   const [open, setOpen] = useState(false);
 
-  if (!allowedChildType) {
+  if (parent.level >= 7) {
     return (
       <p className="muted" style={{ marginTop: 12 }}>
         Tento typ položky nemôže mať podradené položky.
@@ -737,7 +778,7 @@ function AddChildForm({
           onClick={() => setOpen(true)}
           style={{ minHeight: 48 }}
         >
-          + Pridať podradeú položku ({TYPE_LABEL[allowedChildType] ?? allowedChildType})
+          + Pridať podradenú položku (L{parent.level + 1})
         </button>
         <Link
           to={`/scan?parentId=${parent.id}`}
@@ -809,6 +850,103 @@ function MetadataExtractSection({
       {extractMut.error && (
         <p className="error" style={{ margin: "8px 0 0" }}>
           Chyba: {(extractMut.error as Error).message}
+        </p>
+      )}
+    </section>
+  );
+}
+
+// ─── OCR name suggestion banner (Sprint 8) ─────────────────────────────────
+
+function OcrNameBanner({
+  item,
+  onDone,
+}: {
+  item: Item;
+  onDone: () => Promise<void> | void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [editValue, setEditValue] = useState(item.ocr_name_suggestion ?? "");
+
+  const confirmMut = useMutation({
+    mutationFn: (name?: string) => api.confirmOcrName(item.id, name),
+    onSuccess: async () => {
+      setEditing(false);
+      await onDone();
+    },
+  });
+  const dismissMut = useMutation({
+    mutationFn: () => api.dismissOcrName(item.id),
+    onSuccess: async () => {
+      await onDone();
+    },
+  });
+
+  const pending = confirmMut.isPending || dismissMut.isPending;
+  const error = confirmMut.error ?? dismissMut.error;
+
+  return (
+    <section className="item-ocr-banner" aria-label="OCR návrh názvu">
+      <span className="item-ocr-banner-label">OCR navrhuje názov</span>
+      {!editing ? (
+        <>
+          <span className="item-ocr-banner-title">{item.ocr_name_suggestion}</span>
+          <div className="item-ocr-banner-actions">
+            <button
+              type="button"
+              className="btn-primary"
+              disabled={pending}
+              onClick={() => confirmMut.mutate(undefined)}
+            >
+              {confirmMut.isPending ? "Ukladám…" : "Použiť"}
+            </button>
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() => {
+                setEditValue(item.ocr_name_suggestion ?? "");
+                setEditing(true);
+              }}
+            >
+              Upraviť a použiť
+            </button>
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() => dismissMut.mutate()}
+            >
+              Ignorovať
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <input
+            type="text"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            maxLength={100}
+            disabled={pending}
+            style={{ width: "100%", minHeight: 44 }}
+          />
+          <div className="item-ocr-banner-actions">
+            <button
+              type="button"
+              className="btn-primary"
+              disabled={pending || !editValue.trim()}
+              onClick={() => confirmMut.mutate(editValue.trim())}
+            >
+              {confirmMut.isPending ? "Ukladám…" : "Potvrdiť"}
+            </button>
+            <button type="button" disabled={pending} onClick={() => setEditing(false)}>
+              Zrušiť
+            </button>
+          </div>
+        </>
+      )}
+      {error && (
+        <p className="error" style={{ margin: "8px 0 0" }}>
+          {(error as Error).message}
         </p>
       )}
     </section>

@@ -44,7 +44,14 @@ export async function processPhoto(photoId: string): Promise<void> {
   try {
     const photo = await prisma.photo.findFirst({
       where: { id: photoId, deleted_at: null },
-      select: { id: true, storage_key: true, ocr_status: true },
+      select: {
+        id: true,
+        storage_key: true,
+        ocr_status: true,
+        photo_type: true,
+        item_id: true,
+        item: { select: { level: true } },
+      },
     });
 
     if (!photo) {
@@ -76,6 +83,19 @@ export async function processPhoto(photoId: string): Promise<void> {
       where: { id: photoId },
       data: { ocr_status: "DONE", ocr_raw_text: text },
     });
+
+    if (
+      photo.photo_type === "OVERVIEW" &&
+      [2, 3].includes(photo.item.level)
+    ) {
+      const suggestion = text.trim();
+      if (suggestion.length > 0 && suggestion.length < 100) {
+        await prisma.item.update({
+          where: { id: photo.item_id },
+          data: { ocr_name_suggestion: suggestion },
+        });
+      }
+    }
   } catch (err) {
     // Posledná obrana — chyba v DB query alebo niečo nečakané.
     console.error(`[ocr] processPhoto ${photoId} unexpected error:`, err);

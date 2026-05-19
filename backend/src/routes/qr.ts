@@ -262,7 +262,7 @@ qrRouter.get("/", async (req, res, next) => {
       orderBy: { code: "asc" },
       include: {
         assigned_item: {
-          select: { id: true, name: true, type_code: true },
+          select: { id: true, name: true, level: true, kind: true, type_code: true },
         },
       },
     });
@@ -281,7 +281,7 @@ qrRouter.get("/:code", async (req, res, next) => {
       where: { code },
       include: {
         assigned_item: {
-          select: { id: true, name: true, type_code: true },
+          select: { id: true, name: true, level: true, kind: true, type_code: true },
         },
       },
     });
@@ -292,8 +292,10 @@ qrRouter.get("/:code", async (req, res, next) => {
 
     let assignedItem: {
       id: string;
-      name: string | null;
-      type_code: string;
+      name: string;
+      level: number;
+      kind: string;
+      type_code: string | null;
       path: Awaited<ReturnType<typeof getItemPath>>;
     } | null = null;
 
@@ -302,6 +304,8 @@ qrRouter.get("/:code", async (req, res, next) => {
       assignedItem = {
         id: tag.assigned_item.id,
         name: tag.assigned_item.name,
+        level: tag.assigned_item.level,
+        kind: tag.assigned_item.kind,
         type_code: tag.assigned_item.type_code,
         path,
       };

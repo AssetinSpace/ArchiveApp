@@ -62,7 +62,7 @@ function BoxView({ data }: { data: BoxContents }) {
           <Fragment key={node.id}>
             {idx > 0 && <span className="breadcrumb-sep">›</span>}
             <Link to={`/items/${node.id}`}>
-              {node.name ?? TYPE_LABEL[node.type_code] ?? node.type_code}
+              {node.name ?? TYPE_LABEL[node.kind] ?? node.kind}
             </Link>
           </Fragment>
         ))}

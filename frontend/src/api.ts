@@ -23,6 +23,20 @@ export const TYPE_LABEL: Record<string, string> = {
   PALETA: "Paleta",
   KRABICA: "Krabica",
   ZLOZKA: "Zložka",
+  OHRADKA: "Ohradka",
+  POLICA: "Polica",
+};
+
+export type NameSource = "GENERATED" | "OCR" | "MANUAL";
+
+export const KIND_DEFAULTS: Record<number, string[]> = {
+  1: ["SKLAD", "ARCHÍV", "DEPOZIT"],
+  2: ["OHRADKA", "CAST", "MIESTNOST", "SEKCIA"],
+  3: ["POLICA", "PALETA", "REGAL", "ŠUPLÍK"],
+  4: ["KRABICA", "TUBA", "OBAL"],
+  5: ["ZLOZKA", "EUROOBAL", "ZAKLADAC", "ŠANÓN"],
+  6: ["EUROOBAL", "OBALKA", "FOLIA"],
+  7: ["DOKUMENT", "VYKRES", "FOTODOKUMENTACIA"],
 };
 
 // Credentials stored in sessionStorage so they survive React re-renders but reset on tab close.
@@ -100,15 +114,17 @@ export const METADATA_LABELS: Record<string, string> = {
 
 export type Item = {
   id: string;
-  type_code: string;
-  name: string | null;
+  level: number;
+  kind: string;
+  name: string;
+  name_source: NameSource;
+  ocr_name_suggestion?: string | null;
+  type_code?: string | null;
+  auto_name?: string | null;
   parent_id: string | null;
   qr_code: string | null;
   note: string | null;
   status: Status;
-  // Sprint 5: pozičný identifikátor (sklA_pal003_kra004_zlo015) — nullable lebo
-  // existujúce položky pred Sprint 5 nemajú backfill.
-  auto_name?: string | null;
   metadata?: ItemMetadata;
   metadata_status?: MetadataStatus;
   deleted_at: string | null;
@@ -120,14 +136,17 @@ export type Item = {
 /** Položka z GET /items/inventory — bez deleted_at, s agregátmi a OCR textom pre tabuľku. */
 export type InventoryItem = {
   id: string;
-  type_code: string;
-  name: string | null;
+  level: number;
+  kind: string;
+  name: string;
+  name_source: NameSource;
+  ocr_name_suggestion?: string | null;
+  type_code?: string | null;
   parent_id: string | null;
   qr_code: string | null;
   note: string | null;
   status: Status;
-  // Sprint 5/7: rozšírené polia pre tabuľku — backend ich vracia z /items/inventory.
-  auto_name: string | null;
+  auto_name?: string | null;
   metadata: ItemMetadata;
   metadata_status: MetadataStatus;
   created_at: string;
@@ -150,16 +169,20 @@ export type QRTag = {
   created_at: string;
   assigned_item?: {
     id: string;
-    name: string | null;
-    type_code: string;
+    name: string;
+    level?: number;
+    kind?: string;
+    type_code?: string | null;
   } | null;
 };
 
 export type PathNode = {
   id: string;
-  type_code: string;
-  name: string | null;
+  level: number;
+  kind: string;
+  name: string;
   parent_id: string | null;
+  type_code?: string | null;
 };
 
 export type QRLookup = {
@@ -168,8 +191,10 @@ export type QRLookup = {
   status: QrStatus;
   assignedItem: {
     id: string;
-    name: string | null;
-    type_code: string;
+    name: string;
+    level?: number;
+    kind?: string;
+    type_code?: string | null;
     path: PathNode[];
   } | null;
 };
@@ -248,8 +273,10 @@ export type MatchSource =
 export type SearchHit = {
   item: {
     id: string;
-    typeCode: string;
-    name: string | null;
+    level: number;
+    kind: string;
+    typeCode: string | null;
+    name: string;
     qrCode: string | null;
     status: Status;
     note: string | null;
@@ -385,26 +412,41 @@ export const api = {
     return request<Item[]>(`/items${q ? `?${q}` : ""}`);
   },
   inventoryItems: () => request<InventoryItem[]>("/items/inventory"),
-  previewAutoName: (params: { type_code: string; parent_id: string }) => {
-    const qs = new URLSearchParams({
-      type_code: params.type_code,
-      parent_id: params.parent_id,
-    });
-    return request<{ auto_name: string | null }>(`/items/auto-name-preview?${qs}`);
+  previewName: (params: { kind: string; parent_id?: string | null }) => {
+    const qs = new URLSearchParams({ kind: params.kind });
+    if (params.parent_id) qs.set("parent_id", params.parent_id);
+    return request<{ name: string }>(`/items/name-preview?${qs}`);
   },
   getItem: (id: string) => request<Item & { _count: { children: number } }>(`/items/${id}`),
   getItemPath: (id: string) => request<Item[]>(`/items/${id}/path`),
   getChildren: (id: string) => request<Item[]>(`/items/${id}/children`),
   createItem: (data: {
-    type_code: string;
+    level: number;
+    kind: string;
     name?: string | null;
     parent_id?: string | null;
     note?: string | null;
     qr_code?: string | null;
+    status?: Status;
   }) =>
     request<Item>("/items", {
       method: "POST",
       json: data,
+    }),
+  updateItemName: (id: string, name: string) =>
+    request<Item>(`/items/${id}/name`, {
+      method: "PATCH",
+      json: { name },
+    }),
+  confirmOcrName: (id: string, name?: string) =>
+    request<Item>(`/items/${id}/confirm-ocr-name`, {
+      method: "POST",
+      json: name !== undefined ? { name } : {},
+    }),
+  dismissOcrName: (id: string) =>
+    request<Item>(`/items/${id}/dismiss-ocr-name`, {
+      method: "POST",
+      json: {},
     }),
   updateItem: (
     id: string,

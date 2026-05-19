@@ -1,35 +1,35 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 
-type AutoNamePreviewProps = {
-  typeCode: string;
-  parentId: string;
-  /** Ak používateľ píše vlastný názov, náhľad auto-name skryjeme. */
+type NamePreviewProps = {
+  kind: string;
+  parentId: string | null;
+  /** Ak používateľ píše vlastný názov, náhľad skryjeme. */
   manualName?: string;
 };
 
-/** Náhľad automaticky generovaného pozičného názvu (Sprint 5). */
+/** Náhľad automaticky generovaného názvu (Sprint 8). */
 export function AutoNamePreview({
-  typeCode,
+  kind,
   parentId,
   manualName = "",
-}: AutoNamePreviewProps) {
+}: NamePreviewProps) {
   const trimmedManual = manualName.trim();
-  const enabled = !!typeCode && !!parentId && !trimmedManual;
+  const enabled = !!kind.trim() && !trimmedManual;
 
   const previewQ = useQuery({
-    queryKey: ["items", "auto-name-preview", typeCode, parentId],
-    queryFn: () => api.previewAutoName({ type_code: typeCode, parent_id: parentId }),
+    queryKey: ["items", "name-preview", kind, parentId],
+    queryFn: () => api.previewName({ kind, parent_id: parentId }),
     enabled,
     staleTime: 30_000,
   });
 
   if (trimmedManual) return null;
 
-  if (!typeCode || !parentId) {
+  if (!kind.trim()) {
     return (
       <p className="auto-name-preview muted">
-        Vyber typ a nadradenú položku — zobrazí sa náhľad automatického názvu.
+        Vyber typ položky — zobrazí sa náhľad automatického názvu.
       </p>
     );
   }
@@ -46,13 +46,13 @@ export function AutoNamePreview({
     );
   }
 
-  const autoName = previewQ.data?.auto_name;
-  if (!autoName) return null;
+  const name = previewQ.data?.name;
+  if (!name) return null;
 
   return (
     <div className="auto-name-preview" role="status" aria-live="polite">
       <span className="auto-name-preview-label">Automatický názov:</span>{" "}
-      <code>{autoName}</code>
+      <code>{name}</code>
     </div>
   );
 }

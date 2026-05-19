@@ -4,6 +4,7 @@ import rateLimit from "express-rate-limit";
 import { randomUUID } from "node:crypto";
 import { prisma } from "../prisma.js";
 import { uploadToR2, getSignedUrlForKey } from "../services/r2.js";
+import { processPhoto } from "../services/ocr.js";
 
 export const photosRouter: Router = Router();
 
@@ -108,7 +109,7 @@ photosRouter.post(
 
       const item = await prisma.item.findFirst({
         where: { id: itemId, deleted_at: null },
-        select: { id: true },
+        select: { id: true, level: true },
       });
       if (!item) {
         res.status(404).json({ error: "Item not found" });
@@ -129,11 +130,11 @@ photosRouter.post(
       // v buckete — riešime hromadným cleanup skriptom v budúcnosti (Sprint 3+).
       await uploadToR2(storageKey, req.file.buffer, req.file.mimetype);
 
-      // OVERVIEW fotky nikdy nevstupujú do OCR — rovno DONE, aby admin štatistiky
-      // (PENDING count) ostali čisté a tlačidlo "Spracuj PENDING" sa netýkalo
-      // fotiek čo nikdy nemajú byť spracované. OCR routes navyše filtrujú
-      // photo_type = 'LABEL', takže dvojitá ochrana.
-      const ocrStatus = photoType === "OVERVIEW" ? "DONE" : "PENDING";
+      // OVERVIEW: default DONE (bez OCR). Výnimka L2/L3 — OCR pre návrh názvu
+      // (Sprint 8). processPending stále filtruje len LABEL.
+      const overviewOcrForName =
+        photoType === "OVERVIEW" && [2, 3].includes(item.level);
+      const ocrStatus = overviewOcrForName ? "PENDING" : photoType === "OVERVIEW" ? "DONE" : "PENDING";
 
       const photo = await prisma.photo.create({
         data: {
@@ -152,6 +153,12 @@ photosRouter.post(
       });
 
       const signedUrl = await getSignedUrlForKey(storageKey);
+
+      if (overviewOcrForName) {
+        processPhoto(photo.id).catch((err) => {
+          console.error(`[photos] OVERVIEW OCR for ${photo.id} failed:`, err);
+        });
+      }
 
       res.status(201).json({
         id: photo.id,

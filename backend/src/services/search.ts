@@ -20,8 +20,10 @@ export type MatchSource =
 export type SearchHit = {
   item: {
     id: string;
-    typeCode: string;
-    name: string | null;
+    level: number;
+    kind: string;
+    typeCode: string | null;
+    name: string;
     qrCode: string | null;
     status: string;
     note: string | null;
@@ -34,8 +36,10 @@ export type SearchHit = {
 
 type SearchRow = {
   id: string;
-  type_code: string;
-  name: string | null;
+  level: number;
+  kind: string;
+  type_code: string | null;
+  name: string;
   note: string | null;
   qr_code: string | null;
   status: string;
@@ -81,7 +85,7 @@ export async function searchItems(query: string, limit: number): Promise<SearchH
   let rows: SearchRow[];
   try {
     rows = await prisma.$queryRaw<SearchRow[]>`
-      SELECT i.id, i.type_code, i.name, i.note, i.qr_code,
+      SELECT i.id, i.level, i.kind, i.type_code, i.name, i.note, i.qr_code,
         i.status::text AS status, i.updated_at,
         i.metadata->>'stavba' AS meta_stavba,
         i.metadata->>'cast' AS meta_cast,
@@ -123,6 +127,7 @@ export async function searchItems(query: string, limit: number): Promise<SearchH
       WHERE i.deleted_at IS NULL
         AND (
           strip_diacritics(i.name) LIKE strip_diacritics(${like})
+          OR strip_diacritics(i.kind) LIKE strip_diacritics(${like})
           OR strip_diacritics(i.metadata->>'stavba') LIKE strip_diacritics(${like})
           OR strip_diacritics(i.metadata->>'cast') LIKE strip_diacritics(${like})
           OR strip_diacritics(i.metadata->>'projektant') LIKE strip_diacritics(${like})
@@ -224,6 +229,8 @@ export async function searchItems(query: string, limit: number): Promise<SearchH
     return {
       item: {
         id: r.id,
+        level: r.level,
+        kind: r.kind,
         typeCode: r.type_code,
         name: r.name,
         qrCode: r.qr_code,

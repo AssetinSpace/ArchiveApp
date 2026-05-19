@@ -114,7 +114,7 @@ export function ItemSearchPanel({ autoFocus = false }: { autoFocus?: boolean }) 
 function SearchHitCard({ hit, query }: { hit: SearchHit; query: string }) {
   const itemHref = `/items/${hit.item.id}`;
   const typeLabel =
-    TYPE_LABEL[hit.item.typeCode] ?? hit.item.typeCode;
+    TYPE_LABEL[hit.item.kind] ?? hit.item.kind ?? hit.item.typeCode ?? "";
 
   return (
     <div className="search-hit-card">
@@ -141,7 +141,7 @@ function SearchHitCard({ hit, query }: { hit: SearchHit; query: string }) {
         <BreadcrumbPath path={hit.path} />
 
         <Link to={itemHref} className="search-hit-title">
-          <span className={`badge badge-${hit.item.typeCode.toLowerCase()}`}>
+          <span className={`badge badge-${(hit.item.kind ?? hit.item.typeCode ?? "").toLowerCase()}`}>
             {typeLabel}
           </span>{" "}
           <span className="search-hit-name">
@@ -188,7 +188,7 @@ function BreadcrumbPath({ path }: { path: PathNode[] }) {
         <Fragment key={node.id}>
           {idx > 0 && <span className="breadcrumb-sep">›</span>}
           <Link to={`/items/${node.id}`} className="search-hit-crumb">
-            {node.name ?? TYPE_LABEL[node.type_code] ?? node.type_code}
+            {node.name ?? TYPE_LABEL[node.kind] ?? node.kind}
           </Link>
         </Fragment>
       ))}

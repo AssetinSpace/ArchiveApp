@@ -3,11 +3,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import {
   api,
-  PARENT_TYPE_BY_CHILD,
+  KIND_DEFAULTS,
   TYPE_LABEL,
   type InventoryItem,
   type Item,
-  type ItemType,
 } from "../api";
 import { AutoNamePreview } from "../components/AutoNamePreview";
 import { ItemsDataTable } from "../components/ItemsDataTable";
@@ -20,7 +19,6 @@ export function ItemsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [view, setView] = useState<ItemsView>("tree");
 
-  const typesQ = useQuery({ queryKey: ["item-types"], queryFn: () => api.itemTypes() });
   const itemsQ = useQuery({
     queryKey: ["items", "inventory"],
     queryFn: () => api.inventoryItems(),
@@ -28,7 +26,6 @@ export function ItemsPage() {
   });
 
   const items = itemsQ.data ?? [];
-  const types = typesQ.data ?? [];
 
   const byId = useMemo(() => new Map(items.map((it) => [it.id, it])), [items]);
 
@@ -39,7 +36,7 @@ export function ItemsPage() {
     while (cur) {
       if (seen.has(cur.id)) break;
       seen.add(cur.id);
-      parts.unshift(cur.name ?? cur.auto_name ?? "(bez názvu)");
+      parts.unshift(cur.name);
       cur = cur.parent_id ? byId.get(cur.parent_id) : undefined;
     }
     return parts.join(" › ");
@@ -105,7 +102,6 @@ export function ItemsPage() {
         <section className="card">
           <h2>Vytvoriť položku</h2>
           <CreateItemFormContent
-            types={types}
             items={items}
             getFullPath={getFullPath}
             onCreated={() => {
@@ -124,31 +120,30 @@ export function ItemsPage() {
 }
 
 function CreateItemFormContent({
-  types,
   items,
   getFullPath,
   onCreated,
 }: {
-  types: ItemType[];
   items: InventoryItem[];
   getFullPath: (item: InventoryItem) => string;
   onCreated: (created: Item) => void;
 }) {
   const qc = useQueryClient();
-  const [typeCode, setTypeCode] = useState<string>("");
-  const [name, setName] = useState<string>("");
+  const [isRoot, setIsRoot] = useState(true);
   const [parentId, setParentId] = useState<string>("");
+  const [kindInput, setKindInput] = useState("");
+  const [customKind, setCustomKind] = useState(false);
+  const [name, setName] = useState<string>("");
   const [note, setNote] = useState<string>("");
   const [formError, setFormError] = useState<string | null>(null);
 
-  const expectedParentType = useMemo(
-    () => (typeCode ? PARENT_TYPE_BY_CHILD[typeCode] ?? null : null),
-    [typeCode],
-  );
-  const parentNeeded = typeCode !== "" && typeCode !== "SKLAD";
+  const byId = useMemo(() => new Map(items.map((it) => [it.id, it])), [items]);
+  const parent = parentId ? byId.get(parentId) : undefined;
+  const level = isRoot ? 1 : (parent ? parent.level + 1 : 0);
+  const defaults = KIND_DEFAULTS[level] ?? [];
   const eligibleParents = useMemo(
-    () => (expectedParentType ? items.filter((it) => it.type_code === expectedParentType) : []),
-    [items, expectedParentType],
+    () => items.filter((it) => it.level < 7),
+    [items],
   );
 
   const createMut = useMutation({
@@ -173,22 +168,24 @@ function CreateItemFormContent({
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     setFormError(null);
-    if (!typeCode) {
-      setFormError("Vyber typ položky");
+    const kind = kindInput.trim();
+    if (!kind) {
+      setFormError("Vyber alebo napíš typ položky");
       return;
     }
-    if (parentNeeded && !parentId) {
-      setFormError(
-        `Pre typ ${TYPE_LABEL[typeCode] ?? typeCode} musíš vybrať nadradenú položku (${
-          TYPE_LABEL[expectedParentType ?? ""] ?? expectedParentType
-        })`,
-      );
+    if (!isRoot && !parentId) {
+      setFormError("Vyber nadradenú položku");
+      return;
+    }
+    if (!isRoot && !parent) {
+      setFormError("Nadradená položka neexistuje");
       return;
     }
     createMut.mutate({
-      type_code: typeCode,
+      level,
+      kind,
       name: name.trim() || null,
-      parent_id: parentId || null,
+      parent_id: isRoot ? null : parentId,
       note: note.trim() || null,
     });
   }
@@ -196,40 +193,77 @@ function CreateItemFormContent({
   return (
     <form className="form" onSubmit={onSubmit}>
       <label className="form-label">
-        Typ
-        <select
-          value={typeCode}
-          onChange={(e) => {
-            setTypeCode(e.target.value);
-            setParentId("");
-          }}
-          required
-        >
-          <option value="">— vyber typ —</option>
-          {types.map((t: ItemType) => (
-            <option key={t.code} value={t.code}>
-              {t.label} ({t.code})
-            </option>
-          ))}
-        </select>
+        <span className="row" style={{ gap: 12, alignItems: "center" }}>
+          <input
+            type="radio"
+            name="create-root"
+            checked={isRoot}
+            onChange={() => {
+              setIsRoot(true);
+              setParentId("");
+            }}
+          />
+          Koreň (úroveň 1)
+          <input
+            type="radio"
+            name="create-root"
+            checked={!isRoot}
+            onChange={() => setIsRoot(false)}
+          />
+          Pod existujúcu položku
+        </span>
       </label>
-      <label className="form-label">
-        Nadradená položka
-        {typeCode === "" && <input value="" disabled placeholder="(vyber najprv typ)" />}
-        {typeCode === "SKLAD" && <input value="(žiadny — sklad je koreň)" disabled />}
-        {typeCode !== "" && typeCode !== "SKLAD" && (
+      {!isRoot && (
+        <label className="form-label">
+          Nadradená položka
           <select value={parentId} onChange={(e) => setParentId(e.target.value)} required>
-            <option value="">
-              — vyber {TYPE_LABEL[expectedParentType ?? ""] ?? "nadradenú položku"} —
-            </option>
+            <option value="">— vyber rodiča —</option>
             {eligibleParents.map((p) => (
               <option key={p.id} value={p.id}>
-                {getFullPath(p)}
+                L{p.level} {TYPE_LABEL[p.kind] ?? p.kind} — {getFullPath(p)}
               </option>
             ))}
           </select>
-        )}
+        </label>
+      )}
+      <p className="muted" style={{ margin: "0 0 8px" }}>
+        Úroveň: <strong>{isRoot ? 1 : level || "—"}</strong>
+      </p>
+      <label className="form-label">
+        Typ položky (kind)
+        <select
+          value={customKind ? "__custom__" : kindInput}
+          onChange={(e) => {
+            if (e.target.value === "__custom__") {
+              setCustomKind(true);
+              setKindInput("");
+            } else {
+              setCustomKind(false);
+              setKindInput(e.target.value);
+            }
+          }}
+        >
+          <option value="">— vyber typ —</option>
+          {defaults.map((k) => (
+            <option key={k} value={k}>
+              {TYPE_LABEL[k] ?? k}
+            </option>
+          ))}
+          <option value="__custom__">Vlastné…</option>
+        </select>
       </label>
+      {customKind && (
+        <label className="form-label">
+          Vlastný typ
+          <input
+            type="text"
+            placeholder="Napíš vlastný typ..."
+            value={kindInput}
+            onChange={(e) => setKindInput(e.target.value)}
+            autoFocus
+          />
+        </label>
+      )}
       <label className="form-label">
         Názov
         <input
@@ -240,8 +274,8 @@ function CreateItemFormContent({
         />
       </label>
       <AutoNamePreview
-        typeCode={typeCode}
-        parentId={parentId}
+        kind={kindInput}
+        parentId={isRoot ? null : parentId || null}
         manualName={name}
       />
       <label className="form-label">

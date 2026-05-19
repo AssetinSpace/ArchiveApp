@@ -5,11 +5,9 @@ import { BrowserQRCodeReader, type IScannerControls } from "@zxing/browser";
 import { AutoNamePreview } from "../components/AutoNamePreview";
 import {
   api,
-  CHILD_TYPE_BY_PARENT,
-  PARENT_TYPE_BY_CHILD,
+  KIND_DEFAULTS,
   TYPE_LABEL,
   type Item,
-  type ItemType,
   type QRLookup,
 } from "../api";
 
@@ -65,7 +63,7 @@ export function ScanPage() {
       if (lookup.status === "ASSIGNED" && lookup.assignedItem) {
         // Pre KRABICA ponúkneme chooser (detail vs obsah krabice). Pre ostatné
         // typy zachovávame pôvodné správanie — priamy redirect na detail.
-        if (lookup.assignedItem.type_code === "KRABICA") {
+        if (lookup.assignedItem.level === 4 || lookup.assignedItem.kind === "KRABICA") {
           setState({ kind: "assigned_box", lookup });
           return;
         }
@@ -171,8 +169,8 @@ export function ScanPage() {
             {presetParentQ.data && (
               <Link to={`/items/${presetParentId}`}>
                 {presetParentQ.data.name ?? "(bez názvu)"} (
-                {TYPE_LABEL[presetParentQ.data.type_code] ??
-                  presetParentQ.data.type_code}
+                L{presetParentQ.data.level}{" "}
+                {TYPE_LABEL[presetParentQ.data.kind] ?? presetParentQ.data.kind}
                 )
               </Link>
             )}
@@ -198,7 +196,7 @@ export function ScanPage() {
             {assignToQ.data && (
               <Link to={`/items/${assignToId}`}>
                 {assignToQ.data.name ?? "(bez názvu)"} (
-                {TYPE_LABEL[assignToQ.data.type_code] ?? assignToQ.data.type_code})
+                {TYPE_LABEL[assignToQ.data.kind] ?? assignToQ.data.kind})
               </Link>
             )}
             {assignToQ.error && (
@@ -392,8 +390,8 @@ function AssignToItemSection({
       </p>
       {assignToItem && (
         <div className="row" style={{ marginBottom: 16, gap: 8, flexWrap: "wrap" }}>
-          <span className={`badge badge-${assignToItem.type_code.toLowerCase()}`}>
-            {TYPE_LABEL[assignToItem.type_code] ?? assignToItem.type_code}
+          <span className={`badge badge-${assignToItem.kind.toLowerCase()}`}>
+            L{assignToItem.level} {TYPE_LABEL[assignToItem.kind] ?? assignToItem.kind}
           </span>
           <strong>{assignToItem.name ?? "(bez názvu)"}</strong>
         </div>
@@ -424,46 +422,44 @@ function CreateForLookupForm({
   onCreated: (item: Item) => void;
 }) {
   const qc = useQueryClient();
-  const typesQ = useQuery({ queryKey: ["item-types"], queryFn: () => api.itemTypes() });
   const itemsQ = useQuery({ queryKey: ["items", "all"], queryFn: () => api.listItems() });
 
-  // Odvodený typ dieťaťa z preset rodiča (napr. KRABICA → ZLOZKA).
-  // Memoizované aby neretriggerovalo useEffect každý render.
-  const presetChildType = useMemo(
-    () => (presetParent ? CHILD_TYPE_BY_PARENT[presetParent.type_code] ?? null : null),
-    [presetParent],
-  );
-
-  const [typeCode, setTypeCode] = useState<string>(presetChildType ?? "");
-  const [parentId, setParentId] = useState<string>(presetParent?.id ?? "");
-  const [name, setName] = useState<string>("");
-  const [note, setNote] = useState<string>("");
+  const isRoot = !presetParent;
+  const [parentId, setParentId] = useState(presetParent?.id ?? "");
+  const childLevel = presetParent ? presetParent.level + 1 : isRoot ? 1 : 0;
+  const defaults = KIND_DEFAULTS[childLevel] ?? [];
+  const [kindInput, setKindInput] = useState(defaults[0] ?? "");
+  const [customKind, setCustomKind] = useState(false);
+  const [name, setName] = useState("");
+  const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  // Predvyplnenie keď preset dorazí asynchrónne (po fetch parent itemu).
   useEffect(() => {
-    if (presetChildType) setTypeCode(presetChildType);
     if (presetParent) setParentId(presetParent.id);
-  }, [presetChildType, presetParent]);
+    const level = presetParent ? presetParent.level + 1 : 1;
+    const defs = KIND_DEFAULTS[level] ?? [];
+    if (defs[0]) setKindInput(defs[0]);
+  }, [presetParent]);
 
-  const types = typesQ.data ?? [];
   const items = itemsQ.data ?? [];
-
-  const expectedParent = typeCode ? PARENT_TYPE_BY_CHILD[typeCode] ?? null : null;
-  const parentNeeded = typeCode !== "" && typeCode !== "SKLAD";
-  const eligibleParents = expectedParent
-    ? items.filter((it) => it.type_code === expectedParent)
-    : [];
+  const byId = useMemo(() => new Map(items.map((it) => [it.id, it])), [items]);
+  const parent = parentId ? byId.get(parentId) : undefined;
+  const level = presetParent ? presetParent.level + 1 : parent ? parent.level + 1 : 1;
+  const eligibleParents = items.filter((it) => it.level < 7);
 
   const mut = useMutation({
-    mutationFn: () =>
-      api.createItem({
-        type_code: typeCode,
+    mutationFn: () => {
+      const kind = kindInput.trim();
+      if (!kind) throw new Error("Vyber alebo napíš typ položky");
+      return api.createItem({
+        level,
+        kind,
         name: name.trim() || null,
-        parent_id: parentId || null,
+        parent_id: presetParent ? presetParent.id : parentId || null,
         note: note.trim() || null,
         qr_code: lookup.code,
-      }),
+      });
+    },
     onSuccess: async (item) => {
       // Await invalidácie aby refetch dorazil pred navigáciou späť na rodiča
       // (Bug 3 fix — rovnaký pattern ako v ItemDetailPage).
@@ -479,16 +475,12 @@ function CreateForLookupForm({
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!typeCode) {
-      setError("Vyber typ položky");
+    if (!kindInput.trim()) {
+      setError("Vyber alebo napíš typ položky");
       return;
     }
-    if (parentNeeded && !parentId) {
-      setError(
-        `Pre typ ${TYPE_LABEL[typeCode] ?? typeCode} musíš vybrať nadradenú položku (${
-          TYPE_LABEL[expectedParent ?? ""] ?? expectedParent
-        })`,
-      );
+    if (!presetParent && level > 1 && !parentId) {
+      setError("Vyber nadradenú položku");
       return;
     }
     mut.mutate();
@@ -503,50 +495,59 @@ function CreateForLookupForm({
         QR kód je voľný (FREE). Vytvor novú položku — QR sa automaticky priradí.
       </p>
       <form className="form" onSubmit={onSubmit}>
-        <label className="form-label">
-          Typ
-          <select
-            value={typeCode}
-            onChange={(e) => {
-              setTypeCode(e.target.value);
-              setParentId("");
-            }}
-            required
-          >
-            <option value="">— vyber typ —</option>
-            {types.map((t: ItemType) => (
-              <option key={t.code} value={t.code}>
-                {t.label} ({t.code})
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="form-label">
-          Nadradená položka
-          {typeCode === "" && (
-            <input value="" disabled placeholder="(vyber najprv typ)" />
-          )}
-          {typeCode === "SKLAD" && (
-            <input value="(žiadny — sklad je koreň)" disabled />
-          )}
-          {typeCode !== "" && typeCode !== "SKLAD" && (
-            <select
-              value={parentId}
-              onChange={(e) => setParentId(e.target.value)}
-              required
-            >
-              <option value="">
-                — vyber {TYPE_LABEL[expectedParent ?? ""] ?? "nadradenú položku"} —
-              </option>
+        {presetParent ? (
+          <p className="muted" style={{ margin: 0 }}>
+            Rodič: <strong>{presetParent.name}</strong> (L{presetParent.level})
+          </p>
+        ) : (
+          <label className="form-label">
+            Nadradená položka (voliteľné pre L1)
+            <select value={parentId} onChange={(e) => setParentId(e.target.value)}>
+              <option value="">— koreň L1 —</option>
               {eligibleParents.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.name ?? "(bez názvu)"}
+                  L{p.level} {TYPE_LABEL[p.kind] ?? p.kind} — {p.name}
                 </option>
               ))}
             </select>
-          )}
+          </label>
+        )}
+        <p className="muted" style={{ margin: "0 0 8px" }}>
+          Úroveň: <strong>{level}</strong>
+        </p>
+        <label className="form-label">
+          Typ položky
+          <select
+            value={customKind ? "__custom__" : kindInput}
+            onChange={(e) => {
+              if (e.target.value === "__custom__") {
+                setCustomKind(true);
+                setKindInput("");
+              } else {
+                setCustomKind(false);
+                setKindInput(e.target.value);
+              }
+            }}
+          >
+            {defaults.map((k) => (
+              <option key={k} value={k}>
+                {TYPE_LABEL[k] ?? k}
+              </option>
+            ))}
+            <option value="__custom__">Vlastné…</option>
+          </select>
         </label>
+        {customKind && (
+          <label className="form-label">
+            Vlastný typ
+            <input
+              type="text"
+              value={kindInput}
+              onChange={(e) => setKindInput(e.target.value)}
+              autoFocus
+            />
+          </label>
+        )}
 
         <label className="form-label">
           Názov
@@ -558,8 +559,8 @@ function CreateForLookupForm({
           />
         </label>
         <AutoNamePreview
-          typeCode={typeCode}
-          parentId={parentId}
+          kind={kindInput}
+          parentId={presetParent ? presetParent.id : parentId || null}
           manualName={name}
         />
 

@@ -2,17 +2,24 @@ import { prisma } from "../prisma.js";
 
 export type PathNode = {
   id: string;
-  type_code: string;
-  name: string | null;
+  level: number;
+  kind: string;
+  name: string;
   parent_id: string | null;
+  type_code?: string | null;
 };
 
-// Vráti cestu od koreňa po danú položku (vrátane).
-// Bezpečné voči (hypotetickým) cyklom — `seen` set.
 export async function getItemPath(itemId: string): Promise<PathNode[]> {
   const start = await prisma.item.findFirst({
     where: { id: itemId, deleted_at: null },
-    select: { id: true, type_code: true, name: true, parent_id: true },
+    select: {
+      id: true,
+      level: true,
+      kind: true,
+      name: true,
+      parent_id: true,
+      type_code: true,
+    },
   });
   if (!start) return [];
 
@@ -24,7 +31,14 @@ export async function getItemPath(itemId: string): Promise<PathNode[]> {
     seen.add(cursor);
     const node: PathNode | null = await prisma.item.findFirst({
       where: { id: cursor, deleted_at: null },
-      select: { id: true, type_code: true, name: true, parent_id: true },
+      select: {
+        id: true,
+        level: true,
+        kind: true,
+        name: true,
+        parent_id: true,
+        type_code: true,
+      },
     });
     if (!node) break;
     path.push(node);

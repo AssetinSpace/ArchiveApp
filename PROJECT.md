@@ -1,6 +1,6 @@
 # ArchiveApp — PROJECT.md
 > Živý dokument. Aktualizovať po každom rozhodnutí alebo sprinte.
-> Verzia 2.8.0 — Metadata-only: LLM title workflow zrušený, hybrid JSONB metadata, search cez celé JSONB.
+> Verzia 2.9.0 — Flexibilná 7-úrovňová hierarchia: level + kind namiesto type_code, name_source, auto_name deprecated.
 
 ---
 
@@ -48,7 +48,7 @@ Výstup: exportovateľný inventár.
 | 15 | CSV export = UTF-8 s BOM, oddelovač `;`, CRLF | Default Excel SK — bez BOM stratí diakritiku, bez `;` zlúči stĺpce, bez CRLF prerieduje riadky |
 | 16 | JSON export bez signed URL pre fotky | Signed URLs sú efemérne (15 min) — fotky sa stiahnu z R2 bucket-u cez rclone (PROJECT.md §11) |
 | 17 | Sprint 4 endpoints používajú `prisma.$queryRaw` | Prisma neumožňuje volať `unaccent()` ani `WITH RECURSIVE` priamo v `where` — raw SQL je čistejšie ako Unsupported workaround |
-| 18 | Auto-name z pozície v hierarchii (`sklX_palNNN_kraNNN_zloNNN`) | Terénny flow scan → fotka → ďalší — bez ručného písania názvu. Generuje sa pri POST /items, immutable po vytvorení, slúži ako stabilný pozičný identifikátor (aj keď sa `name` neskôr ručne prepíše) |
+| 18 | ~~Auto-name z pozície v hierarchii~~ (**deprecated v 2.9**) | Nahradené rozhodnutím #29 — generovaný `name` podľa `kind` + počtu súrodencov. `auto_name` stĺpec ostáva v DB pre legacy záznamy, pre nové položky sa negeneruje. |
 | 19 | ~~LLM title extraction~~ (Sprint 5, **zrušené v 2.8**) | Nahradené rozhodnutím #27 — metadata-only |
 | 20 | ~~Potvrdiť OCR title → `name`~~ (Sprint 5, **zrušené v 2.8**) | `name` ostáva len ručný popis; štruktúrované info ide do JSONB metadata |
 | 21 | JSONB `metadata` pole pripravené pre Sprint 6, nenaplňuje sa v Sprint 5 | Schéma metadata sa odvodí z analýzy ~200 reálnych OCR textov po field work — predčasná štandardizácia by viedla k zlej štruktúre |
@@ -58,25 +58,36 @@ Výstup: exportovateľný inventár.
 | 25 | Metadata JSONB hybrid schéma — prompt dáva **príklady** typických polí, LLM môže pridať ďalšie kľúče; backend ukladá permisívne | Štítky sú variabilné (rozhodnutie #1). UI/export majú labels pre odporúčané polia (stavba, cast, …); neznáme kľúče sa zobrazia a dajú editovať v review. Známe polia log bez warning, neznáme s warning. |
 | 26 | Items table tree-style ostáva default; Sprint 7 metadata stĺpce sa pridávajú do existujúceho `ItemsDataTable` s warning štýlom pre `EXTRACTED` hodnoty (žltkasté pozadie + badge „návrh") | Konzistentnosť cez celý produkt — žiadna paralelná „flat 17-stĺpcová" tabuľka. Default sú nové stĺpce skryté (úzke obrazovky), konzultant si zapne v "Stĺpce ▾" dropdowne. URL state pre column toggle ostáva (existujúci pattern, žiadny localStorage). |
 | 27 | **Metadata-only** — LLM title workflow (`ocr_title`, `/admin/llm-titles`) zrušený | Jeden AI kanál: hybrid JSONB metadata z OCR. `name` len ručne (voliteľne), identita = `auto_name` + QR. Prompt dáva príklady polí (nie povinnú 7-polovú schému), LLM môže pridať ďalšie kľúče. Search prehľadá celé `metadata` cez `jsonb_each_text`. CSV má `metadataJson` + flat stĺpce pre časté polia. |
+| 28 | **Flexibilná 7-úrovňová hierarchia** — `type_code` enum nahradený dvojicou `level` (Int 1–7) + `kind` (String, otvorený) | Terénny test odhalil že fyzická realita skladu nezodpovedá pevnému enum: existujú ohradky, police s vlastnými kódmi, rôzne typy kontajnerov. `level` = nemenná pozícia v strome, `kind` = fyzický typ objektu — predvolené hodnoty v UI, ale konzultant môže napísať čokoľvek. Legacy záznamy dostanú `level` a `kind` z `type_code` cez migráciu. |
+| 29 | **Generovaný `name` podľa `kind` + počtu súrodencov** namiesto `auto_name` reťazca | `auto_name` (`sklA_pal003_kra007`) bol redundantný — breadcrumb z `parent_id` poskytuje tú istú informáciu čitateľnejšie. Nový generovaný name je jednoduchý: `polica_5`, `krabica_12`, `zlozka_7`. Sledovaný cez `name_source` enum (GENERATED / OCR / MANUAL). |
+| 30 | **`name_source`** — nové pole sledujúce pôvod názvu položky | Tri stavy: `GENERATED` (automatický pri vytvorení), `OCR` (navrhnutý z OVERVIEW fotky, konzultant potvrdil), `MANUAL` (konzultant prepísal ručne). Pre L2/L3 po OVERVIEW fotke systém navrhne nastavenie `name` z OCR — rovnaký banner pattern ako `metadata_status = EXTRACTED`. |
+| 31 | **`kind` je otvorený String v DB, nie Prisma enum** | UI ponúka dropdown s predvolenými hodnotami per level. Posledná možnosť vždy „Vlastné…" — otvorí textové pole. Backend uloží čokoľvek bez validácie. Žiadna migrácia ak sa v teréne objavia nové typy. Predvolené hodnoty per level: L1=SKLAD, L2=OHRADKA/CAST, L3=POLICA/PALETA/REGAL, L4=KRABICA/TUBA, L5=ZLOZKA/EUROOBAL/ZAKLADAC, L6=EUROOBAL/OBALKA, L7=DOKUMENT/VYKRES. |
+| 32 | **Zóny hierarchie**: L1–L4 = lokácia, L5–L6 = kontajner (metadata ✓), L7 = listový node | L1–L4 popisujú kde niečo fyzicky je. L5–L6 sú kontajnery obsahu — tu žijú metadata (stavba, projektant, rok…). L7 je listový node: fotí sa prvá strana dokumentu (LABEL foto → OCR → metadata), nemá deti, QR sa neprideľuje. L6 je voliteľný sub-kontajner (euroobal vo zložke) — väčšina ciest pôjde L4→L5→L7. |
+| 33 | **L7 je súčasťou MVP** (nie fáza 2) s obmedzeným scope | L7 (dokument/výkres) sa fotí (prvá strana), OCR prebehne, metadata sa extrahujú rovnako ako pre L5/L6. Rozdiel: L7 nemá deti (listový node), QR sa neprideľuje, OVERVIEW foto nemá zmysel. Granularita obsahu krabice sa teda zvýšila: krabica → zložka → dokument je plne funkčný strom v MVP. |
 
 ---
 
 ## 3. Fyzická hierarchia
 
 ```
-Sklad              (3 sklady, označené A / B / C)
-└── Paleta         (~30 ks / sklad, QR odporúčaný)
-    └── Krabica    (QR povinný — primárna scan jednotka)
-        └── Zložka (QR voliteľný, ID povinné — KONTAJNER, nie list)
-            └── Dokument   (fáza 2 — model to unesie, teraz nevypĺňame)
-                └── Výkres (fáza 3)
+L1  Sklad              (označenie manuálne, napr. "HBR")
+└── L2  Časť / Ohradka (QR odporúčaný; name z OCR štítku na dverách alebo manuálne)
+    └── L3  Polica     (QR odporúčaný; name z OCR hrany police, napr. "S-HBR-AS-2-02")
+        └── L4  Krabica (QR povinný — primárna scan jednotka)
+            └── L5  Zložka / Zakladač (kontajner, metadata ✓)
+                └── L6  Euroobal / Obálka (voliteľný sub-kontajner, metadata ✓)
+                    └── L7  Dokument / Výkres (listový node, foto prvej strany, metadata ✓)
 ```
 
-**Homogénny strom:** Každá úroveň je `Item` s `parent_id`. Typ určuje `ItemType`.
-Zložka = plnohodnotný kontajner. Fáza 2 = len nové ItemType záznamy, žiadna migrácia.
+**Pravidlá stromu:**
+- `level` je Int 1–7, určuje pozíciu v hierarchii, nikdy sa nemení po vytvorení
+- `kind` je String — predvolené hodnoty v UI, vlastný text povolený
+- L6 je voliteľný — väčšina ciest: L4 → L5 → L7
+- L7 nemá deti (backend odmietne POST /items s parent na L7)
+- Každá úroveň je `Item` s `parent_id` — homogénny strom
 
 **Atypické kontajnery (tubusy, voľné dokumenty):**
-Neriešime špeciálne — KRABICA s popisným názvom (napr. "Tubus").
+Riešia sa cez `kind` = "Tuba" alebo "Voľný dokument" na príslušnom leveli — žiadna špeciálna logika.
 
 ---
 
@@ -84,15 +95,18 @@ Neriešime špeciálne — KRABICA s popisným názvom (napr. "Tubus").
 
 ### 4.1 Item
 - `id` — UUID (interné)
-- `type_code` — SKLAD / PALETA / KRABICA / ZLOZKA (MVP)
-- `name` — voliteľný ľudský názov (len ručne v editore; default pri vytvorení = `auto_name`)
+- `level` — Int 1–7, pozícia v hierarchii, **immutable** po vytvorení (nové pole v 2.9)
+- `kind` — String, fyzický typ objektu, predvolené hodnoty per level, vlastný text povolený (nové pole v 2.9)
+- `name` — ľudský názov; pri vytvorení = generovaný (`polica_5`), nahraditeľný OCR návrhom alebo manuálne
+- `name_source` — `GENERATED` / `OCR` / `MANUAL` (nové pole v 2.9)
+- `type_code` — **deprecated** (ostáva v DB pre legacy záznamy, v UI skryté)
 - `parent_id` — UUID rodiča (nullable = koreň)
 - `qr_code` — externý kód z nálepky, napr. `QR-000042` (nullable, unique)
 - `note` — voľné textové pole (nullable)
 - `status` — NA_MIESTE / VYNESENE / NEZNAME
-- `auto_name` — Sprint 5: pozičný identifikátor (`sklA_pal003_kra004_zlo015`), generovaný pri POST /items, **immutable** po vytvorení. NULL pre legacy items pred Sprint 5.
-- `metadata` — JSONB, default `{}`. LLM (Gemini 2.5 Flash) navrhne všetky relevantné polia z OCR (hybrid: typické polia ako príklady + ľubovoľné ďalšie kľúče, bez pevného počtu). Permisívne ukladanie, konzultantský review.
-- `metadata_status` — Sprint 5 (schema) + Sprint 7 (workflow): TEXT, hodnoty `NONE` (default) / `EXTRACTED` (LLM navrhol) / `REVIEWED` (konzultant potvrdil).
+- `auto_name` — **deprecated** (ostáva v DB pre legacy záznamy, pre nové položky sa negeneruje)
+- `metadata` — JSONB, default `{}`. Aktívne pre L5, L6, L7. Pre L1–L4 prázdne.
+- `metadata_status` — `NONE` / `EXTRACTED` / `REVIEWED`
 - `deleted_at` — soft delete (nikdy hard delete)
 - `created_at`, `updated_at`
 
@@ -108,23 +122,31 @@ Neriešime špeciálne — KRABICA s popisným názvom (napr. "Tubus").
 - `item_id` — väzba na Item
 - `storage_key` — R2 object key (napr. `photos/2026/{itemId}/{uuid}.jpg`)
 - `ocr_raw_text` — surový Tesseract text (nullable, `@db.Text`)
-- `ocr_status` — PENDING / DONE / FAILED (default PENDING po uploade pre LABEL; OVERVIEW dostane rovno DONE)
-- `photo_type` — Sprint 6: LABEL / OVERVIEW, default LABEL. LABEL = fotka štítku → OCR pipeline. OVERVIEW = vizuálna referencia ako vyzerá krabica/paleta → OCR sa nikdy nespustí. OCR endpointy (`status`, `process-pending`, `failed`, `recent`) filtrujú `photo_type = 'LABEL'`.
+- `ocr_status` — PENDING / DONE / FAILED
+- `photo_type` — LABEL / OVERVIEW. Pre L7 vždy LABEL (prvá strana dokumentu). Pre L2/L3 OVERVIEW → po OCR navrhne name update (nie metadata).
 - `created_at`
-- `deleted_at` — soft delete (R2 objekt zámerne ostáva, orphan cleanup neskôr)
+- `deleted_at` — soft delete
 
-**Signed URL** sa NEUKLADÁ v DB. Generuje sa on-demand pri každej API odpovedi
-cez `getSignedUrlForKey(storage_key)` (default 15 min platnosť).
+**Signed URL** sa NEUKLADÁ v DB. Generuje sa on-demand.
 
 ### 4.4 Metadátová stratégia
 **Capture first, classify later:**
-- Teraz: foto + OCR raw text, žiadna štruktúra
-- Po ~200 zložkách: analyzovať OCR korpus → odvodiť schému → pridať polia
+- L1–L4: foto (OVERVIEW), OCR navrhne `name`, žiadne štruktúrované metadata
+- L5–L7: foto (LABEL), OCR → Gemini → JSONB metadata (stavba, projektant, rok…)
 
 ### 4.5 OCR workflow
 - **Terén:** upload foto → `ocr_status = PENDING` → okamžitý return
 - **Doma:** `POST /api/ocr/process-pending` → Tesseract na Railway → uloží raw text
 - **Config:** `lang="slk+eng"`, `oem=1` (LSTM), `psm=1` (auto OSD + rotácia)
+- **L2/L3 OVERVIEW:** po OCR zobrazí banner „Nastaviť názov na [OCR text]?" — konzultant potvrdí alebo upraví → `name_source = OCR`
+
+### 4.6 Name generation
+Pri `POST /api/items`:
+1. Zistiť `kind` z requestu (povinné)
+2. Spočítať súrodencov rovnakého `kind` pod rovnakým `parent_id`
+3. `name = "{kind_lowercase}_{count+1}"` napr. `polica_5`, `zlozka_12`
+4. `name_source = GENERATED`
+5. Konzultant môže kedykoľvek prepísať → `name_source = MANUAL`
 
 ---
 
@@ -132,14 +154,15 @@ cez `getSignedUrlForKey(storage_key)` (default 15 min platnosť).
 
 ### UC-1: Inventarizácia v teréne
 ```
-Prídem k palete → naskenuj QR krabice → otvor krabicu
-→ každej zložke naskenuj/priraď QR → odfot štítok → poznámka → ďalšia
+Prídem k poličke → odfotím hranu (OVERVIEW) → OCR navrhne name "S-HBR-AS-2-02" → potvrdím
+→ skenuj QR krabice → otvor krabicu
+→ každej zložke odfot štítok (LABEL) → OCR → metadata batch doma
 ```
 
 ### UC-2: Nájsť kde niečo je
 ```
 Hľadám "kolaudáciu pre objekt X"
-→ search → výsledky s lokáciou: Sklad A → Paleta 7 → Krabica 23
+→ search → výsledky s lokáciou: Sklad HBR → Ohradka 24 → Polica S-HBR-AS-2-02 → Krabica krabica_7
 ```
 
 ### UC-3: Scan v sklade
@@ -149,15 +172,14 @@ Naskenuj QR krabice → vidím všetky zložky s fotkami → nájdem bez otvára
 
 ### UC-4: Export inventára
 ```
-Export → CSV/JSON so všetkými položkami, lokáciou, statusom, poznámkami
+Export → CSV/JSON so všetkými položkami, level, kind, lokáciou, statusom, metadátami
 ```
 
 ---
 
 ## 6. Out of scope (MVP)
 
-- Skenovanie obsahu dokumentov (len štítky)
-- Interpretácia OCR / extrakcia štruktúrovaných polí
+- Skenovanie celého obsahu dokumentov (len prvá strana pre L7)
 - Viacero používateľov / role
 - Výpožičkový systém s termínmi
 - Prepojenie na externé systémy
@@ -181,8 +203,9 @@ Export → CSV/JSON so všetkými položkami, lokáciou, statusom, poznámkami
 | Auth fáza 2 | Microsoft OAuth (passport-azure-ad) | ⬜ po MVP |
 | Search | Fulltext ILIKE cez name, note, celé JSONB metadata, ocr_raw_text + `strip_diacritics()` | ✓ live (Sprint 4 + 7 + 2.8) |
 | Export | CSV (BOM/`;`/CRLF, `metadataJson`) + JSON hierarchický | ✓ live (Sprint 4) |
-| Auto-name | Pozičný identifikátor `sklX_palNNN_kraNNN_zloNNN` pri POST /items | ✓ live (Sprint 5) |
+| Name generation | `kind_lowercase + počet súrodencov` pri POST /items | ⬜ Sprint 8 |
 | LLM Metadata | Gemini 2.5 Flash → hybrid JSONB, batch + review (`/admin/llm-metadata`) | ✓ live (Sprint 7, metadata-only od 2.8) |
+| Hierarchia | 7 úrovní, level + kind, name_source | ⬜ Sprint 8 |
 
 ---
 
@@ -208,21 +231,12 @@ GEMINI_API_KEY        [API key z aistudio.google.com]
 NODE_ENV              production
 ```
 
-**Sprint 5 LLM cost control (povinný setup pred prvým použitím):**
-1. aistudio.google.com → API Keys → Create API key (začína na `AIzaSy...`)
-2. Google Cloud Console → Billing → Budgets & alerts → nastav alert na **$5** (poistka — celý archív batch ~$0.27)
-3. Railway dashboard → backend service → Variables → `GEMINI_API_KEY` = key
-4. Bez kľúča vrátia LLM endpointy 503 s návodom; appka inak nepadne.
-
-**Pozor:** R2_ACCOUNT_ID = `324e558ab210cbc41f1f20e2a3aa4a01` (správny hash z S3 API URL).
-Pôvodne bola tam chybne skopírovaná hodnota Access Key ID — opravené v Sprint 3a.
-
 ### Cloudflare Pages env premenné
 ```
 VITE_API_URL          https://archiveapp-api.assetin.space/api
 ```
 
-### R2 CORS Policy (Cloudflare dashboard → R2 → archiveapp-photos → Settings)
+### R2 CORS Policy
 ```json
 [{
   "AllowedOrigins": ["https://archiveapp.assetin.space", "http://localhost:5173"],
@@ -255,7 +269,7 @@ AssetinSpace/ArchiveApp (private)
 ├── frontend/         Vite + React + TypeScript
 ├── backend/          Node.js + Express + TypeScript + Prisma
 │   ├── railpack.json deploy.aptPackages: tesseract-ocr, tesseract-ocr-eng, tesseract-ocr-osd, tesseract-ocr-slk
-│   └── src/types/node-tesseract-ocr.d.ts  (lokálne TS typy — @types neexistujú)
+│   └── src/types/node-tesseract-ocr.d.ts
 ├── PROJECT.md        tento dokument
 └── .env.example      template env premenných
 ```
@@ -264,128 +278,64 @@ AssetinSpace/ArchiveApp (private)
 
 ## 9. Sprint plán
 
-### Sprint 0 — Infraštruktúra ✓ HOTOVÝ
-- ✓ GitHub repo, Railway, PostgreSQL, Cloudflare Pages, R2
-- ✓ Domény nastavené (Websupport DNS → Railway + Cloudflare)
-- ✓ CORS R2 bucket nastavené
+### Sprint 8 — Flexibilná hierarchia (level + kind + name_source) ⬜ PLÁNOVANÝ
+Pozri `CURSOR_PROMPT_SPRINT8.md` pre detailný implementačný prompt.
 
-### Sprint 1 — Dátový model + API ✓ HOTOVÝ
-- ✓ Prisma schema: Item, ItemType, QRTag, Photo
-- ✓ HTTP Basic Auth middleware
-- ✓ API: CRUD /items, /items/:id/path, /items/:id/children
-- ✓ Seed: 3 sklady, palety, ItemTypes (idempotentný)
-- ✓ Základné UI
+**Backend:**
+- ⬜ Prisma migrácia `add_level_kind_name_source`: pridať `level Int`, `kind String`, `name_source String DEFAULT 'GENERATED'`; zachovať `type_code` a `auto_name` ako deprecated nullable
+- ⬜ Migrácia dát: `UPDATE Item SET level = CASE type_code WHEN 'SKLAD' THEN 1 WHEN 'PALETA' THEN 3 WHEN 'KRABICA' THEN 4 WHEN 'ZLOZKA' THEN 5 END`, `kind = type_code`
+- ⬜ `services/nameGeneration.ts`: `generateName(parentId, kind)` — count súrodencov rovnakého kind + 1
+- ⬜ `POST /api/items`: povinný `level` a `kind` v body; validácia `level <= parent.level + 1`; L7 odmietne `parent_id` pre nové deti; `name = body.name ?? generateName()`; `name_source = body.name ? 'MANUAL' : 'GENERATED'`
+- ⬜ `PATCH /api/items/:id/name`: aktualizuje `name` + `name_source = 'MANUAL'`
+- ⬜ `POST /api/items/:id/name-from-ocr`: navrhne `name` z poslednej OVERVIEW fotky → vráti návrh bez uloženia
+- ⬜ `POST /api/items/:id/confirm-ocr-name`: uloží navrhnutý name → `name_source = 'OCR'`
+- ⬜ OCR OVERVIEW flow pre L2/L3: po `ocr_status = DONE` na OVERVIEW foto → nastaví `item.ocr_name_suggestion = ocr_raw_text` (nové nullable pole) → FE zobrazí banner
+- ⬜ Export CSV/JSON: pridať stĺpce `level`, `kind`, `name_source`, odstrániť `autoName`/`ocrTitle`
+- ⬜ Search: `kind` pridať do ILIKE WHERE
 
-### Sprint 2 — QR + Scan flow ✓ HOTOVÝ (s bugmi)
-- ✓ QR generovanie + import + PDF tlač (A4, 32 štítkov, 48×35mm, dashed border)
-- ✓ Scan stránka (kamera cez @zxing/browser + manuálny input)
-- ✓ FREE QR → formulár → vytvorenie položky
-- ✓ ASSIGNED QR → presmeruj na detail
-- ✓ Item detail: breadcrumb, children, status, note, QR obrázok
-- ✓ QR Admin stránka (accordion: generovanie + import zbalené default)
-- ⚠️ TD-5: video preview čierne (QR sa načíta, len nevidno obraz)
-- ⚠️ TD-6: pri "Pridať podradeú položku" nie je QR scanner, len ručný vstup
-- ⚠️ TD-7: React Query neinvaliduje po vytvorení podradených položiek
-
-### Sprint 2 Bugfix ⬜
-- [ ] Video preview opraviť (CSS/srcObject)
-- [ ] Link /scan?parentId pri "Pridať podradeú položku"
-- [ ] React Query invalidácia po POST /items
-
-### Sprint 3a — Fotky + R2 ✓ HOTOVÝ
-- ✓ R2 service wrapper (uploadToR2, getSignedUrlForKey, getObjectAsBuffer)
-- ✓ Photo model migrácia: drop storage_url, add deleted_at, indexy
-- ✓ Multer multipart upload (memoryStorage, 10 MB, JPEG/PNG/WebP)
-- ✓ Rate limit 20 req/min/IP (express-rate-limit)
-- ✓ POST /api/items/:id/photos, GET list, GET detail, DELETE soft
-- ✓ PhotoUpload (capture=environment, browser-image-compression >2MB)
-- ✓ PhotoGallery (grid 2/3 col, PENDING badge, vlastný lightbox)
-- ✓ Integrácia v ItemDetailPage — sekcia "Fotky"
-
-### Sprint 3b — OCR ✓ HOTOVÝ
-- ✓ railpack.json: aptPackages tesseract-ocr + tesseract-ocr-eng + tesseract-ocr-osd + tesseract-ocr-slk
-- ✓ nixpacks.toml zmazaný — Railway prešlo na Railpack builder (2025)
-- ✓ OCR config: lang=slk+eng, oem=1, psm=1 (auto OSD, zvláda rotáciu)
-- ✓ node-tesseract-ocr.d.ts — lokálne TypeScript typy
-- ✓ services/ocr.ts: processPhoto (idempotent), processPending (sériový)
-- ✓ 5 OCR endpointov: process-pending, status, retry/:id, failed, recent
-- ✓ api.ts: fetchOcrStatus, processOcrPending, retryOcr, fetchFailedPhotos, fetchRecentOcrPhotos
-- ✓ OCRAdminPage /admin/ocr: štatistiky 2×2, polling 3s, banner, FAILED sekcia, Recent fotky
-- ✓ PhotoGallery rozšírené: DONE collapsible, DONE bez textu badge, FAILED retry mutation
-- ✓ Reálny test (štítok RODINNÝ DOM): 95%+ presnosť, diakritika OK
+**Frontend:**
+- ⬜ `CreateItemForm`: dropdown `kind` s predvolenými hodnotami per level + „Vlastné…" textové pole; `level` sa dedí z parenta automaticky (+1)
+- ⬜ `ItemDetailPage`: badge `name_source` vedľa názvu; banner „Nastaviť názov na [OCR]?" pre L2/L3 po OVERVIEW; tlačidlo Upraviť názov
+- ⬜ `Navbar` / breadcrumb: zobraziť `kind` badge vedľa `name`
+- ⬜ `ItemsDataTable`: stĺpce `level`, `kind`, `name_source`; odstrániť `auto_name`
+- ⬜ `api.ts`: nové typy `ItemLevel`, `ItemKind`, `NameSource`; metódy `confirmOcrName`, `updateName`
 
 ### Sprint 7 — JSONB Metadata Extraction ✓ HOTOVÝ
-- ✓ Backend `services/llmMetadata.ts`: `extractMetadataFromOcr` (Gemini 2.5 Flash, 30s AbortController, `maxOutputTokens: 500`, `temperature: 0.1`, OCR vstup orezaný na 2000 znakov), `processPendingMetadata` (sériový batch s 500 ms pauzou, max 50/batch), robustný `parseMetadataJson` helper (strip markdown fences, fallback `{}`)
-- ✓ Slovenský prompt s explicitnými 7 poliami a inštrukciou „nevymýšľaj, daj null" — LLM odpovedá len JSON-om
-- ✓ Backend `routes/llmMetadata.ts`: 6 endpointov (`POST /process` s 503 fallback bez `GEMINI_API_KEY`, `GET /status` s eligible count, `GET /pending-review` offset paging + thumbnail + breadcrumb, `POST /:id/confirm|edit|reject`)
-- ✓ Permisívna Zod validácia — ukladáme aj neznáme metadata kľúče s warning logom (forward-compat)
-- ✓ `services/search.ts` rozšírené: ILIKE cez `metadata->>'stavba|cast|projektant|adresa'`, CASE WHEN priorita `name > ocr_title > meta_stavba > meta_cast > meta_projektant > meta_adresa > note > ocr`, snippet aj pre `meta_*` zdroje
-- ✓ `routes/export.ts`: CSV pridáva 7 stĺpcov `metaStavba`…`metaStupen` po `metadataStatus`
-- ✓ `routes/items.ts` `/inventory`: select rozšírený o `auto_name`, `ocr_title`, `ocr_title_status`, `metadata`, `metadata_status` (single source of truth pre tabuľku)
-- ✓ FE `api.ts`: typy `ItemMetadata` (7 polí + permisívne `[k: string]`), `KNOWN_METADATA_KEYS`, `METADATA_LABELS`, `LlmMetadata*` response typy, 5 metadata API metód, `MatchSource` rozšírený o `meta_*`
-- ✓ FE `LlmMetadataAdminPage.tsx` (`/admin/llm-metadata`): 5 stat cards, no-API-key banner, batch tlačidlo, polling 3 s počas processing, review queue (offset 20/page) s editovateľným gridom 7 polí, Enter/Esc shortcuts
-- ✓ FE `ItemsDataTable.tsx`: 9 nových stĺpcov (auto_name, ocr_title, 7 metadata polí, metadata_status), warning štýl `data-table-meta-suggested` + badge „návrh" pre `EXTRACTED` hodnoty, default skryté v "Stĺpce ▾"
-- ✓ FE `ItemDetailPage.tsx`: `MetadataBanner` pre `EXTRACTED` (Potvrdiť/Upraviť/Zamietnuť, inline edit form so 7 inputmi), read-only `<dl>` zoznam pre `REVIEWED` (skip prázdne polia, kurzíva pre neznáme kľúče)
-- ✓ FE `Navbar.tsx`: pridaný link „AI Metadata" + SVG ikona vedľa „AI Názvy"
-- ✓ Žiadna nová Prisma migrácia — `metadata`/`metadata_status` schéma už existuje zo Sprintu 5
-- ✓ TypeScript build prejde na FE aj BE
+- ✓ Backend `services/llmMetadata.ts`, `routes/llmMetadata.ts`
+- ✓ FE `LlmMetadataAdminPage.tsx`, `ItemDetailPage` MetadataBanner
+- ✓ Search cez celé JSONB metadata
 
 ### Sprint 6 — Photo type LABEL vs OVERVIEW ⏳ IN PROGRESS
-- ✓ Prisma migrácia `add_photo_type` (enum PhotoType {LABEL, OVERVIEW}, `Photo.photo_type` DEFAULT 'LABEL', index)
-- ✓ Backend `routes/photos.ts`: upload akceptuje `photo_type` query/body field, OVERVIEW dostane `ocr_status = DONE` rovno pri vložení; GET endpointy vracajú `photo_type`
-- ✓ Backend `routes/ocr.ts` + `services/ocr.ts`: `status`, `process-pending`, `recent`, `failed` filtrované na `photo_type = 'LABEL'` (admin štatistiky nezahŕňajú OVERVIEW)
-- ✓ Backend `routes/export.ts`: CSV pridáva `labelPhotoCount`, `overviewPhotoCount`, `ocrTextPreview` číta len z LABEL fotiek; JSON vracia `photoType` pre každú fotku
-- ✓ Frontend `PhotoUpload`: dve tlačidlá vedľa seba — *Odfotiť štítok* (LABEL → OCR) / *Odfotiť položku* (OVERVIEW), zdieľaná upload mutácia, min-height 88 px tap target, mobile camera capture
-- ✓ Frontend `PhotoGallery`: dve sekcie *Štítky* / *Fotky položky*, OVERVIEW tile bez OCR badge/retry/textu, prázdne sekcie sa skryjú
-- ✓ Frontend `api.ts`: `PhotoType` typ, `Photo.photo_type`, `uploadPhoto(itemId, file, photoType)`
-- ✓ Štýly: `.photo-upload-buttons` grid, farebne rozlíšené tlačidlá, `.photo-section-title` headery
-- ⬜ Field test v sklade s reálnymi fotkami štítku aj prehľadovými fotkami palety
+- ✓ Prisma migrácia `add_photo_type`
+- ✓ Backend routes/photos.ts, routes/ocr.ts
+- ✓ Frontend PhotoUpload, PhotoGallery
+- ⬜ Field test v sklade
 
-### Sprint 5 — Auto-naming + LLM Title Extraction ✓ HOTOVÝ
-- ✓ Prisma migrácia `add_auto_name_ocr_title_metadata` (auto_name, ocr_title, ocr_title_status, metadata JSONB, metadata_status, index ocr_title_status)
-- ✓ services/autoName.ts: `generateAutoName(parentId, typeCode)` — sklA_pal003_kra004_zlo015 (preferuje `auto_name` ancestora ak existuje, inak path-from-scratch)
-- ✓ Integrácia do POST /api/items (oba branchy s/bez QR) — `name = body.name ?? autoName`, `auto_name = autoName`
-- ✓ services/llmTitle.ts: `extractTitleFromOcr` (fetch + 30s AbortController) + `processPendingTitles` (sériový, 500ms pauza, max 50 per batch)
-- ✓ Model: `gemini-2.5-flash` (Google Generative Language API v1beta), `maxOutputTokens: 150`, `temperature: 0.1`, OCR vstup orezaný na 2000 znakov, výstup na 200 znakov *(pôvodne Claude Haiku, prepnuté na Gemini v patch v2.5.1)*
-- ✓ routes/llmTitle.ts: POST /process (503 ak chýba GEMINI_API_KEY), GET /status (vrátane `noApiKey` flag), GET /pending-review (offset paging), POST /:id/confirm|reject|edit
-- ✓ Confirm/edit prepíše `name` na ocr_title bez uniqueness check (LLM-derived duplicates povolené)
-- ✓ services/search.ts rozšírené: ocr_title v ILIKE WHERE + CASE WHEN priorita `name > ocr_title > note > ocr`, snippet aj pre `ocr_title`
-- ✓ routes/export.ts: CSV stĺpce `autoName, ocrTitle, ocrTitleStatus, metadataStatus`, JSON polia + `metadata`
-- ✓ FE api.ts: 6 nových api.* metód, typy `LlmTitleStatusResponse / LlmTitleProcessResponse / PendingReviewItem / PendingReviewResponse / OcrTitleStatus / MetadataStatus`
-- ✓ FE pages/LlmTitleAdminPage.tsx (/admin/llm-titles): 6 stat cards, no-API-key banner s návodom, batch tlačidlo, polling 3s počas processing, review queue (offset 20/page) s confirm/edit/reject (44px+ tap targets, kbd Enter/Esc shortcuts)
-- ✓ FE ItemDetailPage: auto_name label, OcrTitleBanner pre SUGGESTED, "z OCR" badge pre CONFIRMED
-- ✓ FE Navbar: nový link "AI Názvy" + ikonka, App.tsx route `/admin/llm-titles`
-- ✓ TypeScript build prejde na FE aj BE
+### Sprint 5 — Auto-naming + LLM Title Extraction ✓ HOTOVÝ (auto_name deprecated v 2.9)
 
 ### Sprint 4 — Search + Export ✓ HOTOVÝ
-- ✓ Prisma migrácia `add_unaccent_extension` (CREATE EXTENSION IF NOT EXISTS unaccent)
-- ✓ services/search.ts: `searchItems()` cez `prisma.$queryRaw` s `unaccent(lower(...)) LIKE` cez Item.name/note + Photo.ocr_raw_text
-- ✓ Match source priorita name > note > ocr cez SQL CASE WHEN
-- ✓ matchSnippet ±80 znakov okolo prvého výskytu v OCR texte
-- ✓ Batched thumbnails (DISTINCT ON item_id) + on-demand signed URLs
-- ✓ GET /api/search?q=...&limit=50 (min 2 znaky, max 200, max limit 200)
-- ✓ GET /api/items/by-qr/:qrCode/contents (WITH RECURSIVE, filter ZLOZKA, photoCount)
-- ✓ GET /api/export/csv (UTF-8 BOM, `;`, CRLF, D-4 stĺpce vrátane hasOcrText/ocrTextPreview)
-- ✓ GET /api/export/json (hierarchický strom, in-memory build, fotky bez signed URL)
-- ✓ FE: api.ts rozšírené (searchItems, fetchBoxContents, exportBlob s Basic Auth blob downloadom)
-- ✓ FE: SearchPage (debounce 300ms, hit cards, breadcrumb, snippet highlight `<mark>`)
-- ✓ FE: BoxContentsPage (grid 2/3 col, thumbnail + photoCount badge)
-- ✓ FE: ScanPage — pre ASSIGNED KRABICA chooser "Otvoriť detail" + "Pozrieť obsah"
-- ✓ FE: ExportPage /admin/export (dve tlačidlá, blob download cez dočasný `<a download>`)
-- ✓ FE: Navbar rozšírený (Hľadať pred admin sekciou, Export vedľa OCR)
-- ✓ TypeScript build prejde na FE aj BE
+
+### Sprint 3b — OCR ✓ HOTOVÝ
+
+### Sprint 3a — Fotky + R2 ✓ HOTOVÝ
+
+### Sprint 2 — QR + Scan flow ✓ HOTOVÝ (s bugmi TD-5/6/7)
+
+### Sprint 1 — Dátový model + API ✓ HOTOVÝ
+
+### Sprint 0 — Infraštruktúra ✓ HOTOVÝ
 
 ---
 
 ## 10. Definícia "hotovo" pre MVP
 
-1. ⬜ Všetky krabice v jednom sklade zaznamenané s lokáciou *(field work, čaká na výjazd do skladu)*
+1. ⬜ Všetky krabice v jednom sklade zaznamenané s lokáciou *(field work)*
 2. ⬜ Každá zložka má ID a aspoň jednu fotku štítku *(field work)*
-3. ✓ Systém vráti lokáciu keď zadám QR kód zložky *(Sprint 4 — Search nájde Item podľa OCR/name/note + vráti breadcrumb path)*
-4. ✓ Export do CSV funguje *(Sprint 4 — /admin/export, Excel SK kompatibilný)*
-5. ✓ Appka použiteľná na mobile v sklade *(Sprint 2/3 — mobile-first responzív, kamera funguje na HTTPS doméne)*
+3. ✓ Systém vráti lokáciu keď zadám QR kód zložky
+4. ✓ Export do CSV funguje
+5. ✓ Appka použiteľná na mobile v sklade
 
-**Stav:** Technické MVP HOTOVÉ (3/5 bodov). Zostávajúce dva body (1 a 2) sú field work — naskenovať fyzický archív, nie ďalší kód.
+**Stav:** Technické MVP HOTOVÉ (3/5 bodov). Sprint 8 (hierarchia) je predpoklad pre správny field work — bez neho by sa naskenovalo s nesprávnou štruktúrou.
 
 ---
 
@@ -414,11 +364,13 @@ IT tím objednávateľa dostane:
 | TD-7 | React Query neinvaliduje po vytvorení podradených položiek | Sprint 2 Bugfix |
 | TD-8 | Orphan R2 objekty po soft delete foto — cleanup skript | Po MVP |
 | TD-9 | Tesseract lokálne na Windows nie je v PATH — OCR sa testuje len na Railway | Nízka priorita |
-| TD-10 | GIN index `to_tsvector('simple', unaccent(name‖note))` ak search > 500 ms na reálnom seede | Sledovať po naplnení skladu (~5000 items) |
-| TD-11 | Search pagination (cursor alebo offset) keď výsledkov > 200 | Po naplnení skladu, ak limit 200 začne obmedzovať |
-| TD-12 | `dump.sql` (pg_dump) a `README.md` (popis schémy + import postup) pre finálne odovzdanie IT tímu | Pred odovzdaním (po dokončení field work) |
-| TD-13 | LLM retry pre REJECTED items — re-extract s upraveným promptom (variant „presnejšie", „kratšie", alebo iný model — Gemini 2.5 Pro ako fallback ak Flash halucinoval) | Po Sprint 6 ak field work odhalí systematické problémy s Gemini Flash |
-| TD-14 | Gemini Batch Mode namiesto real-time pre ešte lacnejšie spracovanie (~50% sleva), neblokuje Express request | Až keď bude konzultant chcieť spracovať >100 položiek naraz |
+| TD-10 | GIN index `to_tsvector('simple', unaccent(name‖note))` ak search > 500 ms | Sledovať po naplnení skladu |
+| TD-11 | Search pagination (cursor alebo offset) keď výsledkov > 200 | Po naplnení skladu |
+| TD-12 | `dump.sql` + `README.md` pre finálne odovzdanie IT tímu | Pred odovzdaním |
+| TD-13 | LLM retry pre REJECTED items — re-extract s upraveným promptom | Po Sprint 8 |
+| TD-14 | Gemini Batch Mode pre >100 položiek naraz | Na požiadanie |
+| TD-15 | `type_code` a `auto_name` stĺpce odstrániť z DB po overení migrácie | 1 mesiac po Sprint 8 |
+| TD-16 | `ocr_name_suggestion` stĺpec — zvážiť či nestačí len vrátiť z API bez uloženia | Pred Sprint 8 release |
 
 ---
 
@@ -429,8 +381,9 @@ IT tím objednávateľa dostane:
 | OQ-7 | Ručne písané štítky — tlačené OK (95%+), ručné písmo ostáva open question | Nízka |
 | OQ-8 | Pečiatka s číslom ako fallback pre QR nálepky? | Nízka |
 | OQ-11 | Nakúpiť QR nálepky (Avery L4732) — otestovať pred výjazdom do skladu | Stredná |
+| OQ-12 | Validácia levelu pri POST /items — striktná (parent.level + 1) alebo voľná (parent.level < child.level)? Voľná umožní preskočiť level (napr. sklad priamo na krabicu bez ohradky/police). | Stredná |
 
 ---
 
-*Posledná aktualizácia: v2.8.0 — metadata-only refactor (zrušený LLM title workflow, hybrid metadata prompt, search cez celé JSONB). Sprint 6 (Photo LABEL/OVERVIEW) ostáva v progrese, čaká na field test.*
-*Ďalší krok: Sprint 2 Bugfix (TD-5/6/7), nastaviť `GEMINI_API_KEY` na Railway, field work v sklade (DoD body 1+2 + overiť LABEL/OVERVIEW UX + spustiť metadata batch na reálnom korpuse), nakoniec dump.sql + README.md pre odovzdanie (TD-12).*
+*Posledná aktualizácia: v2.9.0 — flexibilná 7-úrovňová hierarchia (level + kind + name_source, auto_name deprecated). Sprint 8 plánovaný.*
+*Ďalší krok: implementovať Sprint 8 podľa CURSOR_PROMPT_SPRINT8.md, potom field work v sklade.*

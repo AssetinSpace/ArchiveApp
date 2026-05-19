@@ -28,8 +28,11 @@ type ExportPhoto = {
 
 type ExportItem = {
   id: string;
-  type_code: string;
-  name: string | null;
+  level: number;
+  kind: string;
+  name: string;
+  name_source: string;
+  type_code: string | null;
   auto_name: string | null;
   metadata: unknown;
   metadata_status: string;
@@ -81,7 +84,7 @@ function buildPath(item: ExportItem, byId: Map<string, ExportItem>): string[] {
   while (cursor) {
     if (seen.has(cursor.id)) break;
     seen.add(cursor.id);
-    names.unshift(cursor.name ?? cursor.type_code);
+    names.unshift(cursor.name ?? cursor.kind);
     if (!cursor.parent_id) break;
     cursor = byId.get(cursor.parent_id);
   }
@@ -116,8 +119,11 @@ async function loadActiveItems(): Promise<ExportItem[]> {
     orderBy: { created_at: "asc" },
     select: {
       id: true,
-      type_code: true,
+      level: true,
+      kind: true,
       name: true,
+      name_source: true,
+      type_code: true,
       auto_name: true,
       metadata: true,
       metadata_status: true,
@@ -129,11 +135,13 @@ async function loadActiveItems(): Promise<ExportItem[]> {
       updated_at: true,
     },
   });
-  // Prisma vracia Status enum a Date — namapujeme na náš ExportItem shape.
   return items.map((i) => ({
     id: i.id,
-    type_code: i.type_code,
+    level: i.level,
+    kind: i.kind,
     name: i.name,
+    name_source: i.name_source,
+    type_code: i.type_code,
     auto_name: i.auto_name,
     metadata: i.metadata,
     metadata_status: i.metadata_status,
@@ -187,7 +195,9 @@ exportRouter.get("/csv", async (_req, res, next) => {
       "qrCode",
       "typeCode",
       "name",
-      "autoName",
+      "level",
+      "kind",
+      "nameSource",
       "metadataStatus",
       "metadataJson",
       "metaStavba",
@@ -247,9 +257,11 @@ exportRouter.get("/csv", async (_req, res, next) => {
         joinCsvRow([
           item.id,
           item.qr_code ?? "",
-          item.type_code,
-          item.name ?? "",
-          item.auto_name ?? "",
+          item.type_code ?? "",
+          item.name,
+          item.level,
+          item.kind,
+          item.name_source,
           item.metadata_status,
           metadataJson,
           metaCell("stavba"),
@@ -292,8 +304,11 @@ exportRouter.get("/csv", async (_req, res, next) => {
 
 type JsonNode = {
   id: string;
-  type_code: string;
-  name: string | null;
+  level: number;
+  kind: string;
+  name: string;
+  name_source: string;
+  type_code: string | null;
   auto_name: string | null;
   metadata: unknown;
   metadata_status: string;
@@ -337,8 +352,11 @@ exportRouter.get("/json", async (_req, res, next) => {
         }));
       nodeById.set(item.id, {
         id: item.id,
-        type_code: item.type_code,
+        level: item.level,
+        kind: item.kind,
         name: item.name,
+        name_source: item.name_source,
+        type_code: item.type_code,
         auto_name: item.auto_name,
         metadata: item.metadata,
         metadata_status: item.metadata_status,
