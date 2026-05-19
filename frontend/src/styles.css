@@ -1569,7 +1569,12 @@ p { margin: 0 0 12px; }
   overflow: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-x pan-y;
+}
+
+/* Tlačidlá v tabuľke musia dostať tap skôr než scroll kontajner */
+.items-data-table--fullscreen .data-table-scroll .items-table-icon-btn,
+.items-data-table:fullscreen .data-table-scroll .items-table-icon-btn {
+  touch-action: manipulation;
 }
 
 /* Landscape na mobile: toolbar zaberá málo výšky, tabuľka musí mať scroll */
@@ -1760,14 +1765,15 @@ p { margin: 0 0 12px; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 36px;
-  min-height: 36px;
+  min-width: 44px;
+  min-height: 44px;
   padding: 0;
   border: none;
   background: transparent;
   color: var(--color-text);
   font-size: 14px;
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .items-table-icon-btn:hover {
@@ -1928,9 +1934,41 @@ p { margin: 0 0 12px; }
   background: #fef2f2;
 }
 
-.data-table-delete-btn--blocked:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
+.data-table-delete-btn--cascade {
+  color: #b45309;
+}
+
+.data-table-delete-btn--cascade:not(:disabled):hover {
+  color: #dc2626;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+/* Stĺpec ✕ prilepený vpravo — na mobile netreba doscrollovať mimo obrazovky */
+.data-table th:last-child,
+.data-table td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background: #fff;
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.06);
+}
+
+.data-table thead th:last-child {
+  z-index: 3;
+  background: #f9fafb;
+}
+
+.data-table-row-child td:last-child {
+  background: #fafafa;
+}
+
+.data-table-row-match td:last-child {
+  background: #f0fdf4;
+}
+
+.data-table-row-match:hover td:last-child {
+  background: #dcfce7;
 }
 
 .data-table-expand-spacer {

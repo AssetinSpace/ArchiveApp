@@ -23,6 +23,7 @@ import {
 import {
   buildItemTree,
   collectExpandableIds,
+  countDescendants,
   includeAncestors,
   itemMatchesQuery,
   ocrSnippet,
@@ -108,10 +109,12 @@ export function ItemsDataTable() {
   });
   const fullscreenPinnedRef = useRef(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const deleteTouchHandledRef = useRef(false);
 
   const deleteMut = useMutation({
-    mutationFn: (id: string) => api.deleteItem(id),
-    onMutate: (id) => setDeletingId(id),
+    mutationFn: ({ id, cascade }: { id: string; cascade?: boolean }) =>
+      api.deleteItem(id, { cascade }),
+    onMutate: ({ id }) => setDeletingId(id),
     onSettled: () => setDeletingId(null),
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["items"] });
@@ -134,19 +137,35 @@ export function ItemsDataTable() {
     },
   });
 
+  const allItems = inventoryQ.data ?? [];
+
+  const descendantCountById = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const it of allItems) {
+      if (it._count.children > 0) {
+        map.set(it.id, countDescendants(allItems, it.id));
+      }
+    }
+    return map;
+  }, [allItems]);
+
   const handleDeleteItem = useCallback(
     (item: InventoryTreeRow) => {
-      if (item._count.children > 0) return;
-      const label = item.name;
+      const label = item.name ?? "(bez názvu)";
       const type = TYPE_LABEL[item.kind] ?? item.kind;
-      if (confirm(`Naozaj zmazať položku „${label}" (${type})?`)) {
-        deleteMut.mutate(item.id);
+      const descendantCount = descendantCountById.get(item.id) ?? 0;
+      const cascade = descendantCount > 0;
+
+      const msg = cascade
+        ? `Naozaj zmazať „${label}" (${type}) a všetkých ${descendantCount} podradených položiek (vrátane vnorených)?\n\nPoložky pôjdu do koša (soft delete).`
+        : `Naozaj zmazať položku „${label}" (${type})?`;
+
+      if (confirm(msg)) {
+        deleteMut.mutate({ id: item.id, cascade });
       }
     },
-    [deleteMut],
+    [deleteMut, descendantCountById],
   );
-
-  const allItems = inventoryQ.data ?? [];
   const searchQ = url.search.trim();
   const hasAnyFilter =
     url.levelFilters.length > 0 || !!url.statusFilter || url.hasQr || url.hasPhoto || !!searchQ;
@@ -506,31 +525,55 @@ export function ItemsDataTable() {
       enableHiding: false,
       cell: ({ row }) => {
         const item = row.original;
-        const childCount = item._count.children;
+        const descendantCount = descendantCountById.get(item.id) ?? 0;
+        const hasDescendants = descendantCount > 0;
         const isDeleting = deletingId === item.id;
-        const blocked = childCount > 0;
         return (
           <button
             type="button"
-            className={`items-table-icon-btn data-table-delete-btn${blocked ? " data-table-delete-btn--blocked" : ""}`}
+            className={`items-table-icon-btn data-table-delete-btn${hasDescendants ? " data-table-delete-btn--cascade" : ""}`}
             title={
-              blocked
-                ? `Najprv zmazať ${childCount} podradených položiek`
+              hasDescendants
+                ? `Zmazať položku a ${descendantCount} podradených (vrátane vnorených)`
                 : "Zmazať položku"
             }
-            disabled={blocked || isDeleting}
-            onClick={(e) => {
+            disabled={isDeleting}
+            onPointerDown={(e) => {
+              // Na mobile inak scroll kontajnera „zožerie“ tap pred clickom.
               e.stopPropagation();
+              if (e.pointerType === "touch") {
+                e.currentTarget.setPointerCapture(e.pointerId);
+              }
+            }}
+            onPointerUp={(e) => {
+              e.stopPropagation();
+              if (isDeleting) return;
+              if (e.pointerType !== "touch") return;
+              e.preventDefault();
+              deleteTouchHandledRef.current = true;
               handleDeleteItem(item);
             }}
-            aria-label={blocked ? "Nemožno zmazať — má podradené položky" : "Zmazať položku"}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isDeleting) return;
+              if (deleteTouchHandledRef.current) {
+                deleteTouchHandledRef.current = false;
+                return;
+              }
+              handleDeleteItem(item);
+            }}
+            aria-label={
+              hasDescendants
+                ? `Zmazať položku a ${descendantCount} podradených`
+                : "Zmazať položku"
+            }
           >
             {isDeleting ? "…" : "✕"}
           </button>
         );
       },
     },
-  ], [searchQ, deletingId, handleDeleteItem]);
+  ], [searchQ, deletingId, handleDeleteItem, descendantCountById]);
 
   const table = useReactTable({
     data: treeData,

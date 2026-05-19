@@ -162,6 +162,29 @@ export function itemMatchesGlobalFilter(
   return itemMatchesQuery(item, query);
 }
 
+/** Počet všetkých nezmazaných potomkov (bez samotnej položky). */
+export function countDescendants(
+  items: Pick<InventoryItem, "id" | "parent_id">[],
+  rootId: string,
+): number {
+  const byParent = new Map<string, string[]>();
+  for (const it of items) {
+    if (!it.parent_id) continue;
+    const list = byParent.get(it.parent_id) ?? [];
+    list.push(it.id);
+    byParent.set(it.parent_id, list);
+  }
+  let count = 0;
+  const queue = [...(byParent.get(rootId) ?? [])];
+  while (queue.length > 0) {
+    const cur = queue.shift()!;
+    count++;
+    const kids = byParent.get(cur);
+    if (kids) queue.push(...kids);
+  }
+  return count;
+}
+
 export function collectExpandableIds(rows: InventoryTreeRow[]): Record<string, boolean> {
   const out: Record<string, boolean> = {};
   const walk = (nodes: InventoryTreeRow[]) => {

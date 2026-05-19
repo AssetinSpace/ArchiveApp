@@ -480,10 +480,14 @@ export const api = {
       method: "PATCH",
       json: data,
     }),
-  deleteItem: (id: string) =>
-    request<void>(`/items/${id}`, {
+  deleteItem: (id: string, options?: { cascade?: boolean }) => {
+    const qs = options?.cascade ? "?cascade=true" : "";
+    return request<void>(`/items/${id}${qs}`, {
       method: "DELETE",
-    }),
+    });
+  },
+  countItemDescendants: (id: string) =>
+    request<{ count: number }>(`/items/${id}/descendants/count`),
 
   // ─── QR ────────────────────────────────────────────────────────────────────
   qrList: (params?: { status?: QrStatus }) => {

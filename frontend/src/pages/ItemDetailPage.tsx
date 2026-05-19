@@ -349,8 +349,15 @@ function ItemDeleteSection({
 }) {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const descendantsQ = useQuery({
+    queryKey: ["items", item.id, "descendants", "count"],
+    queryFn: () => api.countItemDescendants(item.id),
+    enabled: childCount > 0,
+  });
+  const descendantCount = descendantsQ.data?.count ?? 0;
+
   const deleteMut = useMutation({
-    mutationFn: () => api.deleteItem(item.id),
+    mutationFn: (cascade: boolean) => api.deleteItem(item.id, { cascade }),
     onSuccess: async () => {
       setError(null);
       await onDeleted();
@@ -359,40 +366,77 @@ function ItemDeleteSection({
     onError: (e: Error) => setError(e.message),
   });
 
-  const displayName = item.name;
+  const displayName = item.name ?? "(bez názvu)";
+  const typeLabel = TYPE_LABEL[item.kind] ?? item.kind;
+
+  function confirmDelete(cascade: boolean): void {
+    const msg = cascade
+      ? `Naozaj zmazať „${displayName}" (L${item.level} ${typeLabel}) a všetkých ${descendantCount} podradených položiek (vrátane vnorených)?`
+      : `Naozaj zmazať položku „${displayName}" (L${item.level} ${typeLabel})?`;
+    if (confirm(msg)) {
+      deleteMut.mutate(cascade);
+    }
+  }
 
   return (
     <div className="item-delete-section">
       <h3 className="item-delete-heading">Zmazať položku</h3>
-      {childCount > 0 ? (
-        <p className="muted" style={{ margin: "0 0 12px" }}>
-          Položku nemožno zmazať — má{" "}
-          <strong>{childCount}</strong>{" "}
-          {childCount === 1 ? "podradenú položku" : childCount < 5 ? "podradené položky" : "podradených položiek"}.
-          Najprv ich zmazať v záložke Podradené.
-        </p>
-      ) : (
-        <p className="muted" style={{ margin: "0 0 12px" }}>
-          Položka pôjde do koša (soft delete). Fotky v R2 a priradený QR kód zostanú v systéme.
-        </p>
-      )}
+      <p className="muted" style={{ margin: "0 0 12px" }}>
+        {childCount > 0 ? (
+          <>
+            Položka má{" "}
+            <strong>{childCount}</strong>{" "}
+            {childCount === 1
+              ? "priamu podradenú položku"
+              : childCount < 5
+                ? "priame podradené položky"
+                : "priamych podradených položiek"}
+            {descendantsQ.isSuccess && descendantCount > childCount && (
+              <>
+                {" "}
+                (celkom <strong>{descendantCount}</strong>{" "}
+                {descendantCount === 1
+                  ? "potomok"
+                  : descendantCount < 5
+                    ? "potomkovia"
+                    : "potomkov"}
+                {" "}
+                vrátane vnorených)
+              </>
+            )}
+            . Môžete zmazať celú vetvu naraz.
+          </>
+        ) : (
+          <>Položka pôjde do koša (soft delete). Fotky v R2 a priradený QR kód zostanú v systéme.</>
+        )}
+      </p>
       {error && <p className="error">{error}</p>}
-      <button
-        type="button"
-        className="btn-danger"
-        disabled={childCount > 0 || deleteMut.isPending}
-        onClick={() => {
-          if (
-            confirm(
-              `Naozaj zmazať položku „${displayName}" (L${item.level} ${TYPE_LABEL[item.kind] ?? item.kind})?`,
-            )
-          ) {
-            deleteMut.mutate();
-          }
-        }}
-      >
-        {deleteMut.isPending ? "Mažem…" : "Zmazať položku"}
-      </button>
+      <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+        {childCount === 0 && (
+          <button
+            type="button"
+            className="btn-danger"
+            disabled={deleteMut.isPending}
+            onClick={() => confirmDelete(false)}
+          >
+            {deleteMut.isPending ? "Mažem…" : "Zmazať položku"}
+          </button>
+        )}
+        {childCount > 0 && (
+          <button
+            type="button"
+            className="btn-danger"
+            disabled={deleteMut.isPending || descendantsQ.isLoading}
+            onClick={() => confirmDelete(true)}
+          >
+            {deleteMut.isPending
+              ? "Mažem…"
+              : descendantsQ.isLoading
+                ? "Počítam podradené…"
+                : `Zmazať vrátane podradených (${descendantCount})`}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

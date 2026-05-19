@@ -430,6 +430,34 @@ itemsRouter.get("/:id/children", async (req, res, next) => {
   }
 });
 
+itemsRouter.get("/:id/descendants/count", async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const parent = await prisma.item.findFirst({
+      where: { id, deleted_at: null },
+      select: { id: true },
+    });
+    if (!parent) {
+      res.status(404).json({ error: "Item not found" });
+      return;
+    }
+    const rows = await prisma.$queryRaw<[{ count: bigint }]>`
+      WITH RECURSIVE subtree AS (
+        SELECT id FROM "Item"
+        WHERE parent_id = ${id} AND deleted_at IS NULL
+        UNION ALL
+        SELECT i.id FROM "Item" i
+        INNER JOIN subtree s ON i.parent_id = s.id
+        WHERE i.deleted_at IS NULL
+      )
+      SELECT COUNT(*)::bigint AS count FROM subtree;
+    `;
+    res.json({ count: Number(rows[0]?.count ?? 0) });
+  } catch (e) {
+    next(e);
+  }
+});
+
 itemsRouter.get("/:id/path", async (req, res, next) => {
   try {
     const id = req.params.id;
@@ -599,6 +627,7 @@ itemsRouter.patch("/:id", async (req, res, next) => {
 itemsRouter.delete("/:id", async (req, res, next) => {
   try {
     const id = req.params.id;
+    const cascade = req.query.cascade === "true" || req.query.cascade === "1";
     const item = await prisma.item.findFirst({
       where: { id, deleted_at: null },
       include: { _count: { select: { children: { where: { deleted_at: null } } } } },
@@ -607,14 +636,39 @@ itemsRouter.delete("/:id", async (req, res, next) => {
       res.status(404).json({ error: "Item not found" });
       return;
     }
-    if (item._count.children > 0) {
-      res.status(400).json({ error: "Cannot delete item with children" });
+    if (item._count.children > 0 && !cascade) {
+      res.status(400).json({
+        error: "Cannot delete item with children",
+        hint: "Use ?cascade=true to soft-delete the item and all descendants",
+      });
       return;
     }
-    await prisma.item.update({
-      where: { id },
-      data: { deleted_at: new Date() },
-    });
+    const now = new Date();
+    if (cascade) {
+      const rows = await prisma.$queryRaw<{ id: string }[]>`
+        WITH RECURSIVE subtree AS (
+          SELECT id FROM "Item"
+          WHERE id = ${id} AND deleted_at IS NULL
+          UNION ALL
+          SELECT i.id FROM "Item" i
+          INNER JOIN subtree s ON i.parent_id = s.id
+          WHERE i.deleted_at IS NULL
+        )
+        SELECT id FROM subtree;
+      `;
+      const ids = rows.map((r) => r.id);
+      if (ids.length > 0) {
+        await prisma.item.updateMany({
+          where: { id: { in: ids } },
+          data: { deleted_at: now },
+        });
+      }
+    } else {
+      await prisma.item.update({
+        where: { id },
+        data: { deleted_at: now },
+      });
+    }
     res.status(204).end();
   } catch (e) {
     next(e);
