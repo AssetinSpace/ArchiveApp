@@ -846,8 +846,9 @@ function MetadataExtractSection({
     <section className="card" aria-label="Extrakcia metadát z OCR">
       <h2 style={{ margin: "0 0 8px", fontSize: 16 }}>AI metadata z OCR textu</h2>
       <p className="muted" style={{ margin: "0 0 12px", fontSize: 13 }}>
-        Gemini číta uložený OCR text zo štítkových fotiek (LABEL), nie samotný
-        obrázok. Najprv musí byť OCR hotové v sekcii Fotky.
+        Extrahuje metadata z uloženého OCR textu (text LLM fallback). Pri Gemini
+        Vision sa metadata extrahujú automaticky pri spracovaní fotky — toto
+        tlačidlo je pre manuálnu re-extrakciu alebo po Tesseract behu.
       </p>
       <button
         type="button"

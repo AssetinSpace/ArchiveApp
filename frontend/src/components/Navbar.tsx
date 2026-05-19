@@ -6,8 +6,7 @@ const links: Array<{ to: string; icon: IconName; label: string }> = [
   { to: "/", icon: "items", label: "Položky" },
   { to: "/scan", icon: "scan", label: "Scan" },
   { to: "/admin/qr", icon: "qr", label: "QR" },
-  { to: "/admin/ocr", icon: "ocr", label: "OCR" },
-  { to: "/admin/llm-metadata", icon: "meta", label: "AI Metadata" },
+  { to: "/admin/ocr", icon: "ocr", label: "Spracovanie" },
   { to: "/admin/export", icon: "export", label: "Export" },
 ];
 
