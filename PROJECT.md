@@ -1,6 +1,6 @@
 # ArchiveApp — PROJECT.md
 > Živý dokument. Aktualizovať po každom rozhodnutí alebo sprinte.
-> Verzia 2.10.0 — Post-Sprint 8 údržba: kaskádové mazanie položiek, soft-delete archivácia (obnova zatiaľ neimplementovaná).
+> Verzia 2.11.0 — Post-Sprint 8 údržba: export CSV s celým OCR textom a klikateľnými URL fotiek; vylepšený výber stĺpcov inventára/exportu.
 
 ---
 
@@ -46,7 +46,7 @@ Výstup: exportovateľný inventár.
 | 13 | OCR lang = slk+eng, PSM 1 (auto OSD) | Slovenské štítky s diakritikou, PSM 1 zvláda rotáciu fotiek (chrbet zložky 90°) |
 | 14 | Search cez `unaccent` extension + ILIKE, nie tsvector | Jeden riadok migrácie, čisté raw SQL, dostatočné pre ~5000 záznamov. GIN/tsvector ostáva ako TD-10 ak bude treba |
 | 15 | CSV export = UTF-8 s BOM, oddelovač `;`, CRLF | Default Excel SK — bez BOM stratí diakritiku, bez `;` zlúči stĺpce, bez CRLF prerieduje riadky |
-| 16 | JSON export bez signed URL pre fotky | Signed URLs sú efemérne (15 min) — fotky sa stiahnu z R2 bucket-u cez rclone (PROJECT.md §11) |
+| 16 | Export fotiek: verejná URL (`R2_PUBLIC_URL`) alebo signed URL len pri výbere stĺpcov odkazov | UI používa 15 min signed URL. CSV/JSON export odkazov: preferuje trvalú verejnú URL; bez `R2_PUBLIC_URL` signed URL na 7 dní (dostatočné na otvorenie exportu, nie na dlhodobú archiváciu). Hromadný download fotiek = rclone (§11). |
 | 17 | Sprint 4 endpoints používajú `prisma.$queryRaw` | Prisma neumožňuje volať `unaccent()` ani `WITH RECURSIVE` priamo v `where` — raw SQL je čistejšie ako Unsupported workaround |
 | 18 | ~~Auto-name z pozície v hierarchii~~ (**deprecated v 2.9**) | Nahradené rozhodnutím #29 — generovaný `name` podľa `kind` + počtu súrodencov. `auto_name` stĺpec ostáva v DB pre legacy záznamy, pre nové položky sa negeneruje. |
 | 19 | ~~LLM title extraction~~ (Sprint 5, **zrušené v 2.8**) | Nahradené rozhodnutím #27 — metadata-only |
@@ -69,6 +69,7 @@ Výstup: exportovateľný inventár.
 | 36 | **Soft delete položiek** — `deleted_at` timestamp, bez hard delete z DB | Omyl v teréne nesmie stratiť históriu. Export/search/inventory filtrujú `deleted_at IS NULL`. Fotky v R2 a QR väzby ostávajú (TD-8 cleanup R2 až neskôr). |
 | 37 | **Kaskádové mazanie vetvy** — `DELETE /items/:id?cascade=true` | Položka s deťmi sa inak nedá zmazať. Rekurzívny CTE nastaví `deleted_at` na celej podstrome. UI: ✕ v tabuľke + „Zmazať vrátane podradených" v detaile, confirm s počtom potomkov (`GET …/descendants/count`). |
 | 38 | **Obnova zmazaných položiek zatiaľ nie** — žiadny koš v UI, žiadny `restore` endpoint | Archivácia = soft delete. Obnova je možná len manuálne v DB (`deleted_at = NULL`) alebo zo zálohy `pg_dump`. Plný workflow (koš, cascade restore, validácia rodiča/QR/názvu) = TD-21, riešiť po field work / na požiadanie. |
+| 39 | **Export CSV — voliteľné stĺpce OCR (celý text) a URL skenu** | `ocr_raw_text` = plný `ocr_raw_text` z hlavnej LABEL fotky (fallback OVERVIEW / zreťazenie viacerých). `scan_photo_url` = jedna klikateľná URL hlavnej fotky. `photo_urls` = všetky fotky položky (riadky oddelené `\n` v bunke). Stĺpec `photos` (detail) obsahuje aj `url`. Mapovanie kľúčov → SK popisky zdieľané medzi tabuľkou a exportom (`metadataLabels`). |
 
 ---
 
@@ -192,6 +193,23 @@ Pri `POST /api/items`:
 - Havária / starý stav: `pg_dump` záloha (§11), nie beh aplikácie.
 - **Budúce TD-21:** `POST /items/:id/restore?cascade=true`, admin Koš, kontroly (živý rodič, konflikt `name` pod rodičom, QR už priradený inde).
 
+### 4.9 Export stĺpcov (CSV / JSON)
+
+**API:** `GET /api/export/columns` (katalóg), `GET|POST /api/export/csv`, `GET|POST /api/export/json` (`format`: `tree` | `flat`).
+
+**Skupiny stĺpcov:** položka (`id`, `path`, `level`, `kind`, …), metadata (`meta_{kľúč}` z JSONB), fotky/OCR, technické (`metadata_json`, dátumy).
+
+**Fotky / OCR (voliteľné v dialógu exportu):**
+| ID | Popis |
+|---|---|
+| `ocr_text_preview` | Prvých ~100 znakov (jedna riadok) |
+| `ocr_raw_text` | Celý OCR text hlavnej skenovacej fotky |
+| `scan_photo_url` | Jedna URL — hlavná LABEL fotka (klikateľné v Exceli) |
+| `photo_urls` | Všetky fotky položky, URL oddelené novým riadkom |
+| `photos` | JSON pole s `storageKey`, `url`, `ocrRawText`, … |
+
+**URL fotiek:** `R2_PUBLIC_URL` + `storage_key` → trvalý odkaz; inak signed URL (7 dní) generovaná pri exporte.
+
 ---
 
 ## 5. Kľúčové use cases (MVP)
@@ -219,6 +237,7 @@ Naskenuj QR krabice → vidím všetky zložky s fotkami → nájdem bez otvára
 Export → dialóg výberu stĺpcov (všetko / výber / sync s tabuľkou inventára)
 → CSV (SK hlavičky, BOM, ;) alebo JSON (strom alebo plochý zoznam)
 → každý kľúč z JSONB metadata = samostatný stĺpec; metadata_json voliteľné
+→ voliteľne: OCR text (celý), odkaz na sken (foto), odkazy na všetky fotky — klikateľné v Exceli ak je R2_PUBLIC_URL
 ```
 
 ### UC-5: Zmazať chybnú vetvu v teréne
@@ -256,7 +275,8 @@ Omylom vytvorená paleta s krabicami → v zozname položiek ✕ (alebo detail)
 | Auth MVP | HTTP Basic Auth | ✓ live |
 | Auth fáza 2 | Microsoft OAuth (passport-azure-ad) | ⬜ po MVP |
 | Search | Fulltext ILIKE cez name, note, celé JSONB metadata, ocr_raw_text + `strip_diacritics()` | ✓ live (Sprint 4 + 7 + 2.8) |
-| Export | CSV (BOM/`;`/CRLF, SK hlavičky, výber stĺpcov, `meta_*` per JSONB kľúč) + JSON (strom / flat) | ✓ live (Sprint 4 + column picker) |
+| Export | CSV/JSON: výber stĺpcov, `meta_*`, OCR celý text, URL fotiek (`R2_PUBLIC_URL` / 7d signed), `GET/POST /export/*` | ✓ live (Sprint 4 + 2.11) |
+| Inventárna tabuľka | Strom + výber stĺpcov (metadata, fotky, OCR náhľad), prefs v localStorage | ✓ live (Sprint 7 + 2.11) |
 | Name generation | `kind_lowercase + počet súrodencov` pri POST /items | ✓ live (Sprint 8) |
 | LLM Metadata | ~~Separátny Gemini text call~~ → zlúčený s Vision OCR do jedného callu | ✓ live (Sprint 8; text fallback pre `OCR_ENGINE=tesseract`) |
 | Prompt registry | `backend/prompts/` MD súbory per level+kind, base.md + {level-kind}.md | ✓ live (Sprint 8) |
@@ -373,10 +393,22 @@ AssetinSpace/ArchiveApp (private)
 - ⬜ Field test v sklade
 
 ### Údržba po Sprint 8 (máj 2026) ✓ čiastočne hotová
+
+**Mazanie a archivácia**
 - ✓ `DELETE /items/:id` + `?cascade=true` + `GET …/descendants/count`
 - ✓ FE: mazanie v `ItemsDataTable` (vrátane mobile tap), `ItemDeleteSection` s kaskádou
 - ⬜ Obnova zmazaných (koš, restore API) — TD-21
 - ⬜ Dev skript na vyčistenie testovacích dát v DB (wipe) — len lokálne, nie produkcia
+
+**Export a inventárna tabuľka (2.11)**
+- ✓ `backend/src/services/exportColumns.ts` — katalóg stĺpcov, dynamické `meta_*`, skupina Fotky/OCR
+- ✓ Nové export stĺpce: `ocr_raw_text`, `scan_photo_url`, `photo_urls` (+ existujúci `ocr_text_preview`, `photos` s poľom `url`)
+- ✓ `buildPhotoUrlMap` — `getPublicUrlForKey` (`R2_PUBLIC_URL`) alebo signed URL 7 dní; async pred generovaním CSV/JSON
+- ✓ `GET /api/export/columns`, `POST /api/export/csv|json` s `{ columns, format }`
+- ✓ FE: `ExportColumnsModal`, `ColumnPickerModal`, sync „Ako v tabuľke inventára", prefs `archiveapp_export_columns_v1`
+- ✓ FE: `ItemsTableColumnsModal`, metadata stĺpce v `ItemsDataTable`, zdieľané SK labely (`metadataLabels` BE+FE)
+- ✓ OCR admin: error tracking / diagnostika (predchádzajúci commit)
+- ⬜ Overiť v produkcii `R2_PUBLIC_URL` (trvalé odkazy v CSV) — bez neho odkazy expirujú po 7 dňoch
 
 ### Sprint 5 — Auto-naming + LLM Title Extraction ✓ HOTOVÝ (auto_name deprecated v 2.9)
 
@@ -402,7 +434,7 @@ AssetinSpace/ArchiveApp (private)
 4. ✓ Export do CSV funguje
 5. ✓ Appka použiteľná na mobile v sklade
 
-**Stav:** Technické MVP HOTOVÉ (3/5 bodov). Sprint 8 (hierarchia + Vision OCR) je predpoklad pre správny field work. Operatívne mazanie vetiev je pripravené; **obnova zmazaných** a **koš v UI** ešte nie — plánované ako TD-21 po terénnom teste alebo na explicitnú požiadavku.
+**Stav:** Technické MVP HOTOVÉ (3/5 bodov). Sprint 8 (hierarchia + Vision OCR) je predpoklad pre správny field work. Export inventára je použiteľný aj mimo appky (CSV s metadátami, voliteľne plný OCR text a odkazy na skeny). Operatívne mazanie vetiev je pripravené; **obnova zmazaných** a **koš v UI** ešte nie — TD-21.
 
 ---
 
@@ -446,6 +478,8 @@ IT tím objednávateľa dostane:
 | TD-20 | Batch metadata extraction UI pre `OCR_ENGINE=tesseract` — `POST /api/llm-metadata/process` existuje v API ale nemá UI na stránke Spracovanie (odstránené v Sprint 8 refaktore). Pri Tesseract behu musí konzultant extrahovať metadata per-item cez Item detail → "Extrahovať metadata z OCR textu". Ak sa Tesseract path bude aktívne používať, pridať batch tlačidlo späť. | Nízka — iba pre tesseract fallback |
 | TD-21 | **Obnova soft-deleted položiek** — `POST /items/:id/restore?cascade=true`, admin stránka Koš (zoznam `deleted_at IS NOT NULL`), validácia: živý rodič, konflikt mena pod rodičom, QR obsadený inou položkou; voliteľne obnova fotiek | Po field work / na požiadanie |
 | TD-22 | Pri kaskádovom mazaniu zvážiť soft-delete fotiek podstromu (dnes fotky ostávajú „živé" v DB, len položka je skrytá) | Po TD-21 alebo pri prvom incidente |
+| TD-23 | Overiť / nastaviť `R2_PUBLIC_URL` v Railway pre trvalé odkazy vo exporte CSV (inak 7d signed URL) | Pred odovzdaním exportu klientovi |
+| TD-24 | Excel `HYPERLINK()` formát pre export (ak verejná URL nestačí na auto-link) | Nízka — až po spätnej väzbe z Excelu |
 
 ---
 
@@ -462,5 +496,5 @@ IT tím objednávateľa dostane:
 
 ---
 
-*Posledná aktualizácia: v2.10.0 — máj 2026. Sprint 8 hotový; údržba: kaskádové soft delete položiek, mobile oprava ✕ v tabuľke. Obnova zmazaných (koš / restore) zatiaľ nie — archivácia v DB + manuálna záloha; TD-21.*
-*Ďalší krok: field work v sklade (Sprint 6 overenie v teréne), potom podľa potreby TD-21 (obnova), TD-5–7 (scan bugfixy), TD-12 (odovzdanie).*
+*Posledná aktualizácia: v2.11.0 — máj 2026. Sprint 8 hotový. Údržba: kaskádové soft delete; export CSV/JSON s výberom stĺpcov, celým OCR textom a URL fotiek; vylepšená inventárna tabuľka (stĺpce metadata). Obnova zmazaných (koš / restore) zatiaľ nie — TD-21.*
+*Ďalší krok: field work v sklade (Sprint 6), overiť `R2_PUBLIC_URL` (TD-23), potom TD-21 / TD-5–7 / TD-12 podľa potreby.*
