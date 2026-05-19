@@ -8,6 +8,7 @@ const STATUS_KEY = "status";
 const HAS_QR_KEY = "hasQr";
 const HAS_PHOTO_KEY = "hasPhoto";
 const HIDDEN_COLS_KEY = "hide";
+const SHOWN_COLS_KEY = "show";
 
 const ALL_LEVELS = ITEM_LEVELS;
 
@@ -32,6 +33,11 @@ export function useItemsTableUrlState() {
   const hasPhoto = searchParams.get(HAS_PHOTO_KEY) === "1";
   const hiddenColumns = useMemo(() => {
     const raw = searchParams.get(HIDDEN_COLS_KEY);
+    if (!raw) return new Set<string>();
+    return new Set(raw.split(",").filter(Boolean));
+  }, [searchParams]);
+  const shownColumns = useMemo(() => {
+    const raw = searchParams.get(SHOWN_COLS_KEY);
     if (!raw) return new Set<string>();
     return new Set(raw.split(",").filter(Boolean));
   }, [searchParams]);
@@ -88,6 +94,13 @@ export function useItemsTableUrlState() {
       }),
     [patchParams],
   );
+  const setShownColumns = useCallback(
+    (cols: Set<string>) =>
+      patchParams({
+        [SHOWN_COLS_KEY]: cols.size > 0 ? [...cols].join(",") : null,
+      }),
+    [patchParams],
+  );
 
   const clearFilters = useCallback(() => {
     patchParams({
@@ -109,6 +122,7 @@ export function useItemsTableUrlState() {
     hasQr,
     hasPhoto,
     hiddenColumns,
+    shownColumns,
     hasActiveFilters,
     setSearch,
     setLevelFilters,
@@ -116,6 +130,7 @@ export function useItemsTableUrlState() {
     setHasQr,
     setHasPhoto,
     setHiddenColumns,
+    setShownColumns,
     clearFilters,
     ALL_LEVELS,
   };

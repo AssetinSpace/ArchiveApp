@@ -1,6 +1,7 @@
 import {
   KNOWN_METADATA_KEYS,
   METADATA_LABELS,
+  type InventoryItem,
   type ItemMetadata,
 } from "../api";
 
@@ -30,6 +31,27 @@ export function serializeMetadataDraft(draft: ItemMetadata): ItemMetadata {
 
 export function metadataFieldLabel(key: string): string {
   return METADATA_LABELS[key] ?? key.replace(/_/g, " ");
+}
+
+export function metadataColumnId(key: string): string {
+  return `meta_${key}`;
+}
+
+/** Stĺpce tabuľky: známe polia v pevnom poradí + ďalšie kľúče z inventára (AI / vlastné). */
+export function metadataTableColumnKeys(
+  items: Pick<InventoryItem, "metadata">[],
+): string[] {
+  const knownSet = new Set<string>(KNOWN_METADATA_KEYS);
+  const extra = new Set<string>();
+  for (const item of items) {
+    for (const k of Object.keys(item.metadata ?? {})) {
+      if (typeof k === "string" && k.trim()) extra.add(k);
+    }
+  }
+  const extras = [...extra]
+    .filter((k) => !knownSet.has(k))
+    .sort((a, b) => a.localeCompare(b, "sk"));
+  return [...KNOWN_METADATA_KEYS, ...extras];
 }
 
 /** Kľúče pre edit grid: len polia z návrhu LLM / draftu (známe prvé, potom ostatné). */

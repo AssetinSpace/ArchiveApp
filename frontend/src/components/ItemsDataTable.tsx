@@ -12,9 +12,7 @@ import {
 } from "@tanstack/react-table";
 import {
   api,
-  KNOWN_METADATA_KEYS,
   levelKindHint,
-  METADATA_LABELS,
   TYPE_LABEL,
   type InventoryItem,
   type MetadataStatus,
@@ -29,6 +27,11 @@ import {
   ocrSnippet,
   type InventoryTreeRow,
 } from "../lib/itemInventory";
+import {
+  metadataColumnId,
+  metadataFieldLabel,
+  metadataTableColumnKeys,
+} from "../lib/metadataDraft";
 import { useItemsTableUrlState } from "../hooks/useItemsTableUrlState";
 
 const STATUS_LABEL: Record<string, string> = {
@@ -42,13 +45,6 @@ const COLUMN_LABELS: Record<string, string> = {
   kind: "Typ",
   name: "Názov",
   name_source: "Zdroj názvu",
-  meta_stavba: "Stavba",
-  meta_cast: "Časť",
-  meta_projektant: "Projektant",
-  meta_adresa: "Adresa",
-  meta_cislo: "Číslo",
-  meta_datum: "Dátum",
-  meta_stupen: "Stupeň",
   metadata_status: "Meta status",
   qr_code: "QR",
   status: "Status",
@@ -59,28 +55,21 @@ const COLUMN_LABELS: Record<string, string> = {
   updated_at: "Upravené",
 };
 
-// Sprint 7: nové stĺpce sú default skryté aby tabuľka neexplodovala. Konzultant
-// si ich zapne v "Stĺpce ▾". Auto-name je len debug pomôcka, metadata polia
-// (cislo/datum/stupen) sú obvykle krátke ale na úzkych obrazovkách nepotrebné
-// na prvý pohľad.
+function columnDisplayLabel(colId: string): string {
+  if (COLUMN_LABELS[colId]) return COLUMN_LABELS[colId];
+  if (colId.startsWith("meta_")) return metadataFieldLabel(colId.slice(5));
+  return colId;
+}
+
+// Sprint 7: metadata a pomocné stĺpce sú default skryté; zapnú sa v „Stĺpce ▾“
+// (URL ?show=meta_stavba,…). Všetky kľúče z JSONB metadata (aj AI navyše) majú stĺpec.
 const NAME_SOURCE_LABEL: Record<string, string> = {
   GENERATED: "auto",
   OCR: "z OCR",
   MANUAL: "ručne",
 };
 
-const DEFAULT_HIDDEN = new Set([
-  "updated_at",
-  "name_source",
-  "meta_stavba",
-  "meta_cast",
-  "meta_projektant",
-  "meta_adresa",
-  "meta_cislo",
-  "meta_datum",
-  "meta_stupen",
-  "metadata_status",
-]);
+const DEFAULT_HIDDEN = new Set(["updated_at", "name_source", "metadata_status"]);
 
 const METADATA_STATUS_LABEL: Record<MetadataStatus, string> = {
   NONE: "—",
@@ -138,6 +127,11 @@ export function ItemsDataTable() {
   });
 
   const allItems = inventoryQ.data ?? [];
+
+  const metadataColumnKeys = useMemo(
+    () => metadataTableColumnKeys(allItems),
+    [allItems],
+  );
 
   const descendantCountById = useMemo(() => {
     const map = new Map<string, number>();
@@ -333,10 +327,14 @@ export function ItemsDataTable() {
     const vis: VisibilityState = {};
     for (const col of url.hiddenColumns) vis[col] = false;
     for (const id of DEFAULT_HIDDEN) {
-      if (!url.hiddenColumns.has(id)) vis[id] = false;
+      if (!url.shownColumns.has(id)) vis[id] = false;
+    }
+    for (const key of metadataColumnKeys) {
+      const id = metadataColumnId(key);
+      if (!url.shownColumns.has(id)) vis[id] = false;
     }
     return vis;
-  }, [url.hiddenColumns]);
+  }, [url.hiddenColumns, url.shownColumns, metadataColumnKeys]);
 
   // ── Definícia stĺpcov ─────────────────────────────────────────────────────
   const columns = useMemo((): ColumnDef<InventoryTreeRow>[] => [
@@ -419,15 +417,19 @@ export function ItemsDataTable() {
         );
       },
     },
-    ...KNOWN_METADATA_KEYS.map<ColumnDef<InventoryTreeRow>>((key) => ({
-      id: `meta_${key}`,
-      header: METADATA_LABELS[key],
+    ...metadataColumnKeys.map<ColumnDef<InventoryTreeRow>>((key) => ({
+      id: metadataColumnId(key),
+      header: metadataFieldLabel(key),
       size: 160,
-      accessorFn: (row) => row.metadata?.[key] ?? null,
+      accessorFn: (row) => {
+        const v = row.metadata?.[key];
+        if (v === null || v === undefined) return null;
+        return typeof v === "string" ? v : String(v);
+      },
       cell: ({ row, getValue }) => {
         const value = getValue<string | null | undefined>();
         const isExtracted = row.original.metadata_status === "EXTRACTED";
-        if (!value) {
+        if (!value || value.trim() === "") {
           return <span className="muted">—</span>;
         }
         return (
@@ -573,7 +575,7 @@ export function ItemsDataTable() {
         );
       },
     },
-  ], [searchQ, deletingId, handleDeleteItem, descendantCountById]);
+  ], [searchQ, deletingId, handleDeleteItem, descendantCountById, metadataColumnKeys]);
 
   const table = useReactTable({
     data: treeData,
@@ -598,10 +600,20 @@ export function ItemsDataTable() {
   function toggleColumn(colId: string) {
     const col = table.getColumn(colId);
     if (!col) return;
-    const next = new Set(url.hiddenColumns);
-    if (col.getIsVisible()) next.add(colId);
-    else next.delete(colId);
-    url.setHiddenColumns(next);
+    const nextHidden = new Set(url.hiddenColumns);
+    const nextShown = new Set(url.shownColumns);
+    const isDefaultHidden =
+      DEFAULT_HIDDEN.has(colId) || colId.startsWith("meta_");
+
+    if (col.getIsVisible()) {
+      nextHidden.add(colId);
+      if (isDefaultHidden) nextShown.delete(colId);
+    } else {
+      nextHidden.delete(colId);
+      if (isDefaultHidden) nextShown.add(colId);
+    }
+    url.setHiddenColumns(nextHidden);
+    url.setShownColumns(nextShown);
   }
 
   if (inventoryQ.isLoading) return <p className="muted">Načítavam inventár…</p>;
@@ -725,7 +737,7 @@ export function ItemsDataTable() {
                       checked={col.getIsVisible()}
                       onChange={() => toggleColumn(col.id)}
                     />
-                    {COLUMN_LABELS[col.id] ?? col.id}
+                    {columnDisplayLabel(col.id)}
                   </label>
                 ))}
               </div>

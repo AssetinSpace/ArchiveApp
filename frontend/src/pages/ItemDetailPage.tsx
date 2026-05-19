@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import imageCompression from "browser-image-compression";
 import QRCode from "qrcode";
 import {
   api,
@@ -12,6 +13,7 @@ import {
   type Item,
   type ItemMetadata,
   type NameSource,
+  type PhotoType,
   type Status,
 } from "../api";
 import {
@@ -298,7 +300,7 @@ export function ItemDetailPage() {
               <h2 style={{ margin: 0 }}>Pridať podradeú položku</h2>
               <button type="button" className="btn-ghost btn-small" onClick={() => setFabOpen(false)}>✕</button>
             </div>
-            <AddChildFormContent
+            <AddChildPanel
               parent={item}
               onAdded={async () => {
                 await invalidateAll();
@@ -676,7 +678,229 @@ function QRSection({
   );
 }
 
-// ─── Add child form content (reusable in inline + FAB modal) ─────────────────
+// ─── Add child: výber metódy (QR / foto / ručný formulár) ─────────────────────
+
+const PHOTO_COMPRESS_THRESHOLD_BYTES = 2 * 1024 * 1024;
+const PHOTO_COMPRESS_OPTIONS = {
+  maxSizeMB: 2,
+  maxWidthOrHeight: 2400,
+  useWebWorker: true,
+};
+
+function photoTypeForNewChildLevel(level: number): PhotoType {
+  return level >= 5 ? "LABEL" : "OVERVIEW";
+}
+
+function AddChildPanel({
+  parent,
+  onAdded,
+  onCancel,
+}: {
+  parent: Item;
+  onAdded: () => Promise<void> | void;
+  onCancel: () => void;
+}) {
+  const [view, setView] = useState<"chooser" | "manual">("chooser");
+
+  if (parent.level >= 7) {
+    return (
+      <p className="muted">Tento typ položky nemôže mať podradené položky.</p>
+    );
+  }
+
+  if (view === "manual") {
+    return (
+      <div className="stack" style={{ gap: 12 }}>
+        <button
+          type="button"
+          className="btn-ghost btn-small"
+          onClick={() => setView("chooser")}
+          style={{ alignSelf: "flex-start" }}
+        >
+          ← Späť na výber
+        </button>
+        <AddChildFormContent parent={parent} onAdded={onAdded} onCancel={onCancel} />
+      </div>
+    );
+  }
+
+  return (
+    <AddChildMethodChooser
+      parent={parent}
+      onAdded={onAdded}
+      onCancel={onCancel}
+      onManual={() => setView("manual")}
+    />
+  );
+}
+
+function AddChildMethodChooser({
+  parent,
+  onAdded,
+  onCancel,
+  onManual,
+}: {
+  parent: Item;
+  onAdded: () => Promise<void> | void;
+  onCancel: () => void;
+  onManual: () => void;
+}) {
+  const childLevel = parent.level + 1;
+  const defaultKind = KIND_DEFAULTS[childLevel]?.[0] ?? "";
+  const photoType = photoTypeForNewChildLevel(childLevel);
+  const isLabelPhoto = photoType === "LABEL";
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const [busyLabel, setBusyLabel] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const photoMut = useMutation({
+    mutationFn: async (file: File) => {
+      if (!defaultKind) throw new Error("Neznáma úroveň položky");
+      let payload: File = file;
+      if (file.size > PHOTO_COMPRESS_THRESHOLD_BYTES) {
+        setBusyLabel("Komprimujem fotku…");
+        const compressed = await imageCompression(file, PHOTO_COMPRESS_OPTIONS);
+        payload =
+          compressed instanceof File
+            ? compressed
+            : new File([compressed], file.name, { type: file.type });
+      }
+      setBusyLabel("Vytváram položku…");
+      const item = await api.createItem({
+        level: childLevel,
+        kind: defaultKind,
+        parent_id: parent.id,
+      });
+      setBusyLabel("Nahrávam fotku…");
+      await api.uploadPhoto(item.id, payload, photoType);
+      return item;
+    },
+    onSuccess: async (item) => {
+      setError(null);
+      setBusyLabel(null);
+      await onAdded();
+      navigate(`/items/${item.id}?tab=photos`);
+    },
+    onError: (e: Error) => {
+      setError(e.message);
+      setBusyLabel(null);
+      if (cameraInputRef.current) cameraInputRef.current.value = "";
+      if (galleryInputRef.current) galleryInputRef.current.value = "";
+    },
+  });
+
+  function onFileChosen(e: React.ChangeEvent<HTMLInputElement>): void {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError(null);
+    photoMut.mutate(file);
+  }
+
+  const busy = photoMut.isPending;
+
+  return (
+    <div className="stack add-child-actions" style={{ gap: 10 }}>
+      <p className="muted" style={{ margin: 0 }}>
+        Úroveň <strong>{childLevel}</strong>
+        {defaultKind && (
+          <>
+            {" "}
+            · predvolený typ{" "}
+            <strong>{TYPE_LABEL[defaultKind] ?? defaultKind}</strong>
+          </>
+        )}
+      </p>
+
+      <Link
+        to={`/scan?parentId=${parent.id}`}
+        className="add-child-action add-child-action-primary"
+        onClick={onCancel}
+      >
+        <span className="add-child-action-icon" aria-hidden="true">
+          ▣
+        </span>
+        <span className="add-child-action-text">
+          <span className="add-child-action-title">Skenovať QR kód</span>
+          <span className="add-child-action-hint">
+            Vytvor položku a priraď nálepku
+          </span>
+        </span>
+      </Link>
+
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={onFileChosen}
+        disabled={busy}
+        style={{ display: "none" }}
+        id={`add-child-camera-${parent.id}`}
+      />
+      <label
+        htmlFor={`add-child-camera-${parent.id}`}
+        className={`add-child-action ${busy ? "is-disabled" : ""}`}
+        aria-disabled={busy}
+      >
+        <span className="add-child-action-icon" aria-hidden="true">
+          📷
+        </span>
+        <span className="add-child-action-text">
+          <span className="add-child-action-title">
+            {busy ? (busyLabel ?? "Pracujem…") : isLabelPhoto ? "Odfotiť štítok" : "Odfotiť položku"}
+          </span>
+          <span className="add-child-action-hint">
+            {isLabelPhoto ? "Vytvorí položku a nahraje štítok (OCR)" : "Vytvorí položku a nahraje fotku"}
+          </span>
+        </span>
+      </label>
+
+      <input
+        ref={galleryInputRef}
+        type="file"
+        accept="image/*"
+        onChange={onFileChosen}
+        disabled={busy}
+        style={{ display: "none" }}
+        id={`add-child-gallery-${parent.id}`}
+      />
+      <label
+        htmlFor={`add-child-gallery-${parent.id}`}
+        className={`add-child-action ${busy ? "is-disabled" : ""}`}
+        aria-disabled={busy}
+      >
+        <span className="add-child-action-icon" aria-hidden="true">
+          🖼️
+        </span>
+        <span className="add-child-action-text">
+          <span className="add-child-action-title">
+            {busy ? (busyLabel ?? "Pracujem…") : "Fotka z galérie"}
+          </span>
+          <span className="add-child-action-hint">Vyber existujúcu fotku v telefóne</span>
+        </span>
+      </label>
+
+      {error && <div className="error">{error}</div>}
+
+      <button
+        type="button"
+        className="btn-ghost btn-small"
+        onClick={onManual}
+        disabled={busy}
+        style={{ marginTop: 4 }}
+      >
+        Vyplniť údaje ručne…
+      </button>
+      <button type="button" onClick={onCancel} disabled={busy}>
+        Zrušiť
+      </button>
+    </div>
+  );
+}
+
+// ─── Add child form content (ručný formulár) ─────────────────────────────────
 
 function AddChildFormContent({
   parent,
@@ -796,11 +1020,6 @@ function AddChildFormContent({
           Zrušiť
         </button>
       </div>
-      <p className="muted" style={{ margin: 0 }}>
-        Tip: Ak chceš podradeú položku zároveň označiť QR nálepkou, použi{" "}
-        <Link to={`/scan?parentId=${parent.id}`}>Skenovať QR</Link> namiesto tohto
-        formulára.
-      </p>
     </form>
   );
 }
@@ -826,41 +1045,20 @@ function AddChildForm({
 
   if (!open) {
     return (
-      <div className="stack" style={{ marginTop: 12, gap: 8 }}>
-        <button
-          type="button"
-          className="btn-primary btn-block"
-          onClick={() => setOpen(true)}
-          style={{ minHeight: 48 }}
-        >
-          + Pridať podradenú položku (L{parent.level + 1})
-        </button>
-        <Link
-          to={`/scan?parentId=${parent.id}`}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            minHeight: 48,
-            padding: "0 12px",
-            border: "1px solid #d1d5db",
-            borderRadius: 6,
-            color: "#111827",
-            textDecoration: "none",
-            background: "#fff",
-            fontWeight: 500,
-          }}
-          title="Naskenuj QR kód a vytvor podradeú položku s týmto rodičom"
-        >
-          ▣ Skenovať QR…
-        </Link>
-      </div>
+      <button
+        type="button"
+        className="btn-primary btn-block"
+        onClick={() => setOpen(true)}
+        style={{ minHeight: 48, marginTop: 12 }}
+      >
+        + Pridať podradenú položku (L{parent.level + 1})
+      </button>
     );
   }
 
   return (
     <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #e5e7eb" }}>
-      <AddChildFormContent
+      <AddChildPanel
         parent={parent}
         onAdded={async () => {
           await onAdded();
