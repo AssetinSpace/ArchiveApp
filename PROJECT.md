@@ -1,6 +1,6 @@
 # ArchiveApp — PROJECT.md
 > Živý dokument. Aktualizovať po každom rozhodnutí alebo sprinte.
-> Verzia 2.9.0 — Flexibilná 7-úrovňová hierarchia: level + kind namiesto type_code, name_source, auto_name deprecated.
+> Verzia 2.10.0 — Post-Sprint 8 údržba: kaskádové mazanie položiek, soft-delete archivácia (obnova zatiaľ neimplementovaná).
 
 ---
 
@@ -66,6 +66,9 @@ Výstup: exportovateľný inventár.
 | 33 | **L7 je súčasťou MVP** (nie fáza 2) s obmedzeným scope | L7 (dokument/výkres) sa fotí (prvá strana), OCR prebehne, metadata sa extrahujú rovnako ako pre L5/L6. Rozdiel: L7 nemá deti (listový node), QR sa neprideľuje, OVERVIEW foto nemá zmysel. Granularita obsahu krabice sa teda zvýšila: krabica → zložka → dokument je plne funkčný strom v MVP. |
 | 34 | **Gemini 2.5 Flash Vision namiesto Tesseract** — jeden batch call vráti `ocr_raw_text` + `metadata` JSONB naraz | Tesseract zlyháva na malých písmenách, tabuľkových bunkách a mixed-case texte (napr. „Ing. VÁRY" v rohových pečiatkovníkoch). Gemini Vision číta obrázky natívne, rozumie layoutu a kontextu tabuľky. Jeden API call namiesto dvoch služieb (Tesseract→text + Gemini text→metadata). `ocr_raw_text` sa vždy zachováva pre fulltext search a zálohu. Batch model ostáva nezmenený (terén=upload+PENDING, doma=batch process). Tesseract ostáva v `railpack.json` ako offline fallback — prepnutie cez `OCR_ENGINE` env premennú. Manuálny review (`metadata_status` workflow EXTRACTED→REVIEWED) ostáva povinný. Existujúci `GEMINI_API_KEY` podporuje Vision — žiadna zmena v kľúčoch ani billing. |
 | 35 | **Prompt registry** — `backend/prompts/` MD súbory per level+kind, backend skladá `base.md` + `{level-kind}.md` | Štítky v archíve majú rôzne vizuálne formáty: chrbtica zložky (L5) ≠ titulný list (L7 DOKUMENT) ≠ rohový pečiatkovník (L7 VYKRES). Prompt musí obsahovať reálne príklady z archívu aby Gemini nehalucinoval. Súbory sa dopĺňajú postupne z terénneho skenovania. Ak súbor pre daný level+kind neexistuje, fallback na samotný `base.md`. Zmena promptu = git commit, žiadny redeploy kódu. |
+| 36 | **Soft delete položiek** — `deleted_at` timestamp, bez hard delete z DB | Omyl v teréne nesmie stratiť históriu. Export/search/inventory filtrujú `deleted_at IS NULL`. Fotky v R2 a QR väzby ostávajú (TD-8 cleanup R2 až neskôr). |
+| 37 | **Kaskádové mazanie vetvy** — `DELETE /items/:id?cascade=true` | Položka s deťmi sa inak nedá zmazať. Rekurzívny CTE nastaví `deleted_at` na celej podstrome. UI: ✕ v tabuľke + „Zmazať vrátane podradených" v detaile, confirm s počtom potomkov (`GET …/descendants/count`). |
+| 38 | **Obnova zmazaných položiek zatiaľ nie** — žiadny koš v UI, žiadny `restore` endpoint | Archivácia = soft delete. Obnova je možná len manuálne v DB (`deleted_at = NULL`) alebo zo zálohy `pg_dump`. Plný workflow (koš, cascade restore, validácia rodiča/QR/názvu) = TD-21, riešiť po field work / na požiadanie. |
 
 ---
 
@@ -155,13 +158,39 @@ backend/prompts/
 Backend skladá: `base.md` + súbor pre `{level}-{kind}`. Ak neexistuje → len `base.md`.
 Dopĺňanie príkladov = git commit, žiadny redeploy kódu.
 
-### 4.6 Name generation
+### 4.7 Name generation
 Pri `POST /api/items`:
 1. Zistiť `kind` z requestu (povinné)
 2. Spočítať súrodencov rovnakého `kind` pod rovnakým `parent_id`
 3. `name = "{kind_lowercase}_{count+1}"` napr. `polica_5`, `zlozka_12`
 4. `name_source = GENERATED`
 5. Konzultant môže kedykoľvek prepísať → `name_source = MANUAL`
+
+### 4.8 Archivácia a mazanie (soft delete)
+
+**Čo sa deje pri zmazaní**
+- Položka: `Item.deleted_at = now()` — riadok ostáva v PostgreSQL.
+- Fotka: samostatný soft delete (`Photo.deleted_at`) — mazanie položky **nezmazá** fotky automaticky.
+- QR: `Item.qr_code` a `QRTag.assigned_item_id` ostávajú; zmazaná položka sa nezobrazuje v UI, nové priradenie QR vyžaduje aktívnu položku.
+- Export / search / inventárna tabuľka: len `deleted_at IS NULL`.
+
+**API (implementované)**
+| Metóda | Endpoint | Popis |
+|---|---|---|
+| `DELETE` | `/api/items/:id` | Zmazanie listovej položky (bez aktívnych detí). |
+| `DELETE` | `/api/items/:id?cascade=true` | Soft delete položky + celého podstromu (rekurzívne). |
+| `GET` | `/api/items/:id/descendants/count` | Počet všetkých nezmazaných potomkov (pre confirm v UI). |
+| `DELETE` | `/api/photos/:id` | Soft delete jednej fotky. |
+
+**UI (implementované)**
+- `ItemsDataTable` — stĺpec ✕; pri vetve oranžové ✕ + confirm s počtom potomkov; mobile: väčší tap target, sticky stĺpec, `pointer` handlery proti scroll kontajneru.
+- `ItemDetailPage` — sekcia „Zmazať položku"; s deťmi tlačidlo „Zmazať vrátane podradených (N)".
+
+**Obnova (zatiaľ mimo produktu)**
+- V aplikácii **nie je** obrazovka Koš ani tlačidlo Obnoviť.
+- Manuálna obnova: SQL `UPDATE "Item" SET deleted_at = NULL WHERE …` (pri kaskáde obnoviť celú vetvu + skontrolovať, že rodič nie je zmazaný).
+- Havária / starý stav: `pg_dump` záloha (§11), nie beh aplikácie.
+- **Budúce TD-21:** `POST /items/:id/restore?cascade=true`, admin Koš, kontroly (živý rodič, konflikt `name` pod rodičom, QR už priradený inde).
 
 ---
 
@@ -190,6 +219,13 @@ Naskenuj QR krabice → vidím všetky zložky s fotkami → nájdem bez otvára
 Export → CSV/JSON so všetkými položkami, level, kind, lokáciou, statusom, metadátami
 ```
 
+### UC-5: Zmazať chybnú vetvu v teréne
+```
+Omylom vytvorená paleta s krabicami → v zozname položiek ✕ (alebo detail)
+→ confirm „zmazať aj N podradených" → celá vetva v koši (soft delete)
+→ v exporte/search už nie je; obnova zatiaľ len cez DB zálohu (TD-21)
+```
+
 ---
 
 ## 6. Out of scope (MVP)
@@ -199,6 +235,7 @@ Export → CSV/JSON so všetkými položkami, level, kind, lokáciou, statusom, 
 - Výpožičkový systém s termínmi
 - Prepojenie na externé systémy
 - Natívna mobilná app (responzívny web stačí)
+- Obnova zmazaných položiek z UI (koš / restore) — **odložené**, pozri §4.8 a TD-21
 
 ---
 
@@ -222,6 +259,8 @@ Export → CSV/JSON so všetkými položkami, level, kind, lokáciou, statusom, 
 | LLM Metadata | ~~Separátny Gemini text call~~ → zlúčený s Vision OCR do jedného callu | ✓ live (Sprint 8; text fallback pre `OCR_ENGINE=tesseract`) |
 | Prompt registry | `backend/prompts/` MD súbory per level+kind, base.md + {level-kind}.md | ✓ live (Sprint 8) |
 | Hierarchia | 7 úrovní, level + kind, name_source | ✓ live (Sprint 8) |
+| Mazanie položiek | Soft delete, kaskáda `?cascade=true`, počet potomkov | ✓ live (post-Sprint 8) |
+| Obnova z koša | — | ⬜ TD-21 (zámerne odložené) |
 
 ---
 
@@ -325,11 +364,17 @@ AssetinSpace/ArchiveApp (private)
 - ✓ FE `LlmMetadataAdminPage.tsx`, `ItemDetailPage` MetadataBanner
 - ✓ Search cez celé JSONB metadata
 
-### Sprint 6 — Photo type LABEL vs OVERVIEW ⏳ IN PROGRESS
+### Sprint 6 — Photo type LABEL vs OVERVIEW ✓ HOTOVÝ (field test ⬜)
 - ✓ Prisma migrácia `add_photo_type`
 - ✓ Backend routes/photos.ts, routes/ocr.ts
 - ✓ Frontend PhotoUpload, PhotoGallery
 - ⬜ Field test v sklade
+
+### Údržba po Sprint 8 (máj 2026) ✓ čiastočne hotová
+- ✓ `DELETE /items/:id` + `?cascade=true` + `GET …/descendants/count`
+- ✓ FE: mazanie v `ItemsDataTable` (vrátane mobile tap), `ItemDeleteSection` s kaskádou
+- ⬜ Obnova zmazaných (koš, restore API) — TD-21
+- ⬜ Dev skript na vyčistenie testovacích dát v DB (wipe) — len lokálne, nie produkcia
 
 ### Sprint 5 — Auto-naming + LLM Title Extraction ✓ HOTOVÝ (auto_name deprecated v 2.9)
 
@@ -355,7 +400,7 @@ AssetinSpace/ArchiveApp (private)
 4. ✓ Export do CSV funguje
 5. ✓ Appka použiteľná na mobile v sklade
 
-**Stav:** Technické MVP HOTOVÉ (3/5 bodov). Sprint 8 (hierarchia) je predpoklad pre správny field work — bez neho by sa naskenovalo s nesprávnou štruktúrou.
+**Stav:** Technické MVP HOTOVÉ (3/5 bodov). Sprint 8 (hierarchia + Vision OCR) je predpoklad pre správny field work. Operatívne mazanie vetiev je pripravené; **obnova zmazaných** a **koš v UI** ešte nie — plánované ako TD-21 po terénnom teste alebo na explicitnú požiadavku.
 
 ---
 
@@ -368,6 +413,8 @@ IT tím objednávateľa dostane:
 4. `README.md` — popis schémy a postup importu
 
 **Pravidlo:** Nikdy nedenormalizovať. Každá informácia žije na jednom mieste.
+
+**Soft-deleted záznamy:** `pg_dump` obsahuje aj riadky s `deleted_at` — IT tím môže obnoviť stav SQL dotazom; aplikácia ich do exportu JSON/CSV neposiela.
 
 ---
 
@@ -395,6 +442,8 @@ IT tím objednávateľa dostane:
 | TD-18 | Odstrániť `services/llmMetadata.ts` a `services/llmTitle.ts` po overení zlúčeného Vision pipeline | 1 mesiac po Sprint 8 |
 | TD-19 | Tesseract balíčky z `railpack.json` odstrániť ak sa fallback nepoužíva 3+ mesiace | Po stabilizácii Gemini Vision |
 | TD-20 | Batch metadata extraction UI pre `OCR_ENGINE=tesseract` — `POST /api/llm-metadata/process` existuje v API ale nemá UI na stránke Spracovanie (odstránené v Sprint 8 refaktore). Pri Tesseract behu musí konzultant extrahovať metadata per-item cez Item detail → "Extrahovať metadata z OCR textu". Ak sa Tesseract path bude aktívne používať, pridať batch tlačidlo späť. | Nízka — iba pre tesseract fallback |
+| TD-21 | **Obnova soft-deleted položiek** — `POST /items/:id/restore?cascade=true`, admin stránka Koš (zoznam `deleted_at IS NOT NULL`), validácia: živý rodič, konflikt mena pod rodičom, QR obsadený inou položkou; voliteľne obnova fotiek | Po field work / na požiadanie |
+| TD-22 | Pri kaskádovom mazaniu zvážiť soft-delete fotiek podstromu (dnes fotky ostávajú „živé" v DB, len položka je skrytá) | Po TD-21 alebo pri prvom incidente |
 
 ---
 
@@ -406,8 +455,10 @@ IT tím objednávateľa dostane:
 | OQ-8 | Pečiatka s číslom ako fallback pre QR nálepky? | Nízka |
 | OQ-11 | Nakúpiť QR nálepky (Avery L4732) — otestovať pred výjazdom do skladu | Stredná |
 | OQ-12 | Validácia levelu pri POST /items — striktná (parent.level + 1) alebo voľná (parent.level < child.level)? Voľná umožní preskočiť level (napr. sklad priamo na krabicu bez ohradky/police). | Stredná |
+| OQ-13 | Obnova z koša — obnovovať vždy celú vetvu naraz, alebo aj jednotlivú položku s „sirotím" v koši? | Nízka — pred TD-21 |
+| OQ-14 | Po zmazaní položky uvoľniť QR tag (FREE) alebo nechať ASSIGNED na mŕtvom item? | Nízka — pred TD-21 |
 
 ---
 
-*Posledná aktualizácia: v2.9.2 — Sprint 8 hotový. Stránka Spracovanie zjednotená do Kanban layoutu (Karta 1: čakajúce fotky, Karta 2: metadata na review). Gemini Vision extrahuje OCR text aj metadata v jednom API call.*
-*Ďalší krok: implementovať Sprint 8 podľa CURSOR_PROMPT_SPRINT8.md, potom field work v sklade.*
+*Posledná aktualizácia: v2.10.0 — máj 2026. Sprint 8 hotový; údržba: kaskádové soft delete položiek, mobile oprava ✕ v tabuľke. Obnova zmazaných (koš / restore) zatiaľ nie — archivácia v DB + manuálna záloha; TD-21.*
+*Ďalší krok: field work v sklade (Sprint 6 overenie v teréne), potom podľa potreby TD-21 (obnova), TD-5–7 (scan bugfixy), TD-12 (odovzdanie).*
