@@ -57,7 +57,7 @@ Výstup: exportovateľný inventár.
 | 24 | Metadata extraction = separátny LLM call od `ocr_title` (paralelné workflows) | Halucinácia v jednom poli (napr. dátum) nesmie zrušiť potvrdený titul. Stavy `metadata_status` (NONE → EXTRACTED → REVIEWED) bežia nezávisle od `ocr_title_status`, vlastný route `/api/llm-metadata/*`, vlastná admin stránka `/admin/llm-metadata`. Konfirm metadata neprepisuje `name`. |
 | 25 | Metadata JSONB hybrid schéma — prompt dáva **príklady** typických polí, LLM môže pridať ďalšie kľúče; backend ukladá permisívne | Štítky sú variabilné (rozhodnutie #1). UI/export majú labels pre odporúčané polia (stavba, cast, …); neznáme kľúče sa zobrazia a dajú editovať v review. Známe polia log bez warning, neznáme s warning. |
 | 26 | Items table tree-style ostáva default; Sprint 7 metadata stĺpce sa pridávajú do existujúceho `ItemsDataTable` s warning štýlom pre `EXTRACTED` hodnoty (žltkasté pozadie + badge „návrh") | Konzistentnosť cez celý produkt — žiadna paralelná „flat 17-stĺpcová" tabuľka. Default sú nové stĺpce skryté (úzke obrazovky), konzultant si zapne v "Stĺpce ▾" dropdowne. URL state pre column toggle ostáva (existujúci pattern, žiadny localStorage). |
-| 27 | **Metadata-only** — LLM title workflow (`ocr_title`, `/admin/llm-titles`) zrušený | Jeden AI kanál: hybrid JSONB metadata z OCR. `name` len ručne (voliteľne), identita = `auto_name` + QR. Prompt dáva príklady polí (nie povinnú 7-polovú schému), LLM môže pridať ďalšie kľúče. Search prehľadá celé `metadata` cez `jsonb_each_text`. CSV má `metadataJson` + flat stĺpce pre časté polia. |
+| 27 | **Metadata-only** — LLM title workflow (`ocr_title`, `/admin/llm-titles`) zrušený | Jeden AI kanál: hybrid JSONB metadata z OCR. `name` len ručne (voliteľne), identita = `auto_name` + QR. Prompt dáva príklady polí (nie povinnú 7-polovú schému), LLM môže pridať ďalšie kľúče. Search prehľadá celé `metadata` cez `jsonb_each_text`. Export: každý metadata kľúč = vlastný stĺpec (`meta_stavba`, …); voliteľne `metadata_json`; dialóg výberu stĺpcov pred CSV/JSON. |
 | 28 | **Flexibilná 7-úrovňová hierarchia** — `type_code` enum nahradený dvojicou `level` (Int 1–7) + `kind` (String, otvorený) | Terénny test odhalil že fyzická realita skladu nezodpovedá pevnému enum: existujú ohradky, police s vlastnými kódmi, rôzne typy kontajnerov. `level` = nemenná pozícia v strome, `kind` = fyzický typ objektu — predvolené hodnoty v UI, ale konzultant môže napísať čokoľvek. Legacy záznamy dostanú `level` a `kind` z `type_code` cez migráciu. |
 | 29 | **Generovaný `name` podľa `kind` + počtu súrodencov** namiesto `auto_name` reťazca | `auto_name` (`sklA_pal003_kra007`) bol redundantný — breadcrumb z `parent_id` poskytuje tú istú informáciu čitateľnejšie. Nový generovaný name je jednoduchý: `polica_5`, `krabica_12`, `zlozka_7`. Sledovaný cez `name_source` enum (GENERATED / OCR / MANUAL). |
 | 30 | **`name_source`** — nové pole sledujúce pôvod názvu položky | Tri stavy: `GENERATED` (automatický pri vytvorení), `OCR` (navrhnutý z OVERVIEW fotky, konzultant potvrdil), `MANUAL` (konzultant prepísal ručne). Pre L2/L3 po OVERVIEW fotke systém navrhne nastavenie `name` z OCR — rovnaký banner pattern ako `metadata_status = EXTRACTED`. |
@@ -216,7 +216,9 @@ Naskenuj QR krabice → vidím všetky zložky s fotkami → nájdem bez otvára
 
 ### UC-4: Export inventára
 ```
-Export → CSV/JSON so všetkými položkami, level, kind, lokáciou, statusom, metadátami
+Export → dialóg výberu stĺpcov (všetko / výber / sync s tabuľkou inventára)
+→ CSV (SK hlavičky, BOM, ;) alebo JSON (strom alebo plochý zoznam)
+→ každý kľúč z JSONB metadata = samostatný stĺpec; metadata_json voliteľné
 ```
 
 ### UC-5: Zmazať chybnú vetvu v teréne
@@ -254,7 +256,7 @@ Omylom vytvorená paleta s krabicami → v zozname položiek ✕ (alebo detail)
 | Auth MVP | HTTP Basic Auth | ✓ live |
 | Auth fáza 2 | Microsoft OAuth (passport-azure-ad) | ⬜ po MVP |
 | Search | Fulltext ILIKE cez name, note, celé JSONB metadata, ocr_raw_text + `strip_diacritics()` | ✓ live (Sprint 4 + 7 + 2.8) |
-| Export | CSV (BOM/`;`/CRLF, `metadataJson`) + JSON hierarchický | ✓ live (Sprint 4) |
+| Export | CSV (BOM/`;`/CRLF, SK hlavičky, výber stĺpcov, `meta_*` per JSONB kľúč) + JSON (strom / flat) | ✓ live (Sprint 4 + column picker) |
 | Name generation | `kind_lowercase + počet súrodencov` pri POST /items | ✓ live (Sprint 8) |
 | LLM Metadata | ~~Separátny Gemini text call~~ → zlúčený s Vision OCR do jedného callu | ✓ live (Sprint 8; text fallback pre `OCR_ENGINE=tesseract`) |
 | Prompt registry | `backend/prompts/` MD súbory per level+kind, base.md + {level-kind}.md | ✓ live (Sprint 8) |
@@ -343,7 +345,7 @@ AssetinSpace/ArchiveApp (private)
 - ✓ `services/nameGeneration.ts`
 - ✓ `POST /api/items` — level/kind, validácia `level <= parent.level + 1`, `name_source`
 - ✓ `PATCH /api/items/:id/name`, `POST confirm-ocr-name`, `POST dismiss-ocr-name`
-- ✓ Export CSV/JSON — `level`, `kind`, `nameSource`; bez `typeCode`/`auto_name` v exporte
+- ✓ Export CSV/JSON — `level`, `kind`, `name_source`, dynamické `meta_*`; `GET/POST /api/export/*`, `GET /export/columns`; dialóg výberu stĺpcov
 - ✓ Search — `kind` v ILIKE
 
 **Backend — Gemini Vision OCR:**

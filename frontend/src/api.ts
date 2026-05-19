@@ -164,10 +164,18 @@ export type InventoryItem = {
   updated_at: string;
   /** Zreťazený OCR text z max 3 najnovších DONE fotiek. Null ak žiadna fotka s OCR. */
   ocr_text: string | null;
+  /** Max 3 najnovšie fotky so signed URL — náhľad v tabuľke položiek. */
+  photo_previews: InventoryPhotoPreview[];
   _count: {
     children: number;
     photos: number;
   };
+};
+
+export type InventoryPhotoPreview = {
+  id: string;
+  signed_url: string;
+  photo_type: PhotoType;
 };
 
 export type QrStatus = "FREE" | "ASSIGNED";
@@ -358,6 +366,26 @@ export type BoxContents = {
 // ─── Export types (Sprint 4) ─────────────────────────────────────────────────
 
 export type ExportKind = "csv" | "json";
+
+export type ExportJsonFormat = "tree" | "flat";
+
+export type ExportColumnGroup = "item" | "metadata" | "photos" | "technical";
+
+export type ExportColumnDef = {
+  id: string;
+  label: string;
+  group: ExportColumnGroup;
+};
+
+export type ExportColumnsResponse = {
+  columns: ExportColumnDef[];
+  metadataKeys: string[];
+};
+
+export type ExportOptions = {
+  columns?: string[];
+  format?: ExportJsonFormat;
+};
 
 export type ExportDownload = {
   blob: Blob;
@@ -659,12 +687,29 @@ export const api = {
     request<LlmMetadataResult>(`/llm-metadata/${itemId}/extract`, { method: "POST" }),
 
   // ─── Export (Sprint 4) ─────────────────────────────────────────────────────
+  exportColumns: () =>
+    request<ExportColumnsResponse>("/export/columns"),
+
   // Stiahne CSV/JSON ako Blob. Basic Auth musí ísť cez fetch header — <a href>
   // ho nepošle. Volajúci si vytvorí object URL a klikne na dočasný <a download>.
-  exportBlob: async (kind: ExportKind): Promise<ExportDownload> => {
+  exportBlob: async (
+    kind: ExportKind,
+    options?: ExportOptions,
+  ): Promise<ExportDownload> => {
     const creds = getCredentials();
+    const usePost = options !== undefined;
     const res = await fetch(`${API_URL}/export/${kind}`, {
-      headers: creds ? { Authorization: authHeader(creds) } : {},
+      method: usePost ? "POST" : "GET",
+      headers: {
+        ...(creds ? { Authorization: authHeader(creds) } : {}),
+        ...(usePost ? { "Content-Type": "application/json" } : {}),
+      },
+      body: usePost
+        ? JSON.stringify({
+            columns: options.columns,
+            format: kind === "json" ? options.format : undefined,
+          })
+        : undefined,
     });
     if (!res.ok) {
       let msg = `${res.status} ${res.statusText}`;
@@ -676,8 +721,6 @@ export const api = {
       }
       throw new Error(msg);
     }
-    // Parse filename z Content-Disposition: attachment; filename="..."
-    // Fallback: archiveapp-export-YYYY-MM-DD.{csv|json}
     const disposition = res.headers.get("Content-Disposition") ?? "";
     const filenameMatch = disposition.match(/filename="?([^"]+)"?/i);
     const filename =

@@ -7,17 +7,27 @@ import {
   getExpandedRowModel,
   useReactTable,
   type ColumnDef,
+  type ColumnSizingState,
   type ExpandedState,
   type VisibilityState,
 } from "@tanstack/react-table";
+import {
+  defaultItemsTableColumnOrder,
+  isPinnedTableColumn,
+  reorderTableColumns,
+  resolveColumnOrder,
+} from "../lib/itemsTableColumnPrefs";
 import {
   api,
   levelKindHint,
   TYPE_LABEL,
   type InventoryItem,
+  type InventoryPhotoPreview,
   type MetadataStatus,
   type Status,
 } from "../api";
+import { PhotoLightbox } from "./PhotoLightbox";
+import { openPhotoBeside, photoCountLabel } from "../lib/openPhotoBeside";
 import {
   buildItemTree,
   collectExpandableIds,
@@ -91,11 +101,70 @@ function formatDate(iso: string): string {
   });
 }
 
+type TableLightboxState = {
+  photos: InventoryPhotoPreview[];
+  index: number;
+  totalCount: number;
+};
+
+function InventoryPhotosCell({
+  previews,
+  totalCount,
+  onOpenModal,
+  onOpenBeside,
+}: {
+  previews: InventoryPhotoPreview[];
+  totalCount: number;
+  onOpenModal: (index: number) => void;
+  onOpenBeside: (index: number) => void;
+}): React.JSX.Element {
+  if (totalCount === 0) {
+    return <span className="muted">—</span>;
+  }
+  const label = photoCountLabel(totalCount);
+  const canOpen = previews.length > 0;
+  return (
+    <div className="data-table-photos-cell">
+      {canOpen ? (
+        <button
+          type="button"
+          className="data-table-photo-link"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenModal(0);
+          }}
+          title="Otvoriť fotky v okne"
+        >
+          {label}
+        </button>
+      ) : (
+        <span className="muted" title="Náhľad sa načíta po obnovení stránky">
+          {label}
+        </span>
+      )}
+      {canOpen ? (
+        <button
+          type="button"
+          className="data-table-photo-link data-table-photo-link-beside"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenBeside(0);
+          }}
+          title="Otvoriť prvú fotku v okne vedľa tabuľky"
+        >
+          vedľa
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
 export function ItemsDataTable() {
   const url = useItemsTableUrlState();
   const qc = useQueryClient();
   const [columnsModalOpen, setColumnsModalOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [tableLightbox, setTableLightbox] = useState<TableLightboxState | null>(null);
   const inventoryQ = useQuery({
     queryKey: ["items", "inventory"],
     queryFn: () => api.inventoryItems(),
@@ -103,6 +172,7 @@ export function ItemsDataTable() {
   });
   const fullscreenPinnedRef = useRef(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const modalPortalRef = useRef<HTMLDivElement>(null);
   const deleteTouchHandledRef = useRef(false);
 
   const deleteMut = useMutation({
@@ -134,8 +204,19 @@ export function ItemsDataTable() {
   const allItems = inventoryQ.data ?? [];
 
   const columnPrefs = useItemsTableColumnPrefs(allItems);
-  const { hiddenColumns, shownColumns, metadataColumnKeys, applyColumnVisibility } =
-    columnPrefs;
+  const {
+    hiddenColumns,
+    shownColumns,
+    metadataColumnKeys,
+    columnOrder: savedColumnOrder,
+    columnSizing,
+    applyColumnVisibility,
+    setColumnOrder,
+    setColumnSizing,
+  } = columnPrefs;
+
+  const [dragColumnId, setDragColumnId] = useState<string | null>(null);
+  const [dropColumnId, setDropColumnId] = useState<string | null>(null);
 
   const descendantCountById = useMemo(() => {
     const map = new Map<string, number>();
@@ -245,13 +326,17 @@ export function ItemsDataTable() {
     if (!isFullscreen) return;
     function onKey(e: KeyboardEvent) {
       if (e.key !== "Escape") return;
+      if (columnsModalOpen) {
+        setColumnsModalOpen(false);
+        return;
+      }
       if (document.fullscreenElement === rootRef.current) return;
       fullscreenPinnedRef.current = false;
       setIsFullscreen(false);
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [isFullscreen]);
+  }, [isFullscreen, columnsModalOpen]);
 
   useEffect(() => {
     if (!isFullscreen) return;
@@ -372,12 +457,41 @@ export function ItemsDataTable() {
     [columnPickerEntries],
   );
 
+  const defaultColumnOrder = useMemo(
+    () => defaultItemsTableColumnOrder(metadataColumnKeys),
+    [metadataColumnKeys],
+  );
+
+  const columnOrder = useMemo(
+    () => resolveColumnOrder(savedColumnOrder, defaultColumnOrder),
+    [savedColumnOrder, defaultColumnOrder],
+  );
+
+  const handleColumnOrderChange = useCallback(
+    (fromId: string, toId: string) => {
+      setColumnOrder(reorderTableColumns(columnOrder, fromId, toId));
+    },
+    [columnOrder, setColumnOrder],
+  );
+
+  const handleColumnSizingChange = useCallback(
+    (updater: ColumnSizingState | ((prev: ColumnSizingState) => ColumnSizingState)) => {
+      setColumnSizing(
+        typeof updater === "function" ? updater(columnSizing) : updater,
+      );
+    },
+    [columnSizing, setColumnSizing],
+  );
+
   // ── Definícia stĺpcov ─────────────────────────────────────────────────────
   const columns = useMemo((): ColumnDef<InventoryTreeRow>[] => [
     {
       id: "expand",
       header: () => null,
       size: 40,
+      minSize: 36,
+      maxSize: 56,
+      enableResizing: false,
       enableHiding: false,
       cell: ({ row }) =>
         row.getCanExpand() ? (
@@ -537,11 +651,28 @@ export function ItemsDataTable() {
     {
       id: "photos",
       header: "Fotky",
-      size: 56,
+      size: 96,
+      minSize: 80,
       accessorFn: (row) => row._count.photos,
-      cell: ({ getValue }) => {
-        const n = getValue<number>();
-        return n > 0 ? String(n) : <span className="muted">0</span>;
+      cell: ({ row }) => {
+        const previews = row.original.photo_previews ?? [];
+        return (
+          <InventoryPhotosCell
+            previews={previews}
+            totalCount={row.original._count.photos}
+            onOpenModal={(index) =>
+              setTableLightbox({
+                photos: previews,
+                index,
+                totalCount: row.original._count.photos,
+              })
+            }
+            onOpenBeside={(index) => {
+              const p = previews[index];
+              if (p) openPhotoBeside(p.signed_url);
+            }}
+          />
+        );
       },
     },
     {
@@ -560,6 +691,9 @@ export function ItemsDataTable() {
       id: "delete",
       header: () => <span className="sr-only">Zmazať</span>,
       size: 48,
+      minSize: 44,
+      maxSize: 64,
+      enableResizing: false,
       enableHiding: false,
       cell: ({ row }) => {
         const item = row.original;
@@ -616,8 +750,16 @@ export function ItemsDataTable() {
   const table = useReactTable({
     data: treeData,
     columns,
-    state: { expanded, columnVisibility },
+    state: { expanded, columnVisibility, columnOrder, columnSizing },
     onExpandedChange: setExpanded,
+    onColumnSizingChange: handleColumnSizingChange,
+    columnResizeMode: "onEnd",
+    enableColumnResizing: true,
+    defaultColumn: {
+      minSize: 48,
+      maxSize: 640,
+      size: 150,
+    },
     getSubRows: (row: InventoryTreeRow) => row.subRows,
     getRowId: (row) => row.id,
     getCoreRowModel: getCoreRowModel(),
@@ -769,20 +911,97 @@ export function ItemsDataTable() {
       {/* Tabuľka */}
       <div className="data-table-wrap card">
         <div className="data-table-scroll">
-          <table className="data-table">
+          <table
+            className="data-table"
+            style={{ width: table.getTotalSize() }}
+          >
             <thead>
               {table.getHeaderGroups().map((hg) => (
                 <tr key={hg.id}>
-                  {hg.headers.map((header) => (
-                    <th
-                      key={header.id}
-                      style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(header.column.columnDef.header, header.getContext())}
-                    </th>
-                  ))}
+                  {hg.headers.map((header) => {
+                    const colId = header.column.id;
+                    const canDrag =
+                      !isPinnedTableColumn(colId) && !header.isPlaceholder;
+                    const isDragging = dragColumnId === colId;
+                    const isDropTarget =
+                      dropColumnId === colId && dragColumnId !== colId;
+
+                    return (
+                      <th
+                        key={header.id}
+                        className={[
+                          canDrag ? "data-table-th--draggable" : "",
+                          isDragging ? "data-table-th--dragging" : "",
+                          isDropTarget ? "data-table-th--drop-target" : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
+                        style={{ width: header.getSize() }}
+                        draggable={canDrag}
+                        title={
+                          canDrag
+                            ? "Presuň pre zmenu poradia stĺpcov"
+                            : undefined
+                        }
+                        onDragStart={(e) => {
+                          if (!canDrag) return;
+                          setDragColumnId(colId);
+                          e.dataTransfer.effectAllowed = "move";
+                          e.dataTransfer.setData("text/plain", colId);
+                        }}
+                        onDragEnd={() => {
+                          setDragColumnId(null);
+                          setDropColumnId(null);
+                        }}
+                        onDragOver={(e) => {
+                          if (!canDrag || !dragColumnId || dragColumnId === colId) {
+                            return;
+                          }
+                          e.preventDefault();
+                          e.dataTransfer.dropEffect = "move";
+                          setDropColumnId(colId);
+                        }}
+                        onDragLeave={() => {
+                          if (dropColumnId === colId) setDropColumnId(null);
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          const fromId =
+                            dragColumnId ?? e.dataTransfer.getData("text/plain");
+                          if (fromId && fromId !== colId) {
+                            handleColumnOrderChange(fromId, colId);
+                          }
+                          setDragColumnId(null);
+                          setDropColumnId(null);
+                        }}
+                      >
+                        <span className="data-table-th-inner">
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )}
+                        </span>
+                        {header.column.getCanResize() && (
+                          <div
+                            role="separator"
+                            aria-orientation="vertical"
+                            aria-label={`Zmeniť šírku stĺpca ${columnDisplayLabel(colId)}`}
+                            className={`data-table-col-resizer${
+                              header.column.getIsResizing()
+                                ? " data-table-col-resizer--active"
+                                : ""
+                            }`}
+                            onMouseDown={header.getResizeHandler()}
+                            onTouchStart={header.getResizeHandler()}
+                            onClick={(e) => e.stopPropagation()}
+                            onDragStart={(e) => e.preventDefault()}
+                          />
+                        )}
+                      </th>
+                    );
+                  })}
                 </tr>
               ))}
             </thead>
@@ -809,7 +1028,10 @@ export function ItemsDataTable() {
                       ].filter(Boolean).join(" ")}
                     >
                       {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id}>
+                        <td
+                          key={cell.id}
+                          style={{ width: cell.column.getSize() }}
+                        >
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </td>
                       ))}
@@ -822,16 +1044,47 @@ export function ItemsDataTable() {
         </div>
       </div>
 
+      <div ref={modalPortalRef} className="items-table-modal-portal" />
+
       <ItemsTableColumnsModal
         open={columnsModalOpen}
         entries={columnPickerEntries}
         visibleIds={visibleColumnIds}
+        portalTarget={modalPortalRef.current}
         onClose={() => setColumnsModalOpen(false)}
         onApply={(visible) => {
           applyColumnVisibility(visible, toggleableIds);
           setColumnsModalOpen(false);
         }}
       />
+
+      {tableLightbox && tableLightbox.photos.length > 0 && (
+        <PhotoLightbox
+          photo={tableLightbox.photos[tableLightbox.index]!}
+          caption={`${tableLightbox.index + 1} / ${tableLightbox.totalCount}${
+            tableLightbox.totalCount > tableLightbox.photos.length
+              ? " (náhľad z inventára)"
+              : ""
+          }`}
+          onClose={() => setTableLightbox(null)}
+          onPrev={
+            tableLightbox.index > 0
+              ? () =>
+                  setTableLightbox((s) =>
+                    s ? { ...s, index: s.index - 1 } : null,
+                  )
+              : undefined
+          }
+          onNext={
+            tableLightbox.index < tableLightbox.photos.length - 1
+              ? () =>
+                  setTableLightbox((s) =>
+                    s ? { ...s, index: s.index + 1 } : null,
+                  )
+              : undefined
+          }
+        />
+      )}
     </div>
   );
 }

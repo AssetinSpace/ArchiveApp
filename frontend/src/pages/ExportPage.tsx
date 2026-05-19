@@ -1,17 +1,13 @@
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { api, type ExportKind } from "../api";
-
-// ExportPage — Sprint 4.
-//
-// Dve veľké tlačidlá: Stiahnuť CSV / JSON. Po kliku zavolá api.exportBlob,
-// vyvolá download cez dočasný <a download>. Basic Auth musí ísť cez fetch header
-// (window.open / <a href> ho nepošle) — pattern rovnaký ako qrPrintBlob.
+import { api, type ExportJsonFormat, type ExportKind } from "../api";
+import { ExportColumnsModal } from "../components/ExportColumnsModal";
 
 const TOAST_MS = 3000;
 
 export function ExportPage() {
   const [toast, setToast] = useState<string | null>(null);
+  const [modalKind, setModalKind] = useState<ExportKind | null>(null);
 
   useEffect(() => {
     if (!toast) return;
@@ -28,79 +24,105 @@ export function ExportPage() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    // Trošku odložiť revoke — niektoré prehliadače inak download zrušia.
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
-  const csvMut = useMutation({
-    mutationFn: () => api.exportBlob("csv"),
+  const exportMut = useMutation({
+    mutationFn: ({
+      kind,
+      columns,
+      format,
+    }: {
+      kind: ExportKind;
+      columns: string[];
+      format?: ExportJsonFormat;
+    }) => api.exportBlob(kind, { columns, format }),
     onSuccess: (data) => {
       triggerDownload(data.blob, data.filename);
       setToast(`Export hotový: ${data.filename}`);
+      setModalKind(null);
     },
   });
 
-  const jsonMut = useMutation({
-    mutationFn: () => api.exportBlob("json"),
-    onSuccess: (data) => {
-      triggerDownload(data.blob, data.filename);
-      setToast(`Export hotový: ${data.filename}`);
-    },
-  });
+  function startExport(kind: ExportKind) {
+    setModalKind(kind);
+    exportMut.reset();
+  }
+
+  function onExportConfirm(columns: string[], jsonFormat: ExportJsonFormat) {
+    if (!modalKind) return;
+    exportMut.mutate({
+      kind: modalKind,
+      columns,
+      format: modalKind === "json" ? jsonFormat : undefined,
+    });
+  }
 
   return (
     <div className="stack">
       <h1>Export inventára</h1>
 
       <p className="muted" style={{ marginTop: -4 }}>
-        Aktuálny stav archívu — bez soft-deleted položiek. Súbor sa pomenuje
+        Aktuálny stav archívu — bez soft-deleted položiek. Pred stiahnutím
+        vyber stĺpce; metadáta z JSONB sú samostatné polia. Súbor sa pomenuje
         s dnešným dátumom (YYYY-MM-DD).
       </p>
 
-      {toast && <div className="export-toast">✓ {toast}</div>}
+      {toast && (
+        <div className="export-toast">
+          ✓ {toast}
+        </div>
+      )}
 
       <section className="card">
         <h2>CSV (plochý)</h2>
         <p className="muted" style={{ marginTop: 0 }}>
           Pre Excel / Google Sheets. UTF-8 s BOM, oddelovač <code>;</code>,
-          CRLF (SK locale). Stĺpce: <code>id, qrCode, name, level, kind,
-          nameSource, metadataStatus, metadataJson, metaStavba…metaStupen, note, status,
-          path, photoCount, hasOcrText, ocrTextPreview, createdAt, updatedAt</code>.
-          Cesta je v tvare <code>Sklad A &gt; Paleta 7 &gt; Krabica 23 &gt;
-          Zložka X</code>.
+          CRLF (SK locale). Hlavička riadkov je v slovenčine (napr. Stavba,
+          Projektant). Každý kľúč z metadát má vlastný stĺpec.
         </p>
-        <ExportButton
+        <ExportTriggerButton
           kind="csv"
-          label="Stiahnuť CSV"
+          label="Stiahnuť CSV…"
           subLabel="archiveapp-export-YYYY-MM-DD.csv"
-          pending={csvMut.isPending}
-          error={csvMut.error as Error | null}
-          onClick={() => csvMut.mutate()}
+          pending={exportMut.isPending && modalKind === "csv"}
+          error={modalKind === "csv" ? (exportMut.error as Error | null) : null}
+          onClick={() => startExport("csv")}
         />
       </section>
 
       <section className="card">
-        <h2>JSON (hierarchický)</h2>
+        <h2>JSON</h2>
         <p className="muted" style={{ marginTop: 0 }}>
-          Strom SKLAD → PALETA → KRABICA → ZLOZKA s vnorenými{" "}
-          <code>children[]</code>. Každá položka má pole{" "}
-          <code>photos[]</code> so storage key-mi a OCR textami. Bez signed URLs
-          (tie sú efemérne — fotky sa stiahnu z R2 bucket-u cez rclone).
+          Hierarchický strom alebo plochý zoznam riadkov (rovnaké stĺpce ako
+          CSV). Pole <code>photos[]</code> so storage key-mi len ak je vo
+          výbere; bez signed URLs.
         </p>
-        <ExportButton
+        <ExportTriggerButton
           kind="json"
-          label="Stiahnuť JSON"
+          label="Stiahnuť JSON…"
           subLabel="archiveapp-export-YYYY-MM-DD.json"
-          pending={jsonMut.isPending}
-          error={jsonMut.error as Error | null}
-          onClick={() => jsonMut.mutate()}
+          pending={exportMut.isPending && modalKind === "json"}
+          error={modalKind === "json" ? (exportMut.error as Error | null) : null}
+          onClick={() => startExport("json")}
         />
       </section>
+
+      {modalKind && (
+        <ExportColumnsModal
+          open
+          kind={modalKind}
+          onClose={() => {
+            if (!exportMut.isPending) setModalKind(null);
+          }}
+          onConfirm={onExportConfirm}
+        />
+      )}
     </div>
   );
 }
 
-function ExportButton({
+function ExportTriggerButton({
   kind,
   label,
   subLabel,
@@ -128,7 +150,9 @@ function ExportButton({
         {pending ? (
           <>
             <span>Sťahujem…</span>
-            <span className="export-button-sub">Môže to chvíľu trvať pri veľkom inventári</span>
+            <span className="export-button-sub">
+              Môže to chvíľu trvať pri veľkom inventári
+            </span>
           </>
         ) : (
           <>

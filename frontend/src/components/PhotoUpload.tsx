@@ -96,6 +96,7 @@ export function PhotoUpload({ itemId }: Props): React.JSX.Element {
       setActiveType(null);
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["items", itemId, "photos"] }),
+        qc.invalidateQueries({ queryKey: ["items", "inventory"] }),
         qc.invalidateQueries({ queryKey: ["ocr-status"] }),
       ]);
       for (const slot of UPLOAD_SLOTS) {

@@ -5,13 +5,33 @@ export type ItemsTableColumnPrefs = {
   shown: string[];
   /** Všetky metadata kľúče, ktoré sa už objavili v inventári alebo po potvrdení v detaile. */
   metadataKeys: string[];
+  /** Poradie stĺpcov (bez pinovaných expand/delete — tie sa doplnia automaticky). */
+  columnOrder?: string[];
+  /** Šírky stĺpcov v px (TanStack columnSizing). */
+  columnSizing?: Record<string, number>;
 };
+
+const PINNED_COLUMN_START = ["expand"] as const;
+const PINNED_COLUMN_END = ["delete"] as const;
 
 const EMPTY: ItemsTableColumnPrefs = {
   hidden: [],
   shown: [],
   metadataKeys: [],
 };
+
+function parseColumnSizing(
+  raw: unknown,
+): Record<string, number> | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const out: Record<string, number> = {};
+  for (const [id, size] of Object.entries(raw as Record<string, unknown>)) {
+    if (typeof size === "number" && Number.isFinite(size) && size > 0) {
+      out[id] = Math.round(size);
+    }
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
 
 function parsePrefs(raw: string | null): ItemsTableColumnPrefs {
   if (!raw) return { ...EMPTY, metadataKeys: [], hidden: [], shown: [] };
@@ -27,10 +47,96 @@ function parsePrefs(raw: string | null): ItemsTableColumnPrefs {
       metadataKeys: Array.isArray(data.metadataKeys)
         ? data.metadataKeys.filter((x): x is string => typeof x === "string" && !!x.trim())
         : [],
+      columnOrder: Array.isArray(data.columnOrder)
+        ? data.columnOrder.filter((x): x is string => typeof x === "string" && !!x)
+        : undefined,
+      columnSizing: parseColumnSizing(data.columnSizing),
     };
   } catch {
     return { ...EMPTY };
   }
+}
+
+/** Predvolené poradie dátových stĺpcov (expand/delete sa doplnia v resolveColumnOrder). */
+export function defaultItemsTableColumnOrder(metadataKeys: string[]): string[] {
+  const meta = metadataKeys.map((k) => `meta_${k}`);
+  return [
+    "expand",
+    "level",
+    "kind",
+    "name",
+    "name_source",
+    ...meta,
+    "metadata_status",
+    "qr_code",
+    "status",
+    "note",
+    "children",
+    "photos",
+    "created_at",
+    "updated_at",
+    "delete",
+  ];
+}
+
+/** Zlúči uložené poradie s aktuálnym zoznamom stĺpcov (nové stĺpce na predvolené miesto). */
+export function resolveColumnOrder(
+  saved: string[] | undefined,
+  defaultOrder: string[],
+): string[] {
+  const pinnedStart = new Set<string>(PINNED_COLUMN_START);
+  const pinnedEnd = new Set<string>(PINNED_COLUMN_END);
+  const movableDefaults = defaultOrder.filter(
+    (id) => !pinnedStart.has(id) && !pinnedEnd.has(id),
+  );
+
+  const orderedMovable: string[] = [];
+  const seen = new Set<string>();
+
+  if (saved?.length) {
+    for (const id of saved) {
+      if (pinnedStart.has(id) || pinnedEnd.has(id)) continue;
+      if (movableDefaults.includes(id) && !seen.has(id)) {
+        orderedMovable.push(id);
+        seen.add(id);
+      }
+    }
+  }
+
+  for (const id of movableDefaults) {
+    if (!seen.has(id)) {
+      orderedMovable.push(id);
+      seen.add(id);
+    }
+  }
+
+  const endPinned = PINNED_COLUMN_END.filter((id) => defaultOrder.includes(id));
+  return [...PINNED_COLUMN_START, ...orderedMovable, ...endPinned];
+}
+
+export function isPinnedTableColumn(id: string): boolean {
+  return (
+    (PINNED_COLUMN_START as readonly string[]).includes(id) ||
+    (PINNED_COLUMN_END as readonly string[]).includes(id)
+  );
+}
+
+export function reorderTableColumns(
+  order: string[],
+  fromId: string,
+  toId: string,
+): string[] {
+  if (fromId === toId || isPinnedTableColumn(fromId) || isPinnedTableColumn(toId)) {
+    return order;
+  }
+  const movable = order.filter((id) => !isPinnedTableColumn(id));
+  const fromIdx = movable.indexOf(fromId);
+  const toIdx = movable.indexOf(toId);
+  if (fromIdx < 0 || toIdx < 0) return order;
+  const nextMovable = [...movable];
+  const [removed] = nextMovable.splice(fromIdx, 1);
+  nextMovable.splice(toIdx, 0, removed);
+  return resolveColumnOrder(nextMovable, order);
 }
 
 export function loadItemsTableColumnPrefs(): ItemsTableColumnPrefs {

@@ -171,15 +171,65 @@ itemsRouter.get("/inventory", async (_req, res, next) => {
       },
     });
 
-    const result = items.map((item) => {
-      const { photos, ...rest } = item;
-      const ocr_text = photos
-        .map((p) => p.ocr_raw_text)
-        .filter((t): t is string => !!t)
-        .join(" ")
-        .slice(0, 2000) || null;
-      return { ...rest, ocr_text };
-    });
+    const itemIds = items.map((i) => i.id);
+    type PreviewRow = {
+      id: string;
+      item_id: string;
+      storage_key: string;
+      photo_type: "LABEL" | "OVERVIEW";
+    };
+    const previewRows: PreviewRow[] =
+      itemIds.length > 0
+        ? await prisma.$queryRaw<PreviewRow[]>`
+            SELECT id, item_id, storage_key, photo_type::text AS photo_type
+            FROM (
+              SELECT
+                id,
+                item_id,
+                storage_key,
+                photo_type,
+                ROW_NUMBER() OVER (
+                  PARTITION BY item_id
+                  ORDER BY created_at DESC
+                ) AS rn
+              FROM "Photo"
+              WHERE deleted_at IS NULL
+                AND item_id = ANY(${itemIds}::text[])
+            ) ranked
+            WHERE rn <= 3
+            ORDER BY item_id, rn;
+          `
+        : [];
+
+    const previewsByItem = new Map<string, PreviewRow[]>();
+    for (const row of previewRows) {
+      const list = previewsByItem.get(row.item_id) ?? [];
+      list.push(row);
+      previewsByItem.set(row.item_id, list);
+    }
+
+    const result = await Promise.all(
+      items.map(async (item) => {
+        const { photos, ...rest } = item;
+        const ocr_text =
+          photos
+            .map((p) => p.ocr_raw_text)
+            .filter((t): t is string => !!t)
+            .join(" ")
+            .slice(0, 2000) || null;
+
+        const previewSource = previewsByItem.get(item.id) ?? [];
+        const photo_previews = await Promise.all(
+          previewSource.map(async (p) => ({
+            id: p.id,
+            signed_url: await getSignedUrlForKey(p.storage_key),
+            photo_type: p.photo_type,
+          })),
+        );
+
+        return { ...rest, ocr_text, photo_previews };
+      }),
+    );
 
     res.json(result);
   } catch (e) {

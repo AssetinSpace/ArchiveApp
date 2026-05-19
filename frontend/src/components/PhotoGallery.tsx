@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, type Photo } from "../api";
+import { PhotoLightbox } from "./PhotoLightbox";
 
 type Props = {
   itemId: string;
@@ -24,7 +25,10 @@ export function PhotoGallery({ itemId }: Props): React.JSX.Element {
   const deleteMut = useMutation({
     mutationFn: (photoId: string) => api.deletePhoto(photoId),
     onSuccess: async () => {
-      await qc.invalidateQueries({ queryKey: ["items", itemId, "photos"] });
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["items", itemId, "photos"] }),
+        qc.invalidateQueries({ queryKey: ["items", "inventory"] }),
+      ]);
     },
   });
 
@@ -110,7 +114,10 @@ export function PhotoGallery({ itemId }: Props): React.JSX.Element {
       )}
 
       {lightboxPhoto && (
-        <Lightbox photo={lightboxPhoto} onClose={() => setLightboxPhoto(null)} />
+        <PhotoLightbox
+          photo={lightboxPhoto}
+          onClose={() => setLightboxPhoto(null)}
+        />
       )}
     </>
   );
@@ -249,52 +256,3 @@ function OverviewTile({
   );
 }
 
-// ─── Lightbox ─────────────────────────────────────────────────────────────────
-
-function Lightbox({
-  photo,
-  onClose,
-}: {
-  photo: Photo;
-  onClose: () => void;
-}): React.JSX.Element {
-  useEffect(() => {
-    function onKey(e: KeyboardEvent): void {
-      if (e.key === "Escape") onClose();
-    }
-    window.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [onClose]);
-
-  return (
-    <div
-      className="lightbox-overlay"
-      role="dialog"
-      aria-modal="true"
-      onClick={onClose}
-    >
-      <button
-        type="button"
-        className="lightbox-close"
-        onClick={(e) => {
-          e.stopPropagation();
-          onClose();
-        }}
-        aria-label="Zavrieť"
-      >
-        ✕
-      </button>
-      <img
-        src={photo.signed_url}
-        alt=""
-        className="lightbox-img"
-        onClick={(e) => e.stopPropagation()}
-      />
-    </div>
-  );
-}

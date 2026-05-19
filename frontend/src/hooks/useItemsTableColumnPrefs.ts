@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import type { ColumnSizingState } from "@tanstack/react-table";
 import { useSearchParams } from "react-router-dom";
 import {
   loadItemsTableColumnPrefs,
@@ -132,14 +133,39 @@ export function useItemsTableColumnPrefs(
     [prefs],
   );
 
+  const setColumnOrder = useCallback(
+    (order: string[]) => {
+      const movable = order.filter(
+        (id) => id !== "expand" && id !== "delete",
+      );
+      const next = { ...prefs, columnOrder: movable };
+      saveItemsTableColumnPrefs(next);
+      setPrefs(next);
+    },
+    [prefs],
+  );
+
+  const setColumnSizing = useCallback(
+    (sizing: ColumnSizingState) => {
+      const next = { ...prefs, columnSizing: { ...sizing } };
+      saveItemsTableColumnPrefs(next);
+      setPrefs(next);
+    },
+    [prefs],
+  );
+
   return {
     hiddenColumns,
     shownColumns,
     metadataColumnKeys,
     metadataRegistry,
+    columnOrder: prefs.columnOrder,
+    columnSizing: prefs.columnSizing ?? {},
     applyColumnVisibility,
     setHiddenColumns,
     setShownColumns,
+    setColumnOrder,
+    setColumnSizing,
     registerMetadataKeys: registerMetadataColumnKeys,
   };
 }
