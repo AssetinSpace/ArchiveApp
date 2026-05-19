@@ -281,8 +281,10 @@ export async function processPendingMetadata(
   const safeLimit = Math.max(1, Math.min(limit, LLM_METADATA_BATCH_LIMIT_MAX));
 
   type Row = { item_id: string };
+  // Bez JOIN na Photo — DISTINCT nie je potrebný (EXISTS = 1 riadok per Item).
+  // SELECT DISTINCT + ORDER BY updated_at by v PostgreSQL spadlo (42P10).
   const rows = await prisma.$queryRaw<Row[]>`
-    SELECT DISTINCT i.id AS item_id
+    SELECT i.id AS item_id
     FROM "Item" i
     WHERE i.deleted_at IS NULL
       AND i.metadata_status = 'NONE'

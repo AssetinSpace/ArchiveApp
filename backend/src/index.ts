@@ -68,8 +68,12 @@ const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
       return;
     }
   }
+  const message = err instanceof Error ? err.message : String(err);
   console.error("Unhandled error:", err);
-  res.status(500).json({ error: "Internal server error" });
+  res.status(500).json({
+    error: "Internal server error",
+    ...(process.env.NODE_ENV !== "production" ? { detail: message } : {}),
+  });
 };
 app.use(errorHandler);
 
