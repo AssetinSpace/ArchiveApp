@@ -1086,13 +1086,38 @@ p { margin: 0 0 12px; }
 
 .ocr-failed-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   padding: 10px;
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   margin-bottom: 8px;
+}
+.ocr-failed-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.ocr-diagnose-detail {
+  margin-top: 6px;
+  padding: 8px;
+  background: #f9fafb;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #374151;
+}
+.ocr-diagnose-steps {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+.ocr-diagnose-ok {
+  color: #166534;
+}
+.ocr-diagnose-fail {
+  color: #b91c1c;
 }
 .ocr-failed-thumb {
   width: 60px;

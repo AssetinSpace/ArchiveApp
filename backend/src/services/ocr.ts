@@ -71,17 +71,23 @@ export async function processPhoto(photoId: string): Promise<void> {
       const raw = await tesseract.recognize(buffer, TESSERACT_CONFIG);
       text = raw.trim();
     } catch (err) {
+      const msg =
+        err instanceof Error ? err.message : "Tesseract OCR zlyhal";
       console.error(`[ocr] photo ${photoId} OCR failed:`, err);
       await prisma.photo.update({
         where: { id: photoId },
-        data: { ocr_status: "FAILED", ocr_raw_text: null },
+        data: {
+          ocr_status: "FAILED",
+          ocr_raw_text: null,
+          ocr_last_error: msg.slice(0, 500),
+        },
       });
       return;
     }
 
     await prisma.photo.update({
       where: { id: photoId },
-      data: { ocr_status: "DONE", ocr_raw_text: text },
+      data: { ocr_status: "DONE", ocr_raw_text: text, ocr_last_error: null },
     });
 
     if (

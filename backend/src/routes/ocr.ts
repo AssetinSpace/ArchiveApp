@@ -11,6 +11,7 @@ import { prisma } from "../prisma.js";
 import { processPending, processPhoto } from "../services/ocr.js";
 import { getSignedUrlForKey } from "../services/r2.js";
 import {
+  diagnosePhotoVision,
   getOcrEngine,
   processOverviewForName,
   processPendingVision,
@@ -153,7 +154,7 @@ ocrRouter.post("/retry/:photoId", async (req, res, next) => {
     // Reset stavu na PENDING aby processPhoto (idempotentný) nepreskočil.
     await prisma.photo.update({
       where: { id: photoId },
-      data: { ocr_status: "PENDING", ocr_raw_text: null },
+      data: { ocr_status: "PENDING", ocr_raw_text: null, ocr_last_error: null },
     });
 
     const engine = getOcrEngine();
@@ -172,6 +173,7 @@ ocrRouter.post("/retry/:photoId", async (req, res, next) => {
         storage_key: true,
         ocr_raw_text: true,
         ocr_status: true,
+        ocr_last_error: true,
         created_at: true,
       },
     });
@@ -189,8 +191,35 @@ ocrRouter.post("/retry/:photoId", async (req, res, next) => {
       signed_url,
       ocr_raw_text: after.ocr_raw_text,
       ocr_status: after.ocr_status,
+      ocr_last_error: after.ocr_last_error,
       created_at: after.created_at,
     });
+  } catch (e) {
+    next(e);
+  }
+});
+
+// ─── POST /api/ocr/diagnose/:photoId ──────────────────────────────────────────
+//
+// Otestuje R2 + Gemini bez zmeny ocr_status. Uloží ocr_last_error ak zlyhá Vision.
+
+ocrRouter.post("/diagnose/:photoId", async (req, res, next) => {
+  try {
+    const photoId = String(req.params.photoId);
+    const engine = getOcrEngine();
+
+    if (engine === "gemini" && !process.env.GEMINI_API_KEY) {
+      res.status(503).json({ error: "GEMINI_API_KEY nie je nastavený" });
+      return;
+    }
+
+    const report = await diagnosePhotoVision(photoId);
+    if (!report) {
+      res.status(404).json({ error: "Photo not found" });
+      return;
+    }
+
+    res.json(report);
   } catch (e) {
     next(e);
   }
@@ -277,6 +306,7 @@ ocrRouter.get("/failed", async (_req, res, next) => {
         id: true,
         item_id: true,
         storage_key: true,
+        ocr_last_error: true,
         created_at: true,
         item: { select: { name: true } },
       },
@@ -288,6 +318,7 @@ ocrRouter.get("/failed", async (_req, res, next) => {
         item_id: p.item_id,
         item_name: p.item.name,
         signed_url: await getSignedUrlForKey(p.storage_key),
+        ocr_last_error: p.ocr_last_error,
         created_at: p.created_at,
       })),
     );

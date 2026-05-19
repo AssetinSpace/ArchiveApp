@@ -86,9 +86,10 @@ model Photo {
   id           String    @id @default(uuid())
   item_id      String
   storage_key  String
-  ocr_raw_text String?
-  ocr_status   OcrStatus @default(PENDING)
-  photo_type   PhotoType @default(LABEL)
+  ocr_raw_text    String?
+  ocr_last_error  String?   @db.Text
+  ocr_status      OcrStatus @default(PENDING)
+  photo_type      PhotoType @default(LABEL)
   created_at   DateTime  @default(now())
   deleted_at   DateTime?
 

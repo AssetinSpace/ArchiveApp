@@ -7,6 +7,7 @@ import {
   type FailedPhoto,
   type ItemMetadata,
   type LlmMetadataStatusResponse,
+  type OcrDiagnoseReport,
   type OcrStatusCounts,
   type PendingMetadataReviewItem,
   type RecentOcrPhoto,
@@ -42,7 +43,7 @@ const PAGE_SIZE = 20;
 const RETRY_FEEDBACK_MS = 12_000;
 
 type RetryRowFeedback =
-  | { type: "failed-again"; at: number }
+  | { type: "failed-again"; at: number; detail?: string }
   | { type: "error"; at: number; message: string };
 
 export function OCRAdminPage() {
@@ -131,7 +132,11 @@ export function OCRAdminPage() {
       if (result.ocr_status === "FAILED") {
         setRetryFeedback((prev) => ({
           ...prev,
-          [photoId]: { type: "failed-again", at: now },
+          [photoId]: {
+            type: "failed-again",
+            at: now,
+            detail: result.ocr_last_error ?? undefined,
+          },
         }));
         setRetrySuccessMsg(null);
       } else if (result.ocr_status === "DONE") {
@@ -358,6 +363,9 @@ export function OCRAdminPage() {
                   bumped={Boolean(retryBump[p.id])}
                   lastRetryAt={retryBump[p.id]}
                   feedback={retryFeedback[p.id] ?? null}
+                  onDiagnosed={() => {
+                    qc.invalidateQueries({ queryKey: FAILED_KEY });
+                  }}
                 />
               ))}
               {failedQ.data && failedQ.data.length >= 100 && (
@@ -483,6 +491,7 @@ function FailedRow({
   bumped,
   lastRetryAt,
   feedback,
+  onDiagnosed,
 }: {
   photo: FailedPhoto;
   retrying: boolean;
@@ -490,10 +499,26 @@ function FailedRow({
   bumped: boolean;
   lastRetryAt?: number;
   feedback: RetryRowFeedback | null;
+  onDiagnosed: () => void;
 }) {
+  const [diagnoseReport, setDiagnoseReport] = useState<OcrDiagnoseReport | null>(null);
+
+  const diagnoseMut = useMutation({
+    mutationFn: () => api.diagnoseOcr(photo.id),
+    onSuccess: (report) => {
+      setDiagnoseReport(report);
+      onDiagnosed();
+    },
+  });
+
+  const storedError = photo.ocr_last_error?.trim() || null;
+  const liveError =
+    feedback?.type === "failed-again" ? feedback.detail?.trim() || null : null;
+  const displayError = liveError ?? storedError;
+
   const feedbackMessage =
-    feedback?.type === "failed-again"
-      ? "Zlyhalo znova — skúste neskôr (limit API alebo výpadok)"
+    feedback?.type === "failed-again" && !displayError
+      ? "Zlyhalo znova — spustite Diagnostiku pre detail"
       : feedback?.type === "error"
         ? `Retry chyba: ${feedback.message}`
         : null;
@@ -513,21 +538,55 @@ function FailedRow({
             Posledný pokus: {new Date(lastRetryAt).toLocaleString("sk-SK")}
           </span>
         )}
+        {displayError && (
+          <span className="ocr-failed-retry-msg" role="alert">
+            Dôvod: {displayError}
+          </span>
+        )}
         {feedbackMessage && (
           <span className="ocr-failed-retry-msg" role="alert">
             {feedbackMessage}
           </span>
         )}
+        {diagnoseReport && (
+          <div className="ocr-diagnose-detail">
+            <strong>Diagnostika:</strong> {diagnoseReport.conclusion}
+            <ul className="ocr-diagnose-steps">
+              {diagnoseReport.steps.map((s) => (
+                <li key={s.name} className={s.ok ? "ocr-diagnose-ok" : "ocr-diagnose-fail"}>
+                  {s.ok ? "✓" : "✗"} {s.name}
+                  {s.detail ? ` — ${s.detail}` : ""}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {diagnoseMut.error && (
+          <span className="ocr-failed-retry-msg" role="alert">
+            Diagnostika: {(diagnoseMut.error as Error).message}
+          </span>
+        )}
       </div>
-      <button
-        type="button"
-        className="btn-small"
-        onClick={onRetry}
-        disabled={retrying}
-        style={{ minHeight: 44 }}
-      >
-        {retrying ? "Spracovávam…" : "Retry"}
-      </button>
+      <div className="ocr-failed-actions">
+        <button
+          type="button"
+          className="btn-small"
+          onClick={onRetry}
+          disabled={retrying || diagnoseMut.isPending}
+          style={{ minHeight: 44 }}
+        >
+          {retrying ? "Spracovávam…" : "Retry"}
+        </button>
+        <button
+          type="button"
+          className="btn-small btn-ghost"
+          onClick={() => diagnoseMut.mutate()}
+          disabled={retrying || diagnoseMut.isPending}
+          style={{ minHeight: 44 }}
+        >
+          {diagnoseMut.isPending ? "Testujem…" : "Diagnostika"}
+        </button>
+      </div>
     </div>
   );
 }

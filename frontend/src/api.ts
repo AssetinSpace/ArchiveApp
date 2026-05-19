@@ -221,6 +221,7 @@ export type Photo = {
   id: string;
   signed_url: string;
   ocr_raw_text: string | null;
+  ocr_last_error?: string | null;
   ocr_status: OcrStatus;
   photo_type: PhotoType;
   created_at: string;
@@ -253,7 +254,29 @@ export type FailedPhoto = {
   item_id: string;
   item_name: string | null;
   signed_url: string;
+  ocr_last_error: string | null;
   created_at: string;
+};
+
+export type OcrDiagnoseStep = {
+  name: string;
+  ok: boolean;
+  detail?: string;
+};
+
+export type OcrDiagnoseReport = {
+  photo_id: string;
+  item_id: string;
+  item_name: string | null;
+  item_level: number;
+  item_kind: string;
+  ocr_status: string;
+  photo_type: string;
+  storage_key: string;
+  engine: OcrEngine;
+  steps: OcrDiagnoseStep[];
+  conclusion: string;
+  would_succeed: boolean;
 };
 
 export type RecentOcrPhoto = {
@@ -540,6 +563,8 @@ export const api = {
   // /ocr/retry/:id zámerne mirroruje shape /photos/:id.
   retryOcr: (photoId: string) =>
     request<Photo>(`/ocr/retry/${photoId}`, { method: "POST" }),
+  diagnoseOcr: (photoId: string) =>
+    request<OcrDiagnoseReport>(`/ocr/diagnose/${photoId}`, { method: "POST" }),
   fetchFailedPhotos: () => request<FailedPhoto[]>("/ocr/failed"),
   fetchRecentOcrPhotos: (limit = 20) =>
     request<RecentOcrPhoto[]>(`/ocr/recent?limit=${limit}`),
