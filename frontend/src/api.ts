@@ -226,12 +226,20 @@ export type Photo = {
   item_id?: string;
 };
 
+export type QrAssignmentResult =
+  | { status: "ASSIGNED"; qrCode: string }
+  | { status: "NOT_FOUND"; qrCode: string }
+  | { status: "ALREADY_ASSIGNED"; qrCode: string; assignedToItemId: string }
+  | { status: "ITEM_HAS_QR"; existingQrCode: string }
+  | { status: "NO_QR_DETECTED" };
+
 export type UploadPhotoResponse = {
   id: string;
   signed_url: string;
   ocr_status: OcrStatus;
   photo_type: PhotoType;
   created_at: string;
+  qrDetection?: QrAssignmentResult;
 };
 
 // ─── OCR types ───────────────────────────────────────────────────────────────

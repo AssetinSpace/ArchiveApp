@@ -9,6 +9,8 @@ import {
   getOcrEngine,
   processOverviewForName,
 } from "../services/visionProcessing.js";
+import { detectQrFromImage } from "../services/qrDetection.js";
+import { tryAssignDetectedQr } from "../services/qrAssignment.js";
 
 function runOverviewOcr(photoId: string): void {
   const engine = getOcrEngine();
@@ -171,12 +173,25 @@ photosRouter.post(
         runOverviewOcr(photo.id);
       }
 
+      // For LABEL photos: synchronously detect and assign a QR code from the
+      // image before responding. The 2 s timeout in detectQrFromImage ensures
+      // this never blocks the upload beyond the acceptable threshold. Both
+      // functions are error-safe and always resolve (never throw).
+      let qrDetection: Awaited<ReturnType<typeof tryAssignDetectedQr>> = {
+        status: "NO_QR_DETECTED",
+      };
+      if (photoType === "LABEL") {
+        const detectedQr = await detectQrFromImage(req.file.buffer);
+        qrDetection = await tryAssignDetectedQr(itemId, detectedQr, prisma);
+      }
+
       res.status(201).json({
         id: photo.id,
         signed_url: signedUrl,
         ocr_status: photo.ocr_status,
         photo_type: photo.photo_type,
         created_at: photo.created_at,
+        qrDetection,
       });
     } catch (e) {
       next(e);

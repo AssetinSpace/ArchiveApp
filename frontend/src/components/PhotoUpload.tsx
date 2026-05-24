@@ -1,7 +1,8 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import imageCompression from "browser-image-compression";
-import { api, type PhotoType } from "../api";
+import { api, type PhotoType, type QrAssignmentResult } from "../api";
 import { WebcamCaptureModal } from "./WebcamCaptureModal";
 import { isMobileDevice } from "../utils/device";
 
@@ -71,6 +72,74 @@ const UPLOAD_SLOTS: UploadSlot[] = [
   },
 ];
 
+// ─── QrDetectionBanner ───────────────────────────────────────────────────────
+
+function QrDetectionBanner({
+  result,
+  itemId,
+  onDismiss,
+}: {
+  result: QrAssignmentResult;
+  itemId: string;
+  onDismiss: () => void;
+}): React.JSX.Element | null {
+  if (result.status === "ITEM_HAS_QR") return null;
+
+  const scanLink = (
+    <Link to={`/scan?assignTo=${itemId}`} style={{ marginLeft: 8 }}>
+      Naskenovať ručne
+    </Link>
+  );
+
+  let cls = "success";
+  let content: React.ReactNode;
+
+  switch (result.status) {
+    case "ASSIGNED":
+      cls = "success";
+      content = `QR ${result.qrCode} rozpoznaný a priradený`;
+      break;
+    case "NO_QR_DETECTED":
+      cls = "warning";
+      content = <>QR kód nenájdený vo fotke{scanLink}</>;
+      break;
+    case "NOT_FOUND":
+      cls = "warning";
+      content = (
+        <>
+          QR {result.qrCode} neexistuje v systéme — skontroluj nálepku{scanLink}
+        </>
+      );
+      break;
+    case "ALREADY_ASSIGNED":
+      cls = "warning";
+      content = (
+        <>
+          QR {result.qrCode} už patrí{" "}
+          <Link to={`/items/${result.assignedToItemId}`}>inej položke</Link>
+          {scanLink}
+        </>
+      );
+      break;
+  }
+
+  return (
+    <div className={cls} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+      <span>{content}</span>
+      <button
+        type="button"
+        onClick={onDismiss}
+        aria-label="Zavrieť"
+        style={{ background: "none", border: "none", cursor: "pointer", padding: "0 4px", lineHeight: 1 }}
+      >
+        ×
+      </button>
+    </div>
+  );
+}
+
+// ─── PhotoUpload ─────────────────────────────────────────────────────────────
+
 export function PhotoUpload({ itemId }: Props): React.JSX.Element {
   const qc = useQueryClient();
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
@@ -78,6 +147,14 @@ export function PhotoUpload({ itemId }: Props): React.JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [activeType, setActiveType] = useState<PhotoType | null>(null);
   const [webcamSlot, setWebcamSlot] = useState<{ photoType: PhotoType; title: string } | null>(null);
+  const [qrBanner, setQrBanner] = useState<QrAssignmentResult | null>(null);
+
+  // Auto-dismiss the ASSIGNED banner after 3 s.
+  useEffect(() => {
+    if (qrBanner?.status !== "ASSIGNED") return;
+    const t = setTimeout(() => setQrBanner(null), 3000);
+    return () => clearTimeout(t);
+  }, [qrBanner]);
 
   const uploadMut = useMutation({
     mutationFn: async ({ file, photoType }: { file: File; photoType: PhotoType }) => {
@@ -93,15 +170,28 @@ export function PhotoUpload({ itemId }: Props): React.JSX.Element {
       setBusyLabel("Nahrávam na server…");
       return api.uploadPhoto(itemId, payload, photoType);
     },
-    onSuccess: async () => {
+    onSuccess: async (data) => {
       setError(null);
       setBusyLabel(null);
       setActiveType(null);
-      await Promise.all([
+
+      const invalidations: Promise<void>[] = [
         qc.invalidateQueries({ queryKey: ["items", itemId, "photos"] }),
         qc.invalidateQueries({ queryKey: ["items", "inventory"] }),
         qc.invalidateQueries({ queryKey: ["ocr-status"] }),
-      ]);
+      ];
+
+      if (data.qrDetection && data.qrDetection.status !== "ITEM_HAS_QR") {
+        setQrBanner(data.qrDetection);
+        if (data.qrDetection.status === "ASSIGNED") {
+          // Refresh item so qr_code field appears in the detail immediately.
+          invalidations.push(
+            qc.invalidateQueries({ queryKey: ["items", itemId] }),
+          );
+        }
+      }
+
+      await Promise.all(invalidations);
       for (const slot of UPLOAD_SLOTS) {
         const el = inputRefs.current[slot.key];
         if (el) el.value = "";
@@ -199,6 +289,7 @@ export function PhotoUpload({ itemId }: Props): React.JSX.Element {
         })}
       </div>
       {error && <div className="error">{error}</div>}
+      {qrBanner && <QrDetectionBanner result={qrBanner} itemId={itemId} onDismiss={() => setQrBanner(null)} />}
       <WebcamCaptureModal
         isOpen={webcamSlot !== null}
         onClose={() => setWebcamSlot(null)}

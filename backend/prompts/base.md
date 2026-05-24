@@ -15,3 +15,5 @@ PRAVIDLÁ PRE METADATA:
 
 Odpovedz LEN platným JSON-om, žiadny iný text:
 {"ocr_raw_text": "...", "metadata": {...}}
+
+Ak je na obrázku QR kód alebo čiarový kód, ignoruj ho — nejde o textový obsah štítku.
