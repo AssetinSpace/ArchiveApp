@@ -1,5 +1,6 @@
 import sharp from "sharp";
-import {
+import pkg from "@zxing/library";
+const {
   BarcodeFormat,
   BinaryBitmap,
   DecodeHintType,
@@ -7,7 +8,7 @@ import {
   MultiFormatReader,
   NotFoundException,
   RGBLuminanceSource,
-} from "@zxing/library";
+} = pkg;
 
 // Exported for unit testing.
 export function decodeQrFromRgb(
