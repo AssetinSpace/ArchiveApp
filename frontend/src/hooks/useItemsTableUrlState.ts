@@ -1,6 +1,16 @@
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ITEM_LEVELS } from "../api";
+import {
+  COLUMN_FILTER_URL_KEYS,
+  hasColumnFilters,
+  parseColumnFiltersFromSearchParams,
+  parseSortFromSearchParams,
+  serializeColumnFiltersToParam,
+  serializeSortToParam,
+  type ColumnFiltersState,
+  type TableSortState,
+} from "../lib/itemsTableColumnFilter";
 
 const SEARCH_KEY = "s";
 const LEVELS_KEY = "levels";
@@ -28,6 +38,14 @@ export function useItemsTableUrlState() {
   const statusFilter = searchParams.get(STATUS_KEY) ?? "";
   const hasQr = searchParams.get(HAS_QR_KEY) === "1";
   const hasPhoto = searchParams.get(HAS_PHOTO_KEY) === "1";
+  const columnFilters = useMemo(
+    () => parseColumnFiltersFromSearchParams(searchParams),
+    [searchParams],
+  );
+  const tableSort = useMemo(
+    () => parseSortFromSearchParams(searchParams),
+    [searchParams],
+  );
   const patchParams = useCallback(
     (patch: Record<string, string | null>) => {
       setSearchParams(
@@ -73,6 +91,32 @@ export function useItemsTableUrlState() {
     (v: boolean) => patchParams({ [HAS_PHOTO_KEY]: v ? "1" : null }),
     [patchParams],
   );
+  const setColumnFilters = useCallback(
+    (filters: ColumnFiltersState) =>
+      patchParams({
+        [COLUMN_FILTER_URL_KEYS.cf]: serializeColumnFiltersToParam(filters),
+      }),
+    [patchParams],
+  );
+
+  const setColumnFilter = useCallback(
+    (columnId: string, values: string[] | null) => {
+      const next = { ...columnFilters };
+      if (!values || values.length === 0) delete next[columnId];
+      else next[columnId] = values;
+      setColumnFilters(next);
+    },
+    [columnFilters, setColumnFilters],
+  );
+
+  const setTableSort = useCallback(
+    (sort: TableSortState) =>
+      patchParams({
+        [COLUMN_FILTER_URL_KEYS.sort]: serializeSortToParam(sort),
+      }),
+    [patchParams],
+  );
+
   const clearFilters = useCallback(() => {
     patchParams({
       [SEARCH_KEY]: null,
@@ -80,11 +124,18 @@ export function useItemsTableUrlState() {
       [STATUS_KEY]: null,
       [HAS_QR_KEY]: null,
       [HAS_PHOTO_KEY]: null,
+      [COLUMN_FILTER_URL_KEYS.cf]: null,
+      [COLUMN_FILTER_URL_KEYS.sort]: null,
     });
   }, [patchParams]);
 
   const hasActiveFilters =
-    !!search.trim() || levelFilters.length > 0 || !!statusFilter || hasQr || hasPhoto;
+    !!search.trim() ||
+    levelFilters.length > 0 ||
+    !!statusFilter ||
+    hasQr ||
+    hasPhoto ||
+    hasColumnFilters(columnFilters);
 
   return {
     search,
@@ -92,12 +143,16 @@ export function useItemsTableUrlState() {
     statusFilter,
     hasQr,
     hasPhoto,
+    columnFilters,
+    tableSort,
     hasActiveFilters,
     setSearch,
     setLevelFilters,
     setStatusFilter,
     setHasQr,
     setHasPhoto,
+    setColumnFilter,
+    setTableSort,
     clearFilters,
     ALL_LEVELS,
   };

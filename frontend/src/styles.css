@@ -2305,6 +2305,194 @@ p { margin: 0 0 12px; }
   text-overflow: ellipsis;
 }
 
+.data-table th:has(.data-table-col-header) {
+  overflow: visible;
+  z-index: 3;
+}
+
+.data-table-col-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.data-table-col-header-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.data-table-col-header-btn {
+  flex-shrink: 0;
+  min-width: 26px;
+  min-height: 26px;
+  padding: 0 4px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.data-table-col-header-btn:hover {
+  background: #e5e7eb;
+  border-color: var(--color-border);
+}
+
+.data-table-col-header-btn--active {
+  color: var(--color-primary, #2563eb);
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.data-table-col-header-btn--sorted {
+  font-weight: 700;
+  color: var(--color-primary, #2563eb);
+}
+
+.data-table-col-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 50;
+  min-width: 220px;
+  max-width: min(320px, 90vw);
+  max-height: min(420px, 70vh);
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.data-table-col-menu-section + .data-table-col-menu-section {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border);
+}
+
+.data-table-col-menu-heading {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+}
+
+.data-table-col-menu-sort {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.data-table-col-menu-sort-btn {
+  padding: 4px 10px;
+  font-size: 13px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: #f9fafb;
+  cursor: pointer;
+}
+
+.data-table-col-menu-sort-btn:hover {
+  background: #f3f4f6;
+}
+
+.data-table-col-menu-sort-btn--active {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: var(--color-primary, #2563eb);
+}
+
+.data-table-col-menu-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-primary, #2563eb);
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.data-table-col-menu-search {
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 6px 8px;
+  font-size: 13px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+.data-table-col-menu-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.data-table-col-menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.data-table-col-menu-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 4px 2px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.data-table-col-menu-item input {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.data-table-col-menu-item-label {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.data-table-col-menu-item-count {
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+.data-table-col-menu-empty {
+  padding: 8px 4px;
+  font-size: 13px;
+}
+
+.data-table-col-menu-clear {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px;
+  font-size: 12px;
+  border: 1px dashed var(--color-border);
+  border-radius: 6px;
+  background: #fef2f2;
+  color: #b91c1c;
+  cursor: pointer;
+}
+
+.data-table-col-menu-clear:hover {
+  background: #fee2e2;
+}
+
 .data-table-th--draggable {
   cursor: grab;
 }
@@ -2326,9 +2514,9 @@ p { margin: 0 0 12px; }
   top: 0;
   right: 0;
   z-index: 1;
-  width: 6px;
+  width: 10px;
   height: 100%;
-  margin-right: -3px;
+  margin-right: -5px;
   cursor: col-resize;
   touch-action: none;
   user-select: none;
@@ -2337,6 +2525,17 @@ p { margin: 0 0 12px; }
 .data-table-col-resizer:hover,
 .data-table-col-resizer--active {
   background: color-mix(in srgb, var(--color-primary, #2563eb) 55%, transparent);
+}
+
+.data-table-col-resizer::after {
+  content: "";
+  position: absolute;
+  top: 20%;
+  bottom: 20%;
+  right: 4px;
+  width: 2px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--color-text-muted, #6b7280) 45%, transparent);
 }
 
 .data-table td {

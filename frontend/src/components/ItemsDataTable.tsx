@@ -47,6 +47,14 @@ import {
   ItemsTableColumnsModal,
   type ColumnPickerEntry,
 } from "./ItemsTableColumnsModal";
+import { ItemsTableColumnHeader } from "./ItemsTableColumnHeader";
+import { isColumnFilterable } from "../lib/itemsTableCellValue";
+import {
+  collectColumnUniqueValues,
+  hasColumnFilters,
+  itemPassesColumnFilters,
+  sortInventoryTree,
+} from "../lib/itemsTableColumnFilter";
 
 const STATUS_LABEL: Record<string, string> = {
   NA_MIESTE: "Na mieste",
@@ -174,6 +182,7 @@ export function ItemsDataTable() {
   const rootRef = useRef<HTMLDivElement>(null);
   const modalPortalRef = useRef<HTMLDivElement>(null);
   const deleteTouchHandledRef = useRef(false);
+  const suppressHeaderDragRef = useRef(false);
 
   const deleteMut = useMutation({
     mutationFn: ({ id, cascade }: { id: string; cascade?: boolean }) =>
@@ -246,8 +255,14 @@ export function ItemsDataTable() {
     [deleteMut, descendantCountById],
   );
   const searchQ = url.search.trim();
+  const hasColumnFiltersActive = hasColumnFilters(url.columnFilters);
   const hasAnyFilter =
-    url.levelFilters.length > 0 || !!url.statusFilter || url.hasQr || url.hasPhoto || !!searchQ;
+    url.levelFilters.length > 0 ||
+    !!url.statusFilter ||
+    url.hasQr ||
+    url.hasPhoto ||
+    !!searchQ ||
+    hasColumnFiltersActive;
 
   // ── Krok 1: primárne filtre (úroveň, status, qr, foto) ──────────────────
   // Úroveň chip = chcem vidieť položky na danej úrovni (predkovia ako kontext).
@@ -268,21 +283,50 @@ export function ItemsDataTable() {
     return primaryMatches.filter((it) => itemMatchesQuery(it, searchQ));
   }, [primaryMatches, searchQ]);
 
+  // ── Krok 2b: filtre stĺpcov (Excel-style) ─────────────────────────────────
+  const columnFilteredMatches = useMemo<InventoryItem[]>(() => {
+    if (!hasColumnFiltersActive) return coreMatches;
+    return coreMatches.filter((it) =>
+      itemPassesColumnFilters(it, url.columnFilters),
+    );
+  }, [coreMatches, url.columnFilters, hasColumnFiltersActive]);
+
   const directMatchIds = useMemo(
-    () => new Set(coreMatches.map((it) => it.id)),
-    [coreMatches],
+    () => new Set(columnFilteredMatches.map((it) => it.id)),
+    [columnFilteredMatches],
+  );
+
+  const handleSortChange = useCallback(
+    (columnId: string, desc: boolean | null) => {
+      if (desc === null) url.setTableSort(null);
+      else url.setTableSort({ columnId, desc });
+    },
+    [url],
   );
 
   // ── Krok 3: zostav strom ─────────────────────────────────────────────────
   // Keď sú aktívne filtre: zobraz zhodné položky + ich predkovia (Sklad > Paleta > …).
   // Bez filtrov: celý strom.
   const treeData = useMemo<InventoryTreeRow[]>(() => {
-    if (!hasAnyFilter) return buildItemTree(allItems);
-    if (coreMatches.length === 0) return [];
-    // Pridaj predkov ako kontext, potom postav strom.
-    const withAncestors = includeAncestors(allItems, coreMatches);
-    return buildItemTree(withAncestors);
-  }, [allItems, hasAnyFilter, coreMatches]);
+    let tree: InventoryTreeRow[];
+    if (!hasAnyFilter) {
+      tree = buildItemTree(allItems);
+    } else if (columnFilteredMatches.length === 0) {
+      return [];
+    } else {
+      const withAncestors = includeAncestors(allItems, columnFilteredMatches);
+      tree = buildItemTree(withAncestors);
+    }
+    if (url.tableSort) {
+      tree = sortInventoryTree(tree, url.tableSort);
+    }
+    return tree;
+  }, [
+    allItems,
+    hasAnyFilter,
+    columnFilteredMatches,
+    url.tableSort,
+  ]);
 
   // ── Expand state ─────────────────────────────────────────────────────────
   const [expanded, setExpanded] = useState<ExpandedState>({});
@@ -439,6 +483,25 @@ export function ItemsDataTable() {
     }));
     return [...base, ...meta];
   }, [metadataColumnKeys]);
+
+  const filterableColumnIds = useMemo(() => {
+    const ids: string[] = [];
+    for (const entry of columnPickerEntries) {
+      if (isColumnFilterable(entry.id)) ids.push(entry.id);
+    }
+    return ids;
+  }, [columnPickerEntries]);
+
+  const columnFilterOptionsById = useMemo(() => {
+    const map = new Map<
+      string,
+      ReturnType<typeof collectColumnUniqueValues>
+    >();
+    for (const colId of filterableColumnIds) {
+      map.set(colId, collectColumnUniqueValues(coreMatches, colId));
+    }
+    return map;
+  }, [coreMatches, filterableColumnIds]);
 
   const visibleColumnIds = useMemo(() => {
     const visible = new Set<string>();
@@ -780,7 +843,10 @@ export function ItemsDataTable() {
     return <p className="error">Chyba: {(inventoryQ.error as Error).message}</p>;
   }
 
-  const matchCount = coreMatches.length;
+  const matchCount = columnFilteredMatches.length;
+  const activeColumnFilterCount = Object.values(url.columnFilters).filter(
+    (v) => v.length > 0,
+  ).length;
 
   return (
     <div
@@ -883,6 +949,13 @@ export function ItemsDataTable() {
             Stĺpce…
           </button>
 
+          {hasColumnFiltersActive && (
+            <span className="items-table-filter-hint muted">
+              {activeColumnFilterCount}{" "}
+              {activeColumnFilterCount === 1 ? "filter stĺpca" : "filtre stĺpcov"}
+            </span>
+          )}
+
           {hasAnyFilter && (
             <button type="button" className="items-table-chip" onClick={url.clearFilters}>
               Zrušiť filtre
@@ -944,7 +1017,10 @@ export function ItemsDataTable() {
                             : undefined
                         }
                         onDragStart={(e) => {
-                          if (!canDrag) return;
+                          if (!canDrag || suppressHeaderDragRef.current) {
+                            e.preventDefault();
+                            return;
+                          }
                           setDragColumnId(colId);
                           e.dataTransfer.effectAllowed = "move";
                           e.dataTransfer.setData("text/plain", colId);
@@ -976,12 +1052,24 @@ export function ItemsDataTable() {
                         }}
                       >
                         <span className="data-table-th-inner">
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext(),
-                              )}
+                          {header.isPlaceholder ? null : isColumnFilterable(colId) ? (
+                            <ItemsTableColumnHeader
+                              label={columnDisplayLabel(colId)}
+                              columnId={colId}
+                              options={columnFilterOptionsById.get(colId) ?? []}
+                              selectedValues={url.columnFilters[colId]}
+                              sort={url.tableSort}
+                              globalSortColumnId={url.tableSort?.columnId ?? null}
+                              onFilterChange={url.setColumnFilter}
+                              onSortChange={handleSortChange}
+                              onClearColumn={(id) => url.setColumnFilter(id, null)}
+                            />
+                          ) : (
+                            flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )
+                          )}
                         </span>
                         {header.column.getCanResize() && (
                           <div
@@ -993,8 +1081,19 @@ export function ItemsDataTable() {
                                 ? " data-table-col-resizer--active"
                                 : ""
                             }`}
-                            onMouseDown={header.getResizeHandler()}
-                            onTouchStart={header.getResizeHandler()}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              suppressHeaderDragRef.current = true;
+                              header.getResizeHandler()(e);
+                              window.setTimeout(() => {
+                                suppressHeaderDragRef.current = false;
+                              }, 0);
+                            }}
+                            onTouchStart={(e) => {
+                              e.stopPropagation();
+                              header.getResizeHandler()(e);
+                            }}
                             onClick={(e) => e.stopPropagation()}
                             onDragStart={(e) => e.preventDefault()}
                           />
