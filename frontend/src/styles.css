@@ -2301,10 +2301,16 @@ p { margin: 0 0 12px; }
   z-index: 200;
 }
 
+/* Sticky hlavička tabuľky nesmie prekrývať modal stĺpcov (fullscreen / inline portál) */
+.items-data-table--columns-modal-open .data-table thead,
+.items-data-table--columns-modal-open .data-table th:has(.data-table-col-header) {
+  z-index: 0;
+}
+
 /* Portal pre modal stĺpcov — musí byť nad tabuľkou v celoobrazovkovom režime */
 .items-table-modal-portal {
   position: relative;
-  z-index: 1;
+  z-index: 100;
 }
 
 .items-data-table--fullscreen .items-table-modal-portal,

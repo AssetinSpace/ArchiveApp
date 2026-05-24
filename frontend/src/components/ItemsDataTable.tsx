@@ -954,7 +954,7 @@ export function ItemsDataTable() {
   return (
     <div
       ref={rootRef}
-      className={`items-data-table${isFullscreen ? " items-data-table--fullscreen" : ""}`}
+      className={`items-data-table${isFullscreen ? " items-data-table--fullscreen" : ""}${columnsModalOpen ? " items-data-table--columns-modal-open" : ""}`}
     >
       <div className="items-table-toolbar card">
 
@@ -1169,7 +1169,7 @@ export function ItemsDataTable() {
                               selectedValues={url.columnFilters[colId]}
                               sort={url.tableSort}
                               globalSortColumnId={url.tableSort?.columnId ?? null}
-                              menuPortalTarget={menuPortalEl}
+                              menuPortalTarget={isFullscreen ? menuPortalEl : null}
                               onFilterChange={url.setColumnFilter}
                               onSortChange={handleSortChange}
                               onClearColumn={(id) => url.setColumnFilter(id, null)}
@@ -1271,7 +1271,7 @@ export function ItemsDataTable() {
         open={columnsModalOpen}
         entries={columnPickerEntries}
         visibleIds={visibleColumnIds}
-        portalTarget={modalPortalRef.current}
+        portalTarget={isFullscreen ? modalPortalRef.current : undefined}
         fullscreen={isFullscreen}
         onClose={() => setColumnsModalOpen(false)}
         onApply={(visible) => {
