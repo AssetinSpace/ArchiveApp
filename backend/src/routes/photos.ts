@@ -175,14 +175,19 @@ photosRouter.post(
 
       // For LABEL photos: synchronously detect and assign a QR code from the
       // image before responding. The 2 s timeout in detectQrFromImage ensures
-      // this never blocks the upload beyond the acceptable threshold. Both
-      // functions are error-safe and always resolve (never throw).
+      // this never blocks the upload beyond the acceptable threshold.
+      // Wrapped in its own try-catch: the photo row is already committed at this
+      // point, so any error here must not convert the response into a 500.
       let qrDetection: Awaited<ReturnType<typeof tryAssignDetectedQr>> = {
         status: "NO_QR_DETECTED",
       };
       if (photoType === "LABEL") {
-        const detectedQr = await detectQrFromImage(req.file.buffer);
-        qrDetection = await tryAssignDetectedQr(itemId, detectedQr, prisma);
+        try {
+          const detectedQr = await detectQrFromImage(req.file.buffer);
+          qrDetection = await tryAssignDetectedQr(itemId, detectedQr, prisma);
+        } catch (qrErr) {
+          console.error("[photos] QR detection/assignment failed (non-fatal):", qrErr);
+        }
       }
 
       res.status(201).json({

@@ -1,5 +1,9 @@
 import sharp from "sharp";
 import pkg from "@zxing/library";
+// DecodeHintType is used both as a runtime value (enum member access) and as a
+// type (Map key). After the default-import fix the destructured binding is
+// value-only, so we import the type separately under an alias.
+import type { DecodeHintType as DecodeHintTypeEnum } from "@zxing/library";
 const {
   BarcodeFormat,
   BinaryBitmap,
@@ -16,7 +20,7 @@ export function decodeQrFromRgb(
   width: number,
   height: number,
 ): string | null {
-  const hints = new Map<DecodeHintType, unknown>();
+  const hints = new Map<DecodeHintTypeEnum, unknown>();
   hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.QR_CODE]);
 
   const reader = new MultiFormatReader();
@@ -39,8 +43,12 @@ export async function detectQrFromImage(
 ): Promise<string | null> {
   const detect = async (): Promise<string | null> => {
     try {
+      // grayscale() → 1 byte per pixel (luminance). RGBLuminanceSource treats a
+      // Uint8ClampedArray as a pre-computed luminance array (BYTES_PER_ELEMENT === 1
+      // branch in the constructor). removeAlpha() would give 3 bytes/px which is
+      // 3× too long and produces garbled luminance — always use grayscale() here.
       const { data, info } = await sharp(buffer)
-        .removeAlpha()
+        .grayscale()
         .raw()
         .toBuffer({ resolveWithObject: true });
 
