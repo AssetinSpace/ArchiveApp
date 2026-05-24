@@ -186,7 +186,7 @@ export function PhotoUpload({ itemId }: Props): React.JSX.Element {
         if (data.qrDetection.status === "ASSIGNED") {
           // Refresh item so qr_code field appears in the detail immediately.
           invalidations.push(
-            qc.invalidateQueries({ queryKey: ["items", itemId] }),
+            qc.invalidateQueries({ queryKey: ["items", "one", itemId] }),
           );
         }
       }
