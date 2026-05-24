@@ -99,7 +99,7 @@ export function ItemsPage() {
       )}
 
       {view === "create" && (
-        <section className="card">
+        <section className="card create-item-card">
           <h2>Vytvoriť položku</h2>
           <CreateItemFormContent
             items={items}
@@ -191,9 +191,10 @@ function CreateItemFormContent({
   }
 
   return (
-    <form className="form" onSubmit={onSubmit}>
-      <label className="form-label">
-        <span className="row" style={{ gap: 12, alignItems: "center" }}>
+    <form className="form create-item-form" onSubmit={onSubmit}>
+      <fieldset className="create-item-placement">
+        <legend className="create-item-placement-legend">Umiestnenie v hierarchii</legend>
+        <label className={`create-item-placement-option${isRoot ? " is-selected" : ""}`}>
           <input
             type="radio"
             name="create-root"
@@ -203,16 +204,24 @@ function CreateItemFormContent({
               setParentId("");
             }}
           />
-          Koreň (úroveň 1)
+          <span className="create-item-placement-text">
+            <span className="create-item-placement-title">Koreň (úroveň 1)</span>
+            <span className="create-item-placement-hint">Samostatná položka najvyššej úrovne</span>
+          </span>
+        </label>
+        <label className={`create-item-placement-option${!isRoot ? " is-selected" : ""}`}>
           <input
             type="radio"
             name="create-root"
             checked={!isRoot}
             onChange={() => setIsRoot(false)}
           />
-          Pod existujúcu položku
-        </span>
-      </label>
+          <span className="create-item-placement-text">
+            <span className="create-item-placement-title">Pod existujúcu položku</span>
+            <span className="create-item-placement-hint">Vloží sa ako podradená položka</span>
+          </span>
+        </label>
+      </fieldset>
       {!isRoot && (
         <label className="form-label">
           Nadradená položka
@@ -226,7 +235,7 @@ function CreateItemFormContent({
           </select>
         </label>
       )}
-      <p className="muted" style={{ margin: "0 0 8px" }}>
+      <p className="muted create-item-level">
         Úroveň: <strong>{isRoot ? 1 : level || "—"}</strong>
       </p>
       <label className="form-label">
@@ -288,9 +297,11 @@ function CreateItemFormContent({
         />
       </label>
       {formError && <div className="error">{formError}</div>}
-      <button type="submit" className="btn-primary btn-block" disabled={createMut.isPending}>
-        {createMut.isPending ? "Ukladám…" : "Vytvoriť"}
-      </button>
+      <div className="create-item-actions">
+        <button type="submit" className="btn-primary btn-block" disabled={createMut.isPending}>
+          {createMut.isPending ? "Ukladám…" : "Vytvoriť"}
+        </button>
+      </div>
     </form>
   );
 }
