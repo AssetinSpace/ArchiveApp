@@ -208,7 +208,7 @@ export function ItemDetailPage() {
                     <span className={`badge badge-${c.kind.toLowerCase()}`}>
                       L{c.level} {TYPE_LABEL[c.kind] ?? c.kind}
                     </span>
-                    <strong style={{ flexGrow: 1 }}>{c.name ?? "(bez názvu)"}</strong>
+                    <strong style={{ flexGrow: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name ?? "(bez názvu)"}</strong>
                   </div>
                   {c.note && (
                     <p
@@ -254,7 +254,7 @@ export function ItemDetailPage() {
                 {STATUS_LABEL[item.status]}
               </span>
               {item.qr_code && (
-                <span className="muted" style={{ fontSize: 13, fontFamily: "monospace" }}>
+                <span className="muted" style={{ fontSize: 13, fontFamily: "monospace", wordBreak: "break-all" }}>
                   {item.qr_code}
                 </span>
               )}
@@ -295,8 +295,8 @@ export function ItemDetailPage() {
             className="create-modal-box"
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <h2 style={{ margin: 0 }}>Pridať podradeú položku</h2>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 16, minWidth: 0 }}>
+              <h2 style={{ margin: 0, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Pridať podradeú položku</h2>
               <button type="button" className="btn-ghost btn-small" onClick={() => setFabOpen(false)}>✕</button>
             </div>
             <AddChildPanel

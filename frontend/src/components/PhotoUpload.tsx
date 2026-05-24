@@ -124,8 +124,8 @@ function QrDetectionBanner({
   }
 
   return (
-    <div className={cls} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
-      <span>{content}</span>
+    <div className={cls} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, flexWrap: "wrap" }}>
+      <span style={{ flex: 1, minWidth: 0 }}>{content}</span>
       <button
         type="button"
         onClick={onDismiss}
