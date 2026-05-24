@@ -104,7 +104,7 @@ export function ItemDetailPage() {
 
   return (
     <div className="stack">
-      {/* Breadcrumb */}
+      {/* Breadcrumb — nad gridom, plná šírka */}
       <nav className="breadcrumb scrollable-x" aria-label="Cesta">
         {(pathQ.data ?? []).map((node, idx, arr) => {
           const isLast = idx === arr.length - 1;
@@ -121,145 +121,156 @@ export function ItemDetailPage() {
         })}
       </nav>
 
-      {showMetadataReviewNotice && <MetadataReviewLinkNotice />}
+      {/* Desktop: 2-stĺpcový grid (main + aside). Mobil: lineárny stack. */}
+      <div className="item-detail-desktop-layout">
 
-      {showOcrNameBanner && (
-        <OcrNameBanner item={item} onDone={invalidateAll} />
-      )}
+        {/* Hlavný stĺpec — tabs + panel */}
+        <div className="item-detail-desktop-main stack">
+          <nav className="item-detail-tabs" aria-label="Sekcie detailu">
+            <button
+              type="button"
+              className={`item-detail-tab ${activeTab === "edit" ? "item-detail-tab-active" : ""}`}
+              onClick={() => setActiveTab("edit")}
+              aria-current={activeTab === "edit" ? "page" : undefined}
+            >
+              Upraviť
+            </button>
+            <button
+              type="button"
+              className={`item-detail-tab ${activeTab === "qr" ? "item-detail-tab-active" : ""}`}
+              onClick={() => setActiveTab("qr")}
+              aria-current={activeTab === "qr" ? "page" : undefined}
+            >
+              QR kód
+            </button>
+            <button
+              type="button"
+              className={`item-detail-tab ${activeTab === "photos" ? "item-detail-tab-active" : ""}`}
+              onClick={() => setActiveTab("photos")}
+              aria-current={activeTab === "photos" ? "page" : undefined}
+            >
+              Fotky
+            </button>
+            <button
+              type="button"
+              className={`item-detail-tab ${activeTab === "children" ? "item-detail-tab-active" : ""}`}
+              onClick={() => setActiveTab("children")}
+              aria-current={activeTab === "children" ? "page" : undefined}
+            >
+              Podradené
+              {!childrenQ.isLoading && (
+                <span style={{ marginLeft: 4, opacity: activeTab === "children" ? 0.9 : 0.7 }}>
+                  ({childrenQ.data?.length ?? 0})
+                </span>
+              )}
+            </button>
+          </nav>
 
-      {/* Základné metadáta */}
-      <section className="card item-detail-header">
-        <h1 style={{ marginBottom: 8 }}>{item.name}</h1>
-        <div className="row" style={{ marginBottom: item.note ? 0 : 12, flexWrap: "wrap" }}>
-          <span className={`badge badge-${item.kind.toLowerCase()}`}>
-            L{item.level} {TYPE_LABEL[item.kind] ?? item.kind}
-          </span>
-          <span className={`badge badge-name-source-${item.name_source.toLowerCase()}`}>
-            {NAME_SOURCE_LABEL[item.name_source]}
-          </span>
-          <span className={`badge badge-${item.status.toLowerCase()}`}>
-            {STATUS_LABEL[item.status]}
-          </span>
-          {item.qr_code && (
-            <span className="muted" style={{ fontSize: 13, fontFamily: "monospace" }}>
-              {item.qr_code}
-            </span>
+          {activeTab === "edit" && (
+            <section className="card item-detail-panel">
+              <h2>Stav a poznámka</h2>
+              <ItemEditor item={item} onSaved={invalidateAll} />
+              <ItemDeleteSection
+                item={item}
+                childCount={item._count?.children ?? childrenQ.data?.length ?? 0}
+                onDeleted={invalidateAll}
+              />
+            </section>
+          )}
+
+          {activeTab === "qr" && (
+            <section className="card item-detail-panel">
+              <h2>QR kód</h2>
+              <QRSection item={item} onAssigned={invalidateAll} />
+            </section>
+          )}
+
+          {activeTab === "photos" && (
+            <section className="card item-detail-panel">
+              <h2>Fotky</h2>
+              <PhotoUpload itemId={item.id} />
+              <div style={{ marginTop: 12 }}>
+                <PhotoGallery itemId={item.id} />
+              </div>
+            </section>
+          )}
+
+          {activeTab === "children" && (
+            <section className="card item-detail-panel">
+              <h2>Podradené položky ({childrenQ.data?.length ?? 0})</h2>
+              {childrenQ.isLoading && <p className="muted">Načítavam…</p>}
+              {childrenQ.data && childrenQ.data.length === 0 && (
+                <p className="muted">Žiadne podradené položky</p>
+              )}
+              {childrenQ.data?.map((c) => (
+                <Link key={c.id} to={`/items/${c.id}`} className="card-link">
+                  <div className="row" style={{ gap: 8 }}>
+                    <span className={`badge badge-${c.kind.toLowerCase()}`}>
+                      L{c.level} {TYPE_LABEL[c.kind] ?? c.kind}
+                    </span>
+                    <strong style={{ flexGrow: 1 }}>{c.name ?? "(bez názvu)"}</strong>
+                  </div>
+                  {c.note && (
+                    <p
+                      className="muted"
+                      style={{
+                        margin: "6px 0 0",
+                        overflow: "hidden",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                      }}
+                    >
+                      {c.note}
+                    </p>
+                  )}
+                </Link>
+              ))}
+
+              <AddChildForm parent={item} onAdded={invalidateAll} />
+            </section>
           )}
         </div>
-        {item.note && <p className="item-detail-note">{item.note}</p>}
-        <dl className="info-list" style={{ margin: item.note ? "12px 0 0" : 0 }}>
-          <InfoRow label="Vytvorené" value={new Date(item.created_at).toLocaleString("sk-SK")} />
-          <InfoRow label="Upravené" value={new Date(item.updated_at).toLocaleString("sk-SK")} />
-        </dl>
-        {showMetadataReadonly && item.metadata && (
-          <ReadonlyMetadataList metadata={item.metadata} />
-        )}
-      </section>
 
-      <nav className="item-detail-tabs" aria-label="Sekcie detailu">
-        <button
-          type="button"
-          className={`item-detail-tab ${activeTab === "edit" ? "item-detail-tab-active" : ""}`}
-          onClick={() => setActiveTab("edit")}
-          aria-current={activeTab === "edit" ? "page" : undefined}
-        >
-          Upraviť
-        </button>
-        <button
-          type="button"
-          className={`item-detail-tab ${activeTab === "qr" ? "item-detail-tab-active" : ""}`}
-          onClick={() => setActiveTab("qr")}
-          aria-current={activeTab === "qr" ? "page" : undefined}
-        >
-          QR kód
-        </button>
-        <button
-          type="button"
-          className={`item-detail-tab ${activeTab === "photos" ? "item-detail-tab-active" : ""}`}
-          onClick={() => setActiveTab("photos")}
-          aria-current={activeTab === "photos" ? "page" : undefined}
-        >
-          Fotky
-        </button>
-        <button
-          type="button"
-          className={`item-detail-tab ${activeTab === "children" ? "item-detail-tab-active" : ""}`}
-          onClick={() => setActiveTab("children")}
-          aria-current={activeTab === "children" ? "page" : undefined}
-        >
-          Podradené
-          {!childrenQ.isLoading && (
-            <span style={{ marginLeft: 4, opacity: activeTab === "children" ? 0.9 : 0.7 }}>
-              ({childrenQ.data?.length ?? 0})
-            </span>
+        {/* Bočný stĺpec (sidebar) — základné info + bannery */}
+        <aside className="item-detail-desktop-aside stack">
+          {showMetadataReviewNotice && <MetadataReviewLinkNotice />}
+
+          {showOcrNameBanner && (
+            <OcrNameBanner item={item} onDone={invalidateAll} />
           )}
-        </button>
-      </nav>
 
-      {activeTab === "edit" && (
-        <section className="card item-detail-panel">
-          <h2>Stav a poznámka</h2>
-          <ItemEditor item={item} onSaved={invalidateAll} />
-          <ItemDeleteSection
-            item={item}
-            childCount={item._count?.children ?? childrenQ.data?.length ?? 0}
-            onDeleted={invalidateAll}
-          />
-        </section>
-      )}
-
-      {activeTab === "qr" && (
-        <section className="card item-detail-panel">
-          <h2>QR kód</h2>
-          <QRSection item={item} onAssigned={invalidateAll} />
-        </section>
-      )}
-
-      {activeTab === "photos" && (
-        <section className="card item-detail-panel">
-          <h2>Fotky</h2>
-          <PhotoUpload itemId={item.id} />
-          <div style={{ marginTop: 12 }}>
-            <PhotoGallery itemId={item.id} />
-          </div>
-        </section>
-      )}
-
-      {activeTab === "children" && (
-        <section className="card item-detail-panel">
-          <h2>Podradené položky ({childrenQ.data?.length ?? 0})</h2>
-          {childrenQ.isLoading && <p className="muted">Načítavam…</p>}
-          {childrenQ.data && childrenQ.data.length === 0 && (
-            <p className="muted">Žiadne podradené položky</p>
-          )}
-          {childrenQ.data?.map((c) => (
-            <Link key={c.id} to={`/items/${c.id}`} className="card-link">
-              <div className="row" style={{ gap: 8 }}>
-                <span className={`badge badge-${c.kind.toLowerCase()}`}>
-                  L{c.level} {TYPE_LABEL[c.kind] ?? c.kind}
+          {/* Základné metadáta */}
+          <section className="card item-detail-header">
+            <h1 style={{ marginBottom: 8 }}>{item.name}</h1>
+            <div className="row" style={{ marginBottom: item.note ? 0 : 12, flexWrap: "wrap" }}>
+              <span className={`badge badge-${item.kind.toLowerCase()}`}>
+                L{item.level} {TYPE_LABEL[item.kind] ?? item.kind}
+              </span>
+              <span className={`badge badge-name-source-${item.name_source.toLowerCase()}`}>
+                {NAME_SOURCE_LABEL[item.name_source]}
+              </span>
+              <span className={`badge badge-${item.status.toLowerCase()}`}>
+                {STATUS_LABEL[item.status]}
+              </span>
+              {item.qr_code && (
+                <span className="muted" style={{ fontSize: 13, fontFamily: "monospace" }}>
+                  {item.qr_code}
                 </span>
-                <strong style={{ flexGrow: 1 }}>{c.name ?? "(bez názvu)"}</strong>
-              </div>
-              {c.note && (
-                <p
-                  className="muted"
-                  style={{
-                    margin: "6px 0 0",
-                    overflow: "hidden",
-                    display: "-webkit-box",
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: "vertical",
-                  }}
-                >
-                  {c.note}
-                </p>
               )}
-            </Link>
-          ))}
+            </div>
+            {item.note && <p className="item-detail-note">{item.note}</p>}
+            <dl className="info-list" style={{ margin: item.note ? "12px 0 0" : 0 }}>
+              <InfoRow label="Vytvorené" value={new Date(item.created_at).toLocaleString("sk-SK")} />
+              <InfoRow label="Upravené" value={new Date(item.updated_at).toLocaleString("sk-SK")} />
+            </dl>
+            {showMetadataReadonly && item.metadata && (
+              <ReadonlyMetadataList metadata={item.metadata} />
+            )}
+          </section>
+        </aside>
 
-          <AddChildForm parent={item} onAdded={invalidateAll} />
-        </section>
-      )}
+      </div>
 
       {/* FAB — skrátený prístup k "Pridať podradeú položku" */}
       {item.level < 7 && createPortal(

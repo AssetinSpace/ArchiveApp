@@ -173,6 +173,11 @@ h1 { font-size: 22px; }
 h2 { font-size: 18px; }
 h3 { font-size: 16px; }
 
+@media (min-width: 768px) {
+  h1 { font-size: 26px; }
+  h2 { font-size: 20px; }
+}
+
 a { color: var(--color-brand-green); text-decoration: none; }
 a:hover { text-decoration: underline; color: var(--color-brand-green-hover); }
 
@@ -181,9 +186,15 @@ p { margin: 0 0 12px; }
 /* ─── Layout ────────────────────────────────────────────────────────────── */
 
 .container {
-  max-width: 800px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 16px;
+}
+@media (min-width: 1024px) {
+  .container { padding: 24px 32px; }
+}
+@media (min-width: 1440px) {
+  .container { padding: 28px 48px; }
 }
 
 .card {
@@ -657,6 +668,24 @@ p { margin: 0 0 12px; }
 
 .item-detail-panel.card {
   margin-bottom: 0;
+}
+
+/* ─── Item detail — desktop 2-column layout ─────────────────────────────── */
+
+@media (min-width: 1024px) {
+  .item-detail-desktop-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+    align-items: start;
+  }
+  .item-detail-desktop-main {
+    min-width: 0;
+  }
+  .item-detail-desktop-aside {
+    position: sticky;
+    top: 76px;
+  }
 }
 
 .item-delete-section {

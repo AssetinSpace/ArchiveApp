@@ -7,6 +7,7 @@ import {
   getExpandedRowModel,
   useReactTable,
   type ColumnDef,
+  type ColumnSizingInfoState,
   type ColumnSizingState,
   type ExpandedState,
   type VisibilityState,
@@ -100,6 +101,31 @@ const METADATA_STATUS_LABEL: Record<MetadataStatus, string> = {
 };
 /** Odsadenie podľa úrovne stromu (px na úroveň). */
 const TREE_INDENT_PX = 18;
+
+const defaultColumnSizingInfo: ColumnSizingInfoState = {
+  startOffset: null,
+  startSize: null,
+  deltaOffset: null,
+  deltaPercentage: null,
+  isResizingColumn: false,
+  columnSizingStart: [],
+};
+
+/** Počas ťahania resize handle zobrazí aktuálnu šírku (onEnd + deltaOffset). */
+function getRenderedColumnWidth(
+  columnId: string,
+  size: number,
+  sizingInfo: ColumnSizingInfoState,
+): number {
+  if (
+    sizingInfo.isResizingColumn === columnId &&
+    sizingInfo.startSize != null &&
+    sizingInfo.deltaOffset != null
+  ) {
+    return Math.max(0, sizingInfo.startSize + sizingInfo.deltaOffset);
+  }
+  return size;
+}
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("sk-SK", {
@@ -235,6 +261,8 @@ export function ItemsDataTable() {
 
   const [dragColumnId, setDragColumnId] = useState<string | null>(null);
   const [dropColumnId, setDropColumnId] = useState<string | null>(null);
+  const [columnSizingInfo, setColumnSizingInfo] =
+    useState<ColumnSizingInfoState>(defaultColumnSizingInfo);
 
   const descendantCountById = useMemo(() => {
     const map = new Map<string, number>();
@@ -875,9 +903,16 @@ export function ItemsDataTable() {
   const table = useReactTable({
     data: treeData,
     columns,
-    state: { expanded, columnVisibility, columnOrder, columnSizing },
+    state: {
+      expanded,
+      columnVisibility,
+      columnOrder,
+      columnSizing,
+      columnSizingInfo,
+    },
     onExpandedChange: setExpanded,
     onColumnSizingChange: handleColumnSizingChange,
+    onColumnSizingInfoChange: setColumnSizingInfo,
     columnResizeMode: "onEnd",
     enableColumnResizing: true,
     defaultColumn: {
@@ -892,6 +927,12 @@ export function ItemsDataTable() {
   });
 
   const rows = table.getRowModel().rows;
+
+  const tableWidth =
+    table.getTotalSize() +
+    (columnSizingInfo.isResizingColumn && columnSizingInfo.deltaOffset != null
+      ? columnSizingInfo.deltaOffset
+      : 0);
 
   function toggleLevelFilter(level: number) {
     const next = url.levelFilters.includes(level)
@@ -1048,7 +1089,7 @@ export function ItemsDataTable() {
         <div className="data-table-scroll">
           <table
             className="data-table"
-            style={{ width: table.getTotalSize() }}
+            style={{ width: tableWidth }}
           >
             <thead>
               {table.getHeaderGroups().map((hg) => (
@@ -1071,7 +1112,13 @@ export function ItemsDataTable() {
                         ]
                           .filter(Boolean)
                           .join(" ")}
-                        style={{ width: header.getSize() }}
+                        style={{
+                          width: getRenderedColumnWidth(
+                            colId,
+                            header.getSize(),
+                            columnSizingInfo,
+                          ),
+                        }}
                         draggable={canDrag}
                         title={
                           canDrag
@@ -1192,7 +1239,13 @@ export function ItemsDataTable() {
                       {row.getVisibleCells().map((cell) => (
                         <td
                           key={cell.id}
-                          style={{ width: cell.column.getSize() }}
+                          style={{
+                            width: getRenderedColumnWidth(
+                              cell.column.id,
+                              cell.column.getSize(),
+                              columnSizingInfo,
+                            ),
+                          }}
                         >
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </td>
