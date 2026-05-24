@@ -171,6 +171,7 @@ export function ItemsDataTable() {
   const url = useItemsTableUrlState();
   const qc = useQueryClient();
   const [columnsModalOpen, setColumnsModalOpen] = useState(false);
+  const [menuPortalEl, setMenuPortalEl] = useState<HTMLDivElement | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [tableLightbox, setTableLightbox] = useState<TableLightboxState | null>(null);
   const inventoryQ = useQuery({
@@ -179,6 +180,10 @@ export function ItemsDataTable() {
     staleTime: 60_000,
   });
   const fullscreenPinnedRef = useRef(false);
+  /** Natívny Fullscreen API fungoval (desktop); pri Esc ukončíme celý režim, nie len CSS overlay. */
+  const usesNativeFullscreenRef = useRef(false);
+  /** Počas confirm() pri mazaní — necháme CSS overlay, potom obnovíme natívny fullscreen. */
+  const preserveOverlayForDialogRef = useRef(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const modalPortalRef = useRef<HTMLDivElement>(null);
   const deleteTouchHandledRef = useRef(false);
@@ -191,6 +196,7 @@ export function ItemsDataTable() {
     onSettled: () => setDeletingId(null),
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["items"] });
+      preserveOverlayForDialogRef.current = false;
       // Po confirm() prehliadač často vypne natívny fullscreen — obnov, ak používateľ
       // stále chce celú obrazovku (CSS overlay medzitým ostáva).
       if (
@@ -200,12 +206,15 @@ export function ItemsDataTable() {
       ) {
         try {
           await rootRef.current.requestFullscreen();
+          usesNativeFullscreenRef.current = true;
         } catch {
+          usesNativeFullscreenRef.current = false;
           /* CSS režim stačí */
         }
       }
     },
     onError: (e: Error) => {
+      preserveOverlayForDialogRef.current = false;
       window.alert(e.message);
     },
   });
@@ -248,8 +257,32 @@ export function ItemsDataTable() {
         ? `Naozaj zmazať „${label}" (${type}) a všetkých ${descendantCount} podradených položiek (vrátane vnorených)?\n\nPoložky pôjdu do koša (soft delete).`
         : `Naozaj zmazať položku „${label}" (${type})?`;
 
+      const wasNativeFullscreen =
+        document.fullscreenElement === rootRef.current ||
+        (document as Document & { webkitFullscreenElement?: Element })
+          .webkitFullscreenElement === rootRef.current;
+      if (wasNativeFullscreen) {
+        preserveOverlayForDialogRef.current = true;
+      }
+
       if (confirm(msg)) {
         deleteMut.mutate({ id: item.id, cascade });
+      } else {
+        preserveOverlayForDialogRef.current = false;
+        if (
+          fullscreenPinnedRef.current &&
+          rootRef.current &&
+          document.fullscreenElement !== rootRef.current
+        ) {
+          void rootRef.current.requestFullscreen().then(
+            () => {
+              usesNativeFullscreenRef.current = true;
+            },
+            () => {
+              usesNativeFullscreenRef.current = false;
+            },
+          );
+        }
       }
     },
     [deleteMut, descendantCountById],
@@ -341,6 +374,20 @@ export function ItemsDataTable() {
 
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  const syncFullscreenViewportHeight = useCallback(() => {
+    const node = rootRef.current;
+    if (!node) return;
+    const h = window.visualViewport?.height ?? window.innerHeight;
+    node.style.setProperty("--items-fs-height", `${Math.round(h)}px`);
+  }, []);
+
+  const exitFullscreenMode = useCallback(() => {
+    fullscreenPinnedRef.current = false;
+    preserveOverlayForDialogRef.current = false;
+    usesNativeFullscreenRef.current = false;
+    setIsFullscreen(false);
+  }, []);
+
   useEffect(() => {
     function onFullscreenChange() {
       const nativeActive =
@@ -348,13 +395,25 @@ export function ItemsDataTable() {
         (document as Document & { webkitFullscreenElement?: Element }).webkitFullscreenElement ===
           rootRef.current;
       if (nativeActive) {
+        usesNativeFullscreenRef.current = true;
         setIsFullscreen(true);
+        syncFullscreenViewportHeight();
         return;
       }
-      // Prehliadač opustil natívny fullscreen (confirm, alert, Esc) — CSS overlay
-      // necháme, ak používateľ explicitne neukončil celú obrazovku tlačidlom.
+      // confirm() pri mazaní — nechaj CSS overlay, onSuccess obnoví natívny režim.
+      if (preserveOverlayForDialogRef.current) {
+        syncFullscreenViewportHeight();
+        return;
+      }
+      // Esc / ukončenie natívneho fullscreenu — na desktope ukonči celý režim (nie CSS overlay).
+      if (usesNativeFullscreenRef.current && fullscreenPinnedRef.current) {
+        exitFullscreenMode();
+        return;
+      }
       if (!fullscreenPinnedRef.current) {
         setIsFullscreen(false);
+      } else {
+        syncFullscreenViewportHeight();
       }
     }
     document.addEventListener("fullscreenchange", onFullscreenChange);
@@ -363,7 +422,7 @@ export function ItemsDataTable() {
       document.removeEventListener("fullscreenchange", onFullscreenChange);
       document.removeEventListener("webkitfullscreenchange", onFullscreenChange);
     };
-  }, []);
+  }, [exitFullscreenMode, syncFullscreenViewportHeight]);
 
   // Druhé Esc ukončí CSS režim, keď natívny fullscreen už nie je aktívny.
   useEffect(() => {
@@ -375,12 +434,11 @@ export function ItemsDataTable() {
         return;
       }
       if (document.fullscreenElement === rootRef.current) return;
-      fullscreenPinnedRef.current = false;
-      setIsFullscreen(false);
+      exitFullscreenMode();
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [isFullscreen, columnsModalOpen]);
+  }, [isFullscreen, columnsModalOpen, exitFullscreenMode]);
 
   useEffect(() => {
     if (!isFullscreen) return;
@@ -394,27 +452,30 @@ export function ItemsDataTable() {
   // iOS/Android v landscape menia visualViewport — bez toho flex scroll nefunguje.
   useEffect(() => {
     if (!isFullscreen) return;
-    const el = rootRef.current;
-    if (!el) return;
 
-    function syncViewportHeight() {
-      const node = rootRef.current;
-      if (!node) return;
-      const h = window.visualViewport?.height ?? window.innerHeight;
-      node.style.setProperty("--items-fs-height", `${Math.round(h)}px`);
-    }
-
-    syncViewportHeight();
+    syncFullscreenViewportHeight();
     const vv = window.visualViewport;
-    vv?.addEventListener("resize", syncViewportHeight);
-    vv?.addEventListener("scroll", syncViewportHeight);
-    window.addEventListener("orientationchange", syncViewportHeight);
+    vv?.addEventListener("resize", syncFullscreenViewportHeight);
+    vv?.addEventListener("scroll", syncFullscreenViewportHeight);
+    window.addEventListener("resize", syncFullscreenViewportHeight);
+    window.addEventListener("orientationchange", syncFullscreenViewportHeight);
     return () => {
-      vv?.removeEventListener("resize", syncViewportHeight);
-      vv?.removeEventListener("scroll", syncViewportHeight);
-      window.removeEventListener("orientationchange", syncViewportHeight);
+      vv?.removeEventListener("resize", syncFullscreenViewportHeight);
+      vv?.removeEventListener("scroll", syncFullscreenViewportHeight);
+      window.removeEventListener("resize", syncFullscreenViewportHeight);
+      window.removeEventListener("orientationchange", syncFullscreenViewportHeight);
       rootRef.current?.style.removeProperty("--items-fs-height");
     };
+  }, [isFullscreen, syncFullscreenViewportHeight]);
+
+  // Po ukončení fullscreenu vyčisti inline štýly a nechaj tabuľku prepočítať layout.
+  useEffect(() => {
+    if (isFullscreen) return;
+    rootRef.current?.style.removeProperty("--items-fs-height");
+    const id = requestAnimationFrame(() => {
+      window.dispatchEvent(new Event("resize"));
+    });
+    return () => cancelAnimationFrame(id);
   }, [isFullscreen]);
 
   async function toggleFullscreen() {
@@ -422,7 +483,7 @@ export function ItemsDataTable() {
     if (!el) return;
 
     if (isFullscreen) {
-      fullscreenPinnedRef.current = false;
+      preserveOverlayForDialogRef.current = false;
       if (document.fullscreenElement) {
         try {
           await document.exitFullscreen();
@@ -430,7 +491,7 @@ export function ItemsDataTable() {
           /* CSS režim */
         }
       }
-      setIsFullscreen(false);
+      exitFullscreenMode();
       return;
     }
 
@@ -438,8 +499,10 @@ export function ItemsDataTable() {
     setIsFullscreen(true);
     try {
       await el.requestFullscreen();
+      usesNativeFullscreenRef.current = true;
     } catch {
       // iOS / staršie prehliadače — len CSS overlay
+      usesNativeFullscreenRef.current = false;
     }
   }
 
@@ -1060,6 +1123,7 @@ export function ItemsDataTable() {
                               selectedValues={url.columnFilters[colId]}
                               sort={url.tableSort}
                               globalSortColumnId={url.tableSort?.columnId ?? null}
+                              menuPortalTarget={menuPortalEl}
                               onFilterChange={url.setColumnFilter}
                               onSortChange={handleSortChange}
                               onClearColumn={(id) => url.setColumnFilter(id, null)}
@@ -1143,7 +1207,13 @@ export function ItemsDataTable() {
         </div>
       </div>
 
-      <div ref={modalPortalRef} className="items-table-modal-portal" />
+      <div
+        ref={(el) => {
+          modalPortalRef.current = el;
+          setMenuPortalEl(el);
+        }}
+        className="items-table-modal-portal"
+      />
 
       <ItemsTableColumnsModal
         open={columnsModalOpen}

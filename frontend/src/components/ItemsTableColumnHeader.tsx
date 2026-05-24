@@ -18,6 +18,8 @@ type Props = {
   selectedValues: string[] | undefined;
   sort: TableSortState;
   globalSortColumnId: string | null;
+  /** Vnútri .items-data-table — nutné pre natívny fullscreen (body by bolo skryté). */
+  menuPortalTarget: HTMLElement | null;
   onFilterChange: (columnId: string, values: string[] | null) => void;
   onSortChange: (columnId: string, desc: boolean | null) => void;
   onClearColumn: (columnId: string) => void;
@@ -30,6 +32,7 @@ export function ItemsTableColumnHeader({
   selectedValues,
   sort,
   globalSortColumnId,
+  menuPortalTarget,
   onFilterChange,
   onSortChange,
   onClearColumn,
@@ -61,8 +64,8 @@ export function ItemsTableColumnHeader({
     if (!anchor || !menu) return;
 
     const rect = anchor.getBoundingClientRect();
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
+    const vw = window.visualViewport?.width ?? window.innerWidth;
+    const vh = window.visualViewport?.height ?? window.innerHeight;
     const menuHeight = menu.offsetHeight;
     const menuW = Math.min(MENU_WIDTH, vw - VIEWPORT_PAD * 2);
 
@@ -274,7 +277,8 @@ export function ItemsTableColumnHeader({
         {isSorted ? (sortDesc ? "▼" : "▲") : "▾"}
       </button>
 
-      {menu && createPortal(menu, document.body)}
+      {menu &&
+        createPortal(menu, menuPortalTarget ?? document.body)}
     </div>
   );
 }

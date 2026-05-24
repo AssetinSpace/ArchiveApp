@@ -2103,6 +2103,11 @@ p { margin: 0 0 12px; }
   pointer-events: auto;
 }
 
+/* Filter stĺpca — v celoobrazovkovom režime musí byť v tom istom portáli ako modal stĺpcov */
+.items-table-modal-portal .data-table-col-menu {
+  z-index: 100;
+}
+
 .items-columns-modal-box {
   max-width: 520px;
   display: flex;
