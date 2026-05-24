@@ -1,3 +1,5 @@
+import { api } from "../api";
+
 /** Otvorí fotku v úzkom okne vpravo — tabuľka ostane vľavo na porovnanie. */
 export function openPhotoBeside(url: string): void {
   const w = Math.round(window.screen.availWidth * 0.44);
@@ -17,6 +19,12 @@ export function openPhotoBeside(url: string): void {
       "noreferrer",
     ].join(","),
   );
+}
+
+/** Načíta čerstvý signed URL a otvorí fotku vedľa (pre vypršané náhľady z tabuľky). */
+export async function openPhotoBesideById(photoId: string): Promise<void> {
+  const photo = await api.getPhoto(photoId);
+  openPhotoBeside(photo.signed_url);
 }
 
 export function photoCountLabel(count: number): string {

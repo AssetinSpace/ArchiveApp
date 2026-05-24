@@ -27,7 +27,7 @@ import {
   type Status,
 } from "../api";
 import { PhotoLightbox } from "./PhotoLightbox";
-import { openPhotoBeside, photoCountLabel } from "../lib/openPhotoBeside";
+import { openPhotoBesideById, photoCountLabel } from "../lib/openPhotoBeside";
 import {
   buildItemTree,
   collectExpandableIds,
@@ -711,7 +711,6 @@ export function ItemsDataTable() {
         return (
           <span
             className={`data-table-note${isExtracted ? " data-table-meta-suggested" : ""}`}
-            style={{ display: "inline-block" }}
             title={value}
           >
             {value}
@@ -795,7 +794,7 @@ export function ItemsDataTable() {
             }
             onOpenBeside={(index) => {
               const p = previews[index];
-              if (p) openPhotoBeside(p.signed_url);
+              if (p) void openPhotoBesideById(p.id);
             }}
           />
         );

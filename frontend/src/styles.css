@@ -2758,7 +2758,8 @@ p { margin: 0 0 12px; }
 
 .data-table-note {
   display: block;
-  max-width: 200px;
+  max-width: 100%;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

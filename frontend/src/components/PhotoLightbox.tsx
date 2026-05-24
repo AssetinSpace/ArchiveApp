@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { api } from "../api";
 import { openPhotoBeside } from "../lib/openPhotoBeside";
 
 type LightboxPhoto = {
+  id?: string;
   signed_url: string;
 };
 
@@ -24,6 +26,20 @@ export function PhotoLightbox({
   onNext,
   showOpenBeside = true,
 }: Props): React.JSX.Element {
+  const [displayUrl, setDisplayUrl] = useState(photo.signed_url);
+
+  useEffect(() => {
+    setDisplayUrl(photo.signed_url);
+    if (!photo.id) return;
+    let cancelled = false;
+    void api.getPhoto(photo.id).then((fresh) => {
+      if (!cancelled) setDisplayUrl(fresh.signed_url);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [photo.id, photo.signed_url]);
+
   useEffect(() => {
     function onKey(e: KeyboardEvent): void {
       if (e.key === "Escape") onClose();
@@ -85,7 +101,7 @@ export function PhotoLightbox({
         </button>
       ) : null}
       <img
-        src={photo.signed_url}
+        src={displayUrl}
         alt=""
         className="lightbox-img"
         onClick={(e) => e.stopPropagation()}
@@ -95,7 +111,7 @@ export function PhotoLightbox({
           <button
             type="button"
             className="lightbox-action-btn"
-            onClick={() => openPhotoBeside(photo.signed_url)}
+            onClick={() => openPhotoBeside(displayUrl)}
           >
             Otvoriť vedľa
           </button>
