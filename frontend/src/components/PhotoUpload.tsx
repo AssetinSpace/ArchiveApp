@@ -2,6 +2,8 @@ import { useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import imageCompression from "browser-image-compression";
 import { api, type PhotoType } from "../api";
+import { WebcamCaptureModal } from "./WebcamCaptureModal";
+import { isMobileDevice } from "../utils/device";
 
 // Kompresia nad 2 MB — väčšina fotiek štítkov z telefónu má 3–6 MB, downscale na
 // 2400 px (krátka strana) vystačí na čítanie OCR a šetrí R2 traffic + bandwidth.
@@ -75,6 +77,7 @@ export function PhotoUpload({ itemId }: Props): React.JSX.Element {
   const [busyLabel, setBusyLabel] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeType, setActiveType] = useState<PhotoType | null>(null);
+  const [webcamSlot, setWebcamSlot] = useState<{ photoType: PhotoType; title: string } | null>(null);
 
   const uploadMut = useMutation({
     mutationFn: async ({ file, photoType }: { file: File; photoType: PhotoType }) => {
@@ -125,6 +128,14 @@ export function PhotoUpload({ itemId }: Props): React.JSX.Element {
     };
   }
 
+  function handleWebcamCapture(blob: Blob): void {
+    const file = new File([blob], `capture-${Date.now()}.jpg`, { type: "image/jpeg" });
+    const photoType = webcamSlot!.photoType;
+    setError(null);
+    setActiveType(photoType);
+    uploadMut.mutate({ file, photoType });
+  }
+
   const busy = uploadMut.isPending;
 
   return (
@@ -133,6 +144,17 @@ export function PhotoUpload({ itemId }: Props): React.JSX.Element {
         {UPLOAD_SLOTS.map((slot) => {
           const inputId = `photo-upload-${slot.key}-${itemId}`;
           const isActive = busy && activeType === slot.photoType;
+          const btnContent = isActive ? (
+            <span className="photo-upload-btn-busy">{busyLabel ?? "Pracujem…"}</span>
+          ) : (
+            <>
+              <span className="photo-upload-btn-icon" aria-hidden="true">
+                {slot.icon}
+              </span>
+              <span className="photo-upload-btn-title">{slot.title}</span>
+              <span className="photo-upload-btn-hint">{slot.hint}</span>
+            </>
+          );
 
           return (
             <div key={slot.key}>
@@ -148,28 +170,41 @@ export function PhotoUpload({ itemId }: Props): React.JSX.Element {
                 style={{ display: "none" }}
                 id={inputId}
               />
-              <label
-                htmlFor={inputId}
-                className={`photo-upload-btn ${slot.btnClass} ${busy ? "is-disabled" : ""}`}
-                aria-disabled={busy}
-              >
-                {isActive ? (
-                  <span className="photo-upload-btn-busy">{busyLabel ?? "Pracujem…"}</span>
-                ) : (
-                  <>
-                    <span className="photo-upload-btn-icon" aria-hidden="true">
-                      {slot.icon}
-                    </span>
-                    <span className="photo-upload-btn-title">{slot.title}</span>
-                    <span className="photo-upload-btn-hint">{slot.hint}</span>
-                  </>
-                )}
-              </label>
+              {slot.source === "camera" ? (
+                <button
+                  type="button"
+                  disabled={busy}
+                  className={`photo-upload-btn ${slot.btnClass} ${busy ? "is-disabled" : ""}`}
+                  onClick={() => {
+                    if (isMobileDevice()) {
+                      inputRefs.current[slot.key]?.click();
+                    } else {
+                      setWebcamSlot({ photoType: slot.photoType, title: slot.title });
+                    }
+                  }}
+                >
+                  {btnContent}
+                </button>
+              ) : (
+                <label
+                  htmlFor={inputId}
+                  className={`photo-upload-btn ${slot.btnClass} ${busy ? "is-disabled" : ""}`}
+                  aria-disabled={busy}
+                >
+                  {btnContent}
+                </label>
+              )}
             </div>
           );
         })}
       </div>
       {error && <div className="error">{error}</div>}
+      <WebcamCaptureModal
+        isOpen={webcamSlot !== null}
+        onClose={() => setWebcamSlot(null)}
+        onCapture={handleWebcamCapture}
+        title={webcamSlot?.title}
+      />
     </div>
   );
 }

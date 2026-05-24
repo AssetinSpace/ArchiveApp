@@ -3331,3 +3331,134 @@ p { margin: 0 0 12px; }
   margin: 0;
   color: #111827;
 }
+
+/* ── Webcam capture modal ─────────────────────────────────────────────── */
+.webcam-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.webcam-modal-card {
+  max-width: 720px;
+  width: 100%;
+  margin: 0 16px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.webcam-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.webcam-modal-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.webcam-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #6b7280;
+  padding: 4px 8px;
+  border-radius: 6px;
+  line-height: 1;
+}
+.webcam-modal-close:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.webcam-modal-media {
+  position: relative;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.webcam-modal-video {
+  display: block;
+  width: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+}
+
+.webcam-modal-overlay-msg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d1d5db;
+  font-size: 14px;
+}
+
+.webcam-modal-error-msg {
+  color: #fca5a5;
+  padding: 16px;
+  text-align: center;
+}
+
+.webcam-modal-hint {
+  font-size: 13px;
+  color: #6b7280;
+  text-align: center;
+  margin: 0;
+}
+
+.webcam-modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.webcam-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  height: 44px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background-color 0.15s, border-color 0.15s;
+  min-width: 110px;
+}
+
+.webcam-btn-primary {
+  background: var(--color-brand-green);
+  color: #fff;
+  border-color: var(--color-brand-green);
+}
+.webcam-btn-primary:hover {
+  background: var(--color-brand-green-hover);
+  border-color: var(--color-brand-green-hover);
+}
+
+.webcam-btn-neutral {
+  background: #f3f4f6;
+  color: #374151;
+  border-color: #e5e7eb;
+}
+.webcam-btn-neutral:hover {
+  background: #e5e7eb;
+}
