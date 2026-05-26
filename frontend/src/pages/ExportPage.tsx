@@ -70,7 +70,7 @@ export function ExportPage() {
 
       {toast && (
         <div className="export-toast">
-          ✓ {toast}
+          {toast}
         </div>
       )}
 
@@ -156,7 +156,7 @@ function ExportTriggerButton({
           </>
         ) : (
           <>
-            <span>↓ {label}</span>
+            <span>{label}</span>
             <span className="export-button-sub">{subLabel}</span>
           </>
         )}

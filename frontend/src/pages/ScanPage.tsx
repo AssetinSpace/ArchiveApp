@@ -212,8 +212,9 @@ export function ScanPage() {
         </div>
       )}
 
+      <div className="scan-page-panels">
       {/* Kamera — primárna akcia */}
-      <section className="card">
+      <section className="card scan-page-panel">
         <h2>Kamera</h2>
         {!cameraOn && (
           <>
@@ -223,7 +224,7 @@ export function ScanPage() {
             </p>
             <button type="button" className="btn-primary btn-block" onClick={startCamera}
               style={{ minHeight: 52, fontSize: 18 }}>
-              ▶ Spustiť kameru
+              Spustiť kameru
             </button>
           </>
         )}
@@ -236,7 +237,7 @@ export function ScanPage() {
               onClick={stopCamera}
               style={{ marginTop: 12 }}
             >
-              ■ Zastaviť kameru
+              Zastaviť kameru
             </button>
           </>
         )}
@@ -248,7 +249,7 @@ export function ScanPage() {
       </section>
 
       {/* Manuálny input */}
-      <section className="card">
+      <section className="card scan-page-panel">
         <h2>Zadať kód ručne</h2>
         <form className="form" onSubmit={onSubmit}>
           <label className="form-label">
@@ -272,6 +273,7 @@ export function ScanPage() {
           </button>
         </form>
       </section>
+      </div>
 
       {/* Výsledok */}
       {state.kind === "error" && (

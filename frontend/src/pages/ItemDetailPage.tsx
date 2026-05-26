@@ -15,7 +15,7 @@ import {
   type PhotoType,
   type Status,
 } from "../api";
-import { canBeParent, recordItemCreated, recordParentFocus } from "../lib/createItemContext";
+import { recordItemCreated } from "../lib/createItemContext";
 import { metadataFieldLabel } from "../lib/metadataDraft";
 import { AutoNamePreview } from "../components/AutoNamePreview";
 import { PhotoUpload } from "../components/PhotoUpload";
@@ -75,13 +75,6 @@ export function ItemDetailPage() {
     queryFn: () => api.getChildren(id),
     enabled: !!id,
   });
-
-  useEffect(() => {
-    const item = itemQ.data;
-    if (item && canBeParent(item)) {
-      recordParentFocus(item.id);
-    }
-  }, [itemQ.data?.id, itemQ.data?.level]);
 
   if (itemQ.isLoading) return <p className="muted">Načítavam…</p>;
   if (itemQ.error)
@@ -300,12 +293,12 @@ export function ItemDetailPage() {
           onClick={() => setFabOpen(false)}
         >
           <div
-            className="create-modal-box"
+            className="create-modal-box create-modal-box--wide"
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 16, minWidth: 0 }}>
               <h2 style={{ margin: 0, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Pridať podradeú položku</h2>
-              <button type="button" className="btn-ghost btn-small" onClick={() => setFabOpen(false)}>✕</button>
+              <button type="button" className="btn-ghost btn-small" onClick={() => setFabOpen(false)}>Zavrieť</button>
             </div>
             <AddChildPanel
               parent={item}
@@ -618,22 +611,12 @@ function QRSection({
       {/* Primárna akcia: skenovanie */}
       <Link
         to={`/scan?assignTo=${item.id}`}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 8,
-          minHeight: 48,
-          padding: "0 16px",
-          background: "var(--color-brand-green)",
-          color: "#fff",
-          borderRadius: 6,
-          textDecoration: "none",
-          fontWeight: 600,
-          fontSize: 16,
-        }}
+        className="add-child-action add-child-action-primary"
+        style={{ justifyContent: "center", textAlign: "center" }}
       >
-        ▣ Skenovať QR kód
+        <span className="add-child-action-text">
+          <span className="add-child-action-title">Skenovať QR kód</span>
+        </span>
       </Link>
 
       {/* Sekundárna akcia: manuálne zadanie (skryté) */}
@@ -809,8 +792,8 @@ function AddChildMethodChooser({
   const busy = photoMut.isPending;
 
   return (
-    <div className="stack add-child-actions" style={{ gap: 10 }}>
-      <p className="muted" style={{ margin: 0 }}>
+    <div className="add-child-panel">
+      <p className="muted add-child-panel-meta">
         Úroveň <strong>{childLevel}</strong>
         {defaultKind && (
           <>
@@ -821,14 +804,12 @@ function AddChildMethodChooser({
         )}
       </p>
 
+      <div className="add-child-actions-grid">
       <Link
         to={`/scan?parentId=${parent.id}`}
         className="add-child-action add-child-action-primary"
         onClick={onCancel}
       >
-        <span className="add-child-action-icon" aria-hidden="true">
-          ▣
-        </span>
         <span className="add-child-action-text">
           <span className="add-child-action-title">Skenovať QR kód</span>
           <span className="add-child-action-hint">
@@ -852,9 +833,6 @@ function AddChildMethodChooser({
         className={`add-child-action ${busy ? "is-disabled" : ""}`}
         aria-disabled={busy}
       >
-        <span className="add-child-action-icon" aria-hidden="true">
-          📷
-        </span>
         <span className="add-child-action-text">
           <span className="add-child-action-title">
             {busy ? (busyLabel ?? "Pracujem…") : isLabelPhoto ? "Odfotiť štítok" : "Odfotiť položku"}
@@ -879,9 +857,6 @@ function AddChildMethodChooser({
         className={`add-child-action ${busy ? "is-disabled" : ""}`}
         aria-disabled={busy}
       >
-        <span className="add-child-action-icon" aria-hidden="true">
-          🖼️
-        </span>
         <span className="add-child-action-text">
           <span className="add-child-action-title">
             {busy ? (busyLabel ?? "Pracujem…") : "Fotka z galérie"}
@@ -889,21 +864,23 @@ function AddChildMethodChooser({
           <span className="add-child-action-hint">Vyber existujúcu fotku v telefóne</span>
         </span>
       </label>
+      </div>
 
       {error && <div className="error">{error}</div>}
 
-      <button
-        type="button"
-        className="btn-ghost btn-small"
-        onClick={onManual}
-        disabled={busy}
-        style={{ marginTop: 4 }}
-      >
-        Vyplniť údaje ručne…
-      </button>
-      <button type="button" onClick={onCancel} disabled={busy}>
-        Zrušiť
-      </button>
+      <div className="add-child-panel-footer">
+        <button
+          type="button"
+          className="btn-ghost btn-small"
+          onClick={onManual}
+          disabled={busy}
+        >
+          Vyplniť údaje ručne…
+        </button>
+        <button type="button" onClick={onCancel} disabled={busy}>
+          Zrušiť
+        </button>
+      </div>
     </div>
   );
 }
@@ -1056,7 +1033,7 @@ function AddChildForm({
     return (
       <button
         type="button"
-        className="btn-primary btn-block"
+        className="btn-primary btn-block add-child-open-btn"
         onClick={() => setOpen(true)}
         style={{ minHeight: 48, marginTop: 12 }}
       >

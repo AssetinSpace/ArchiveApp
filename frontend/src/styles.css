@@ -177,6 +177,10 @@ button:not(:disabled):hover {
     padding: 24px;
     max-height: 85vh;
   }
+
+  .create-modal-box--wide {
+    max-width: min(720px, calc(100vw - 48px));
+  }
 }
 
 h1, h2, h3 { margin: 0 0 12px; font-weight: 600; line-height: 1.2; }
@@ -258,16 +262,19 @@ p { margin: 0 0 12px; }
   font-weight: 500;
 }
 
-/* ─── Vytvorenie položky — mobilné dlaždice / desktop kompaktný formulár ── */
+/* ─── Vytvorenie položky — mobilné dlaždice / desktop širší formulár ───── */
 
 .create-item-card {
+  width: 100%;
   max-width: 100%;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 1024px) {
   .create-item-card {
-    max-width: 640px;
-    margin: 0 auto;
+    max-width: min(960px, 100%);
+    margin-left: auto;
+    margin-right: auto;
+    padding: 24px 28px;
   }
 }
 
@@ -282,6 +289,7 @@ p { margin: 0 0 12px; }
   display: grid;
   grid-template-columns: 1fr;
   gap: 8px;
+  width: 100%;
 }
 
 .create-item-placement-legend {
@@ -297,11 +305,13 @@ p { margin: 0 0 12px; }
   align-items: flex-start;
   gap: 12px;
   min-height: 56px;
+  height: 100%;
   padding: 12px 14px;
   border: 1px solid var(--color-border);
   border-radius: 8px;
   background: #fff;
   cursor: pointer;
+  box-sizing: border-box;
   transition: border-color 120ms, background 120ms, box-shadow 120ms;
 }
 
@@ -379,21 +389,22 @@ p { margin: 0 0 12px; }
 
 @media (min-width: 640px) {
   .create-item-placement {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
     gap: 10px;
   }
 
   .create-item-placement-option {
-    min-height: unset;
+    min-height: 72px;
     padding: 10px 12px;
-    align-items: center;
+    align-items: flex-start;
   }
 
   .create-item-placement-option input[type="radio"] {
     width: 16px;
     height: 16px;
     min-width: 16px;
-    margin-top: 0;
+    margin-top: 2px;
   }
 
   .create-item-placement-title {
@@ -412,6 +423,30 @@ p { margin: 0 0 12px; }
   .create-item-actions .btn-primary {
     width: auto;
     min-width: 140px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .create-item-form-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 24px;
+    align-items: start;
+  }
+
+  .create-item-field-span,
+  .create-item-form-body > .auto-name-preview,
+  .create-item-form-body .create-item-field-span .auto-name-preview {
+    grid-column: 1 / -1;
+  }
+
+  .create-item-level {
+    margin: 0;
+    align-self: center;
+  }
+
+  .create-item-field-note textarea {
+    min-height: 88px;
   }
 }
 
@@ -1017,23 +1052,124 @@ p { margin: 0 0 12px; }
   opacity: 0.9;
 }
 
+.add-child-panel-meta {
+  margin: 0;
+}
+
+.add-child-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+.add-child-actions-grid > .add-child-action,
+.add-child-actions-grid > a.add-child-action {
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .add-child-actions-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .add-child-actions-grid > .add-child-action-primary {
+    grid-column: 1 / -1;
+  }
+
+  .add-child-action {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 72px;
+    height: 100%;
+    gap: 4px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .add-child-actions-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .add-child-actions-grid > .add-child-action-primary {
+    grid-column: auto;
+  }
+}
+
+.add-child-panel-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+@media (min-width: 768px) {
+  .add-child-open-btn.btn-block {
+    width: auto;
+    min-width: 220px;
+  }
+}
+
+/* ─── Scan page ─────────────────────────────────────────────────────────── */
+
+.scan-page-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 1024px) {
+  .scan-page-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .scan-page-panels .scanner-video {
+    max-width: 100%;
+  }
+
+  .scan-page-panel .btn-block {
+    width: auto;
+    min-width: 200px;
+  }
+
+  .scan-box-chooser .btn-block,
+  .scan-box-chooser a.btn-block {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
 /* ─── Photo upload (Sprint 6: LABEL vs OVERVIEW) ───────────────────────── */
 
 .photo-upload-buttons {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
   width: 100%;
 }
 
-@media (max-width: 400px) {
+.photo-upload-slot {
+  display: flex;
+  min-width: 0;
+}
+
+@media (max-width: 479px) {
   .photo-upload-buttons {
     grid-template-columns: 1fr;
   }
 }
 
-.photo-upload-btn-gallery .photo-upload-btn-title {
-  font-size: 13px;
+@media (min-width: 768px) {
+  .photo-upload-buttons {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
 }
 
 .photo-upload-btn {
@@ -1041,9 +1177,11 @@ p { margin: 0 0 12px; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  min-height: 80px;
-  padding: 10px 12px;
+  gap: 4px;
+  width: 100%;
+  min-height: 72px;
+  height: 100%;
+  padding: 12px 10px;
   border-radius: 8px;
   border: 1.5px solid var(--color-border);
   background: #fff;
@@ -1052,6 +1190,7 @@ p { margin: 0 0 12px; }
   font-weight: 600;
   text-align: center;
   user-select: none;
+  box-sizing: border-box;
   transition: background-color 0.15s, border-color 0.15s, transform 0.05s;
 }
 
@@ -1084,21 +1223,31 @@ p { margin: 0 0 12px; }
   background: #e8ecf2;
 }
 
-.photo-upload-btn-icon {
-  font-size: 22px;
-  line-height: 1;
-}
-
 .photo-upload-btn-title {
   font-size: 14px;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .photo-upload-btn-hint {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--color-text-muted);
-  line-height: 1.1;
+  line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+  .photo-upload-btn {
+    min-height: 68px;
+    padding: 10px 8px;
+  }
+
+  .photo-upload-btn-title {
+    font-size: 13px;
+  }
+
+  .photo-upload-btn-hint {
+    font-size: 11px;
+  }
 }
 
 .photo-upload-btn-busy {
@@ -1137,13 +1286,19 @@ p { margin: 0 0 12px; }
 
 .photo-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
 @media (min-width: 640px) {
   .photo-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .item-detail-desktop-main .photo-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -1399,6 +1554,23 @@ p { margin: 0 0 12px; }
   min-height: 48px;
   font-size: 16px;
   font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  .ocr-process-btn {
+    width: auto;
+    min-width: 260px;
+  }
+
+  .ocr-admin-load-more.btn-block {
+    width: auto;
+    min-width: 200px;
+  }
+
+  .ocr-failed-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
 }
 
 .ocr-banner-success {
@@ -1793,13 +1965,19 @@ p { margin: 0 0 12px; }
 
 .box-folders-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
 @media (min-width: 640px) {
   .box-folders-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .box-folders-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -1909,6 +2087,14 @@ p { margin: 0 0 12px; }
   justify-content: center;
   gap: 4px;
   text-align: center;
+}
+
+@media (min-width: 768px) {
+  .export-button {
+    width: auto;
+    min-width: 280px;
+    max-width: 420px;
+  }
 }
 
 .export-button-sub {
@@ -3204,8 +3390,19 @@ p { margin: 0 0 12px; }
   flex-basis: 0;
 }
 
+.create-item-name-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.create-item-name-toggle {
+  align-self: flex-start;
+  padding-left: 0;
+}
+
 .auto-name-preview {
-  margin: -4px 0 12px;
+  margin: -4px 0 0;
   padding: 10px 12px;
   font-size: 14px;
   line-height: 1.4;

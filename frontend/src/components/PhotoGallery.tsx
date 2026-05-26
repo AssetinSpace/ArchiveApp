@@ -74,7 +74,7 @@ export function PhotoGallery({ itemId }: Props): React.JSX.Element {
       {labelPhotos.length > 0 && (
         <section className="photo-section">
           <h3 className="photo-section-title">
-            <span aria-hidden="true">📄</span> Štítky
+            Štítky
             <span className="photo-section-count">({labelPhotos.length})</span>
           </h3>
           <div className="photo-grid">
@@ -96,7 +96,7 @@ export function PhotoGallery({ itemId }: Props): React.JSX.Element {
       {overviewPhotos.length > 0 && (
         <section className="photo-section">
           <h3 className="photo-section-title">
-            <span aria-hidden="true">📦</span> Fotky položky
+            Fotky položky
             <span className="photo-section-count">({overviewPhotos.length})</span>
           </h3>
           <div className="photo-grid">

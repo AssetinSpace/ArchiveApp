@@ -25,7 +25,6 @@ type UploadSlot = {
   key: string;
   photoType: PhotoType;
   source: UploadSource;
-  icon: string;
   title: string;
   hint: string;
   btnClass: string;
@@ -38,7 +37,6 @@ const UPLOAD_SLOTS: UploadSlot[] = [
     key: "label-camera",
     photoType: "LABEL",
     source: "camera",
-    icon: "📄",
     title: "Odfotiť štítok",
     hint: "Pôjde do OCR",
     btnClass: "photo-upload-btn-label",
@@ -47,16 +45,14 @@ const UPLOAD_SLOTS: UploadSlot[] = [
     key: "label-gallery",
     photoType: "LABEL",
     source: "gallery",
-    icon: "🖼️",
     title: "Štítok z galérie",
     hint: "Pôjde do OCR",
-    btnClass: "photo-upload-btn-label photo-upload-btn-gallery",
+    btnClass: "photo-upload-btn-label",
   },
   {
     key: "overview-camera",
     photoType: "OVERVIEW",
     source: "camera",
-    icon: "📦",
     title: "Odfotiť položku",
     hint: "Iba ako referencia",
     btnClass: "photo-upload-btn-overview",
@@ -65,10 +61,9 @@ const UPLOAD_SLOTS: UploadSlot[] = [
     key: "overview-gallery",
     photoType: "OVERVIEW",
     source: "gallery",
-    icon: "🖼️",
     title: "Položka z galérie",
     hint: "Iba ako referencia",
-    btnClass: "photo-upload-btn-overview photo-upload-btn-gallery",
+    btnClass: "photo-upload-btn-overview",
   },
 ];
 
@@ -238,16 +233,13 @@ export function PhotoUpload({ itemId }: Props): React.JSX.Element {
             <span className="photo-upload-btn-busy">{busyLabel ?? "Pracujem…"}</span>
           ) : (
             <>
-              <span className="photo-upload-btn-icon" aria-hidden="true">
-                {slot.icon}
-              </span>
               <span className="photo-upload-btn-title">{slot.title}</span>
               <span className="photo-upload-btn-hint">{slot.hint}</span>
             </>
           );
 
           return (
-            <div key={slot.key}>
+            <div key={slot.key} className="photo-upload-slot">
               <input
                 ref={(el) => {
                   inputRefs.current[slot.key] = el;

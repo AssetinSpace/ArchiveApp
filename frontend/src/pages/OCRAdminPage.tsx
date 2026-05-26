@@ -433,7 +433,7 @@ export function OCRAdminPage() {
             pendingReviewQ.data.total > reviewOffset + PAGE_SIZE && (
               <button
                 type="button"
-                className="btn-block"
+                className="btn-block ocr-admin-load-more"
                 style={{ marginTop: 12, minHeight: 48 }}
                 onClick={() => setReviewOffset(reviewOffset + PAGE_SIZE)}
                 disabled={pendingReviewQ.isFetching}

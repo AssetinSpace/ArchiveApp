@@ -13,10 +13,10 @@ import { ItemsDataTable } from "../components/ItemsDataTable";
 import {
   canBeParent,
   getLastCreatedId,
-  getLastParentId,
   getStoredPlacementMode,
   recordItemCreated,
   recordParentFocus,
+  resolveLastParentId,
   setStoredPlacementMode,
   type PlacementMode,
 } from "../lib/createItemContext";
@@ -135,7 +135,8 @@ function resolveParentIdForMode(
   byId: Map<string, InventoryItem>,
 ): string | null {
   if (mode === "root") return null;
-  const id = mode === "lastCreated" ? getLastCreatedId() : getLastParentId();
+  if (mode === "lastParent") return resolveLastParentId(byId);
+  const id = getLastCreatedId();
   if (!id) return null;
   const item = byId.get(id);
   if (!item || !canBeParent(item)) return null;
@@ -170,6 +171,8 @@ function CreateItemFormContent({
   const [parentId, setParentId] = useState<string>("");
   const [kindInput, setKindInput] = useState("");
   const [customKind, setCustomKind] = useState(false);
+  const [customName, setCustomName] = useState(false);
+  const [nameOverride, setNameOverride] = useState("");
   const [note, setNote] = useState<string>("");
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -189,7 +192,7 @@ function CreateItemFormContent({
   }, [items, byId]);
 
   const lastParentItem = useMemo(() => {
-    const id = getLastParentId();
+    const id = resolveLastParentId(byId);
     return id ? byId.get(id) : undefined;
   }, [items, byId]);
 
@@ -270,10 +273,15 @@ function CreateItemFormContent({
       setFormError("Táto možnosť umiestnenia momentálne nie je k dispozícii");
       return;
     }
+    const manualName = nameOverride.trim();
+    if (customName && !manualName) {
+      setFormError("Zadaj vlastný názov alebo použij automatický");
+      return;
+    }
     createMut.mutate({
       level,
       kind,
-      name: null,
+      name: customName ? manualName : null,
       parent_id: isRoot ? null : parentId,
       note: note.trim() || null,
     });
@@ -360,8 +368,9 @@ function CreateItemFormContent({
           </span>
         </label>
       </fieldset>
+      <div className="create-item-form-body">
       {!isRoot && (
-        <label className="form-label">
+        <label className="form-label create-item-field-span">
           Nadradená položka
           <select
             value={parentId}
@@ -388,7 +397,7 @@ function CreateItemFormContent({
       <p className="muted create-item-level">
         Úroveň: {typeof level === "number" && level > 0 ? levelWithLNumberStrong(level) : "—"}
       </p>
-      <label className="form-label">
+      <label className="form-label create-item-field-kind">
         Typ položky (kind)
         <select
           value={customKind ? "__custom__" : kindInput}
@@ -423,11 +432,47 @@ function CreateItemFormContent({
           />
         </label>
       )}
-      <AutoNamePreview
-        kind={kindInput}
-        parentId={isRoot ? null : parentId || null}
-      />
-      <label className="form-label">
+      <div className="create-item-field-span create-item-name-block">
+        {!customName ? (
+          <>
+            <AutoNamePreview
+              kind={kindInput}
+              parentId={isRoot ? null : parentId || null}
+            />
+            <button
+              type="button"
+              className="btn-ghost btn-small create-item-name-toggle"
+              onClick={() => setCustomName(true)}
+            >
+              Prepísať názov…
+            </button>
+          </>
+        ) : (
+          <>
+            <label className="form-label">
+              Vlastný názov
+              <input
+                type="text"
+                value={nameOverride}
+                onChange={(e) => setNameOverride(e.target.value)}
+                placeholder="Napíš vlastný názov..."
+                autoFocus
+              />
+            </label>
+            <button
+              type="button"
+              className="btn-ghost btn-small create-item-name-toggle"
+              onClick={() => {
+                setCustomName(false);
+                setNameOverride("");
+              }}
+            >
+              Použiť automatický názov
+            </button>
+          </>
+        )}
+      </div>
+      <label className="form-label create-item-field-note">
         Poznámka
         <textarea
           value={note}
@@ -436,11 +481,12 @@ function CreateItemFormContent({
           placeholder="(voliteľné)"
         />
       </label>
-      {formError && <div className="error">{formError}</div>}
-      <div className="create-item-actions">
+      {formError && <div className="error create-item-field-span">{formError}</div>}
+      <div className="create-item-actions create-item-field-span">
         <button type="submit" className="btn-primary btn-block" disabled={createMut.isPending}>
           {createMut.isPending ? "Ukladám…" : "Vytvoriť"}
         </button>
+      </div>
       </div>
     </form>
   );

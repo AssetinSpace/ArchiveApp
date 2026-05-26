@@ -60,11 +60,33 @@ export function recordItemCreated(item: { id: string; parent_id: string | null }
   });
 }
 
-/** Keď používateľ explicitne vyberie nadradenú položku v UI. */
+/** Keď používateľ explicitne vyberie nadradenú položku v UI (dropdown). */
 export function recordParentFocus(parentId: string | null): void {
   write({ lastParentId: parentId });
 }
 
 export function canBeParent(item: { level: number }): boolean {
   return item.level < 7;
+}
+
+type ItemRef = { id: string; parent_id: string | null; level: number };
+
+/**
+ * Rodič pre režim „pod poslednú nadradenú“:
+ * prednostne rodič poslednej vytvorenej položky, inak posledný ručný výber.
+ */
+export function resolveLastParentId(byId: Map<string, ItemRef>): string | null {
+  const createdId = getLastCreatedId();
+  if (createdId) {
+    const created = byId.get(createdId);
+    if (created?.parent_id) {
+      const parent = byId.get(created.parent_id);
+      if (parent && canBeParent(parent)) return parent.id;
+    }
+  }
+  const storedId = getLastParentId();
+  if (!storedId) return null;
+  const stored = byId.get(storedId);
+  if (!stored || !canBeParent(stored)) return null;
+  return storedId;
 }
