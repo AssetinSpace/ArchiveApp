@@ -23,18 +23,33 @@ export const TYPE_LABEL: Record<string, string> = {
   PALETA: "Paleta",
   KRABICA: "Krabica",
   ZLOZKA: "Zložka",
-  OHRADKA: "Ohradka",
+  OHRADKA: "Ohrádka",
   POLICA: "Polica",
+  CAST: "Časť",
+  MIESTNOST: "Miestnosť",
+  SEKCIA: "Sekcia",
+  REGAL: "Regál",
+  ŠUPLÍK: "Šuplík",
+  TUBA: "Tuba",
+  OBAL: "Obal",
+  EUROOBAL: "Euroobal",
+  ZAKLADAC: "Zakladač",
+  ŠANÓN: "Šanón",
+  OBALKA: "Obálka",
+  FOLIA: "Fólia",
+  DOKUMENT: "Dokument",
+  VYKRES: "Výkres",
+  FOTODOKUMENTACIA: "Fotodokumentácia",
 };
 
 export type NameSource = "GENERATED" | "OCR" | "MANUAL";
 
 export const KIND_DEFAULTS: Record<number, string[]> = {
-  1: ["SKLAD", "ARCHÍV", "DEPOZIT"],
+  1: ["SKLAD"],
   2: ["OHRADKA", "CAST", "MIESTNOST", "SEKCIA"],
   3: ["POLICA", "PALETA", "REGAL", "ŠUPLÍK"],
   4: ["KRABICA", "TUBA", "OBAL"],
-  5: ["ZLOZKA", "EUROOBAL", "ZAKLADAC", "ŠANÓN"],
+  5: ["ZLOZKA", "EUROOBAL", "ŠANÓN"],
   6: ["EUROOBAL", "OBALKA", "FOLIA"],
   7: ["DOKUMENT", "VYKRES", "FOTODOKUMENTACIA"],
 };

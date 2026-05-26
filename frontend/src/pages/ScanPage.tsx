@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BrowserQRCodeReader, type IScannerControls } from "@zxing/browser";
 import { AutoNamePreview } from "../components/AutoNamePreview";
+import { recordItemCreated } from "../lib/createItemContext";
 import {
   api,
   KIND_DEFAULTS,
@@ -461,6 +462,7 @@ function CreateForLookupForm({
       });
     },
     onSuccess: async (item) => {
+      recordItemCreated(item);
       // Await invalidácie aby refetch dorazil pred navigáciou späť na rodiča
       // (Bug 3 fix — rovnaký pattern ako v ItemDetailPage).
       await Promise.all([

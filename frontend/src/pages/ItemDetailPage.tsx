@@ -15,6 +15,7 @@ import {
   type PhotoType,
   type Status,
 } from "../api";
+import { canBeParent, recordItemCreated, recordParentFocus } from "../lib/createItemContext";
 import { metadataFieldLabel } from "../lib/metadataDraft";
 import { AutoNamePreview } from "../components/AutoNamePreview";
 import { PhotoUpload } from "../components/PhotoUpload";
@@ -74,6 +75,13 @@ export function ItemDetailPage() {
     queryFn: () => api.getChildren(id),
     enabled: !!id,
   });
+
+  useEffect(() => {
+    const item = itemQ.data;
+    if (item && canBeParent(item)) {
+      recordParentFocus(item.id);
+    }
+  }, [itemQ.data?.id, itemQ.data?.level]);
 
   if (itemQ.isLoading) return <p className="muted">Načítavam…</p>;
   if (itemQ.error)
@@ -777,6 +785,7 @@ function AddChildMethodChooser({
       return item;
     },
     onSuccess: async (item) => {
+      recordItemCreated(item);
       setError(null);
       setBusyLabel(null);
       await onAdded();
@@ -930,7 +939,8 @@ function AddChildFormContent({
         parent_id: parent.id,
       });
     },
-    onSuccess: async () => {
+    onSuccess: async (created) => {
+      recordItemCreated(created);
       await onAdded();
       setName("");
       setNote("");

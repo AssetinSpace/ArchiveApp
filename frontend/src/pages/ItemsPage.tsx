@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   api,
   KIND_DEFAULTS,
@@ -10,12 +10,23 @@ import {
 } from "../api";
 import { AutoNamePreview } from "../components/AutoNamePreview";
 import { ItemsDataTable } from "../components/ItemsDataTable";
+import {
+  canBeParent,
+  getLastCreatedId,
+  getLastParentId,
+  getStoredPlacementMode,
+  recordItemCreated,
+  recordParentFocus,
+  setStoredPlacementMode,
+  type PlacementMode,
+} from "../lib/createItemContext";
 import { ItemSearchPanel } from "./SearchPage";
 
 type ItemsView = "tree" | "create" | "search";
 
 export function ItemsPage() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [view, setView] = useState<ItemsView>("tree");
 
@@ -104,11 +115,11 @@ export function ItemsPage() {
           <CreateItemFormContent
             items={items}
             getFullPath={getFullPath}
-            onCreated={() => {
+            onCreated={(created) => {
               qc.invalidateQueries({ queryKey: ["items", "inventory"] });
               qc.invalidateQueries({ queryKey: ["items", "all"] });
               qc.invalidateQueries({ queryKey: ["items", "root"] });
-              switchView("tree");
+              navigate(`/items/${created.id}`);
             }}
           />
         </section>
@@ -116,6 +127,30 @@ export function ItemsPage() {
 
       {view === "search" && <ItemSearchPanel autoFocus />}
     </div>
+  );
+}
+
+function resolveParentIdForMode(
+  mode: PlacementMode,
+  byId: Map<string, InventoryItem>,
+): string | null {
+  if (mode === "root") return null;
+  const id = mode === "lastCreated" ? getLastCreatedId() : getLastParentId();
+  if (!id) return null;
+  const item = byId.get(id);
+  if (!item || !canBeParent(item)) return null;
+  return id;
+}
+
+function levelWithL(level: number) {
+  return <>L{level}</>;
+}
+
+function levelWithLNumberStrong(level: number) {
+  return (
+    <>
+      L<strong>{level}</strong>
+    </>
   );
 }
 
@@ -129,15 +164,17 @@ function CreateItemFormContent({
   onCreated: (created: Item) => void;
 }) {
   const qc = useQueryClient();
-  const [isRoot, setIsRoot] = useState(true);
+  const [placementMode, setPlacementMode] = useState<PlacementMode>(() =>
+    getStoredPlacementMode(),
+  );
   const [parentId, setParentId] = useState<string>("");
   const [kindInput, setKindInput] = useState("");
   const [customKind, setCustomKind] = useState(false);
-  const [name, setName] = useState<string>("");
   const [note, setNote] = useState<string>("");
   const [formError, setFormError] = useState<string | null>(null);
 
   const byId = useMemo(() => new Map(items.map((it) => [it.id, it])), [items]);
+  const isRoot = placementMode === "root";
   const parent = parentId ? byId.get(parentId) : undefined;
   const level = isRoot ? 1 : (parent ? parent.level + 1 : 0);
   const defaults = KIND_DEFAULTS[level] ?? [];
@@ -146,9 +183,58 @@ function CreateItemFormContent({
     [items],
   );
 
+  const lastCreatedItem = useMemo(() => {
+    const id = getLastCreatedId();
+    return id ? byId.get(id) : undefined;
+  }, [items, byId]);
+
+  const lastParentItem = useMemo(() => {
+    const id = getLastParentId();
+    return id ? byId.get(id) : undefined;
+  }, [items, byId]);
+
+  const lastCreatedAvailable =
+    !!lastCreatedItem && canBeParent(lastCreatedItem);
+  const lastParentAvailable =
+    !!lastParentItem && canBeParent(lastParentItem);
+
+  useEffect(() => {
+    if (placementMode === "root") {
+      setParentId("");
+      return;
+    }
+    if (placementMode === "existing") return;
+    const resolved = resolveParentIdForMode(placementMode, byId);
+    if (resolved) setParentId(resolved);
+  }, [placementMode, items, byId]);
+
+  useEffect(() => {
+    if (placementMode === "lastCreated" && !lastCreatedAvailable) {
+      setPlacementMode("existing");
+      setStoredPlacementMode("existing");
+    } else if (placementMode === "lastParent" && !lastParentAvailable) {
+      setPlacementMode("existing");
+      setStoredPlacementMode("existing");
+    }
+  }, [placementMode, lastCreatedAvailable, lastParentAvailable]);
+
+  function selectPlacement(mode: PlacementMode) {
+    setStoredPlacementMode(mode);
+    setPlacementMode(mode);
+    setFormError(null);
+    if (mode === "root") {
+      setParentId("");
+      return;
+    }
+    if (mode === "existing") return;
+    const resolved = resolveParentIdForMode(mode, byId);
+    if (resolved) setParentId(resolved);
+  }
+
   const createMut = useMutation({
     mutationFn: api.createItem,
     onSuccess: (created) => {
+      recordItemCreated(created);
       qc.invalidateQueries({ queryKey: ["items", "inventory"] });
       qc.invalidateQueries({ queryKey: ["items", "all"] });
       if (!created.parent_id) {
@@ -156,10 +242,6 @@ function CreateItemFormContent({
       } else {
         qc.invalidateQueries({ queryKey: ["items", "children", created.parent_id] });
       }
-      setName("");
-      setParentId("");
-      setNote("");
-      setFormError(null);
       onCreated(created);
     },
     onError: (err: Error) => setFormError(err.message),
@@ -181,62 +263,130 @@ function CreateItemFormContent({
       setFormError("Nadradená položka neexistuje");
       return;
     }
+    if (
+      (placementMode === "lastCreated" && !lastCreatedAvailable) ||
+      (placementMode === "lastParent" && !lastParentAvailable)
+    ) {
+      setFormError("Táto možnosť umiestnenia momentálne nie je k dispozícii");
+      return;
+    }
     createMut.mutate({
       level,
       kind,
-      name: name.trim() || null,
+      name: null,
       parent_id: isRoot ? null : parentId,
       note: note.trim() || null,
     });
+  }
+
+  function parentOptionLabel(p: InventoryItem): string {
+    return `L${p.level} ${TYPE_LABEL[p.kind] ?? p.kind} — ${getFullPath(p)}`;
   }
 
   return (
     <form className="form create-item-form" onSubmit={onSubmit}>
       <fieldset className="create-item-placement">
         <legend className="create-item-placement-legend">Umiestnenie v hierarchii</legend>
-        <label className={`create-item-placement-option${isRoot ? " is-selected" : ""}`}>
+        <label className={`create-item-placement-option${placementMode === "root" ? " is-selected" : ""}`}>
           <input
             type="radio"
-            name="create-root"
-            checked={isRoot}
-            onChange={() => {
-              setIsRoot(true);
-              setParentId("");
-            }}
+            name="create-placement"
+            checked={placementMode === "root"}
+            onChange={() => selectPlacement("root")}
           />
           <span className="create-item-placement-text">
-            <span className="create-item-placement-title">Koreň (úroveň 1)</span>
+            <span className="create-item-placement-title">Úroveň {levelWithL(1)}</span>
             <span className="create-item-placement-hint">Samostatná položka najvyššej úrovne</span>
           </span>
         </label>
-        <label className={`create-item-placement-option${!isRoot ? " is-selected" : ""}`}>
+        <label
+          className={`create-item-placement-option${placementMode === "lastCreated" ? " is-selected" : ""}${!lastCreatedAvailable ? " is-disabled" : ""}`}
+        >
           <input
             type="radio"
-            name="create-root"
-            checked={!isRoot}
-            onChange={() => setIsRoot(false)}
+            name="create-placement"
+            checked={placementMode === "lastCreated"}
+            disabled={!lastCreatedAvailable}
+            onChange={() => selectPlacement("lastCreated")}
+          />
+          <span className="create-item-placement-text">
+            <span className="create-item-placement-title">Pod poslednú vytvorenú položku</span>
+            <span className="create-item-placement-hint">
+              {lastCreatedAvailable
+                ? (
+                  <>
+                    {levelWithL(lastCreatedItem!.level)} {TYPE_LABEL[lastCreatedItem!.kind] ?? lastCreatedItem!.kind} —{" "}
+                    {getFullPath(lastCreatedItem!)}
+                  </>
+                )
+                : "Zatiaľ žiadna vytvorená položka v tejto relácii"}
+            </span>
+          </span>
+        </label>
+        <label
+          className={`create-item-placement-option${placementMode === "lastParent" ? " is-selected" : ""}${!lastParentAvailable ? " is-disabled" : ""}`}
+        >
+          <input
+            type="radio"
+            name="create-placement"
+            checked={placementMode === "lastParent"}
+            disabled={!lastParentAvailable}
+            onChange={() => selectPlacement("lastParent")}
+          />
+          <span className="create-item-placement-text">
+            <span className="create-item-placement-title">Pod poslednú nadradenú položku</span>
+            <span className="create-item-placement-hint">
+              {lastParentAvailable
+                ? (
+                  <>
+                    {levelWithL(lastParentItem!.level)} {TYPE_LABEL[lastParentItem!.kind] ?? lastParentItem!.kind} —{" "}
+                    {getFullPath(lastParentItem!)}
+                  </>
+                )
+                : "Zatiaľ žiadny kontext nadradenej položky"}
+            </span>
+          </span>
+        </label>
+        <label className={`create-item-placement-option${placementMode === "existing" ? " is-selected" : ""}`}>
+          <input
+            type="radio"
+            name="create-placement"
+            checked={placementMode === "existing"}
+            onChange={() => selectPlacement("existing")}
           />
           <span className="create-item-placement-text">
             <span className="create-item-placement-title">Pod existujúcu položku</span>
-            <span className="create-item-placement-hint">Vloží sa ako podradená položka</span>
+            <span className="create-item-placement-hint">Vyber konkrétneho rodiča zo zoznamu</span>
           </span>
         </label>
       </fieldset>
       {!isRoot && (
         <label className="form-label">
           Nadradená položka
-          <select value={parentId} onChange={(e) => setParentId(e.target.value)} required>
+          <select
+            value={parentId}
+            onChange={(e) => {
+              const next = e.target.value;
+              setParentId(next);
+              if (placementMode !== "existing") {
+                setStoredPlacementMode("existing");
+                setPlacementMode("existing");
+              }
+              recordParentFocus(next || null);
+            }}
+            required
+          >
             <option value="">— vyber rodiča —</option>
             {eligibleParents.map((p) => (
               <option key={p.id} value={p.id}>
-                L{p.level} {TYPE_LABEL[p.kind] ?? p.kind} — {getFullPath(p)}
+                {parentOptionLabel(p)}
               </option>
             ))}
           </select>
         </label>
       )}
       <p className="muted create-item-level">
-        Úroveň: <strong>{isRoot ? 1 : level || "—"}</strong>
+        Úroveň: {typeof level === "number" && level > 0 ? levelWithLNumberStrong(level) : "—"}
       </p>
       <label className="form-label">
         Typ položky (kind)
@@ -252,13 +402,13 @@ function CreateItemFormContent({
             }
           }}
         >
-          <option value="">— vyber typ —</option>
+          <option value="">{level > 0 ? `— vyber typ pre L${level} —` : "— vyber typ —"}</option>
           {defaults.map((k) => (
             <option key={k} value={k}>
-              {TYPE_LABEL[k] ?? k}
+              {level > 0 ? `L${level} ${TYPE_LABEL[k] ?? k}` : TYPE_LABEL[k] ?? k}
             </option>
           ))}
-          <option value="__custom__">Vlastné…</option>
+          <option value="__custom__">{level > 0 ? `Vlastné pre L${level}…` : "Vlastné…"}</option>
         </select>
       </label>
       {customKind && (
@@ -273,19 +423,9 @@ function CreateItemFormContent({
           />
         </label>
       )}
-      <label className="form-label">
-        Názov
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="(voliteľné — inak sa vygeneruje automaticky)"
-        />
-      </label>
       <AutoNamePreview
         kind={kindInput}
         parentId={isRoot ? null : parentId || null}
-        manualName={name}
       />
       <label className="form-label">
         Poznámka
