@@ -96,3 +96,41 @@ export const TextColumn: React.FC<{
     {body ? <Body text={body} mode={mode} t={tBody} /> : null}
   </div>
 );
+
+/**
+ * Caption: jediny text v obraze (max ~7 slov), dolna tretina, nastupuje
+ * po akcii (`t` 0..1) a volitelne odchadza (`out` 0..1).
+ */
+export const Caption: React.FC<{ text: string; mode?: Mode; t?: number; out?: number; size?: number; y?: number }> = ({
+  text,
+  mode = 'light',
+  t = 1,
+  out = 0,
+  size = 54,
+  y = 880,
+}) => {
+  const c = modeColors(mode);
+  const a = t * (1 - out);
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: y,
+        textAlign: 'center',
+        fontFamily: FONT.display,
+        fontWeight: 600,
+        fontSize: size,
+        letterSpacing: '-0.01em',
+        lineHeight: 1.2,
+        color: c.headline,
+        opacity: a,
+        transform: `translateY(${(1 - t) * 24 + out * -12}px)`,
+        padding: '0 200px',
+      }}
+    >
+      {text}
+    </div>
+  );
+};

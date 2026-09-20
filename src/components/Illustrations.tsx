@@ -91,6 +91,7 @@ export const PriceTag: React.FC<{ text: string; s?: number; color?: string }> = 
       fontFamily: 'Inter',
       fontWeight: 600,
       fontSize: 26,
+      whiteSpace: 'nowrap',
       opacity: Math.min(1, s * 1.4),
       transform: `scale(${0.6 + 0.4 * s})`,
       transformOrigin: 'left center',

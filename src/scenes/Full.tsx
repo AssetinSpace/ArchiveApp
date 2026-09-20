@@ -1,15 +1,22 @@
 import React from 'react';
-import { Series } from 'remotion';
+import { TransitionSeries, linearTiming } from '@remotion/transitions';
+import { fade } from '@remotion/transitions/fade';
 import { FPS } from '../theme';
 import { SCENE_LIST } from '../scenesList';
 
-/** Vsetky sceny za sebou - len na kontrolu tempa, nie finalny vystup. */
+export const FADE = 12;
+
+/** Vsetky klipy za sebou s kratkym prelinanim - len na kontrolu tempa. */
 export const Full: React.FC = () => (
-  <Series>
-    {SCENE_LIST.map(([id, s]) => (
-      <Series.Sequence key={id} durationInFrames={Math.round(s.seconds * FPS)}>
-        <s.component />
-      </Series.Sequence>
-    ))}
-  </Series>
+  <TransitionSeries>
+    {SCENE_LIST.flatMap(([id, s], i) => {
+      const seq = (
+        <TransitionSeries.Sequence key={id} durationInFrames={Math.round(s.seconds * FPS)}>
+          <s.component />
+        </TransitionSeries.Sequence>
+      );
+      if (i === 0) return [seq];
+      return [<TransitionSeries.Transition key={`t${id}`} presentation={fade()} timing={linearTiming({ durationInFrames: FADE })} />, seq];
+    })}
+  </TransitionSeries>
 );

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { AbsoluteFill } from 'remotion';
+import { AbsoluteFill, getInputProps } from 'remotion';
 import { BRAND, FONT, Mode, modeColors, W } from '../theme';
 import { loadFonts } from '../lib/fonts';
 
@@ -7,9 +7,16 @@ import { loadFonts } from '../lib/fonts';
  * Spolocny obal scen: pozadie podla rezimu, patka s logom a www ako
  * v brozure (na svetlych stranach), zeleny pas dole na tmavych.
  */
-export const Scene: React.FC<{ mode?: Mode; footer?: boolean; children: React.ReactNode }> = ({
+/** Render bez textu: `npx remotion render <ID> --props='{"captions":false}'` */
+export const useCaptions = () => {
+  const p = getInputProps() as { captions?: boolean };
+  return p.captions !== false;
+};
+
+export const Scene: React.FC<{ mode?: Mode; footer?: boolean; band?: boolean; children: React.ReactNode }> = ({
   mode = 'light',
-  footer = true,
+  footer = false,
+  band = false,
   children,
 }) => {
   useEffect(() => {
@@ -46,7 +53,7 @@ export const Scene: React.FC<{ mode?: Mode; footer?: boolean; children: React.Re
           <div>www.assetin.sk</div>
         </div>
       ) : null}
-      {mode === 'dark' && footer ? (
+      {band ? (
         <div style={{ position: 'absolute', left: 0, bottom: 0, width: W * 0.42, height: 10, background: BRAND[600] }} />
       ) : null}
     </AbsoluteFill>

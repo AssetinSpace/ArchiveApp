@@ -3,3 +3,4 @@ out/preview/
 .remotion/
 *.log
 .DS_Store
+public/footage/

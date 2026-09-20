@@ -17,10 +17,11 @@ slúži len ako úložisko video projektu.
 ```bash
 npm install
 npm run dev            # Remotion Studio (náhľad + timeline) na http://localhost:3000
-npm run stills         # PNG stills všetkých scén do out/stills/ (2 na scénu: _a, _b)
-npm run stills -- S05-Teren             # len vybraná scéna
+npm run stills         # PNG stills všetkých klipov do out/stills/ (3 na klip: _1, _2, _3)
+npm run stills -- C4-Teren              # len vybraný klip
+npx remotion render C2-Problem out/x.mp4 --props='{"captions":false}'   # bez textu v obraze
 npm run render         # MP4 všetkých scén do out/mp4/
-npm run render -- S05-Teren S06-Spracovanie
+npm run render -- C4-Teren C5-Spracovanie
 PREVIEW=1 npm run render -- Full        # celé video v polovičnom rozlíšení do out/preview/
 npm run typecheck
 ```
@@ -33,19 +34,22 @@ bez tejto možnosti sa dá použiť existujúci binár:
 
 ```
 src/
-  Root.tsx            registrácia kompozícií (Scenes/*, Preview/Full)
-  scenesList.ts       zoznam scén, dĺžky (s) a frame-y pre schvaľovacie stills
+  Root.tsx            registrácia kompozícií (Clips/*, Footage/FootageFrame, Preview/Full, Optional/*)
+  scenesList.ts       zoznam klipov, dĺžky (s) a frame-y pre schvaľovacie stills
   theme.ts            paleta, fonty, rozmery, ms→frames
   copy/sk.ts          všetky texty v obraze (SK)
   lib/anim.ts         tween/pop/settle/stagger – prevod CSS transitions z webu na frame-y
+  lib/camera.tsx      Camera – nájazd/posun kamery podľa keyframov (ms, x, y, scale)
   lib/iso.tsx         2:1 dimetrická projekcia + primitívy (IsoBox, Carton, Pallet, ShelfFrame, Binder, QR)
   lib/fonts.ts        načítanie lokálnych fontov z public/fonts
   components/
     ArchiveBox.tsx    doslovný port dlaždice „Neprehľadný archív“ (QuickStart.astro) – veko, zložky, QR
-    Scene.tsx         obal scény (pozadie, pätka s logom, zelený pás), LogoMark
-    Text.tsx          Kicker / Headline / Body / TextColumn v štýle brožúry
+    Scene.tsx         obal scény (pozadie), LogoMark, useCaptions (prop captions:false)
+    Device.tsx        PhoneFrame / WindowFrame – rámik zariadenia, fill 0..1 = nájazd na celý frame
+    Text.tsx          Caption (jediný text v obraze) + Kicker/Headline/Body pre optional scény
     Illustrations.tsx Person, QuestionMark, Check, Sheet, PriceTag, Chip, PhotoCard, Floor
-  scenes/S00_…S12     jednotlivé scény, Full.tsx = všetky za sebou
+  scenes/C1_…C8       klipy, Full.tsx = všetky za sebou s prelínaním, FootageFrame.tsx = footage v rámiku
+  scenes/optional/    S04, S10 v starom layoute (mimo jadra)
 public/brand/         logo (kópia z assetin.sk)
 public/fonts/         Manrope 600/700/800, Inter 400/500/600 (TTF)
 scripts/stills.sh, render.sh
@@ -58,7 +62,8 @@ out/mp4/              finálne MP4 scén (commitované po schválení)
 1. Text do `src/copy/sk.ts`.
 2. Komponent do `src/scenes/Sxx_Nazov.tsx` – časovanie v ms cez `tween(frame, startMs, durMs)`,
    dosadnutie cez `pop(frame, startMs)`, texty cez `settle(frame, startMs)`.
-3. Zápis do `src/scenesList.ts` (ID iba `A-Za-z0-9-`, dĺžka v sekundách, dva frame-y pre stills).
+3. Zápis do `src/scenesList.ts` (ID iba `A-Za-z0-9-`, dĺžka v sekundách, frame-y pre stills).
+   Jediný text v obraze cez `<Caption>` a `captions` v `src/copy/sk.ts` (≤ 7 slov).
 4. `npm run stills -- <ID>` a skontrolovať PNG.
 
 ## Licencia Remotion
