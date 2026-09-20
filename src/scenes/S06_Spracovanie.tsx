@@ -26,7 +26,7 @@ export const S06_Spracovanie: React.FC = () => {
         lines={T.h}
         body={T.p}
         tKicker={settle(frame, 0)}
-        tLines={[settle(frame, 150), settle(frame, 280)]}
+        tLines={[settle(frame, 150), settle(frame, 260), settle(frame, 370)]}
         tBody={settle(frame, 600)}
         width={800}
         headlineSize={54}

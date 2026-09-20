@@ -73,7 +73,7 @@ export const S08_Hierarchia: React.FC = () => {
 
   return (
     <Scene mode="light">
-      <TextColumn kicker={T.kicker} lines={T.h} body={T.p} tKicker={settle(frame, 0)} tLines={[settle(frame, 150), settle(frame, 280)]} tBody={settle(frame, 600)} width={800} headlineSize={54} top={130} />
+      <TextColumn kicker={T.kicker} lines={T.h} body={T.p} tKicker={settle(frame, 0)} tLines={[settle(frame, 150), settle(frame, 260), settle(frame, 370)]} tBody={settle(frame, 600)} width={800} headlineSize={54} top={130} />
       <svg width={900} height={860} viewBox="0 0 900 860" style={{ position: 'absolute', left: 940, top: 90 }}>
         {/* spojnice */}
         {nodes.slice(1).map((n, i) => {

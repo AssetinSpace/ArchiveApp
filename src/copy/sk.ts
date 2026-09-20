@@ -39,7 +39,7 @@ export const sk = {
   },
   S06: {
     kicker: 'Ako to funguje · 2 · Spracovanie',
-    h: ['Text z fotky aplikácia rozpozná', 'a navrhne, čo je to za dokument.'],
+    h: ['Text z fotky aplikácia', 'rozpozná a navrhne,', 'čo je to za dokument.'],
     p: 'Nič sa neprepisuje ručne. Pri každom údaji zostáva fotka, z ktorej vznikol.',
     chips: [
       ['Stavba', 'Bytový dom Slnečná 12'],
@@ -51,7 +51,7 @@ export const sk = {
   },
   S07: {
     kicker: 'Ako to funguje · 3 · Potvrdenie',
-    h: ['Návrh nie je záznam.', 'Platný je až po kontrole človekom.'],
+    h: ['Návrh nie je záznam.', 'Platný je až', 'po kontrole človekom.'],
     p: 'Odborný konzultant každý navrhnutý údaj potvrdí, opraví alebo odmietne. Fotka zostáva pri zázname natrvalo.',
     badgeDraft: 'návrh',
     badgeOk: 'overené',
@@ -59,13 +59,13 @@ export const sk = {
   },
   S08: {
     kicker: 'Výsledok',
-    h: ['Každá položka má jednoznačne', 'vyhľadateľné miesto v hierarchii archívu.'],
+    h: ['Každá položka má', 'jednoznačne vyhľadateľné', 'miesto v hierarchii archívu.'],
     p: 'Paleta → krabica → zložka → dokument. Naskenujete krabicu a viete, čo je vnútri, bez otvárania.',
     levels: ['Paleta', 'Krabica', 'Zložka', 'Dokument'],
   },
   S09: {
     kicker: 'Výsledok · V aplikácii',
-    h: ['Celý archív v jednej tabuľke.', 'Filtrovať sa dá podľa čohokoľvek.'],
+    h: ['Celý archív v jednej tabuľke.', 'Filtrovať sa dá', 'podľa čohokoľvek.'],
     p: 'Od dotazu k policovému miestu vedie jeden krok.',
     query: 'kolaudačné rozhodnutie · Slnečná 12',
     crumb: ['PL_01', 'KR_03', 'ZL_12'],

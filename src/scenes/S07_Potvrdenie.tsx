@@ -55,7 +55,7 @@ export const S07_Potvrdenie: React.FC = () => {
         lines={T.h}
         body={T.p}
         tKicker={settle(frame, 0)}
-        tLines={[settle(frame, 150), settle(frame, 280)]}
+        tLines={[settle(frame, 150), settle(frame, 260), settle(frame, 370)]}
         tBody={settle(frame, 600)}
         width={800}
         headlineSize={54}
@@ -100,7 +100,7 @@ export const S07_Potvrdenie: React.FC = () => {
         })}
       </div>
       {/* velky check na konci */}
-      <svg width={120} height={120} viewBox="-60 -60 120 120" style={{ position: 'absolute', left: 1560, top: 660 }}>
+      <svg width={120} height={120} viewBox="-60 -60 120 120" style={{ position: 'absolute', left: 1720, top: 800 }}>
         <Check x={0} y={0} r={44} s={pop(frame, decideAt(3) + 500)} />
       </svg>
     </Scene>
