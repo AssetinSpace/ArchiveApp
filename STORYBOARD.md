@@ -1,4 +1,4 @@
-# Storyboard – Assetin Archives (kolo 3)
+# Storyboard – Assetin Archives (kolo 4)
 
 Stav: ☐ still na schválenie · ☑ still schválený · ▶ animácia hotová · 🎞 finálne MP4
 
@@ -11,17 +11,17 @@ strihový bod pre footage; náhľad Full má tvrdé strihy.
 
 | ID | Klip | Pozadie | Dej | Text v obraze | Dĺžka | Stav |
 |---|---|---|---|---|---|---|
-| C1-Intro | Intro | navy | Logo sa nakreslí, wordmark, titul, zelený pás | – | 4 s | ☑ ▶ 🎞 |
-| C2-Kancelaria | Skriňa pri stole | navy | Kancelária: stôl, stolička, monitor, skriňa; dvere sa otvoria, vnútri natlačené šanóny (stojace aj ležiace), rolky paré, listy; dva šanóny a rolka sa vysypú, „?“ | 3 s „Dokumentáciu máte. Nikto ju nevie nájsť.“ | 7 s | ☑ ▶ 🎞 |
-| C3-Sklad | Sklad → krabica | navy | Regály, palety, postavička klučkuje, „?“; kamera nájde (2,6×) k jednej krabici, sklad úplne vybledne, krabica sa otvorí, listovanie, počítadlo | 4 s „V sklade to nie je lepšie.“ · 11 s „Je to niekde tam.“ | 14 s | ☑ ▶ 🎞 |
-| C4-Cena | 2× | navy | Veľké 2×, dve rovnaké palety: „skladovanie“ a kópia „nové vyhotovenie“ | 4 s „Zaplatené dvakrát za tú istú dokumentáciu.“ | 7 s | ☑ ▶ 🎞 |
-| C5-Teren →📹 | V sklade | biela | Dlaždica z webu (veko, zložky, QR B/W), hárok nálepiek A4, mobil 7×15 cm odfotí štítok, ID KR_01; nájazd do displeja → biely frame | 5 s „Nalepiť QR, odfotiť. Celá práca v teréne.“ | 10 s | ☑ ▶ 🎞 |
-| C6-Spracovanie →📹 | Fotka → aplikácia | biela | Fotka štítku sa nahrá (progress), okolo nej okno aplikácie, okno nájde na celý frame → footage (rozpoznanie, návrh, potvrdenie z appky) | 3 s „Text z fotky rozpozná a navrhne údaje.“ | 7 s | ☑ ▶ 🎞 |
-| C7-Hierarchia →📹 | Hierarchia + sken | biela | Strom paleta→krabica→zložka→dokument, QR B/W, mobil v popredí naskenuje krabicu, vetva sa rozsvieti; strom vybledne, mobil nájde na celý frame → footage (vyhľadávanie, lokácia) | 3 s „Každá položka má svoje miesto.“ | 9 s | ☑ ▶ 🎞 |
-| C8-Pilot | Jedna krabica | biela | Zatvorená krabica, QR doskočí, kroky 1·2·3 (lupa · list s QR · ponuka) v mierke A4 | 2 s „Začneme jednou krabicou.“ | 7 s | ☑ ▶ 🎞 |
-| C9-Outro | Kontakt | zelená | Logo, firma, web, kontakty | – | 5 s | ☑ ▶ 🎞 |
+| C1-Intro | Intro | navy | Domček v strede, spoza neho vyjde „assetin“ a „Archives“, texty sa zasunú späť, kamera prejde cez domček do navy | – | 5 s | ☐ ▶ |
+| C2-Kancelaria | Skriňa pri stole | navy | Panáčik príde ku skrini, otvorí krídlo (otáča sa okolo pántu), vnútri šanóny, rolky, listy; hľadá („?“), vyhadzuje veci – vyletia oblúkom a dopadnú v rade pred skriňou | 3 s „Dokumentáciu máte. Nikto ju nevie nájsť.“ | 8 s | ☐ ▶ |
+| C3-Sklad | Sklad → regál | navy | Postavička klučkuje uličkou (cesta pod objektmi), „?“; kamera nájde na policu s dvoma krabicami, sklad vybledne; prvá krabica: veko hore, zložky sa postupne vyberú a vrátia, veko dole; to isté druhá; nič sa nenašlo, „?“ | 4 s „V sklade to nie je lepšie.“ · 11,5 s „Je to niekde tam.“ | 14 s | ☐ ▶ |
+| C4-Cena | 2× | navy | Začína rovnakým regálom ako koniec C3; regál sa odsunie doľava, cenovka „skladovanie“; vpravo výkres s pečiatkou, cenovka „nové vyhotovenie“; až potom „2×“ | 5 s „Zaplatené dvakrát za tú istú dokumentáciu.“ | 8 s | ☐ ▶ |
+| C5-Teren →📹 | V sklade | biela | Dlaždica z webu (veko, zložky, hustejšie QR B/W), hárok nálepiek A4, mobil odfotí štítok, ID KR_01; nájazd do displeja → biely frame | 5 s „Nalepiť QR, odfotiť. Celá práca v teréne.“ | 10 s | ☐ ▶ |
+| C6-Spracovanie →📹 (?) | Fotka → aplikácia | biela | Bez zmeny; možno vypadne a footage pôjde rovno za C5 | 3 s „Text z fotky rozpozná a navrhne údaje.“ | 7 s | ☐ ▶ |
+| C7-Hierarchia →📹 | Hierarchia + sken | biela | Začína tou istou krabicou ako C5 (KR_01), kamera sa oddiali a okolo nej vyrastie strom polica→krabica→zložka→dokument; mobil naskenuje krabicu, vetva sa rozsvieti; strom vybledne, mobil nájde na celý frame → footage | 3 s „Každá položka má svoje miesto.“ | 10 s | ☐ ▶ |
+| C8-Pilot | Jedna krabica | biela | Bez zmeny (upraví sa neskôr) | 2 s „Začneme jednou krabicou.“ | 7 s | ☐ ▶ |
+| C9-Outro | Outro | zelená | Logo, wordmark, „Assetin, s. r. o.“, web. Bez kontaktov | – | 5 s | ☐ ▶ |
 
-Celkovo 70 s animácie + footage podľa strihu.
+Celkovo 74 s animácie + footage podľa strihu.
 
 ## Stills a kontrola
 

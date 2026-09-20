@@ -2,67 +2,59 @@ import React from 'react';
 import { useCurrentFrame } from 'remotion';
 import { Scene, useCaptions } from '../components/Scene';
 import { Caption } from '../components/Text';
-import { Carton, Pallet } from '../lib/iso';
-import { PriceTag } from '../components/Illustrations';
+import { Camera } from '../lib/camera';
+import { Carton, ShelfFrame, iso } from '../lib/iso';
+import { PriceTag, Sheet } from '../components/Illustrations';
+import { QuestionMark } from '../components/Illustrations';
 import { pop, settle, tween } from '../lib/anim';
 import { captions } from '../copy/sk';
 import { BRAND, CM, FONT, NAVY, SAFE } from '../theme';
+import { CAM_END, SHELF_LEVEL, SV, TARGET_SHELF, VB } from './C3_Sklad';
 
 /**
- * C4 - Cena: velke 2x, dve rovnake palety v jednej mierke (2.2 px/cm):
- * prva s cenovkou "skladovanie", druha sa skopiruje z prvej s cenovkou
- * "nove vyhotovenie". 7 s.
+ * C4 - Cena. Zacina rovnakym zaberom ako koniec C3 (polica s dvoma
+ * zatvorenymi krabicami, "?"). Regal sa odsunie dolava a dostane cenovku
+ * "skladovanie"; vpravo sa objavi vykres s peciatkou (nove vyhotovenie)
+ * s cenovkou; az potom doskoci "2x". 8 s.
  */
-const PX = 2.2;
-const Stack: React.FC = () => (
-  <g>
-    <Pallet x={0} y={0} />
-    <Carton x={6} y={4} z={14} />
-    <Carton x={62} y={4} z={14} />
-    <Carton x={6} y={42} z={14} />
-    <Carton x={62} y={42} z={14} />
-    <Carton x={34} y={22} z={14 + CM.carton.h} />
-  </g>
-);
-
 export const C4_Cena: React.FC = () => {
   const frame = useCurrentFrame();
   const showCap = useCaptions();
-  const big = pop(frame, 700, { damping: 12 });
-  const a = settle(frame, 1500);
-  const copy = tween(frame, 2200, 900);
-  const tagA = pop(frame, 2000);
-  const tagB = pop(frame, 3300);
-  const eq = settle(frame, 3100);
-  // paleta: iso sirka (w+d)*PX = 440 px, vyska ~ (w+d)/2 + 14 + 72 = 186 cm -> 410 px
-  const W = (CM.pallet.w + CM.pallet.d) * PX;
-  const H = ((CM.pallet.w + CM.pallet.d) / 2 + 14 + CM.carton.h * 2 + 10) * PX;
-  const left1 = 520 - W / 2,
-    left2 = 1400 - W / 2;
-  const top = SAFE.illoBottom - H - 10;
-  const Pal: React.FC<{ left: number; t: number }> = ({ left, t }) => (
-    <svg width={W} height={H} viewBox={`${-CM.pallet.d} ${-(CM.carton.h * 2 + 24)} ${CM.pallet.w + CM.pallet.d} ${H / PX}`} style={{ position: 'absolute', left, top, opacity: t }}>
-      <Stack />
-    </svg>
-  );
+  const tw = (s: number, d: number) => tween(frame, s, d);
+  const shift = tw(800, 900); // regal dolava
+  const tagA = pop(frame, 1900);
+  const sheet = settle(frame, 2800);
+  const tagB = pop(frame, 3600);
+  const big = pop(frame, 4600, { damping: 12 });
+  const s = TARGET_SHELF;
   return (
     <Scene mode="dark">
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 70, textAlign: 'center', opacity: big, transform: `scale(${0.6 + 0.4 * big})` }}>
-        <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 250, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.04em' }}>2×</span>
-      </div>
-      <Pal left={left1} t={a} />
-      {/* kopia: vychadza z prvej palety a posunie sa doprava */}
-      <div style={{ position: 'absolute', inset: 0, opacity: copy, transform: `translateX(${(copy - 1) * (left2 - left1)}px)` }}>
-        <Pal left={left2} t={1} />
-      </div>
-      <div style={{ position: 'absolute', left: left1 + 40, top: top - 10 }}>
+      <Camera keys={[{ ms: 0, ...CAM_END }, { ms: 1700, x: CAM_END.x + 380 / CAM_END.scale, y: CAM_END.y - 30 / CAM_END.scale, scale: 1.95 }]}>
+        <svg width={1920} height={1080} viewBox={`${VB.x} ${VB.y} ${1920 / SV} ${1080 / SV}`} style={{ position: 'absolute', left: 0, top: 0 }}>
+          <ShelfFrame x={s.x} y={s.y} w={CM.shelf.w} d={CM.shelf.d} levels={2} levelH={CM.shelf.level} />
+          {[0, 1].map((lvl) => [0, 1].map((k) => <Carton key={`${lvl}${k}`} x={s.x + 8 + k * 60} y={s.y + 12} z={lvl * CM.shelf.level + 5} />))}
+          {(() => {
+            const [qx, qy] = iso(s.x + 65, s.y + 30, 2 * CM.shelf.level + 40);
+            return <QuestionMark x={qx} y={qy} s={0.5 * (1 - tw(800, 500))} />;
+          })()}
+        </svg>
+      </Camera>
+      {/* cenovka nad regalom (screen-space, po odsune) */}
+      <div style={{ position: 'absolute', left: 330, top: 760 }}>
         <PriceTag text="skladovanie" s={tagA} color={BRAND[700]} />
       </div>
-      <div style={{ position: 'absolute', left: left2 + 40, top: top - 10 }}>
+      {/* vykres vpravo */}
+      <div style={{ position: 'absolute', left: 1190, top: 280, opacity: sheet, transform: `translateY(${(1 - sheet) * 30}px) rotate(-4deg)` }}>
+        <Sheet w={280} h={390} lines={7} stamp />
+      </div>
+      <div style={{ position: 'absolute', left: 1180, top: 760 }}>
         <PriceTag text="nové vyhotovenie" s={tagB} color={BRAND[700]} />
       </div>
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 560, textAlign: 'center', fontFamily: FONT.display, fontWeight: 800, fontSize: 90, color: NAVY[300], opacity: eq }}>+</div>
-      {showCap ? <Caption text={captions.C4} mode="dark" t={settle(frame, 4000)} y={SAFE.captionY} /> : null}
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 420, textAlign: 'center', fontFamily: FONT.display, fontWeight: 800, fontSize: 90, color: NAVY[300], opacity: sheet, paddingLeft: 120 }}>+</div>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 20, textAlign: 'center', opacity: big, transform: `scale(${0.6 + 0.4 * big})`, paddingLeft: 120 }}>
+        <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 170, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.04em' }}>2×</span>
+      </div>
+      {showCap ? <Caption text={captions.C4} mode="dark" t={settle(frame, 5200)} y={SAFE.captionY} /> : null}
     </Scene>
   );
 };

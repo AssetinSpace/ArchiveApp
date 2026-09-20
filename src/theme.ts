@@ -17,6 +17,8 @@ export const ISO = {
   edge: '#6b7280',
   ink: '#1f2937',
   accent: '#1f7a33',
+  paper: '#f3f4f6',
+  door: '#cbd5e1',
 };
 
 export const BRAND = {

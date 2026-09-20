@@ -62,10 +62,19 @@ export const C5_Teren: React.FC = () => {
                         <rect x={x + fx + 4.5} y={y + fy + 4.5} width={3} height={3} fill={ISO.ink} />
                       </g>
                     ))}
-                    <rect x={x + 20} y={y + 20} width={4} height={4} fill={ISO.ink} />
-                    <rect x={x + 28} y={y + 24} width={4} height={4} fill={ISO.ink} />
-                    <rect x={x + 24} y={y + 28} width={4} height={4} fill={ISO.ink} />
-                    <rect x={x + 18} y={y + 12} width={4} height={4} fill={ISO.ink} />
+                    {[
+                      [20, 20],
+                      [28, 24],
+                      [24, 28],
+                      [18, 12],
+                      [24, 20],
+                      [30, 30],
+                      [20, 30],
+                      [12, 18],
+                      [28, 16],
+                    ].map(([dx, dy], i) => (
+                      <rect key={i} x={x + dx} y={y + dy} width={4} height={4} fill={ISO.ink} />
+                    ))}
                   </g>
                 );
               }),

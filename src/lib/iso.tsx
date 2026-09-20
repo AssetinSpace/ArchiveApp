@@ -29,12 +29,20 @@ export const QR_DATA: [number, number][] = [
   [5, 3],
   [7, 3],
   [1, 4],
-  [3, 4],
+  [2, 4],
   [4, 4],
   [4, 2],
+  [4, 1],
   [2, 6],
   [3, 7],
   [7, 5],
+  [6, 6],
+  [7, 7],
+  [5, 6],
+  [4, 6],
+  [6, 4],
+  [3, 5],
+  [1, 6],
 ];
 
 export type Faces = { top?: string; left?: string; right?: string; edge?: string };
@@ -118,8 +126,8 @@ export const QrOnLeftFace: React.FC<{
       {QR_FINDERS.map(([fx, fz], i) => (
         <g key={i}>
           <polygon points={sq(fx, fz, 3)} fill={ISO.ink} />
-          <polygon points={sq(fx + 0.75, fz + 0.75, 1.5)} fill="#fff" />
-          <polygon points={sq(fx + 1.1, fz + 1.1, 0.8)} fill={ISO.ink} />
+          <polygon points={sq(fx + 0.6, fz + 0.6, 1.8)} fill="#fff" />
+          <polygon points={sq(fx + 1, fz + 1, 1)} fill={ISO.ink} />
         </g>
       ))}
       {QR_DATA.map(([mx, mz], i) => (
@@ -153,8 +161,8 @@ export const QrOnRightFace: React.FC<{
       {QR_FINDERS.map(([fx, fz], i) => (
         <g key={i}>
           <polygon points={sq(fx, fz, 3)} fill={ISO.ink} />
-          <polygon points={sq(fx + 0.75, fz + 0.75, 1.5)} fill="#fff" />
-          <polygon points={sq(fx + 1.1, fz + 1.1, 0.8)} fill={ISO.ink} />
+          <polygon points={sq(fx + 0.6, fz + 0.6, 1.8)} fill="#fff" />
+          <polygon points={sq(fx + 1, fz + 1, 1)} fill={ISO.ink} />
         </g>
       ))}
       {QR_DATA.map(([my, mz], i) => (
@@ -273,14 +281,14 @@ export const Chair: React.FC<{ x: number; y: number }> = ({ x, y }) => (
   <g>
     <IsoBox x={x + 18} y={y + 18} z={0} w={6} d={6} h={40} faces={{ top: ISO.edge, left: ISO.edge, right: ISO.ink }} />
     <IsoBox x={x} y={y} z={40} w={44} d={44} h={6} faces={{ top: ISO.right, left: ISO.edge, right: ISO.ink }} />
-    <IsoBox x={x} y={y} z={46} w={44} d={5} h={44} faces={{ top: ISO.right, left: ISO.edge, right: ISO.ink }} />
+    <IsoBox x={x} y={y + 39} z={46} w={44} d={5} h={44} faces={{ top: ISO.right, left: ISO.edge, right: ISO.ink }} />
   </g>
 );
 
 /** Rolka pare (valec ako uzky kvader s kruhovymi celami) leziaca v smere x. */
 export const Roll: React.FC<{ x: number; y: number; z: number; len?: number; dia?: number; opacity?: number }> = ({ x, y, z, len = 90, dia = 8, opacity = 1 }) => (
   <g opacity={opacity}>
-    <IsoBox x={x} y={y} z={z} w={len} d={dia} h={dia} faces={{ top: '#fff', left: ISO.top, right: ISO.left }} />
+    <IsoBox x={x} y={y} z={z} w={len} d={dia} h={dia} faces={{ top: '#fff', left: ISO.top, right: ISO.right }} stroke />
     {(() => {
       const c = iso(x + len, y + dia / 2, z + dia / 2);
       return <ellipse cx={c[0]} cy={c[1]} rx={dia * 0.55} ry={dia * 0.62} fill={ISO.right} stroke={ISO.edge} strokeWidth={0.8} />;
@@ -306,8 +314,17 @@ export const Cabinet: React.FC<{ x: number; y: number; w?: number; d?: number; h
   const t = 3;
   const shelves = 3;
   const half = (w - 2 * t) / 2;
-  const closed = 1 - Math.min(1, open * 2); // zatvorene panely zmiznu v prvej polovici
-  const swung = Math.max(0, open * 2 - 1); // otvorene panely (kolmo na front) sa objavia v druhej
+  // lave dvere: pant na lavej hrane (x+t, y+d); panel sa otaca z osi +x (zatvorene)
+  // do osi +y (otvorene 90 stupnov dopredu). Vrcholy panelu sa interpoluju v iso svete.
+  const ang = (open * Math.PI) / 2;
+  const hx = x + t,
+    hy = y + d;
+  const far = { x: hx + Math.cos(ang) * half, y: hy + Math.sin(ang) * half };
+  const p0 = iso(hx, hy, t),
+    p1 = iso(far.x, far.y, t),
+    p2 = iso(far.x, far.y, h - t),
+    p3 = iso(hx, hy, h - t);
+  const doorFill = open > 0.5 ? ISO.top : ISO.door;
   return (
     <g>
       <IsoBox x={x} y={y} z={0} w={w} d={t} h={h} faces={{ top: ISO.left, left: ISO.left, right: ISO.right }} />
@@ -317,27 +334,18 @@ export const Cabinet: React.FC<{ x: number; y: number; w?: number; d?: number; h
         <IsoBox key={i} x={x + t} y={y + t} z={(i * (h - t)) / shelves} w={w - 2 * t} d={d - t} h={t} faces={{ top: ISO.left, left: ISO.right, right: ISO.edge }} />
       ))}
       {children}
-      {/* otvorene dvere: panely vytocene o 90 stupnov dopredu (smer +y) od pantov */}
-      <g opacity={swung}>
-        <IsoBox x={x + t} y={y + d} z={t} w={t} d={half * (0.6 + 0.4 * swung)} h={h - 2 * t} faces={{ top: ISO.top, left: ISO.top, right: ISO.left }} stroke />
-        {/* prave dvere otvorene naplno (180°) k pravemu boku skrine, aby nezakryvali obsah */}
-        <IsoBox x={x + w} y={y + d - half * (0.6 + 0.4 * swung)} z={t} w={t} d={half * (0.6 + 0.4 * swung)} h={h - 2 * t} faces={{ top: ISO.top, left: ISO.top, right: ISO.left }} stroke />
-      </g>
-      {/* zatvorene dvere: dva panely na fronte */}
-      <g opacity={closed}>
-        <IsoBox x={x + t} y={y + d - t} z={t} w={half - 1} d={t} h={h - 2 * t} faces={{ top: ISO.top, left: ISO.top, right: ISO.left }} stroke />
-        <IsoBox x={x + t + half + 1} y={y + d - t} z={t} w={half - 1} d={t} h={h - 2 * t} faces={{ top: ISO.top, left: ISO.top, right: ISO.left }} stroke />
-        {(() => {
-          const a = iso(x + t + half - 6, y + d, h / 2),
-            b = iso(x + t + half + 6, y + d, h / 2);
-          return (
-            <g>
-              <circle cx={a[0]} cy={a[1]} r={1.8} fill={ISO.edge} />
-              <circle cx={b[0]} cy={b[1]} r={1.8} fill={ISO.edge} />
-            </g>
-          );
-        })()}
-      </g>
+      {/* prave dvere: stale zatvorene */}
+      <IsoBox x={x + t + half + 1} y={y + d - t} z={t} w={half - 1} d={t} h={h - 2 * t} faces={{ top: ISO.door, left: ISO.door, right: ISO.left }} stroke />
+      {(() => {
+        const k = iso(x + t + half + 8, y + d, h / 2);
+        return <circle cx={k[0]} cy={k[1]} r={1.8} fill={ISO.edge} />;
+      })()}
+      {/* lave dvere: otacaju sa okolo pantu */}
+      <polygon points={pts([p0, p1, p2, p3])} fill={doorFill} stroke={ISO.edge} strokeWidth={1.4} strokeLinejoin="round" />
+      {(() => {
+        const k = iso(far.x - Math.cos(ang) * 8, far.y - Math.sin(ang) * 8, h / 2);
+        return <circle cx={k[0]} cy={k[1]} r={1.8} fill={ISO.edge} />;
+      })()}
     </g>
   );
 };

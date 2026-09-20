@@ -78,6 +78,11 @@ out/mp4/              finálne MP4 scén (commitované po schválení)
    Jediný text v obraze cez `<Caption>` a `captions` v `src/copy/sk.ts` (≤ 7 slov).
 4. `npm run stills -- <ID>` a skontrolovať PNG.
 
+## Review a feedback
+
+Klipy sa prehliadajú na review stránke (odkaz v STORYBOARD.md). Pripomienky z nej sa archivujú
+do `FEEDBACK.md` a zapracúvajú po kolách; po každom kole sa nahrajú nové MP4 ako assety stránky.
+
 ## Licencia Remotion
 
 Remotion je zadarmo pre jednotlivcov a firmy do 3 zamestnancov (aj komerčne).

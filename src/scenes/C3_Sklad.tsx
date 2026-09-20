@@ -3,54 +3,93 @@ import { useCurrentFrame } from 'remotion';
 import { Scene, useCaptions } from '../components/Scene';
 import { Caption } from '../components/Text';
 import { Camera } from '../lib/camera';
-import { ArchiveBox } from '../components/ArchiveBox';
 import { Carton, Pallet, ShelfFrame, iso } from '../lib/iso';
 import { Floor, Person, QuestionMark } from '../components/Illustrations';
 import { pop, settle, tween } from '../lib/anim';
 import { captions } from '../copy/sk';
-import { BRAND, CM, FONT, NAVY, SAFE, ms } from '../theme';
+import { BRAND, CM, SAFE } from '../theme';
 
 /**
- * C3 - Sklad -> krabica. Siroky zaber (regaly, palety, postavicka kluckuje,
- * "?"), kamera najde (2.6x) k jednej krabici na palete, sklad uplne
- * vybledne, krabica sa otvori a zlozky sa striedavo dvihaju, pocitadlo. 14 s.
- * Mierka 2 px/cm (viewBox 960 x 540 cm), po najazde 5.2 px/cm.
+ * C3 - Sklad -> regal. Siroky zaber (regaly, palety, postavicka kluckuje
+ * ulickou, cesta pod objektmi, "?"), kamera najde na policu s dvoma krabicami:
+ * prva sa otvori, zlozky sa postupne vyberu a vratia, zatvori sa; to iste
+ * druha; nic sa nenaslo, "?" nad regalom. Koniec = zaciatok C4. 14 s.
  */
-const PATH: [number, number][] = [
-  [40, 420],
-  [80, 340],
-  [80, 180],
-  [200, 180],
-  [200, 300],
-  [330, 300],
-  [330, 140],
-  [420, 140],
-];
-const SV = 1.7;
-const VB = { x: -565, y: -100 };
+export const SV = 1.7;
+export const VB = { x: -565, y: -100 };
 const toScreen = (p: [number, number]): [number, number] => [(p[0] - VB.x) * SV, (p[1] - VB.y) * SV];
-const PALLETS = [
+// cesta v ulicke medzi paletami (y 130-220) a regalmi (y 40-100)
+const PATH: [number, number][] = [
+  [-20, 400],
+  [40, 300],
+  [40, 140],
+  [200, 140],
+  [200, 120],
+  [340, 120],
+  [340, 140],
+  [470, 140],
+];
+export const PALLETS = [
   { x: 110, y: 230 },
   { x: 250, y: 230 },
   { x: 110, y: 330 },
 ];
-const SHELVES = [
+export const SHELVES = [
   { x: 100, y: 40 },
   { x: 240, y: 40 },
   { x: 380, y: 40 },
 ];
-// cielova krabica: horna krabica na palete 3
-const TP = PALLETS[2];
-const TARGET = toScreen(iso(TP.x + 34 + CM.carton.w / 2, TP.y + 22 + CM.carton.d / 2, 14 + CM.carton.h + CM.carton.h / 2));
-const ZOOM = 2.6;
-const CYCLE = 900;
+/** Cielova polica: regal 2, 2. uroven (2 krabice). */
+export const TARGET_SHELF = SHELVES[1];
+export const SHELF_LEVEL = 1;
+export const ZOOM = 2.2;
+const T = toScreen(iso(TARGET_SHELF.x + 68, TARGET_SHELF.y + 30, SHELF_LEVEL * CM.shelf.level - 25));
+export const CAM_END = { x: T[0] - 960, y: T[1] - 540, scale: ZOOM };
+
+/** Otvorenie krabice: veko hore, 3 zlozky sa postupne vyberu (zdvihnu, podrzia, vratia), veko dole. */
+export const searchBox = (tw: (s: number, d: number) => number, start: number) => {
+  const lid = tw(start, 400) * (1 - tw(start + 2600, 400));
+  const binders = [0, 1, 2].map((i) => {
+    const s = start + 500 + i * 650;
+    return tw(s, 250) * (1 - tw(s + 400, 250));
+  }) as [number, number, number];
+  return { lid, binders };
+};
+
+export const SearchCarton: React.FC<{ x: number; y: number; z: number; lid: number; binders: [number, number, number] }> = ({ x, y, z, lid, binders }) => {
+  const w = CM.carton.w,
+    d = CM.carton.d,
+    h = CM.carton.h;
+  return (
+    <g>
+      {/* telo bez veka */}
+      <Carton x={x} y={y} z={z} w={w} d={d} h={h} />
+      {/* zlozky vnutri (vycnievaju pri vybrati) */}
+      {binders.map((b, i) => (
+        <g key={i} transform={`translate(0 ${-b * 34 * SV * 0.0}) `}>
+          {b > 0 ? (
+            <g transform={`translate(0 ${-b * 26})`}>
+              <Carton x={x + 6 + i * 14} y={y + 4} z={z + h - 4} w={10} d={d - 8} h={CM.binder.h - 4} qr={0} />
+            </g>
+          ) : null}
+        </g>
+      ))}
+      {/* veko: zdvihne sa a odklopi */}
+      <g transform={`translate(0 ${-lid * 24})`} opacity={1}>
+        <g transform={`translate(${lid * 26} 0)`}>
+          <Carton x={x - 2} y={y - 2} z={z + h} w={w + 4} d={d + 4} h={4} />
+        </g>
+      </g>
+    </g>
+  );
+};
 
 export const C3_Sklad: React.FC = () => {
   const frame = useCurrentFrame();
   const showCap = useCaptions();
   const tw = (s: number, d: number) => tween(frame, s, d);
   const appear = settle(frame, 400);
-  const walk = tw(1500, 5000);
+  const walk = tw(1500, 4500);
   const seg = Math.min(PATH.length - 2, Math.floor(walk * (PATH.length - 1)));
   const lt = walk * (PATH.length - 1) - seg;
   const px = PATH[seg][0] + (PATH[seg + 1][0] - PATH[seg][0]) * lt;
@@ -60,24 +99,14 @@ export const C3_Sklad: React.FC = () => {
   const pathD = walked.map(([x, y], i) => `${i ? 'L' : 'M'}${iso(x, y, 0).join(' ')}`).join(' ');
   const qm: [number, number, number, number][] = [
     [140, 60, 2400, 0],
-    [280, 60, 3000, 40],
-    [160, 250, 3600, 0],
-    [420, 60, 4200, 80],
+    [160, 250, 3200, 0],
+    [420, 60, 4000, 80],
     [300, 250, 4800, 0],
-    [150, 350, 5400, 0],
   ];
-  const fadeOut = 1 - tw(7300, 500); // sklad zmizne pred krabicou
-  const boxIn = tw(7600, 500);
-  const open = tw(8600, 520);
-  const start = 9600;
-  const elapsed = Math.max(0, frame - ms(start));
-  const cycleF = ms(CYCLE);
-  const n = Math.floor(elapsed / cycleF);
-  const phase = (elapsed % cycleF) / cycleF;
-  const lift = phase < 0.5 ? tween(phase * cycleF, 0, CYCLE * 0.4) : 1 - tween((phase - 0.5) * cycleF, 0, CYCLE * 0.4);
-  const binders: [number, number, number] = [0, 0, 0];
-  if (frame >= ms(start)) binders[n % 3] = lift;
-  const count = frame >= ms(start) ? n + (phase > 0.5 ? 1 : 0) : 0;
+  const others = 1 - tw(6800, 500); // vsetko okrem cieloveho regalu zmizne
+  const A = searchBox(tw, 7200);
+  const B = searchBox(tw, 10400);
+  const qEnd = pop(frame, 13300);
 
   const Stack: React.FC<{ x: number; y: number }> = ({ x, y }) => (
     <g>
@@ -92,48 +121,60 @@ export const C3_Sklad: React.FC = () => {
 
   return (
     <Scene mode="dark">
-      <Camera keys={[{ ms: 6000, x: 0, y: 0, scale: 1 }, { ms: 8200, x: TARGET[0] - 960, y: TARGET[1] - 540, scale: ZOOM }]}>
-        <svg width={1920} height={1080} viewBox={`${VB.x} ${VB.y} ${1920 / SV} ${1080 / SV}`} style={{ position: 'absolute', left: 0, top: 0, opacity: appear * fadeOut, transform: `translateY(${(1 - appear) * 30}px)` }}>
-          <Floor x={-60} y={-60} w={560} d={560} fill="#263246" edge="#131F31" />
+      <Camera keys={[{ ms: 6000, x: 0, y: 0, scale: 1 }, { ms: 8000, ...CAM_END }]}>
+        <svg width={1920} height={1080} viewBox={`${VB.x} ${VB.y} ${1920 / SV} ${1080 / SV}`} style={{ position: 'absolute', left: 0, top: 0, opacity: appear, transform: `translateY(${(1 - appear) * 30}px)` }}>
+          <g opacity={others}>
+            <Floor x={-60} y={-60} w={560} d={560} fill="#263246" edge="#131F31" />
+            <path d={pathD} fill="none" stroke={BRAND[300]} strokeWidth={2.4} strokeDasharray="6 8" strokeLinecap="round" strokeLinejoin="round" opacity={0.9} />
+          </g>
           {SHELVES.map((s, i) => {
             const t = settle(frame, 600 + i * 140);
+            const isTarget = s === TARGET_SHELF;
             return (
-              <g key={i} transform={`translate(0 ${(1 - t) * -30})`} opacity={t}>
+              <g key={i} transform={`translate(0 ${(1 - t) * -30})`} opacity={t * (isTarget ? 1 : others)}>
                 <ShelfFrame x={s.x} y={s.y} w={CM.shelf.w} d={CM.shelf.d} levels={2} levelH={CM.shelf.level} />
-                {[0, 1].map((lvl) => [0, 1].map((k) => <Carton key={`${lvl}${k}`} x={s.x + 8 + k * 60} y={s.y + 12} z={lvl * CM.shelf.level + 5} />))}
+                {[0, 1].map((lvl) =>
+                  [0, 1].map((k) => {
+                    const cx = s.x + 8 + k * 60,
+                      cy = s.y + 12,
+                      cz = lvl * CM.shelf.level + 5;
+                    if (isTarget && lvl === SHELF_LEVEL) {
+                      const st = k === 0 ? A : B;
+                      return <SearchCarton key={`${lvl}${k}`} x={cx} y={cy} z={cz} lid={st.lid} binders={st.binders} />;
+                    }
+                    return <Carton key={`${lvl}${k}`} x={cx} y={cy} z={cz} />;
+                  }),
+                )}
+                {isTarget ? (() => {
+                  const [qx, qy] = iso(s.x + 65, s.y + 30, 2 * CM.shelf.level + 40);
+                  return <QuestionMark x={qx} y={qy} s={qEnd * 0.5} />;
+                })() : null}
               </g>
             );
           })}
-          {PALLETS.map((p, i) => {
-            const t = settle(frame, 1000 + i * 140);
-            return (
-              <g key={i} transform={`translate(0 ${(1 - t) * -30})`} opacity={t}>
-                <Stack x={p.x} y={p.y} />
-              </g>
-            );
-          })}
-          <path d={pathD} fill="none" stroke={BRAND[300]} strokeWidth={2.4} strokeDasharray="6 8" strokeLinecap="round" strokeLinejoin="round" opacity={0.9} />
-          <Person x={sx} y={sy} scale={1.4} color="#ffffff" opacity={tw(1400, 300) * (1 - tw(6000, 800))} />
-          {qm.map(([x, y, s0, z], i) => {
-            const s = pop(frame, s0) * (1 - tw(6000, 600));
-            const [qx, qy] = iso(x, y, 140 + z);
-            return <QuestionMark key={i} x={qx} y={qy} s={s * 1.3} />;
-          })}
+          <g opacity={others}>
+            {PALLETS.map((p, i) => {
+              const t = settle(frame, 1000 + i * 140);
+              return (
+                <g key={i} transform={`translate(0 ${(1 - t) * -30})`} opacity={t}>
+                  <Stack x={p.x} y={p.y} />
+                </g>
+              );
+            })}
+            <Person x={sx} y={sy} scale={1.4} color="#ffffff" opacity={tw(1400, 300) * (1 - tw(6000, 800))} />
+            {qm.map(([x, y, s0, z], i) => {
+              const s = pop(frame, s0) * (1 - tw(6000, 600));
+              const [qx, qy] = iso(x, y, 140 + z);
+              return <QuestionMark key={i} x={qx} y={qy} s={s * 1.3} />;
+            })}
+          </g>
         </svg>
       </Camera>
-
-      <div style={{ position: 'absolute', left: 560, top: 110, opacity: boxIn, transform: `scale(${0.85 + 0.15 * boxIn})`, transformOrigin: '50% 60%' }}>
-        <ArchiveBox state={{ lid: open, binders, qr: [0, 0, 0, 0] }} showQr={false} size={800} />
-      </div>
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 50, display: 'flex', justifyContent: 'center', alignItems: 'baseline', gap: 18, opacity: tw(9600, 400), fontFamily: FONT.body, color: NAVY[200] }}>
-        <span style={{ fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 64, fontWeight: 600, color: '#fff' }}>{String(count).padStart(3, '0')}</span>
-        <span style={{ fontSize: 26 }}>z 240 zložiek</span>
-      </div>
 
       {showCap ? (
         <>
           <Caption text={captions.C3a} mode="dark" t={settle(frame, 4000)} out={tw(6300, 300)} y={SAFE.captionY} />
-          <Caption text={captions.C3b} mode="dark" t={settle(frame, 11000)} y={SAFE.captionY} />
+          <Caption text={captions.C3b} mode="dark" t={settle(frame, 11500)} y={SAFE.captionY} />
         </>
       ) : null}
     </Scene>

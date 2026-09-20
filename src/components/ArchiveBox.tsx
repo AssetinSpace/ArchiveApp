@@ -54,8 +54,8 @@ const Qr: React.FC<{ s: number; cx: number; cy: number; accent: string; paths: s
       {finders.map(([u, v], i) => (
         <g key={i}>
           <polygon points={quad(u, v, 0.3)} fill={ISO.ink} />
-          <polygon points={quad(u + 0.075, v + 0.075, 0.15)} fill="#fff" />
-          <polygon points={quad(u + 0.11, v + 0.11, 0.08)} fill={ISO.ink} />
+          <polygon points={quad(u + 0.06, v + 0.06, 0.18)} fill="#fff" />
+          <polygon points={quad(u + 0.1, v + 0.1, 0.1)} fill={ISO.ink} />
         </g>
       ))}
       {[
@@ -66,6 +66,12 @@ const Qr: React.FC<{ s: number; cx: number; cy: number; accent: string; paths: s
         [0.45, 0.1, 0.1],
         [0.1, 0.45, 0.1],
         [0.82, 0.48, 0.1],
+        [0.45, 0.25, 0.1],
+        [0.25, 0.45, 0.1],
+        [0.72, 0.62, 0.08],
+        [0.56, 0.72, 0.08],
+        [0.45, 0.6, 0.08],
+        [0.8, 0.86, 0.08],
       ].map(([u, v, k], i) => (
         <polygon key={`d${i}`} points={quad(u, v, k)} fill={ISO.ink} />
       ))}
