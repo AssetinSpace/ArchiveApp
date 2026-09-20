@@ -17,7 +17,7 @@ import { CM, SAFE } from '../theme';
  */
 const PX = 2.4;
 const CAB = { x: 280, y: 40 };
-const LEVEL = (CM.cabinet.h - 3) / 4; // ~49 cm
+const LEVEL = (CM.cabinet.h - 3) / 3; // ~66 cm, 3 police
 
 export const C2_Kancelaria: React.FC = () => {
   const frame = useCurrentFrame();
@@ -41,31 +41,30 @@ export const C2_Kancelaria: React.FC = () => {
 
   return (
     <Scene mode="dark">
-      <Camera keys={[{ ms: 1200, x: 0, y: 0, scale: 1 }, { ms: 5200, x: camX * 0.4, y: camY * 0.2, scale: 1.06 }]}>
+      <Camera keys={[{ ms: 1200, x: 0, y: 0, scale: 1 }, { ms: 5200, x: camX * 0.5, y: camY * 0.25, scale: 1.12 }]}>
         <svg width={1920} height={1080} viewBox="-400 -60 800 450" style={{ position: 'absolute', left: 0, top: 0, opacity: appear, transform: `translateY(${(1 - appear) * 30}px)` }}>
           <Floor x={-40} y={-40} w={520} d={420} fill="#263246" edge="#131F31" />
           <Desk x={60} y={150} />
           <Chair x={130} y={250} />
           {/* par zloziek a listov na stole */}
-          <Binder x={80} y={160} z={75} d={30} />
-          <Binder x={116} y={160} z={75} d={30} />
+          <IsoBox x={80} y={160} z={75} w={32} d={44} h={8} faces={{ top: '#e5e7eb', left: '#e5e7eb', right: '#9ca3af' }} stroke />
+          <IsoBox x={120} y={158} z={75} w={21} d={30} h={6} faces={{ top: '#fff', left: '#e5e7eb', right: '#d1d5db' }} stroke />
           <IsoBox x={170} y={170} z={75} w={21} d={30} h={1} faces={{ top: '#fff', left: '#e5e7eb', right: '#d1d5db' }} />
           <IsoBox x={178} y={180} z={76} w={21} d={30} h={1} faces={{ top: '#fff', left: '#e5e7eb', right: '#d1d5db' }} />
 
           <Cabinet x={CAB.x} y={CAB.y} open={open}>
-            {/* police zdola nahor: 0 = spodna */}
-            {shelfBinders(0, [4, 38, 62], [0, 8, 3])}
-            <Lying x={CAB.x + 8} y={CAB.y + 4} z={0 * LEVEL + 3 + CM.binder.h} />
-            {shelfBinders(1, [2, 30, 58], [6, 0, 9])}
-            <Lying x={CAB.x + 40} y={CAB.y + 2} z={1 * LEVEL + 3 + CM.binder.h} />
-            {shelfBinders(2, [10, 48], [2, 7])}
-            <IsoBox x={CAB.x + 12} y={CAB.y + 6} z={2 * LEVEL + 3 + CM.binder.h} w={21} d={30} h={5} faces={{ top: '#fff', left: '#e5e7eb', right: '#d1d5db' }} />
-            {/* rolky pare na 3. polici a hore */}
-            <Roll x={CAB.x + 6} y={CAB.y + 10} z={3 * LEVEL + 3} len={88} />
-            <Roll x={CAB.x + 6} y={CAB.y + 22} z={3 * LEVEL + 3} len={80} />
-            <Roll x={CAB.x + 8} y={CAB.y + 14} z={3 * LEVEL + 11} len={84} />
-            {/* volne listy na 2. polici */}
-            <IsoBox x={CAB.x + 60} y={CAB.y + 10} z={2 * LEVEL + 3} w={21} d={30} h={4} faces={{ top: '#fff', left: '#e5e7eb', right: '#d1d5db' }} />
+            {/* spodna polica: 4 stojace sanony, jeden vysunuty, navrch leziaci */}
+            {shelfBinders(0, [4, 38, 62], [0, 10, 2])}
+            <Lying x={CAB.x + 6} y={CAB.y + 6} z={0 * LEVEL + 3 + CM.binder.h} />
+            {/* stredna polica: 2 stojace + kopa listov + leziaci sanon sikmo vysunuty */}
+            {shelfBinders(1, [4, 60], [8, 0])}
+            <IsoBox x={CAB.x + 40} y={CAB.y + 8} z={1 * LEVEL + 3} w={21} d={30} h={9} faces={{ top: '#fff', left: '#e5e7eb', right: '#d1d5db' }} stroke />
+            <Lying x={CAB.x + 36} y={CAB.y + 14} z={1 * LEVEL + 12} />
+            {/* horna polica: rolky pare a listy */}
+            <Roll x={CAB.x + 6} y={CAB.y + 8} z={2 * LEVEL + 3} len={88} />
+            <Roll x={CAB.x + 6} y={CAB.y + 20} z={2 * LEVEL + 3} len={82} />
+            <Roll x={CAB.x + 10} y={CAB.y + 14} z={2 * LEVEL + 11} len={84} />
+            <IsoBox x={CAB.x + 62} y={CAB.y + 10} z={2 * LEVEL + 3} w={21} d={30} h={6} faces={{ top: '#fff', left: '#e5e7eb', right: '#d1d5db' }} stroke />
           </Cabinet>
 
           {/* vysypane veci: dve leziace zlozky a rolka padnu pred skrinu */}

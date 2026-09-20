@@ -16,24 +16,25 @@ export const iso = (x: number, y: number, z: number, ox = 0, oy = 0): P => [
 export const pts = (list: P[]) => list.map((p) => p.join(',')).join(' ');
 
 /** Finder stvorce (lavy dolny, lavy horny, pravy horny) a pevne datove moduly v 9x9 mriezke. */
+export const QR_GRID = 9; // 7 modulov + 1 modul tichej zony po okrajoch
 export const QR_FINDERS: [number, number][] = [
-  [0.5, 0.5],
-  [0.5, 5.5],
-  [5.5, 5.5],
+  [1, 1],
+  [1, 5],
+  [5, 5],
 ];
 export const QR_DATA: [number, number][] = [
-  [4.5, 1],
-  [5.5, 1.5],
+  [5, 1],
   [7, 1],
-  [4.5, 3],
-  [6.5, 3],
-  [7.5, 2],
-  [1.5, 4.2],
-  [3, 4.5],
-  [4.5, 4.5],
-  [7.5, 4],
-  [4.2, 6.5],
-  [4.2, 7.5],
+  [6, 2],
+  [5, 3],
+  [7, 3],
+  [1, 4],
+  [3, 4],
+  [4, 4],
+  [4, 2],
+  [2, 6],
+  [3, 7],
+  [7, 5],
 ];
 
 export type Faces = { top?: string; left?: string; right?: string; edge?: string };
@@ -113,11 +114,11 @@ export const QrOnLeftFace: React.FC<{
     ]);
   return (
     <g opacity={opacity} transform={`translate(${cx} ${cy}) scale(${s}) translate(${-cx} ${-cy})`}>
-      <polygon points={sq(0, 0, 9)} fill="#fff" stroke={ISO.edge} strokeWidth={0.6} />
+      <polygon points={sq(0, 0, 9)} fill="#fff" stroke={ISO.edge} strokeWidth={0.8} />
       {QR_FINDERS.map(([fx, fz], i) => (
         <g key={i}>
           <polygon points={sq(fx, fz, 3)} fill={ISO.ink} />
-          <polygon points={sq(fx + 0.6, fz + 0.6, 1.8)} fill="#fff" />
+          <polygon points={sq(fx + 0.75, fz + 0.75, 1.5)} fill="#fff" />
           <polygon points={sq(fx + 1.1, fz + 1.1, 0.8)} fill={ISO.ink} />
         </g>
       ))}
@@ -148,11 +149,11 @@ export const QrOnRightFace: React.FC<{
     ]);
   return (
     <g opacity={opacity} transform={`translate(${cx} ${cy}) scale(${s}) translate(${-cx} ${-cy})`}>
-      <polygon points={sq(0, 0, 9)} fill="#fff" stroke={ISO.edge} strokeWidth={0.6} />
+      <polygon points={sq(0, 0, 9)} fill="#fff" stroke={ISO.edge} strokeWidth={0.8} />
       {QR_FINDERS.map(([fx, fz], i) => (
         <g key={i}>
           <polygon points={sq(fx, fz, 3)} fill={ISO.ink} />
-          <polygon points={sq(fx + 0.6, fz + 0.6, 1.8)} fill="#fff" />
+          <polygon points={sq(fx + 0.75, fz + 0.75, 1.5)} fill="#fff" />
           <polygon points={sq(fx + 1.1, fz + 1.1, 0.8)} fill={ISO.ink} />
         </g>
       ))}
@@ -177,7 +178,7 @@ export const Carton: React.FC<{ x: number; y: number; z: number; w?: number; d?:
     <IsoBox x={x} y={y} z={z} w={w} d={d} h={h} stroke />
     {/* veko: tenka doska presahujuca o 2 */}
     <IsoBox x={x - 2} y={y - 2} z={z + h} w={w + 4} d={d + 4} h={4} />
-    {qr > 0 ? <QrOnLeftFace x={x + w * 0.32} y={y + d} z={z + h * 0.3} size={w * 0.36} s={qr} opacity={Math.min(1, qr * 1.5)} /> : null}
+    {qr > 0 ? <QrOnLeftFace x={x + w * 0.28} y={y + d} z={z + h * 0.25} size={w * 0.46} s={qr} opacity={Math.min(1, qr * 1.5)} /> : null}
   </g>
 );
 
@@ -233,7 +234,7 @@ export const Binder: React.FC<{ x: number; y: number; z: number; w?: number; d?:
   qr = 0,
 }) => (
   <g transform={`translate(0 ${-lift})`}>
-    <IsoBox x={x} y={y} z={z} w={w} d={d} h={h} faces={{ top: ISO.top, left: ISO.top, right: ISO.right }} />
+    <IsoBox x={x} y={y} z={z} w={w} d={d} h={h} faces={{ top: ISO.top, left: '#f3f4f6', right: ISO.right }} stroke />
     <line
       {...(() => {
         const a = iso(x, y + d, z + h);
@@ -244,7 +245,7 @@ export const Binder: React.FC<{ x: number; y: number; z: number; w?: number; d?:
       strokeWidth={2.2}
       strokeLinecap="round"
     />
-    {qr > 0 ? <QrOnLeftFace x={x + w * 0.18} y={y + d} z={z + h * 0.5} size={w * 0.45} s={qr} opacity={Math.min(1, qr * 1.5)} /> : null}
+    {qr > 0 ? <QrOnLeftFace x={x + w * 0.2} y={y + d} z={z + h * 0.45} size={w * 0.6} s={qr} opacity={Math.min(1, qr * 1.5)} /> : null}
   </g>
 );
 
@@ -302,11 +303,13 @@ export const Cabinet: React.FC<{ x: number; y: number; w?: number; d?: number; h
   open = 0,
   children,
 }) => {
-  const t = 3; // hrubka stien
-  const shelves = 4;
+  const t = 3;
+  const shelves = 3;
+  const half = (w - 2 * t) / 2;
+  const closed = 1 - Math.min(1, open * 2); // zatvorene panely zmiznu v prvej polovici
+  const swung = Math.max(0, open * 2 - 1); // otvorene panely (kolmo na front) sa objavia v druhej
   return (
     <g>
-      {/* korpus: zadna stena, dno, bocnice, vrch */}
       <IsoBox x={x} y={y} z={0} w={w} d={t} h={h} faces={{ top: ISO.left, left: ISO.left, right: ISO.right }} />
       <IsoBox x={x} y={y} z={0} w={t} d={d} h={h} faces={{ top: ISO.left, left: ISO.left, right: ISO.right }} />
       <IsoBox x={x + w - t} y={y} z={0} w={t} d={d} h={h} faces={{ top: ISO.left, left: ISO.left, right: ISO.right }} />
@@ -314,30 +317,27 @@ export const Cabinet: React.FC<{ x: number; y: number; w?: number; d?: number; h
         <IsoBox key={i} x={x + t} y={y + t} z={(i * (h - t)) / shelves} w={w - 2 * t} d={d - t} h={t} faces={{ top: ISO.left, left: ISO.right, right: ISO.edge }} />
       ))}
       {children}
-      {/* dvere na prednej (lavej) ploche y = d: dva panely */}
-      {(() => {
-        const half = (w - 2 * t) / 2;
-        const door = (dx: number, hingeLeft: boolean) => {
-          const a = iso(x + t + dx, y + d, t),
-            b = iso(x + t + dx + half, y + d, t),
-            c = iso(x + t + dx + half, y + d, h - t),
-            dd = iso(x + t + dx, y + d, h - t);
-          const hinge = hingeLeft ? a : b;
-          const sx = 1 - open * 0.85;
+      {/* otvorene dvere: panely vytocene o 90 stupnov dopredu (smer +y) od pantov */}
+      <g opacity={swung}>
+        <IsoBox x={x + t} y={y + d} z={t} w={t} d={half * (0.6 + 0.4 * swung)} h={h - 2 * t} faces={{ top: ISO.top, left: ISO.top, right: ISO.left }} stroke />
+        {/* prave dvere otvorene naplno (180°) k pravemu boku skrine, aby nezakryvali obsah */}
+        <IsoBox x={x + w} y={y + d - half * (0.6 + 0.4 * swung)} z={t} w={t} d={half * (0.6 + 0.4 * swung)} h={h - 2 * t} faces={{ top: ISO.top, left: ISO.top, right: ISO.left }} stroke />
+      </g>
+      {/* zatvorene dvere: dva panely na fronte */}
+      <g opacity={closed}>
+        <IsoBox x={x + t} y={y + d - t} z={t} w={half - 1} d={t} h={h - 2 * t} faces={{ top: ISO.top, left: ISO.top, right: ISO.left }} stroke />
+        <IsoBox x={x + t + half + 1} y={y + d - t} z={t} w={half - 1} d={t} h={h - 2 * t} faces={{ top: ISO.top, left: ISO.top, right: ISO.left }} stroke />
+        {(() => {
+          const a = iso(x + t + half - 6, y + d, h / 2),
+            b = iso(x + t + half + 6, y + d, h / 2);
           return (
-            <g transform={`translate(${hinge[0]} ${hinge[1]}) scale(${sx} 1) translate(${-hinge[0]} ${-hinge[1]})`}>
-              <polygon points={pts([a, b, c, dd])} fill={open > 0.5 ? ISO.right : ISO.top} stroke={ISO.edge} strokeWidth={1.2} />
-              <circle cx={hingeLeft ? b[0] - 6 : a[0] + 6} cy={(b[1] + c[1]) / 2} r={1.6} fill={ISO.edge} />
+            <g>
+              <circle cx={a[0]} cy={a[1]} r={1.8} fill={ISO.edge} />
+              <circle cx={b[0]} cy={b[1]} r={1.8} fill={ISO.edge} />
             </g>
           );
-        };
-        return (
-          <g>
-            {door(0, true)}
-            {door(half, false)}
-          </g>
-        );
-      })()}
+        })()}
+      </g>
     </g>
   );
 };

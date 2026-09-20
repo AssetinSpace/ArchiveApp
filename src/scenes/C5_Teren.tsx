@@ -52,20 +52,20 @@ export const C5_Teren: React.FC = () => {
                   <g key={`${r}${c}`}>
                     <rect x={x} y={y} width={36} height={36} fill="#fff" stroke={ISO.edge} strokeWidth={0.8} />
                     {[
-                      [3, 3],
-                      [23, 3],
-                      [3, 23],
+                      [4, 4],
+                      [20, 4],
+                      [4, 20],
                     ].map(([fx, fy], i) => (
                       <g key={i}>
-                        <rect x={x + fx} y={y + fy} width={10} height={10} fill={ISO.ink} />
-                        <rect x={x + fx + 2} y={y + fy + 2} width={6} height={6} fill="#fff" />
-                        <rect x={x + fx + 4} y={y + fy + 4} width={2} height={2} fill={ISO.ink} />
+                        <rect x={x + fx} y={y + fy} width={12} height={12} fill={ISO.ink} />
+                        <rect x={x + fx + 3} y={y + fy + 3} width={6} height={6} fill="#fff" />
+                        <rect x={x + fx + 4.5} y={y + fy + 4.5} width={3} height={3} fill={ISO.ink} />
                       </g>
                     ))}
-                    <rect x={x + 17} y={y + 17} width={4} height={4} fill={ISO.ink} />
-                    <rect x={x + 24} y={y + 23} width={4} height={4} fill={ISO.ink} />
-                    <rect x={x + 17} y={y + 26} width={4} height={4} fill={ISO.ink} />
-                    <rect x={x + 29} y={y + 28} width={3} height={3} fill={ISO.ink} />
+                    <rect x={x + 20} y={y + 20} width={4} height={4} fill={ISO.ink} />
+                    <rect x={x + 28} y={y + 24} width={4} height={4} fill={ISO.ink} />
+                    <rect x={x + 24} y={y + 28} width={4} height={4} fill={ISO.ink} />
+                    <rect x={x + 18} y={y + 12} width={4} height={4} fill={ISO.ink} />
                   </g>
                 );
               }),

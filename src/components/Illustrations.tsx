@@ -68,32 +68,30 @@ export const Sheet: React.FC<{ w?: number; h?: number; lines?: number; stamp?: b
     {qr ? (
       <g transform={`translate(${w * 0.7} ${h * 0.76})`}>
         {(() => {
-          const q = w * 0.18;
+          const q = w * 0.22;
           const m = q / 9;
           const finder = (fx: number, fy: number, i: number) => (
             <g key={i}>
               <rect x={fx * m} y={fy * m} width={3 * m} height={3 * m} fill={ISO.ink} />
-              <rect x={(fx + 0.6) * m} y={(fy + 0.6) * m} width={1.8 * m} height={1.8 * m} fill="#fff" />
+              <rect x={(fx + 0.75) * m} y={(fy + 0.75) * m} width={1.5 * m} height={1.5 * m} fill="#fff" />
               <rect x={(fx + 1.1) * m} y={(fy + 1.1) * m} width={0.8 * m} height={0.8 * m} fill={ISO.ink} />
             </g>
           );
           return (
             <g>
               <rect width={q} height={q} fill="#fff" stroke={ISO.edge} strokeWidth={0.8} />
-              {finder(0.5, 0.5, 0)}
-              {finder(5.5, 0.5, 1)}
-              {finder(0.5, 5.5, 2)}
+              {finder(1, 1, 0)}
+              {finder(5, 1, 1)}
+              {finder(1, 5, 2)}
               {[
-                [4.5, 1],
-                [4.5, 3],
-                [6.5, 3],
-                [1.5, 4.2],
-                [3, 4.5],
-                [4.5, 4.5],
-                [7.5, 4],
-                [5, 6],
-                [6.5, 7],
-                [4.2, 7.5],
+                [5, 5],
+                [7, 5],
+                [6, 6],
+                [5, 7],
+                [7, 7],
+                [1, 4],
+                [4, 1],
+                [4, 3],
               ].map(([mx, my], i) => (
                 <rect key={i} x={mx * m} y={my * m} width={m} height={m} fill={ISO.ink} />
               ))}
