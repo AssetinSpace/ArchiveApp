@@ -173,7 +173,7 @@ export const QrOnRightFace: React.FC<{
 };
 
 /** Jednoducha krabica s vekom (zatvorena) - pre sklad. Hrana vlavo dole. */
-export const Carton: React.FC<{ x: number; y: number; z: number; w?: number; d?: number; h?: number; qr?: number }> = ({
+export const Carton: React.FC<{ x: number; y: number; z: number; w?: number; d?: number; h?: number; qr?: number; qrSize?: number }> = ({
   x,
   y,
   z,
@@ -181,12 +181,13 @@ export const Carton: React.FC<{ x: number; y: number; z: number; w?: number; d?:
   d = 36,
   h = 36,
   qr = 0,
+  qrSize = 0.46,
 }) => (
   <g>
     <IsoBox x={x} y={y} z={z} w={w} d={d} h={h} stroke />
     {/* veko: tenka doska presahujuca o 2 */}
     <IsoBox x={x - 2} y={y - 2} z={z + h} w={w + 4} d={d + 4} h={4} stroke />
-    {qr > 0 ? <QrOnLeftFace x={x + w * 0.28} y={y + d} z={z + h * 0.25} size={w * 0.46} s={qr} opacity={Math.min(1, qr * 1.5)} /> : null}
+    {qr > 0 ? <QrOnLeftFace x={x + w * 0.28} y={y + d} z={z + h * 0.25} size={w * qrSize} s={qr} opacity={Math.min(1, qr * 1.5)} /> : null}
   </g>
 );
 

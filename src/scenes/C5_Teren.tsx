@@ -84,19 +84,18 @@ export const C5_Teren: React.FC = () => {
 
         <ArchiveBox state={box} size={BOX} style={{ position: 'absolute', left: boxLeft, top: boxTop }} />
 
-        {/* ID pod krabicou (ink, nie zelene) */}
+        {/* ID hore vpravo vedla krabice (ink, nie zelene) */}
         <div
           style={{
             position: 'absolute',
-            left: '50%',
-            marginLeft: -70,
-            top: 770,
+            left: 1290,
+            top: 60,
             padding: '8px 20px',
             borderRadius: 8,
             background: INK[900],
             color: '#fff',
             fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-            fontSize: 32,
+            fontSize: 40,
             fontWeight: 600,
             letterSpacing: '0.04em',
             opacity: Math.min(1, idT * 1.5),

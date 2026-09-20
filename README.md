@@ -19,9 +19,8 @@ npm install
 npm run dev            # Remotion Studio (náhľad + timeline) na http://localhost:3000
 npm run stills         # PNG stills všetkých klipov do out/stills/ (3 na klip) + kontrola caption zóny
 npm run stills -- C4-Teren              # len vybraný klip
-npx remotion render C2-Problem out/x.mp4 --props='{"captions":false}'   # bez textu v obraze
-npm run render         # finálne MP4 všetkých klipov do out/mp4/ (PNG medzisnímky, CRF 16)
-NOCAP=1 npm run render # verzie bez textu v obraze do out/mp4/nocap/
+npm run render         # finálne MP4 všetkých klipov do out/mp4/ (bez textu v obraze; PNG medzisnímky, CRF 16)
+CAP=1 npm run render   # verzie s titulkami v obraze do out/mp4/cap/ (titulky sú zatiaľ vypnuté, doriešia sa neskôr)
 node scripts/contact-sheet.mjs   # kontaktný hárok z posledných stills
 npm run render -- C4-Teren C5-Spracovanie
 PREVIEW=1 npm run render -- Full        # celé video v polovičnom rozlíšení do out/preview/
@@ -46,7 +45,7 @@ src/
   lib/fonts.ts        načítanie lokálnych fontov z public/fonts
   components/
     ArchiveBox.tsx    doslovný port dlaždice „Neprehľadný archív“ (QuickStart.astro) – veko, zložky, QR
-    Scene.tsx         obal scény (pozadie), LogoMark, useCaptions (prop captions:false)
+    Scene.tsx         obal scény (pozadie), LogoMark, useCaptions (titulky len s prop captions:true)
     Device.tsx        PhoneFrame / WindowFrame – rámik zariadenia, fill 0..1 = nájazd na celý frame
     Text.tsx          Caption (jediný text v obraze) + Kicker/Headline/Body pre optional scény
     Illustrations.tsx Person, QuestionMark, Check, Sheet, PriceTag, Chip, PhotoCard, Floor
@@ -75,7 +74,7 @@ out/mp4/              finálne MP4 scén (commitované po schválení)
 2. Komponent do `src/scenes/Sxx_Nazov.tsx` – časovanie v ms cez `tween(frame, startMs, durMs)`,
    dosadnutie cez `pop(frame, startMs)`, texty cez `settle(frame, startMs)`.
 3. Zápis do `src/scenesList.ts` (ID iba `A-Za-z0-9-`, dĺžka v sekundách, frame-y pre stills).
-   Jediný text v obraze cez `<Caption>` a `captions` v `src/copy/sk.ts` (≤ 7 slov).
+   Jediný text v obraze cez `<Caption>` a `captions` v `src/copy/sk.ts` (≤ 7 slov); predvolene vypnuté, zapne ich prop `captions: true`.
 4. `npm run stills -- <ID>` a skontrolovať PNG.
 
 ## Review a feedback

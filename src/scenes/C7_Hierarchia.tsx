@@ -71,7 +71,7 @@ export const C7_Hierarchia: React.FC = () => {
                     const p = placed(i);
                     return (
                       <g key={k} transform={`translate(0 ${(1 - p) * -30})`} opacity={p}>
-                        <Carton x={-57 + k * 60} y={-18} z={lv * 44 + 4} qr={p} />
+                        <Carton x={-57 + k * 60} y={-18} z={lv * 44 + 4} qr={p} qrSize={0.3} />
                       </g>
                     );
                   })}

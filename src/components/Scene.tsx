@@ -10,7 +10,8 @@ import { loadFonts } from '../lib/fonts';
 /** Render bez textu: `npx remotion render <ID> --props='{"captions":false}'` */
 export const useCaptions = () => {
   const p = getInputProps() as { captions?: boolean };
-  return p.captions !== false;
+  // titulky su predvolene vypnute (doriesia sa neskor); zapne ich prop captions: true
+  return p.captions === true;
 };
 
 export const Scene: React.FC<{ mode?: Mode; footer?: boolean; band?: boolean; children: React.ReactNode }> = ({

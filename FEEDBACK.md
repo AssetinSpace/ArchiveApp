@@ -49,3 +49,11 @@
 | C4 Cena | Veľký otáznik vedľa regálu vo veľkosti hodín, hodiny vedľa neho, potom šípka na dokument; nad tým 2× a text. | Regál viac vľavo; veľký „?“ (Ø 200) vedľa regálu, hodiny rovnakej veľkosti vedľa neho, šípka → výkres s cenovkami, „2×“ hore, caption „Zaplatené dvakrát…“. |
 | C5 Terén | KR_01 dať pod krabicu. | Štítok KR_01 je pod podstavcom krabice, na stred. |
 | C7 Hierarchia | Všetky krabice majú mať QR. | Všetky štyri krabice na polici dostanú QR pri poukladaní. |
+
+## Kolo 9 (20. 9. 2026, 19:46)
+
+| Klip | Pripomienka (skrátene) | Riešenie |
+|---|---|---|
+| Všetky | Zmazať texty v obraze, doriešia sa potom. | Titulky (Caption) sú predvolene vypnuté, klipy aj Full sú bez textu. Kód ostáva, zapne ich prop `captions: true` (`CAP=1 npm run render`). Grafické texty (2×, cenovky, KR_01, popisky úrovní, logo) ostávajú. |
+| C5 Terén | KR_01 stále nie je dobre vidieť; nad krabicu, viac doprava, vedľa. | Štítok KR_01 vpravo hore vedľa veka krabice, väčšie písmo. |
+| C7 Hierarchia | Zmenšiť QR kódy na krabiciach. | QR na krabiciach v polici zmenšené (0,3 šírky namiesto 0,46). |
