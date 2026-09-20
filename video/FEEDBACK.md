@@ -57,3 +57,13 @@
 | Všetky | Zmazať texty v obraze, doriešia sa potom. | Titulky (Caption) sú predvolene vypnuté, klipy aj Full sú bez textu. Kód ostáva, zapne ich prop `captions: true` (`CAP=1 npm run render`). Grafické texty (2×, cenovky, KR_01, popisky úrovní, logo) ostávajú. |
 | C5 Terén | KR_01 stále nie je dobre vidieť; nad krabicu, viac doprava, vedľa. | Štítok KR_01 vpravo hore vedľa veka krabice, väčšie písmo. |
 | C7 Hierarchia | Zmenšiť QR kódy na krabiciach. | QR na krabiciach v polici zmenšené (0,3 šírky namiesto 0,46). |
+
+## Kolo 10 (20. 9. 2026, 21:57)
+
+| Klip | Pripomienka (skrátene) | Riešenie |
+|---|---|---|
+| C2 Kancelária | Nevidno, že vyhodená vec je zložka (chýba text); zvážiť väčšieho panáčika; otázniky ďalej od seba a jemne sa hýbať. | Ležiace šanóny majú štítok s textom (PROJEKT 2018, ZMLUVY 2016…) položený do izometrie; panáčik väčší (1,25×); otázniky s väčším rozostupom a jemným vznášaním. |
+| C3 Sklad | Panáčik zelený ako v C2; otáznikov priveľa, malé, neviditeľné. | Panáčik zelený; pri chôdzi 2 väčšie otázniky, pri krabiciach jedna väčšia bublinka na krabicu, záverečný väčší. |
+| C4 Cena | Nevycentrované; popisky dole malé; 2× viac v strede a dole. | Kompozícia posunutá na stred; cenovky väčšie (36 px) pod regálom a pod výkresom; 2× dole v strede medzi nimi. |
+| C5 Terén | Najprv hárok s QR, z neho sa odlepia kódy na krabicu, po otvorení na každú zložku. | Nová os: zatvorená krabica → hárok → nálepka letí z hárku na krabicu → veko a zložky → tri nálepky letia na zložky (bunky na hárku sa vyprázdnia) → mobil, blesk, KR_01 → nájazd. |
+| C7 Hierarchia | Na konci zvýrazniť krabicu, kde je hľadaný dokument (mobil vľavo hľadá). | Mobil ukáže hľadanie a výsledok KR_01; krabica KR_01 dostane zelený obrys a značku, ostatné stmavnú. |

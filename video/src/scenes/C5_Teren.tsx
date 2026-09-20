@@ -2,7 +2,7 @@ import React from 'react';
 import { useCurrentFrame } from 'remotion';
 import { Scene, useCaptions } from '../components/Scene';
 import { Caption } from '../components/Text';
-import { ArchiveBox, archiveBoxAt, archiveBoxPxPerCm } from '../components/ArchiveBox';
+import { ArchiveBox, archiveBoxPxPerCm } from '../components/ArchiveBox';
 import { PhoneFrame } from '../components/Device';
 import { pop, settle, tween } from '../lib/anim';
 import { captions } from '../copy/sk';
@@ -13,8 +13,9 @@ import { BRAND, CM, INK, ISO, SAFE } from '../theme';
  * (7x15 cm x1.4) v jednej mierke odvodenej z krabice. QR cierno-biele.
  * Zaver: najazd do displeja mobilu = strih na footage. 10 s.
  *
- * ms: 600 dlazdica · 1900 harok · 2800 mobil · 3700 blesk · 4300 ID ·
- * 5000 caption · 7300 caption out · 7600-9300 najazd · hold.
+ * ms: 300 zatvorena krabica · 900 harok · 1500-2000 nalepka z harku na
+ * krabicu · 2400 veko + zlozky · 3000/3400/3800 nalepky na zlozky (dolet
+ * 3500/3900/4300) · 4800 mobil · 5400 blesk · 5900 ID · 7600-9300 najazd.
  */
 const BOX = 860;
 const PX = archiveBoxPxPerCm(BOX); // ~9.4 px/cm
@@ -26,16 +27,43 @@ export const C5_Teren: React.FC = () => {
   const frame = useCurrentFrame();
   const showCap = useCaptions();
   const tw = (s: number, d: number) => tween(frame, s, d);
-  const box = archiveBoxAt(tw, 600);
-  const sheet = settle(frame, 1900);
-  const phone = settle(frame, 2800);
-  const flash = tw(3700, 120) * (1 - tw(3820, 400));
-  const frameBox = tw(3650, 260);
-  const idT = pop(frame, 4300);
-  const fill = tw(7600, 1700);
-  const others = 1 - tw(7600, 900);
   const boxLeft = 960 - BOX / 2;
   const boxTop = SAFE.illoTop - 40;
+  const appear = settle(frame, 300);
+  const sheet = settle(frame, 900);
+  // lety nalepiek: z bunky harku (r, c) na ciel v krabici (suradnice viewBox 240); dolet = pop QR
+  const FLIGHTS = [
+    { cell: [0, 0], start: 1500, target: [140.49, 145.75], size: 16, qr: 3 },
+    { cell: [0, 1], start: 3000, target: [86, 135 - 40], size: 14, qr: 0 },
+    { cell: [0, 2], start: 3400, target: [114, 121 - 40], size: 14, qr: 1 },
+    { cell: [0, 3], start: 3800, target: [142, 107 - 40], size: 14, qr: 2 },
+  ] as const;
+  const FLY = 500;
+  const qr: [number, number, number, number] = [0, 0, 0, 0];
+  FLIGHTS.forEach((f) => (qr[f.qr] = pop(frame, f.start + FLY)));
+  const box = {
+    lid: tw(2400, 520),
+    binders: [tw(2500, 420), tw(2570, 420), tw(2640, 420)] as [number, number, number],
+    qr,
+  };
+  const phone = settle(frame, 4800);
+  const frameBox = tw(5300, 260);
+  const flash = tw(5400, 120) * (1 - tw(5520, 400));
+  const idT = pop(frame, 5900);
+  const fill = tw(7600, 1700);
+  const others = 1 - tw(7600, 900);
+
+  // pozicia bunky harku v px (harok je otoceny o -8 stupnov okolo stredu)
+  const sheetLeft = 330,
+    sheetTop = SAFE.illoBottom - SHEET.h - 20,
+    sc = SHEET.w / 210,
+    ang = (-8 * Math.PI) / 180;
+  const cellPx = (r: number, c: number): [number, number] => {
+    const lx = (16 + c * 46 + 18) * sc - SHEET.w / 2,
+      ly = (24 + r * 52 + 18) * sc - SHEET.h / 2;
+    return [sheetLeft + SHEET.w / 2 + lx * Math.cos(ang) - ly * Math.sin(ang), sheetTop + SHEET.h / 2 + lx * Math.sin(ang) + ly * Math.cos(ang)];
+  };
+  const used = (r: number, c: number) => FLIGHTS.some((f) => f.cell[0] === r && f.cell[1] === c && frame >= (f.start / 1000) * 30);
 
   return (
     <Scene mode="light">
@@ -48,6 +76,9 @@ export const C5_Teren: React.FC = () => {
               Array.from({ length: 4 }).map((_, c) => {
                 const x = 16 + c * 46,
                   y = 24 + r * 52;
+                if (used(r, c)) {
+                  return <rect key={`${r}${c}`} x={x} y={y} width={36} height={36} fill="#f3f4f6" stroke={ISO.edge} strokeWidth={0.8} strokeDasharray="3 2" />;
+                }
                 return (
                   <g key={`${r}${c}`}>
                     <rect x={x} y={y} width={36} height={36} fill="#fff" stroke={ISO.edge} strokeWidth={0.8} />
@@ -82,7 +113,52 @@ export const C5_Teren: React.FC = () => {
           </svg>
         </div>
 
-        <ArchiveBox state={box} size={BOX} style={{ position: 'absolute', left: boxLeft, top: boxTop }} />
+        <ArchiveBox state={box} size={BOX} style={{ position: 'absolute', left: boxLeft, top: boxTop, opacity: appear, transform: `translateY(${(1 - appear) * 30}px)` }} />
+
+        {/* letiace nalepky: z harku po obluku na krabicu / zlozky */}
+        {FLIGHTS.map((f, i) => {
+          const t = tw(f.start, FLY);
+          if (t <= 0 || t >= 1) return null;
+          const [ax, ay] = cellPx(f.cell[0], f.cell[1]);
+          const bx = boxLeft + (f.target[0] / 240) * BOX,
+            by = boxTop + (f.target[1] / 240) * BOX;
+          const cx = (ax + bx) / 2,
+            cy = Math.min(ay, by) - 220;
+          const x = (1 - t) * (1 - t) * ax + 2 * (1 - t) * t * cx + t * t * bx;
+          const y = (1 - t) * (1 - t) * ay + 2 * (1 - t) * t * cy + t * t * by;
+          const size0 = 36 * sc,
+            size1 = (f.size / 240) * BOX * 1.1;
+          const size = size0 + (size1 - size0) * t;
+          return (
+            <svg key={i} width={size} height={size} viewBox="0 0 36 36" style={{ position: 'absolute', left: x - size / 2, top: y - size / 2, transform: `rotate(${-8 + 8 * t}deg)`, filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.18))' }}>
+              <rect x={0.5} y={0.5} width={35} height={35} fill="#fff" stroke={ISO.edge} strokeWidth={0.8} />
+              {[
+                [4, 4],
+                [20, 4],
+                [4, 20],
+              ].map(([fx, fy], k) => (
+                <g key={k}>
+                  <rect x={fx} y={fy} width={12} height={12} fill={ISO.ink} />
+                  <rect x={fx + 3} y={fy + 3} width={6} height={6} fill="#fff" />
+                  <rect x={fx + 4.5} y={fy + 4.5} width={3} height={3} fill={ISO.ink} />
+                </g>
+              ))}
+              {[
+                [20, 20],
+                [28, 24],
+                [24, 28],
+                [18, 12],
+                [24, 20],
+                [30, 30],
+                [20, 30],
+                [12, 18],
+                [28, 16],
+              ].map(([dx, dy], k) => (
+                <rect key={k} x={dx} y={dy} width={4} height={4} fill={ISO.ink} />
+              ))}
+            </svg>
+          );
+        })}
 
         {/* ID hore vpravo vedla krabice (ink, nie zelene) */}
         <div
@@ -155,7 +231,7 @@ export const C5_Teren: React.FC = () => {
 
       <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 60% 45%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 55%)', opacity: flash, pointerEvents: 'none' }} />
 
-      {showCap ? <Caption text={captions.C5} t={settle(frame, 5000)} out={tw(7300, 300)} y={SAFE.captionY} /> : null}
+      {showCap ? <Caption text={captions.C5} t={settle(frame, 6200)} out={tw(7300, 300)} y={SAFE.captionY} /> : null}
     </Scene>
   );
 };

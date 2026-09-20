@@ -22,11 +22,27 @@ const PX = 2.4;
 const CAB = { x: 280, y: 40 };
 const LEVEL = (CM.cabinet.h - 3) / 3;
 
-const Lying: React.FC<{ x: number; y: number; z: number; opacity?: number }> = ({ x, y, z, opacity }) => (
+/** Stitok na vrchnej ploche leziaceho sanonu: text polozeny do izometrie (matica pre plochu z = const). */
+const TopLabel: React.FC<{ x: number; y: number; z: number; lines: [string, string] }> = ({ x, y, z, lines }) => {
+  const [ox, oy] = iso(x, y, z);
+  return (
+    <g transform={`matrix(1 0.5 -1 0.5 ${ox} ${oy})`}>
+      <rect x={0} y={0} width={22} height={16} rx={1} fill="#fff" stroke={ISO.edge} strokeWidth={0.6} />
+      <text x={11} y={6.5} textAnchor="middle" fontFamily="Inter" fontWeight={700} fontSize={4.6} fill={ISO.ink}>
+        {lines[0]}
+      </text>
+      <text x={11} y={13} textAnchor="middle" fontFamily="Inter" fontWeight={600} fontSize={4.2} fill={ISO.edge}>
+        {lines[1]}
+      </text>
+    </g>
+  );
+};
+const Lying: React.FC<{ x: number; y: number; z: number; opacity?: number; label?: [string, string] }> = ({ x, y, z, opacity, label = ['PROJEKT', '2018'] }) => (
   <g opacity={opacity}>
     <IsoBox x={x} y={y} z={z} w={CM.binder.w} d={CM.binder.h} h={CM.binder.d} faces={{ top: ISO.paper, left: ISO.paper, right: ISO.right }} stroke />
     {/* chrbat sanonu: tmavsi pas na pravej strane */}
     <IsoBox x={x + CM.binder.w - 4} y={y} z={z} w={4} d={CM.binder.h} h={CM.binder.d} faces={{ top: ISO.right, left: ISO.right, right: ISO.edge }} />
+    <TopLabel x={x + 3} y={y + 12} z={z + CM.binder.d} lines={label} />
   </g>
 );
 const Papers: React.FC<{ x: number; y: number; z: number; h?: number; opacity?: number }> = ({ x, y, z, h = 6, opacity }) => (
@@ -67,7 +83,7 @@ export const C2_Kancelaria: React.FC = () => {
           <Floor x={-40} y={-40} w={520} d={420} fill="#263246" edge="#131F31" />
           <Desk x={40} y={160} />
           <Chair x={90} y={248} />
-          <Lying x={60} y={170} z={75} />
+          <Lying x={60} y={170} z={75} label={['FAKTÚRY', '2021']} />
           <Papers x={104} y={168} z={75} h={5} />
           <Papers x={112} y={186} z={80} h={3} />
 
@@ -94,13 +110,13 @@ export const C2_Kancelaria: React.FC = () => {
             {[4, 38, 62].map((bx, i) => (
               <Binder key={`b0${i}`} x={CAB.x + 3 + bx} y={CAB.y + 6 + [0, 10, 2][i]} z={3} d={30} />
             ))}
-            <Lying x={CAB.x + 6} y={CAB.y + 6} z={3 + CM.binder.h} />
+            <Lying x={CAB.x + 6} y={CAB.y + 6} z={3 + CM.binder.h} label={['ZMLUVY', '2016']} />
             {/* stredna polica */}
             {[4, 60].map((bx, i) => (
               <Binder key={`b1${i}`} x={CAB.x + 3 + bx} y={CAB.y + 6 + [8, 0][i]} z={LEVEL + 3} d={30} />
             ))}
             <Papers x={CAB.x + 40} y={CAB.y + 8} z={LEVEL + 3} h={9} />
-            <Lying x={CAB.x + 36} y={CAB.y + 14} z={LEVEL + 12} />
+            <Lying x={CAB.x + 36} y={CAB.y + 14} z={LEVEL + 12} label={['STAVBA', 'B2']} />
             {/* horna polica */}
             <Roll x={CAB.x + 6} y={CAB.y + 8} z={2 * LEVEL + 3} len={88} />
             <Roll x={CAB.x + 6} y={CAB.y + 20} z={2 * LEVEL + 3} len={82} />
@@ -108,10 +124,12 @@ export const C2_Kancelaria: React.FC = () => {
             <Papers x={CAB.x + 62} y={CAB.y + 10} z={2 * LEVEL + 3} h={6} />
           </Cabinet>
 
-          <Person x={sx} y={sy} scale={1} color={BRAND[400]} opacity={tw(800, 300)} />
+          <Person x={sx} y={sy} scale={1.25} color={BRAND[400]} opacity={tw(800, 300)} />
           {qm.map((s, i) => {
             // tesne nad hlavou, vlavo hore od panacika (nad volnou podlahou medzi stolom a skrinou)
-            const [qx, qy] = iso(px - 30 + i * 18, py - 4, 112 + (i % 2) * 16 + (i === 2 ? 6 : 0));
+            // dalej od seba a jemne sa vznasaju ako bublinky
+            const bob = Math.sin(frame / 10 + i * 2.1) * 3;
+            const [qx, qy] = iso(px - 46 + i * 30 + Math.sin(frame / 14 + i) * 1.5, py - 4, 130 + (i % 2) * 18 + bob);
             return <QuestionMark key={i} x={qx} y={qy} s={s * 0.7} />;
           })}
         </svg>
