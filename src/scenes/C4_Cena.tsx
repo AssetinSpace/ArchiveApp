@@ -8,7 +8,7 @@ import { PriceTag, QuestionMark, Sheet } from '../components/Illustrations';
 import { drawProps, pop, settle, tween } from '../lib/anim';
 import { captions } from '../copy/sk';
 import { BRAND, CM, FONT, NAVY, SAFE } from '../theme';
-import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
+import { CAM_END, SEARCH_QMS, SV, TARGET_SHELF, VB } from './C3_Sklad';
 
 /**
  * C4 - Cena. Zacina rovnakym zaberom ako koniec C3. Regal sa odsunie
@@ -24,7 +24,9 @@ export const C4_Cena: React.FC = () => {
   const frame = useCurrentFrame();
   const showCap = useCaptions();
   const tw = (s: number, d: number) => tween(frame, s, d);
-  const qms = [0, 1, 2, 3, 4, 5].map((i) => pop(frame, 1400 + i * 180));
+  // male otazniky z C3 sa stiahnu do jedneho bodu a zaniknu; na ich mieste jeden velky
+  const merge = tw(800, 500);
+  const bigQ = pop(frame, 1100);
   const clock = settle(frame, 2600);
   const hand = tw(2600, 1600) * 720;
   const arrow = tw(3400, 500);
@@ -33,17 +35,8 @@ export const C4_Cena: React.FC = () => {
   const tagA = pop(frame, 4600);
   const big = pop(frame, 5400, { damping: 12 });
   const s = TARGET_SHELF;
-  // otazniky presne nad stlpcami krabic (2 stlpce x 3), tesne nad vrchnou doskou
   const top = 2 * CM.shelf.level + 4;
-  const qPos: [number, number, number][] = [0, 1].flatMap((k) => {
-    const cx = s.x + 34 + k * 60,
-      cy = s.y + 30;
-    return [
-      [cx, cy, top + 14],
-      [cx - 12, cy + 4, top + 34],
-      [cx + 10, cy - 6, top + 52],
-    ] as [number, number, number][];
-  });
+  const bigQAt = iso(s.x + 65, s.y + 30, top + 40);
   return (
     <Scene mode="dark">
       <Camera keys={[{ ms: 0, ...CAM_END }, { ms: 1700, x: CAM_END.x + 400 / CAM_END.scale, y: CAM_END.y + 70 / CAM_END.scale, scale: 1.5 }]}>
@@ -55,10 +48,13 @@ export const C4_Cena: React.FC = () => {
             const [qx, qy] = iso(s.x + 65, s.y + 30, 2 * CM.shelf.level + 14);
             return <QuestionMark x={qx} y={qy} s={0.4 * (1 - tw(800, 500))} />;
           })()}
-          {qPos.map(([x, y, z], i) => {
+          {SEARCH_QMS.map(([x, y, z], i) => {
             const [qx, qy] = iso(x, y, z);
-            return <QuestionMark key={i} x={qx} y={qy} s={qms[i] * 0.36} />;
+            const px = qx + (bigQAt[0] - qx) * merge,
+              py = qy + (bigQAt[1] - qy) * merge;
+            return <QuestionMark key={i} x={px} y={py} s={0.3 * (1 - merge)} />;
           })}
+          <QuestionMark x={bigQAt[0]} y={bigQAt[1]} s={bigQ * 0.9} />
         </svg>
       </Camera>
 

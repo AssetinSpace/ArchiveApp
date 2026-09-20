@@ -31,10 +31,11 @@ _(bez náhovoru)_
 - 0–3 s: „Fotka ide do aplikácie.“
 - 3–7 s: _Text z fotky rozpozná a navrhne údaje._ — „Text rozpozná automaticky a navrhne metadáta: stavbu, projektanta, rok, stupeň.“ → footage: OCR, návrh metadát, potvrdenie konzultantom („Návrh nie je záznam, platný je až po kontrole človekom.“)
 
-## C7 · Hierarchia (10 s) →📹 mobil
+## C7 · Hierarchia (12 s) →📹 mobil
 - 0–3 s: „Tá istá krabica má odteraz jednoznačné ID a miesto v hierarchii: polica, krabica, zložka, dokument.“
 - 3–6 s: _Každá položka má svoje miesto._ — „Naskenujete krabicu a viete, čo je vnútri. Bez otvárania.“
-- 6–9 s: → footage: vyhľadávanie, filtrovanie, fyzická lokácia („Celý archív v jednej tabuľke. Od dotazu k policovému miestu jeden krok.“)
+- 6–9 s: „…a viete aj, na ktorej polici stojí.“ (kamera nájde na policu, krabice sa poukladajú)
+- 9–12 s: → footage: vyhľadávanie, filtrovanie, fyzická lokácia („Celý archív v jednej tabuľke. Od dotazu k policovému miestu jeden krok.“)
 
 ## C8 · Pilot (7 s)
 - 0–3 s: _Začneme jednou krabicou._ — „Nezačíname celým archívom.“

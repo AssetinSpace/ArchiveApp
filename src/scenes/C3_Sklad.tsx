@@ -80,6 +80,19 @@ export const SearchCarton: React.FC<{ x: number; y: number; z: number; lid: numb
   );
 };
 
+/** Male otazniky nad krabicou pri kazdom vytiahnuti zlozky (box A 7200, box B 10400): [x, y, z, ms]. */
+export const SEARCH_QMS: [number, number, number, number][] = (() => {
+  const s = TARGET_SHELF;
+  const top = SHELF_LEVEL * CM.shelf.level + 4 + CM.carton.h + 4;
+  const out: [number, number, number, number][] = [];
+  [7200, 10400].forEach((start, k) => {
+    const cx = s.x + 8 + k * 60 + 26,
+      cy = s.y + 12 + 18;
+    [0, 1, 2].forEach((i) => out.push([cx - 14 + i * 14, cy + (i === 1 ? -8 : 6), top + 22 + i * 14, start + 500 + i * 650]));
+  });
+  return out;
+})();
+
 export const C3_Sklad: React.FC = () => {
   const frame = useCurrentFrame();
   const showCap = useCaptions();
@@ -142,6 +155,12 @@ export const C3_Sklad: React.FC = () => {
                     })
                   }
                 </ShelfFrame>
+                {isTarget
+                  ? SEARCH_QMS.map(([x, y, z, ms], i) => {
+                      const [qx, qy] = iso(x, y, z);
+                      return <QuestionMark key={`q${i}`} x={qx} y={qy} s={pop(frame, ms) * 0.3} />;
+                    })
+                  : null}
                 {isTarget ? (() => {
                   const [qx, qy] = iso(s.x + 65, s.y + 30, 2 * CM.shelf.level + 14);
                   return <QuestionMark x={qx} y={qy} s={qEnd * 0.4} />;

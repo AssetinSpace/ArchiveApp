@@ -32,3 +32,11 @@
 | C3 Sklad | Priblíži sa iný regál, než ku ktorému panáčik prišiel; nevidno dno a hĺbku krabice; regál rozbitý (dosky nenadväzujú na stĺpiky). | Cesta končí pred stredným regálom, ktorý sa priblíži; panáčik bledne až počas nájazdu. Nová otvorená krabica (vnútorné steny, dno, zložky vnútri trčia von). Regál kreslený po vrstvách (stĺpiky po úrovniach, dosky so stĺpikmi nadväzujú), bez vrchnej dosky, aby bolo vidieť do krabíc. |
 | C4 Cena | Regál rozbitý; otázniky nad krabicami; hodiny nevycentrované a splývajú. | Rovnaký opravený regál; otázniky v dvoch zhlukoch nad stĺpcami krabíc; hodiny s tmavým ciferníkom a bielym prstencom v strede medzery medzi regálom a výkresom; šípka a výkres posunuté; „2×“ nad hodinami. |
 | C7 Hierarchia | Nevidno, že je to tá istá krabica; polička potrebuje ďalší rad a rovnakú opravu; zelené kruhy prekrývajú všetko. | Uzol „Krabica“ je priamo krabica z C5; súrodenci sú rovnaké krabice, objavia sa s medzerou uprostred a KR_01 sa do nej zasunie. Polica 2 rady (4 krabice) s opraveným regálom. Zelené kruhy odstránené, vetva sa zvýrazní len čiarou a rámčekom skenu. |
+
+## Kolo 7 (20. 9. 2026, 18:43)
+
+| Klip | Pripomienka (skrátene) | Riešenie |
+|---|---|---|
+| C3 Sklad | Otázniky majú začať vyskakovať skôr, cca keď sa vytiahne prvá zložka. | Malý „?“ vyskočí nad krabicou pri každom vytiahnutí zložky (3× box A, 3× box B), ostávajú; záverečný väčší „?“ ostáva. |
+| C4 Cena | Má ostať jeden veľký otáznik, potom ide čas (hodiny), potom 2×. | Malé otázniky z konca C3 sa stiahnu do jedného bodu a na ich mieste vyskočí jeden veľký „?“; zhluk šiestich otáznikov zrušený. Hodiny → šípka → výkres + cenovky → 2× ostávajú (potvrdené). |
+| C7 Hierarchia | Polica bez krabíc (vetvia sa nižšie); najprv rozovrieť celý strom, potom priblížiť späť na policu s poukladanými krabicami; zložky nevidno/prekrývajú sa. | Uzol police je prázdny rám; rozostupy úrovní väčšie (nič sa neprekrýva). Po skene kamera nájde späť na policu a krabice sa do nej poukladajú (KR_01 s QR); potom mobil nájde na frame. Klip 12 s (potvrdené). |
