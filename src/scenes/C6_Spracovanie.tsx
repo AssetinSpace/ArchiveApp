@@ -32,7 +32,7 @@ export const C6_Spracovanie: React.FC = () => {
   return (
     <Scene mode="light">
       <WindowFrame at={WIN} fill={fill} chrome={chrome}>
-        <div style={{ position: 'absolute', left: (WIN.w - PH.w) / 2, top: 70 - upload * 30, transform: `scale(${1 + 0.3 * fill})`, transformOrigin: '50% 0' }}>
+        <div style={{ position: 'absolute', left: (WIN.w - PH.w) / 2, top: 70 - upload * 30, transform: `scale(${1 + 0.3 * fill})`, transformOrigin: '50% 0', opacity: 1 - tw(5300, 500) }}>
           <PhotoCard w={PH.w} h={PH.h} t={photo} />
           <div style={{ position: 'absolute', left: 0, right: 0, top: PH.h + 24, height: 8, borderRadius: 4, background: INK[200], opacity: bar > 0 && bar < 1 ? 1 : 1 - tw(2900, 400) }}>
             <div style={{ width: `${bar * 100}%`, height: '100%', borderRadius: 4, background: INK[700] }} />

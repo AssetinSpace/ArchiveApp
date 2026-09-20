@@ -20,7 +20,9 @@ npm run dev            # Remotion Studio (náhľad + timeline) na http://localho
 npm run stills         # PNG stills všetkých klipov do out/stills/ (3 na klip) + kontrola caption zóny
 npm run stills -- C4-Teren              # len vybraný klip
 npx remotion render C2-Problem out/x.mp4 --props='{"captions":false}'   # bez textu v obraze
-npm run render         # MP4 všetkých scén do out/mp4/
+npm run render         # finálne MP4 všetkých klipov do out/mp4/ (PNG medzisnímky, CRF 16)
+NOCAP=1 npm run render # verzie bez textu v obraze do out/mp4/nocap/
+node scripts/contact-sheet.mjs   # kontaktný hárok z posledných stills
 npm run render -- C4-Teren C5-Spracovanie
 PREVIEW=1 npm run render -- Full        # celé video v polovičnom rozlíšení do out/preview/
 npm run typecheck

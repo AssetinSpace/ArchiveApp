@@ -1,9 +1,11 @@
 import { Config } from '@remotion/cli/config';
 
-// H.264 MP4, plne kompatibilne so strihovym softverom.
-Config.setVideoImageFormat('jpeg');
+// Finalne MP4 na strih: bezstratove medzisnimky (ostre hrany iso grafiky),
+// H.264, yuv420p, CRF 16.
+Config.setVideoImageFormat('png');
 Config.setCodec('h264');
 Config.setPixelFormat('yuv420p');
+Config.setCrf(16);
 Config.setOverwriteOutput(true);
 
 // V cloudovom prostredi (Claude Code) je Chromium predinstalovane; na PC
