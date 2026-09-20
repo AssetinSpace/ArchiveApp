@@ -46,6 +46,13 @@ S04-Pokusy (Excel a skener), S10-Nasadenie (U nás / U vás) vo Folder „Option
 - kolo 2: „mierka ikon nesedí, chýba kancelária, texty sa prekrývajú s ikonami, simulácia UI je zbytočná (príde footage), zelené QR, presahy medzi scénami“ → kolo 3 (tento stav).
 - kolo 3 + oprava QR/kancelárie: schválené → Fáza 2 (finálne MP4).
 
+## Review stránka
+
+Všetky klipy prehrateľné v prehliadači s pripomienkami ku každému:
+https://claude.ai/artifact/R2aK5Ms7zxVvtKM4SjHCJa (súkromná, vlastník + zdieľaní).
+Pripomienky sa ukladajú do databázy stránky (kolekcia `feedback`, doc = ID klipu + `general`)
+a Claude si ich číta priamo odtiaľ.
+
 ## Odovzdanie do strihu (Fáza 2)
 
 Všetko 1920×1080, 30 fps, H.264, yuv420p (obmedzený rozsah), bez zvuku.
