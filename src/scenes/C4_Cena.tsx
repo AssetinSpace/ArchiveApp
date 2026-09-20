@@ -8,7 +8,7 @@ import { PriceTag, QuestionMark, Sheet } from '../components/Illustrations';
 import { drawProps, pop, settle, tween } from '../lib/anim';
 import { captions } from '../copy/sk';
 import { BRAND, CM, FONT, NAVY, SAFE } from '../theme';
-import { CAM_END, SEARCH_QMS, SV, TARGET_SHELF, VB } from './C3_Sklad';
+import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
 
 /**
  * C4 - Cena. Zacina rovnakym zaberom ako koniec C3. Regal sa odsunie
@@ -24,8 +24,6 @@ export const C4_Cena: React.FC = () => {
   const frame = useCurrentFrame();
   const showCap = useCaptions();
   const tw = (s: number, d: number) => tween(frame, s, d);
-  // male otazniky z C3 sa stiahnu do jedneho bodu a zaniknu; na ich mieste jeden velky
-  const merge = tw(800, 500);
   const bigQ = pop(frame, 1100);
   const clock = settle(frame, 2600);
   const hand = tw(2600, 1600) * 720;
@@ -35,11 +33,9 @@ export const C4_Cena: React.FC = () => {
   const tagA = pop(frame, 4600);
   const big = pop(frame, 5400, { damping: 12 });
   const s = TARGET_SHELF;
-  const top = 2 * CM.shelf.level + 4;
-  const bigQAt = iso(s.x + 65, s.y + 30, top + 40);
   return (
     <Scene mode="dark">
-      <Camera keys={[{ ms: 0, ...CAM_END }, { ms: 1700, x: CAM_END.x + 400 / CAM_END.scale, y: CAM_END.y + 70 / CAM_END.scale, scale: 1.5 }]}>
+      <Camera keys={[{ ms: 0, ...CAM_END }, { ms: 1700, x: CAM_END.x + 500 / CAM_END.scale, y: CAM_END.y + 70 / CAM_END.scale, scale: 1.5 }]}>
         <svg width={1920} height={1080} viewBox={`${VB.x} ${VB.y} ${1920 / SV} ${1080 / SV}`} style={{ position: 'absolute', left: 0, top: 0 }}>
           <ShelfFrame x={s.x} y={s.y} w={CM.shelf.w} d={CM.shelf.d} levels={2} levelH={CM.shelf.level} topBoard={false}>
             {(lvl) => [0, 1].map((k) => <Carton key={`${lvl}${k}`} x={s.x + 8 + k * 60} y={s.y + 12} z={lvl * CM.shelf.level + 4} />)}
@@ -48,18 +44,18 @@ export const C4_Cena: React.FC = () => {
             const [qx, qy] = iso(s.x + 65, s.y + 30, 2 * CM.shelf.level + 14);
             return <QuestionMark x={qx} y={qy} s={0.4 * (1 - tw(800, 500))} />;
           })()}
-          {SEARCH_QMS.map(([x, y, z], i) => {
-            const [qx, qy] = iso(x, y, z);
-            const px = qx + (bigQAt[0] - qx) * merge,
-              py = qy + (bigQAt[1] - qy) * merge;
-            return <QuestionMark key={i} x={px} y={py} s={0.3 * (1 - merge)} />;
-          })}
-          <QuestionMark x={bigQAt[0]} y={bigQAt[1]} s={bigQ * 0.9} />
         </svg>
       </Camera>
 
+      {/* velky otaznik vedla regalu (rovnaka velkost ako hodiny) */}
+      <svg width={240} height={240} viewBox="-120 -120 240 240" style={{ position: 'absolute', left: 790, top: 380, opacity: Math.min(1, bigQ * 1.4), transform: `scale(${0.6 + 0.4 * bigQ})` }}>
+        <circle r={100} fill={BRAND[300]} />
+        <text x={0} y={48} textAnchor="middle" fontFamily="Manrope" fontWeight={800} fontSize={150} fill={NAVY[900]}>
+          ?
+        </text>
+      </svg>
       {/* hodiny v strede medzery medzi regalom a vykresom */}
-      <svg width={240} height={240} viewBox="-120 -120 240 240" style={{ position: 'absolute', left: 950, top: 380, opacity: clock, transform: `scale(${0.6 + 0.4 * clock})` }}>
+      <svg width={240} height={240} viewBox="-120 -120 240 240" style={{ position: 'absolute', left: 1030, top: 380, opacity: clock, transform: `scale(${0.6 + 0.4 * clock})` }}>
         <circle r={100} fill="#1B2A44" stroke="#fff" strokeWidth={10} />
         {[0, 90, 180, 270].map((a) => (
           <line key={a} x1={0} y1={-84} x2={0} y2={-68} stroke={BRAND[400]} strokeWidth={8} strokeLinecap="round" transform={`rotate(${a})`} />
@@ -69,7 +65,7 @@ export const C4_Cena: React.FC = () => {
         <circle r={8} fill={BRAND[400]} />
       </svg>
       {/* sipka hodiny -> vykres */}
-      <svg width={180} height={80} viewBox="0 0 180 80" style={{ position: 'absolute', left: 1195, top: 460, opacity: arrow > 0 ? 1 : 0 }}>
+      <svg width={180} height={80} viewBox="0 0 180 80" style={{ position: 'absolute', left: 1275, top: 460, opacity: arrow > 0 ? 1 : 0 }}>
         <path d="M10 40 H150" fill="none" stroke={BRAND[400]} strokeWidth={8} strokeLinecap="round" {...drawProps(arrow, 140)} />
         <path d="M122 12 L156 40 L122 68" fill="none" stroke={BRAND[400]} strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" opacity={arrow > 0.85 ? 1 : 0} />
       </svg>
@@ -77,13 +73,13 @@ export const C4_Cena: React.FC = () => {
       <div style={{ position: 'absolute', left: 330, top: 760 }}>
         <PriceTag text="skladovanie" s={tagA} color={BRAND[700]} />
       </div>
-      <div style={{ position: 'absolute', left: 1390, top: 300, opacity: sheet, transform: `translateY(${(1 - sheet) * 30}px) rotate(-4deg)` }}>
+      <div style={{ position: 'absolute', left: 1470, top: 300, opacity: sheet, transform: `translateY(${(1 - sheet) * 30}px) rotate(-4deg)` }}>
         <Sheet w={280} h={390} lines={7} stamp />
       </div>
-      <div style={{ position: 'absolute', left: 1390, top: 740 }}>
+      <div style={{ position: 'absolute', left: 1470, top: 740 }}>
         <PriceTag text="nové vyhotovenie" s={tagB} color={BRAND[700]} />
       </div>
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 20, textAlign: 'center', opacity: big, transform: `scale(${0.6 + 0.4 * big})`, paddingLeft: 220 }}>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 20, textAlign: 'center', opacity: big, transform: `scale(${0.6 + 0.4 * big})`, paddingLeft: 380 }}>
         <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 170, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.04em' }}>2×</span>
       </div>
       {showCap ? <Caption text={captions.C4} mode="dark" t={settle(frame, 5800)} y={SAFE.captionY} /> : null}

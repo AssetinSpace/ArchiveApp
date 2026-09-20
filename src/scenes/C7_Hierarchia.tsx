@@ -69,10 +69,9 @@ export const C7_Hierarchia: React.FC = () => {
                   {[0, 1].map((k) => {
                     const i = lv * 2 + k;
                     const p = placed(i);
-                    const isMain = i === 2;
                     return (
                       <g key={k} transform={`translate(0 ${(1 - p) * -30})`} opacity={p}>
-                        <Carton x={-57 + k * 60} y={-18} z={lv * 44 + 4} qr={isMain ? p : 0} />
+                        <Carton x={-57 + k * 60} y={-18} z={lv * 44 + 4} qr={p} />
                       </g>
                     );
                   })}

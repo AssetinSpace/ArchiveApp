@@ -157,12 +157,15 @@ export const C3_Sklad: React.FC = () => {
                 </ShelfFrame>
                 {isTarget
                   ? SEARCH_QMS.map(([x, y, z, ms], i) => {
-                      const [qx, qy] = iso(x, y, z);
-                      return <QuestionMark key={`q${i}`} x={qx} y={qy} s={pop(frame, ms) * 0.3} />;
+                      // bublinka: vyskoci, stupa a vlni sa, na konci zanikne (zivot 1,6 s)
+                      const life = tw(ms, 1600);
+                      const fade = 1 - tw(ms + 1200, 400);
+                      const [qx, qy] = iso(x + Math.sin(life * Math.PI * 2 + i) * 5, y, z + life * 22);
+                      return <QuestionMark key={`q${i}`} x={qx} y={qy} s={pop(frame, ms) * 0.3 * (0.6 + 0.4 * fade)} color={`rgba(134,194,140,${fade})`} />;
                     })
                   : null}
                 {isTarget ? (() => {
-                  const [qx, qy] = iso(s.x + 65, s.y + 30, 2 * CM.shelf.level + 14);
+                  const [qx, qy] = iso(s.x + 65 + Math.sin(frame / 9) * 2, s.y + 30, 2 * CM.shelf.level + 14 + Math.sin(frame / 12) * 3);
                   return <QuestionMark x={qx} y={qy} s={qEnd * 0.4} />;
                 })() : null}
               </g>

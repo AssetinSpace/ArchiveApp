@@ -40,3 +40,12 @@
 | C3 Sklad | Otázniky majú začať vyskakovať skôr, cca keď sa vytiahne prvá zložka. | Malý „?“ vyskočí nad krabicou pri každom vytiahnutí zložky (3× box A, 3× box B), ostávajú; záverečný väčší „?“ ostáva. |
 | C4 Cena | Má ostať jeden veľký otáznik, potom ide čas (hodiny), potom 2×. | Malé otázniky z konca C3 sa stiahnu do jedného bodu a na ich mieste vyskočí jeden veľký „?“; zhluk šiestich otáznikov zrušený. Hodiny → šípka → výkres + cenovky → 2× ostávajú (potvrdené). |
 | C7 Hierarchia | Polica bez krabíc (vetvia sa nižšie); najprv rozovrieť celý strom, potom priblížiť späť na policu s poukladanými krabicami; zložky nevidno/prekrývajú sa. | Uzol police je prázdny rám; rozostupy úrovní väčšie (nič sa neprekrýva). Po skene kamera nájde späť na policu a krabice sa do nej poukladajú (KR_01 s QR); potom mobil nájde na frame. Klip 12 s (potvrdené). |
+
+## Kolo 8 (20. 9. 2026, 19:04)
+
+| Klip | Pripomienka (skrátene) | Riešenie |
+|---|---|---|
+| C3 Sklad | Otázniky ako bublinky: objavia sa, poletujú a zaniknú. | Každý malý „?“ vyskočí, stúpa a vlní sa do strán, po 1,6 s zanikne; záverečný „?“ jemne pláva. |
+| C4 Cena | Veľký otáznik vedľa regálu vo veľkosti hodín, hodiny vedľa neho, potom šípka na dokument; nad tým 2× a text. | Regál viac vľavo; veľký „?“ (Ø 200) vedľa regálu, hodiny rovnakej veľkosti vedľa neho, šípka → výkres s cenovkami, „2×“ hore, caption „Zaplatené dvakrát…“. |
+| C5 Terén | KR_01 dať pod krabicu. | Štítok KR_01 je pod podstavcom krabice, na stred. |
+| C7 Hierarchia | Všetky krabice majú mať QR. | Všetky štyri krabice na polici dostanú QR pri poukladaní. |
