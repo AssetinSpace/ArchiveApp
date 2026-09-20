@@ -18,7 +18,7 @@ export const SCENE_LIST: [string, SceneDef][] = [
   ['C1-Intro', { component: C1_Intro, seconds: 5, stills: [45, 75, 125] }],
   ['C2-Kancelaria', { component: C2_Kancelaria, seconds: 8, stills: [50, 110, 230] }],
   ['C3-Sklad', { component: C3_Sklad, seconds: 14, stills: [120, 260, 410] }],
-  ['C4-Cena', { component: C4_Cena, seconds: 8, stills: [10, 100, 220] }],
+  ['C4-Cena', { component: C4_Cena, seconds: 9, stills: [10, 110, 250] }],
   ['C5-Teren', { component: C5_Teren, seconds: 10, stills: [70, 170, 285] }],
   ['C6-Spracovanie', { component: C6_Spracovanie, seconds: 7, stills: [40, 110, 200] }],
   ['C7-Hierarchia', { component: C7_Hierarchia, seconds: 10, stills: [10, 100, 180] }],

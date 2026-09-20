@@ -17,9 +17,10 @@ _(bez náhovoru)_
 - 7–11 s: „Keď niekto požiada o kolaudačné rozhodnutie alebo projekt konkrétneho objektu, jediný spôsob je otvoriť krabicu a prejsť ju zložku po zložke…“
 - 11–14 s: _Je to niekde tam._ — „…a potom ďalšiu. A často sa nenájde nič.“
 
-## C4 · Cena (8 s)
+## C4 · Cena (9 s)
 - 0–3 s: „Archív, v ktorom sa nedá hľadať, nie je archív. Je to náklad. Platíte za uskladnenie…“
-- 3–8 s: _Zaplatené dvakrát za tú istú dokumentáciu._ — „…a keď sa nič nenájde, platíte znova za nové vyhotovenie. Dvakrát za to isté.“
+- 3–6 s: „…hľadanie trvá hodiny, a tak je rýchlejšie dať dokumentáciu vyhotoviť nanovo.“
+- 6–9 s: _Zaplatené dvakrát za tú istú dokumentáciu._ — „Dvakrát za to isté.“
 
 ## C5 · V sklade (10 s) →📹 mobil
 - 0–4 s: „Riešenie začína v sklade. Položka dostane nálepku s jedinečným QR kódom…“

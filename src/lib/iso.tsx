@@ -185,7 +185,7 @@ export const Carton: React.FC<{ x: number; y: number; z: number; w?: number; d?:
   <g>
     <IsoBox x={x} y={y} z={z} w={w} d={d} h={h} stroke />
     {/* veko: tenka doska presahujuca o 2 */}
-    <IsoBox x={x - 2} y={y - 2} z={z + h} w={w + 4} d={d + 4} h={4} />
+    <IsoBox x={x - 2} y={y - 2} z={z + h} w={w + 4} d={d + 4} h={4} stroke />
     {qr > 0 ? <QrOnLeftFace x={x + w * 0.28} y={y + d} z={z + h * 0.25} size={w * 0.46} s={qr} opacity={Math.min(1, qr * 1.5)} /> : null}
   </g>
 );
@@ -327,19 +327,21 @@ export const Cabinet: React.FC<{ x: number; y: number; w?: number; d?: number; h
   const doorFill = open > 0.5 ? ISO.top : ISO.door;
   return (
     <g>
+      {/* zadna stena, lava bocnica, police, obsah */}
       <IsoBox x={x} y={y} z={0} w={w} d={t} h={h} faces={{ top: ISO.left, left: ISO.left, right: ISO.right }} />
       <IsoBox x={x} y={y} z={0} w={t} d={d} h={h} faces={{ top: ISO.left, left: ISO.left, right: ISO.right }} />
-      <IsoBox x={x + w - t} y={y} z={0} w={t} d={d} h={h} faces={{ top: ISO.left, left: ISO.left, right: ISO.right }} />
       {Array.from({ length: shelves + 1 }).map((_, i) => (
         <IsoBox key={i} x={x + t} y={y + t} z={(i * (h - t)) / shelves} w={w - 2 * t} d={d - t} h={t} faces={{ top: ISO.left, left: ISO.right, right: ISO.edge }} />
       ))}
       {children}
-      {/* prave dvere: stale zatvorene */}
+      {/* prave kridlo (stale zatvorene) a prava bocnica - kreslia sa az po obsahu, aby nepresvital */}
       <IsoBox x={x + t + half + 1} y={y + d - t} z={t} w={half - 1} d={t} h={h - 2 * t} faces={{ top: ISO.door, left: ISO.door, right: ISO.left }} stroke />
       {(() => {
         const k = iso(x + t + half + 8, y + d, h / 2);
         return <circle cx={k[0]} cy={k[1]} r={1.8} fill={ISO.edge} />;
       })()}
+      <IsoBox x={x + w - t} y={y} z={0} w={t} d={d} h={h} faces={{ top: ISO.left, left: ISO.left, right: ISO.right }} stroke />
+      <IsoBox x={x} y={y} z={h - t} w={w} d={d} h={t} faces={{ top: ISO.top, left: ISO.left, right: ISO.right }} stroke />
       {/* lave dvere: otacaju sa okolo pantu */}
       <polygon points={pts([p0, p1, p2, p3])} fill={doorFill} stroke={ISO.edge} strokeWidth={1.4} strokeLinejoin="round" />
       {(() => {

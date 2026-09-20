@@ -42,8 +42,8 @@ export const SHELVES = [
 /** Cielova polica: regal 2, 2. uroven (2 krabice). */
 export const TARGET_SHELF = SHELVES[1];
 export const SHELF_LEVEL = 1;
-export const ZOOM = 2.2;
-const T = toScreen(iso(TARGET_SHELF.x + 68, TARGET_SHELF.y + 30, SHELF_LEVEL * CM.shelf.level - 25));
+export const ZOOM = 1.8;
+const T = toScreen(iso(TARGET_SHELF.x + 68, TARGET_SHELF.y + 30, SHELF_LEVEL * CM.shelf.level + 5));
 export const CAM_END = { x: T[0] - 960, y: T[1] - 540, scale: ZOOM };
 
 /** Otvorenie krabice: veko hore, 3 zlozky sa postupne vyberu (zdvihnu, podrzia, vratia), veko dole. */
@@ -68,7 +68,7 @@ export const SearchCarton: React.FC<{ x: number; y: number; z: number; lid: numb
       {binders.map((b, i) => (
         <g key={i} transform={`translate(0 ${-b * 34 * SV * 0.0}) `}>
           {b > 0 ? (
-            <g transform={`translate(0 ${-b * 26})`}>
+            <g transform={`translate(0 ${-b * 20})`}>
               <Carton x={x + 6 + i * 14} y={y + 4} z={z + h - 4} w={10} d={d - 8} h={CM.binder.h - 4} qr={0} />
             </g>
           ) : null}
@@ -146,8 +146,8 @@ export const C3_Sklad: React.FC = () => {
                   }),
                 )}
                 {isTarget ? (() => {
-                  const [qx, qy] = iso(s.x + 65, s.y + 30, 2 * CM.shelf.level + 40);
-                  return <QuestionMark x={qx} y={qy} s={qEnd * 0.5} />;
+                  const [qx, qy] = iso(s.x + 65, s.y + 30, 2 * CM.shelf.level + 14);
+                  return <QuestionMark x={qx} y={qy} s={qEnd * 0.4} />;
                 })() : null}
               </g>
             );

@@ -13,3 +13,12 @@
 | C7 Hierarchia | Paletu zameniť za poličku. | Úroveň 0 = polica s krabicami, ID PO_01. |
 | C8 Pilot | Neskôr. | Bez zmeny. |
 | C9 Outro | Bez osobných údajov: logo, „Assetin, s. r. o.“, web. | Kontakty odstránené. |
+
+## Kolo 5 (20. 9. 2026, 15:07)
+
+| Klip | Pripomienka (skrátene) | Riešenie |
+|---|---|---|
+| C2 Kancelária | Stolička je za PC; skriňa vyzerá z boku deravo. | Stolička pred stôl; pravá bočnica, pravé krídlo a vrchná doska skrine sa kreslia až po obsahu, obsah nepresvitá. |
+| C3 Sklad | Polica na konci rozbitá, krabice splývajú, zložky a otázniky mimo obraz. | Menšie priblíženie a kamera nižšie (regál celý v obraze), menší zdvih zložiek, otáznik tesne nad regálom, obrysy na vekách krabíc. |
+| C4 Cena | Veľa otáznikov, tikajúce hodiny, šípka → nové vyhotovenie (rýchlejšie spraviť nanovo než hľadať). | Nová os: otázniky nad regálom, hodiny s točiacou sa ručičkou uprostred, šípka k výkresu, cenovky, až potom 2×. 9 s. |
+| C7 Hierarchia | Polica nie je celá; krabica z C5 je inak otočená než ostatné; podstavec buď všade, alebo nikde. | Uzly nižšie (celý rám v obraze); veľká krabica sa na konci oddialenia prelína do rovnakej krabice ako ostatné uzly (bez podstavca). |

@@ -65,8 +65,8 @@ export const C2_Kancelaria: React.FC = () => {
       <Camera keys={[{ ms: 1500, x: 0, y: 0, scale: 1 }, { ms: 5500, x: camX * 0.45, y: camY * 0.25, scale: 1.12 }]}>
         <svg width={1920} height={1080} viewBox="-400 -60 800 450" style={{ position: 'absolute', left: 0, top: 0, opacity: appear, transform: `translateY(${(1 - appear) * 30}px)` }}>
           <Floor x={-40} y={-40} w={520} d={420} fill="#263246" edge="#131F31" />
-          <Chair x={100} y={100} />
           <Desk x={60} y={150} />
+          <Chair x={110} y={238} />
           <Lying x={80} y={160} z={75} />
           <Papers x={124} y={158} z={75} h={5} />
           <Papers x={132} y={176} z={80} h={3} />

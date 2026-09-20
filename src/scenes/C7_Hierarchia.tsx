@@ -23,7 +23,7 @@ import { BRAND, CM, FONT, INK, ISO, SAFE } from '../theme';
 const PX = 3;
 const PHONE_AT = { x: 330, y: 330, w: 7 * PX * 6, h: 15 * PX * 6 };
 const NODE_X = 500;
-const NODES_Y = [80, 270, 450, 620];
+const NODES_Y = [110, 290, 460, 620];
 
 export const C7_Hierarchia: React.FC = () => {
   const frame = useCurrentFrame();
@@ -99,7 +99,7 @@ export const C7_Hierarchia: React.FC = () => {
             {sib[i].map((dx, k) => (
               <Node key={k} level={i} x={NODE_X + dx} y={ny} t={lvl(i)} q={qr(i) * 0.9} />
             ))}
-            {i === 1 ? null : <Node level={i} x={NODE_X} y={ny} main t={lvl(i)} q={qr(i)} />}
+            {i === 1 ? <Node level={i} x={NODE_X} y={ny} main t={Math.max(0, (zoomOut - 0.7) / 0.3)} q={qr(i)} /> : <Node level={i} x={NODE_X} y={ny} main t={lvl(i)} q={qr(i)} />}
             <text x={NODE_X + 380} y={ny + 62} fontFamily={FONT.body} fontSize={30} fontWeight={600} fill={INK[700]} opacity={lvl(i) * zoomOut}>
               {['Polica', 'Krabica', 'Zložka', 'Dokument'][i]}
             </text>
@@ -113,7 +113,7 @@ export const C7_Hierarchia: React.FC = () => {
       </svg>
 
       {/* hlavna krabica: ta ista ako v C5, zmensuje sa do uzla */}
-      <div style={{ position: 'absolute', left: bigLeft, top: bigTop, opacity: treeOut }}>
+      <div style={{ position: 'absolute', left: bigLeft, top: bigTop, opacity: treeOut * (1 - Math.max(0, (zoomOut - 0.7) / 0.3)) }}>
         <ArchiveBox state={{ lid: 0, binders: [0, 0, 0], qr: [0, 0, 0, 1] }} size={bigSize} />
       </div>
 
