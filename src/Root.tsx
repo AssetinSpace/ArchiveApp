@@ -2,7 +2,7 @@ import React from 'react';
 import { Composition, Folder } from 'remotion';
 import { FPS, H, W } from './theme';
 import { OPTIONAL_LIST, SCENE_LIST } from './scenesList';
-import { FADE, Full } from './scenes/Full';
+import { Full } from './scenes/Full';
 import { FootageFrame, footageDefaults } from './scenes/FootageFrame';
 
 export const Root: React.FC = () => (
@@ -28,7 +28,7 @@ export const Root: React.FC = () => (
       <Composition
         id="Full"
         component={Full}
-        durationInFrames={SCENE_LIST.reduce((a, [, s]) => a + Math.round(s.seconds * FPS), 0) - FADE * (SCENE_LIST.length - 1)}
+        durationInFrames={SCENE_LIST.reduce((a, [, s]) => a + Math.round(s.seconds * FPS), 0)}
         fps={FPS}
         width={W}
         height={H}

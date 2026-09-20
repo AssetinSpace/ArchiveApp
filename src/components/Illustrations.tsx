@@ -66,12 +66,40 @@ export const Sheet: React.FC<{ w?: number; h?: number; lines?: number; stamp?: b
       </g>
     ) : null}
     {qr ? (
-      <g transform={`translate(${w * 0.72} ${h * 0.78})`}>
-        <rect width={w * 0.16} height={w * 0.16} fill={BRAND[600]} />
-        <rect x={w * 0.02} y={w * 0.02} width={w * 0.04} height={w * 0.04} fill={ISO.ink} />
-        <rect x={w * 0.1} y={w * 0.02} width={w * 0.04} height={w * 0.04} fill={ISO.ink} />
-        <rect x={w * 0.02} y={w * 0.1} width={w * 0.04} height={w * 0.04} fill={ISO.ink} />
-        <rect x={w * 0.08} y={w * 0.08} width={w * 0.03} height={w * 0.03} fill={ISO.ink} />
+      <g transform={`translate(${w * 0.7} ${h * 0.76})`}>
+        {(() => {
+          const q = w * 0.18;
+          const m = q / 9;
+          const finder = (fx: number, fy: number, i: number) => (
+            <g key={i}>
+              <rect x={fx * m} y={fy * m} width={3 * m} height={3 * m} fill={ISO.ink} />
+              <rect x={(fx + 0.6) * m} y={(fy + 0.6) * m} width={1.8 * m} height={1.8 * m} fill="#fff" />
+              <rect x={(fx + 1.1) * m} y={(fy + 1.1) * m} width={0.8 * m} height={0.8 * m} fill={ISO.ink} />
+            </g>
+          );
+          return (
+            <g>
+              <rect width={q} height={q} fill="#fff" stroke={ISO.edge} strokeWidth={0.8} />
+              {finder(0.5, 0.5, 0)}
+              {finder(5.5, 0.5, 1)}
+              {finder(0.5, 5.5, 2)}
+              {[
+                [4.5, 1],
+                [4.5, 3],
+                [6.5, 3],
+                [1.5, 4.2],
+                [3, 4.5],
+                [4.5, 4.5],
+                [7.5, 4],
+                [5, 6],
+                [6.5, 7],
+                [4.2, 7.5],
+              ].map(([mx, my], i) => (
+                <rect key={i} x={mx * m} y={my * m} width={m} height={m} fill={ISO.ink} />
+              ))}
+            </g>
+          );
+        })()}
       </g>
     ) : null}
   </svg>

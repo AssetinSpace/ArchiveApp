@@ -1,15 +1,14 @@
 /** Vsetky texty v obraze. Zdroj: brozura Assetin Archives (12 stran). */
 /** Kolo 2: jediny text v obraze per klip, max ~7 slov. */
 export const captions = {
-  C2a: 'Dokumentáciu máte. Nikto ju nevie nájsť.',
-  C2b: 'Je to niekde tam.',
-  C3: 'Zaplatené dvakrát za tú istú dokumentáciu.',
-  C4: 'Nalepiť QR, odfotiť. Celá práca v teréne.',
-  C5a: 'Text z fotky rozpozná a navrhne údaje.',
-  C5b: 'Platné až po kontrole človekom.',
-  C6a: 'Každá položka má svoje miesto.',
-  C6b: 'Od dotazu k policovému miestu jeden krok.',
-  C7: 'Začneme jednou krabicou.',
+  C2: 'Dokumentáciu máte. Nikto ju nevie nájsť.',
+  C3a: 'V sklade to nie je lepšie.',
+  C3b: 'Je to niekde tam.',
+  C4: 'Zaplatené dvakrát za tú istú dokumentáciu.',
+  C5: 'Nalepiť QR, odfotiť. Celá práca v teréne.',
+  C6: 'Text z fotky rozpozná a navrhne údaje.',
+  C7: 'Každá položka má svoje miesto.',
+  C8: 'Začneme jednou krabicou.',
 };
 
 export const sk = {

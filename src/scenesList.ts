@@ -1,30 +1,29 @@
 import React from 'react';
 import { C1_Intro } from './scenes/C1_Intro';
-import { C2_Problem } from './scenes/C2_Problem';
-import { C3_Cena } from './scenes/C3_Cena';
-import { C4_Teren } from './scenes/C4_Teren';
-import { C5_Spracovanie } from './scenes/C5_Spracovanie';
-import { C6_Vysledok } from './scenes/C6_Vysledok';
-import { C7_Pilot } from './scenes/C7_Pilot';
-import { C8_Outro } from './scenes/C8_Outro';
+import { C2_Kancelaria } from './scenes/C2_Kancelaria';
+import { C3_Sklad } from './scenes/C3_Sklad';
+import { C4_Cena } from './scenes/C4_Cena';
+import { C5_Teren } from './scenes/C5_Teren';
+import { C6_Spracovanie } from './scenes/C6_Spracovanie';
+import { C7_Hierarchia } from './scenes/C7_Hierarchia';
+import { C8_Pilot } from './scenes/C8_Pilot';
+import { C9_Outro } from './scenes/C9_Outro';
 import { S04_Pokusy } from './scenes/optional/S04_Pokusy';
 import { S10_Nasadenie } from './scenes/optional/S10_Nasadenie';
 
 export type SceneDef = { component: React.FC; seconds: number; stills: number[] };
 
-/**
- * Klipy (kolo 2), dlzka v sekundach a frame-y pre schvalovacie stills
- * (zaciatok akcie, stred, koniec).
- */
+/** Klipy (kolo 3), dlzka v sekundach a frame-y pre stills (zaciatok akcie, stred, koniec). */
 export const SCENE_LIST: [string, SceneDef][] = [
   ['C1-Intro', { component: C1_Intro, seconds: 4, stills: [40, 75, 115] }],
-  ['C2-Problem', { component: C2_Problem, seconds: 14, stills: [120, 215, 400] }],
-  ['C3-Cena', { component: C3_Cena, seconds: 7, stills: [40, 100, 190] }],
-  ['C4-Teren', { component: C4_Teren, seconds: 10, stills: [70, 170, 285] }],
-  ['C5-Spracovanie', { component: C5_Spracovanie, seconds: 14, stills: [80, 180, 390] }],
-  ['C6-Vysledok', { component: C6_Vysledok, seconds: 14, stills: [150, 250, 390] }],
-  ['C7-Pilot', { component: C7_Pilot, seconds: 7, stills: [50, 110, 180] }],
-  ['C8-Outro', { component: C8_Outro, seconds: 5, stills: [40, 120] }],
+  ['C2-Kancelaria', { component: C2_Kancelaria, seconds: 7, stills: [40, 105, 200] }],
+  ['C3-Sklad', { component: C3_Sklad, seconds: 14, stills: [120, 215, 400] }],
+  ['C4-Cena', { component: C4_Cena, seconds: 7, stills: [40, 100, 190] }],
+  ['C5-Teren', { component: C5_Teren, seconds: 10, stills: [70, 170, 285] }],
+  ['C6-Spracovanie', { component: C6_Spracovanie, seconds: 7, stills: [40, 110, 200] }],
+  ['C7-Hierarchia', { component: C7_Hierarchia, seconds: 9, stills: [90, 150, 260] }],
+  ['C8-Pilot', { component: C8_Pilot, seconds: 7, stills: [50, 110, 180] }],
+  ['C9-Outro', { component: C9_Outro, seconds: 5, stills: [40, 120] }],
 ];
 
 /** Volitelne sceny v starom layoute (nie su v jadre videa). */

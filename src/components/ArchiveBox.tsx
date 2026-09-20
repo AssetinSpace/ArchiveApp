@@ -21,14 +21,61 @@ export type ArchiveBoxState = {
 export const archiveBoxClosed: ArchiveBoxState = { lid: 0, binders: [0, 0, 0], qr: [0, 0, 0, 0] };
 export const archiveBoxOpen: ArchiveBoxState = { lid: 1, binders: [1, 1, 1], qr: [1, 1, 1, 1] };
 
-const Qr: React.FC<{ s: number; cx: number; cy: number; accent: string; paths: string[] }> = ({ s, cx, cy, accent, paths }) => (
-  <g opacity={Math.min(1, s * 1.3)} transform={`translate(${cx} ${cy}) scale(${s}) translate(${-cx} ${-cy})`}>
-    <path fill={accent} d={paths[0]} />
-    {paths.slice(1).map((d, i) => (
-      <path key={i} fill={ISO.ink} d={d} />
-    ))}
-  </g>
-);
+/**
+ * QR nalepka: biela plocha (geometria z dlazdice), ink moduly z dlazdice
+ * a tri finder stvorce v rohoch - aby aj laik na prvy pohlad videl QR.
+ * Finder stvorce sa odvodzuju z nalepky: p0..p3 = rohy stvoruholnika.
+ */
+const Qr: React.FC<{ s: number; cx: number; cy: number; accent: string; paths: string[] }> = ({ s, cx, cy, paths }) => {
+  const nums = paths[0].match(/-?[\d.]+/g)!.map(Number);
+  const P: [number, number][] = [
+    [nums[0], nums[1]],
+    [nums[2], nums[3]],
+    [nums[4], nums[5]],
+    [nums[6], nums[7]],
+  ];
+  // bilinearna interpolacia vnutri stvoruholnika (u pozdlz P0->P1, v pozdlz P0->P3)
+  const at = (u: number, v: number): [number, number] => {
+    const ax = P[0][0] + (P[1][0] - P[0][0]) * u,
+      ay = P[0][1] + (P[1][1] - P[0][1]) * u;
+    const bx = P[3][0] + (P[2][0] - P[3][0]) * u,
+      by = P[3][1] + (P[2][1] - P[3][1]) * u;
+    return [ax + (bx - ax) * v, ay + (by - ay) * v];
+  };
+  const quad = (u0: number, v0: number, k: number) => [at(u0, v0), at(u0 + k, v0), at(u0 + k, v0 + k), at(u0, v0 + k)].map((p) => p.join(',')).join(' ');
+  const finders: [number, number][] = [
+    [0.08, 0.08],
+    [0.62, 0.08],
+    [0.08, 0.62],
+  ];
+  return (
+    <g opacity={Math.min(1, s * 1.3)} transform={`translate(${cx} ${cy}) scale(${s}) translate(${-cx} ${-cy})`}>
+      <path fill="#fff" stroke={ISO.edge} strokeWidth={0.8} d={paths[0]} />
+      {finders.map(([u, v], i) => (
+        <g key={i}>
+          <polygon points={quad(u, v, 0.3)} fill={ISO.ink} />
+          <polygon points={quad(u + 0.06, v + 0.06, 0.18)} fill="#fff" />
+          <polygon points={quad(u + 0.11, v + 0.11, 0.08)} fill={ISO.ink} />
+        </g>
+      ))}
+      {[
+        [0.62, 0.62, 0.1],
+        [0.78, 0.7, 0.08],
+        [0.66, 0.82, 0.08],
+        [0.45, 0.45, 0.09],
+        [0.45, 0.12, 0.08],
+        [0.12, 0.46, 0.08],
+        [0.8, 0.5, 0.08],
+        [0.5, 0.8, 0.08],
+      ].map(([u, v, k], i) => (
+        <polygon key={`d${i}`} points={quad(u, v, k)} fill={ISO.ink} />
+      ))}
+    </g>
+  );
+};
+
+/** px na 1 cm pri danej velkosti komponentu (krabica ~136 vb-jednotiek = 52 cm). */
+export const archiveBoxPxPerCm = (size: number) => ((size / 240) * 136) / 52;
 
 export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accent?: string; showQr?: boolean; style?: React.CSSProperties }> = ({
   state,

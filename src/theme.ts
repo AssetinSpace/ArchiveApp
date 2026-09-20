@@ -87,3 +87,24 @@ export const modeColors = (mode: Mode) =>
         kicker: BRAND[700],
         rule: INK[200],
       };
+
+/** Bezpecne zony: ilustracia nesmie pod illoBottom, caption sedi na captionY. */
+export const SAFE = { illoTop: 60, illoBottom: 800, captionY: 880 };
+
+/**
+ * Mierka: 1 jednotka iso sveta = 1 cm. Kazdy klip si zvoli jedno PX_PER_CM
+ * a cela ilustracia sa nim skaluje - 2D prvky (list, mobil) sa odvodzuju
+ * z tej istej hodnoty, nie odhadom.
+ */
+export const CM = {
+  carton: { w: 52, d: 36, h: 36 },
+  binder: { w: 32, d: 8, h: 44 },
+  pallet: { w: 120, d: 80, h: 14 },
+  shelf: { w: 130, d: 60, level: 60 },
+  cabinet: { w: 100, d: 45, h: 200 },
+  desk: { w: 160, d: 80, h: 75 },
+  roll: { dia: 8, len: 90 },
+  sheet: { w: 21, h: 30 },
+  phone: { w: 7, h: 15 },
+  person: 170,
+};

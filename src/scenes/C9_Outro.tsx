@@ -6,10 +6,10 @@ import { settle } from '../lib/anim';
 import { sk } from '../copy/sk';
 import { BRAND, FONT } from '../theme';
 
-/** C8 - Outro na zelenom pozadi ako strana 12 brozury; kontakty. 5 s. */
+/** C9 - Outro na zelenom pozadi ako strana 12 brozury; kontakty. 5 s. */
 const T = sk.S12;
 
-export const C8_Outro: React.FC = () => {
+export const C9_Outro: React.FC = () => {
   const frame = useCurrentFrame();
   React.useEffect(() => {
     loadFonts();

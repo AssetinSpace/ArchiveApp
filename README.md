@@ -17,7 +17,7 @@ slúži len ako úložisko video projektu.
 ```bash
 npm install
 npm run dev            # Remotion Studio (náhľad + timeline) na http://localhost:3000
-npm run stills         # PNG stills všetkých klipov do out/stills/ (3 na klip: _1, _2, _3)
+npm run stills         # PNG stills všetkých klipov do out/stills/ (3 na klip) + kontrola caption zóny
 npm run stills -- C4-Teren              # len vybraný klip
 npx remotion render C2-Problem out/x.mp4 --props='{"captions":false}'   # bez textu v obraze
 npm run render         # MP4 všetkých scén do out/mp4/
@@ -48,14 +48,24 @@ src/
     Device.tsx        PhoneFrame / WindowFrame – rámik zariadenia, fill 0..1 = nájazd na celý frame
     Text.tsx          Caption (jediný text v obraze) + Kicker/Headline/Body pre optional scény
     Illustrations.tsx Person, QuestionMark, Check, Sheet, PriceTag, Chip, PhotoCard, Floor
-  scenes/C1_…C8       klipy, Full.tsx = všetky za sebou s prelínaním, FootageFrame.tsx = footage v rámiku
+  scenes/C1_…C9       klipy, Full.tsx = všetky za sebou (tvrdé strihy), FootageFrame.tsx = footage v rámiku
   scenes/optional/    S04, S10 v starom layoute (mimo jadra)
 public/brand/         logo (kópia z assetin.sk)
 public/fonts/         Manrope 600/700/800, Inter 400/500/600 (TTF)
-scripts/stills.sh, render.sh
+scripts/stills.sh, render.sh, check-stills.mjs (kontrola, že ilustrácia nesiaha do caption zóny)
 out/stills/           schvaľovacie PNG (commitované)
 out/mp4/              finálne MP4 scén (commitované po schválení)
 ```
+
+## Mierka a bezpečné zóny
+
+- 1 jednotka iso sveta = 1 cm. Rozmery objektov sú v `CM` (`src/theme.ts`): krabica 52×36×36,
+  šanón 32×8×44, paleta 120×80×14, skriňa 100×45×200, A4 21×30, mobil 7×15 (v obraze ×1,4).
+  Každý klip si zvolí jedno `PX_PER_CM`; 2D prvky (list, mobil) sa odvodzujú z neho, nie odhadom.
+  Pri porte dlaždice `ArchiveBox` dáva prepočet `archiveBoxPxPerCm(size)`.
+- `SAFE` (`src/theme.ts`): ilustrácia y 60–800, caption y 880. `npm run stills` skontroluje pás 830–860.
+- QR kódy sú čierno-biele (`QrOnLeftFace`, `QrOnRightFace`, QR v `ArchiveBox` a `Sheet`); zelená patrí
+  len dianiu okolo (rámik skenu, blesk, check, glow).
 
 ## Ako pridať alebo upraviť scénu
 

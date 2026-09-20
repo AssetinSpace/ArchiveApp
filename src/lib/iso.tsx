@@ -15,6 +15,27 @@ export const iso = (x: number, y: number, z: number, ox = 0, oy = 0): P => [
 
 export const pts = (list: P[]) => list.map((p) => p.join(',')).join(' ');
 
+/** Finder stvorce (lavy dolny, lavy horny, pravy horny) a pevne datove moduly v 9x9 mriezke. */
+export const QR_FINDERS: [number, number][] = [
+  [0.5, 0.5],
+  [0.5, 5.5],
+  [5.5, 5.5],
+];
+export const QR_DATA: [number, number][] = [
+  [4.5, 1],
+  [5.5, 1.5],
+  [7, 1],
+  [4.5, 3],
+  [6.5, 3],
+  [7.5, 2],
+  [1.5, 4.2],
+  [3, 4.5],
+  [4.5, 4.5],
+  [7.5, 4],
+  [4.2, 6.5],
+  [4.2, 7.5],
+];
+
 export type Faces = { top?: string; left?: string; right?: string; edge?: string };
 
 /**
@@ -82,8 +103,8 @@ export const QrOnLeftFace: React.FC<{
   opacity?: number;
 }> = ({ x, y, z, size, s = 1, opacity = 1 }) => {
   const [cx, cy] = iso(x + size / 2, y, z + size / 2);
-  const m = size / 7; // modul
-  const sq = (mx: number, mz: number, k = 2) =>
+  const m = size / 9; // modul (9x9 mriezka: 3 finder + data)
+  const sq = (mx: number, mz: number, k = 1) =>
     pts([
       iso(x + mx * m, y, z + mz * m),
       iso(x + (mx + k) * m, y, z + mz * m),
@@ -92,12 +113,17 @@ export const QrOnLeftFace: React.FC<{
     ]);
   return (
     <g opacity={opacity} transform={`translate(${cx} ${cy}) scale(${s}) translate(${-cx} ${-cy})`}>
-      <polygon points={sq(0, 0, 7)} fill={ISO.accent} />
-      <polygon points={sq(0.6, 4.4)} fill={ISO.ink} />
-      <polygon points={sq(4.4, 4.4)} fill={ISO.ink} />
-      <polygon points={sq(0.6, 0.6)} fill={ISO.ink} />
-      <polygon points={sq(2.6, 2.6)} fill={ISO.ink} />
-      <polygon points={sq(4.6, 0.6)} fill={ISO.ink} />
+      <polygon points={sq(0, 0, 9)} fill="#fff" stroke={ISO.edge} strokeWidth={0.6} />
+      {QR_FINDERS.map(([fx, fz], i) => (
+        <g key={i}>
+          <polygon points={sq(fx, fz, 3)} fill={ISO.ink} />
+          <polygon points={sq(fx + 0.6, fz + 0.6, 1.8)} fill="#fff" />
+          <polygon points={sq(fx + 1.1, fz + 1.1, 0.8)} fill={ISO.ink} />
+        </g>
+      ))}
+      {QR_DATA.map(([mx, mz], i) => (
+        <polygon key={`d${i}`} points={sq(mx, mz)} fill={ISO.ink} />
+      ))}
     </g>
   );
 };
@@ -112,8 +138,8 @@ export const QrOnRightFace: React.FC<{
   opacity?: number;
 }> = ({ x, y, z, size, s = 1, opacity = 1 }) => {
   const [cx, cy] = iso(x, y + size / 2, z + size / 2);
-  const m = size / 7;
-  const sq = (my: number, mz: number, k = 2) =>
+  const m = size / 9;
+  const sq = (my: number, mz: number, k = 1) =>
     pts([
       iso(x, y + my * m, z + mz * m),
       iso(x, y + (my + k) * m, z + mz * m),
@@ -122,12 +148,17 @@ export const QrOnRightFace: React.FC<{
     ]);
   return (
     <g opacity={opacity} transform={`translate(${cx} ${cy}) scale(${s}) translate(${-cx} ${-cy})`}>
-      <polygon points={sq(0, 0, 7)} fill={ISO.accent} />
-      <polygon points={sq(0.6, 4.4)} fill={ISO.ink} />
-      <polygon points={sq(4.4, 4.4)} fill={ISO.ink} />
-      <polygon points={sq(0.6, 0.6)} fill={ISO.ink} />
-      <polygon points={sq(2.6, 2.6)} fill={ISO.ink} />
-      <polygon points={sq(4.6, 0.6)} fill={ISO.ink} />
+      <polygon points={sq(0, 0, 9)} fill="#fff" stroke={ISO.edge} strokeWidth={0.6} />
+      {QR_FINDERS.map(([fx, fz], i) => (
+        <g key={i}>
+          <polygon points={sq(fx, fz, 3)} fill={ISO.ink} />
+          <polygon points={sq(fx + 0.6, fz + 0.6, 1.8)} fill="#fff" />
+          <polygon points={sq(fx + 1.1, fz + 1.1, 0.8)} fill={ISO.ink} />
+        </g>
+      ))}
+      {QR_DATA.map(([my, mz], i) => (
+        <polygon key={`d${i}`} points={sq(my, mz)} fill={ISO.ink} />
+      ))}
     </g>
   );
 };
@@ -137,16 +168,16 @@ export const Carton: React.FC<{ x: number; y: number; z: number; w?: number; d?:
   x,
   y,
   z,
-  w = 40,
-  d = 40,
-  h = 28,
+  w = 52,
+  d = 36,
+  h = 36,
   qr = 0,
 }) => (
   <g>
     <IsoBox x={x} y={y} z={z} w={w} d={d} h={h} stroke />
     {/* veko: tenka doska presahujuca o 2 */}
     <IsoBox x={x - 2} y={y - 2} z={z + h} w={w + 4} d={d + 4} h={4} />
-    {qr > 0 ? <QrOnLeftFace x={x + w * 0.3} y={y + d} z={z + h * 0.25} size={w * 0.4} s={qr} opacity={Math.min(1, qr * 1.5)} /> : null}
+    {qr > 0 ? <QrOnLeftFace x={x + w * 0.32} y={y + d} z={z + h * 0.3} size={w * 0.36} s={qr} opacity={Math.min(1, qr * 1.5)} /> : null}
   </g>
 );
 
@@ -155,8 +186,8 @@ export const Pallet: React.FC<{ x: number; y: number; z?: number; w?: number; d?
   x,
   y,
   z = 0,
-  w = 96,
-  d = 96,
+  w = 120,
+  d = 80,
 }) => (
   <g>
     {[0, 1, 2].map((i) => (
@@ -216,3 +247,97 @@ export const Binder: React.FC<{ x: number; y: number; z: number; w?: number; d?:
     {qr > 0 ? <QrOnLeftFace x={x + w * 0.18} y={y + d} z={z + h * 0.5} size={w * 0.45} s={qr} opacity={Math.min(1, qr * 1.5)} /> : null}
   </g>
 );
+
+/** Stol s monitorom (cm). Predny lavy roh (x,y). */
+export const Desk: React.FC<{ x: number; y: number; w?: number; d?: number; h?: number }> = ({ x, y, w = 160, d = 80, h = 75 }) => (
+  <g>
+    {[
+      [x + 4, y + 4],
+      [x + w - 10, y + 4],
+      [x + 4, y + d - 10],
+      [x + w - 10, y + d - 10],
+    ].map(([px, py], i) => (
+      <IsoBox key={i} x={px} y={py} z={0} w={6} d={6} h={h - 4} faces={{ top: ISO.right, left: ISO.edge, right: ISO.ink }} />
+    ))}
+    <IsoBox x={x} y={y} z={h - 4} w={w} d={d} h={4} faces={{ top: ISO.top, left: ISO.left, right: ISO.right }} stroke />
+    {/* monitor: stojan + panel (tenky kvader) */}
+    <IsoBox x={x + w * 0.55} y={y + 14} z={h} w={20} d={14} h={3} faces={{ top: ISO.right, left: ISO.edge, right: ISO.edge }} />
+    <IsoBox x={x + w * 0.55 + 8} y={y + 20} z={h + 3} w={4} d={3} h={14} faces={{ top: ISO.edge, left: ISO.edge, right: ISO.ink }} />
+    <IsoBox x={x + w * 0.55 - 12} y={y + 20} z={h + 16} w={46} d={2} h={30} faces={{ top: ISO.right, left: ISO.ink, right: ISO.edge }} />
+  </g>
+);
+
+/** Kancelarska stolicka - zjednodusena. */
+export const Chair: React.FC<{ x: number; y: number }> = ({ x, y }) => (
+  <g>
+    <IsoBox x={x + 18} y={y + 18} z={0} w={6} d={6} h={40} faces={{ top: ISO.edge, left: ISO.edge, right: ISO.ink }} />
+    <IsoBox x={x} y={y} z={40} w={44} d={44} h={6} faces={{ top: ISO.right, left: ISO.edge, right: ISO.ink }} />
+    <IsoBox x={x} y={y} z={46} w={44} d={5} h={44} faces={{ top: ISO.right, left: ISO.edge, right: ISO.ink }} />
+  </g>
+);
+
+/** Rolka pare (valec ako uzky kvader s kruhovymi celami) leziaca v smere x. */
+export const Roll: React.FC<{ x: number; y: number; z: number; len?: number; dia?: number; opacity?: number }> = ({ x, y, z, len = 90, dia = 8, opacity = 1 }) => (
+  <g opacity={opacity}>
+    <IsoBox x={x} y={y} z={z} w={len} d={dia} h={dia} faces={{ top: '#fff', left: ISO.top, right: ISO.left }} />
+    {(() => {
+      const c = iso(x + len, y + dia / 2, z + dia / 2);
+      return <ellipse cx={c[0]} cy={c[1]} rx={dia * 0.55} ry={dia * 0.62} fill={ISO.right} stroke={ISO.edge} strokeWidth={0.8} />;
+    })()}
+  </g>
+);
+
+/**
+ * Skrina s dvoma dverami a policami. `open` 0..1: lave dvere sa "sklopia"
+ * k pantu (panel sa skaluje k lavej hrane a stmavne), prave dvere rovnako
+ * k pravej hrane. Obsah polic sa kresli zvlast cez `children` (v iso
+ * suradniciach vnutra), aby sa dal animovat.
+ */
+export const Cabinet: React.FC<{ x: number; y: number; w?: number; d?: number; h?: number; open?: number; children?: React.ReactNode }> = ({
+  x,
+  y,
+  w = 100,
+  d = 45,
+  h = 200,
+  open = 0,
+  children,
+}) => {
+  const t = 3; // hrubka stien
+  const shelves = 4;
+  return (
+    <g>
+      {/* korpus: zadna stena, dno, bocnice, vrch */}
+      <IsoBox x={x} y={y} z={0} w={w} d={t} h={h} faces={{ top: ISO.left, left: ISO.left, right: ISO.right }} />
+      <IsoBox x={x} y={y} z={0} w={t} d={d} h={h} faces={{ top: ISO.left, left: ISO.left, right: ISO.right }} />
+      <IsoBox x={x + w - t} y={y} z={0} w={t} d={d} h={h} faces={{ top: ISO.left, left: ISO.left, right: ISO.right }} />
+      {Array.from({ length: shelves + 1 }).map((_, i) => (
+        <IsoBox key={i} x={x + t} y={y + t} z={(i * (h - t)) / shelves} w={w - 2 * t} d={d - t} h={t} faces={{ top: ISO.left, left: ISO.right, right: ISO.edge }} />
+      ))}
+      {children}
+      {/* dvere na prednej (lavej) ploche y = d: dva panely */}
+      {(() => {
+        const half = (w - 2 * t) / 2;
+        const door = (dx: number, hingeLeft: boolean) => {
+          const a = iso(x + t + dx, y + d, t),
+            b = iso(x + t + dx + half, y + d, t),
+            c = iso(x + t + dx + half, y + d, h - t),
+            dd = iso(x + t + dx, y + d, h - t);
+          const hinge = hingeLeft ? a : b;
+          const sx = 1 - open * 0.85;
+          return (
+            <g transform={`translate(${hinge[0]} ${hinge[1]}) scale(${sx} 1) translate(${-hinge[0]} ${-hinge[1]})`}>
+              <polygon points={pts([a, b, c, dd])} fill={open > 0.5 ? ISO.right : ISO.top} stroke={ISO.edge} strokeWidth={1.2} />
+              <circle cx={hingeLeft ? b[0] - 6 : a[0] + 6} cy={(b[1] + c[1]) / 2} r={1.6} fill={ISO.edge} />
+            </g>
+          );
+        };
+        return (
+          <g>
+            {door(0, true)}
+            {door(half, false)}
+          </g>
+        );
+      })()}
+    </g>
+  );
+};
