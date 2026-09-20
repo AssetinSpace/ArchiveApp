@@ -3,7 +3,7 @@ import { useCurrentFrame } from 'remotion';
 import { Scene, useCaptions } from '../components/Scene';
 import { Caption } from '../components/Text';
 import { Camera } from '../lib/camera';
-import { Carton, Pallet, ShelfFrame, iso } from '../lib/iso';
+import { Binder, Carton, IsoBox, OpenCarton, Pallet, ShelfFrame, iso } from '../lib/iso';
 import { Floor, Person, QuestionMark } from '../components/Illustrations';
 import { pop, settle, tween } from '../lib/anim';
 import { captions } from '../copy/sk';
@@ -25,9 +25,8 @@ const PATH: [number, number][] = [
   [40, 140],
   [200, 140],
   [200, 120],
-  [340, 120],
-  [340, 140],
-  [470, 140],
+  [305, 120],
+  [305, 138],
 ];
 export const PALLETS = [
   { x: 110, y: 230 },
@@ -43,7 +42,7 @@ export const SHELVES = [
 export const TARGET_SHELF = SHELVES[1];
 export const SHELF_LEVEL = 1;
 export const ZOOM = 1.8;
-const T = toScreen(iso(TARGET_SHELF.x + 68, TARGET_SHELF.y + 30, SHELF_LEVEL * CM.shelf.level + 5));
+const T = toScreen(iso(TARGET_SHELF.x + 68, TARGET_SHELF.y + 30, SHELF_LEVEL * CM.shelf.level - 26));
 export const CAM_END = { x: T[0] - 960, y: T[1] - 540, scale: ZOOM };
 
 /** Otvorenie krabice: veko hore, 3 zlozky sa postupne vyberu (zdvihnu, podrzia, vratia), veko dole. */
@@ -60,25 +59,22 @@ export const SearchCarton: React.FC<{ x: number; y: number; z: number; lid: numb
   const w = CM.carton.w,
     d = CM.carton.d,
     h = CM.carton.h;
+  const isOpen = lid > 0.05;
   return (
     <g>
-      {/* telo bez veka */}
-      <Carton x={x} y={y} z={z} w={w} d={d} h={h} />
-      {/* zlozky vnutri (vycnievaju pri vybrati) */}
-      {binders.map((b, i) => (
-        <g key={i} transform={`translate(0 ${-b * 34 * SV * 0.0}) `}>
-          {b > 0 ? (
-            <g transform={`translate(0 ${-b * 20})`}>
-              <Carton x={x + 6 + i * 14} y={y + 4} z={z + h - 4} w={10} d={d - 8} h={CM.binder.h - 4} qr={0} />
-            </g>
-          ) : null}
-        </g>
-      ))}
-      {/* veko: zdvihne sa a odklopi */}
-      <g transform={`translate(0 ${-lid * 24})`} opacity={1}>
-        <g transform={`translate(${lid * 26} 0)`}>
-          <Carton x={x - 2} y={y - 2} z={z + h} w={w + 4} d={d + 4} h={4} />
-        </g>
+      {isOpen ? (
+        <OpenCarton x={x} y={y} z={z} w={w} d={d} h={h}>
+          {/* zlozky stojace vnutri: pri vybrati sa zdvihnu nad okraj */}
+          {binders.map((b, i) => (
+            <Binder key={i} x={x + 8 + i * 14} y={y + 8} z={z + 2} w={8} d={d - 16} h={CM.binder.h - 4} lift={b * 30} />
+          ))}
+        </OpenCarton>
+      ) : (
+        <Carton x={x} y={y} z={z} w={w} d={d} h={h} />
+      )}
+      {/* veko: zdvihne sa a odklopi dozadu */}
+      <g transform={`translate(${lid * 44} ${-lid * 46})`}>
+        <IsoBox x={x - 2} y={y - 2} z={z + h} w={w + 4} d={d + 4} h={4} stroke />
       </g>
     </g>
   );
@@ -132,19 +128,20 @@ export const C3_Sklad: React.FC = () => {
             const isTarget = s === TARGET_SHELF;
             return (
               <g key={i} transform={`translate(0 ${(1 - t) * -30})`} opacity={t * (isTarget ? 1 : others)}>
-                <ShelfFrame x={s.x} y={s.y} w={CM.shelf.w} d={CM.shelf.d} levels={2} levelH={CM.shelf.level} />
-                {[0, 1].map((lvl) =>
-                  [0, 1].map((k) => {
-                    const cx = s.x + 8 + k * 60,
-                      cy = s.y + 12,
-                      cz = lvl * CM.shelf.level + 5;
-                    if (isTarget && lvl === SHELF_LEVEL) {
-                      const st = k === 0 ? A : B;
-                      return <SearchCarton key={`${lvl}${k}`} x={cx} y={cy} z={cz} lid={st.lid} binders={st.binders} />;
-                    }
-                    return <Carton key={`${lvl}${k}`} x={cx} y={cy} z={cz} />;
-                  }),
-                )}
+                <ShelfFrame x={s.x} y={s.y} w={CM.shelf.w} d={CM.shelf.d} levels={2} levelH={CM.shelf.level} topBoard={false}>
+                  {(lvl) =>
+                    [0, 1].map((k) => {
+                      const cx = s.x + 8 + k * 60,
+                        cy = s.y + 12,
+                        cz = lvl * CM.shelf.level + 4;
+                      if (isTarget && lvl === SHELF_LEVEL) {
+                        const st = k === 0 ? A : B;
+                        return <SearchCarton key={`${lvl}${k}`} x={cx} y={cy} z={cz} lid={st.lid} binders={st.binders} />;
+                      }
+                      return <Carton key={`${lvl}${k}`} x={cx} y={cy} z={cz} />;
+                    })
+                  }
+                </ShelfFrame>
                 {isTarget ? (() => {
                   const [qx, qy] = iso(s.x + 65, s.y + 30, 2 * CM.shelf.level + 14);
                   return <QuestionMark x={qx} y={qy} s={qEnd * 0.4} />;
@@ -161,13 +158,13 @@ export const C3_Sklad: React.FC = () => {
                 </g>
               );
             })}
-            <Person x={sx} y={sy} scale={1.4} color="#ffffff" opacity={tw(1400, 300) * (1 - tw(6000, 800))} />
             {qm.map(([x, y, s0, z], i) => {
               const s = pop(frame, s0) * (1 - tw(6000, 600));
               const [qx, qy] = iso(x, y, 140 + z);
               return <QuestionMark key={i} x={qx} y={qy} s={s * 1.3} />;
             })}
           </g>
+          <Person x={sx} y={sy} scale={1.4} color="#ffffff" opacity={tw(1400, 300) * (1 - tw(6500, 800))} />
         </svg>
       </Camera>
 

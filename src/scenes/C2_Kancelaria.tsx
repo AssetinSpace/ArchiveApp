@@ -7,7 +7,7 @@ import { Binder, Cabinet, Chair, Desk, IsoBox, Roll, iso } from '../lib/iso';
 import { Floor, Person, QuestionMark } from '../components/Illustrations';
 import { pop, settle, tween } from '../lib/anim';
 import { captions } from '../copy/sk';
-import { CM, ISO, SAFE } from '../theme';
+import { BRAND, CM, ISO, SAFE } from '../theme';
 
 /**
  * C2 - Kancelaria: stol so stolickou, skrina. Panacik pride ku skrini,
@@ -65,11 +65,11 @@ export const C2_Kancelaria: React.FC = () => {
       <Camera keys={[{ ms: 1500, x: 0, y: 0, scale: 1 }, { ms: 5500, x: camX * 0.45, y: camY * 0.25, scale: 1.12 }]}>
         <svg width={1920} height={1080} viewBox="-400 -60 800 450" style={{ position: 'absolute', left: 0, top: 0, opacity: appear, transform: `translateY(${(1 - appear) * 30}px)` }}>
           <Floor x={-40} y={-40} w={520} d={420} fill="#263246" edge="#131F31" />
-          <Desk x={60} y={150} />
-          <Chair x={110} y={238} />
-          <Lying x={80} y={160} z={75} />
-          <Papers x={124} y={158} z={75} h={5} />
-          <Papers x={132} y={176} z={80} h={3} />
+          <Desk x={40} y={160} />
+          <Chair x={90} y={248} />
+          <Lying x={60} y={170} z={75} />
+          <Papers x={104} y={168} z={75} h={5} />
+          <Papers x={112} y={186} z={80} h={3} />
 
           {/* vyhodene veci na podlahe (pod skrinou v z-order, ale pred nou v y) */}
           {thrown.map((it, i) => {
@@ -108,10 +108,11 @@ export const C2_Kancelaria: React.FC = () => {
             <Papers x={CAB.x + 62} y={CAB.y + 10} z={2 * LEVEL + 3} h={6} />
           </Cabinet>
 
-          <Person x={sx} y={sy} scale={1} color="#ffffff" opacity={tw(800, 300)} />
+          <Person x={sx} y={sy} scale={1} color={BRAND[400]} opacity={tw(800, 300)} />
           {qm.map((s, i) => {
-            const [qx, qy] = iso(px - 10 + i * 22, py - 10, CM.person + 25 + (i % 2) * 16);
-            return <QuestionMark key={i} x={qx} y={qy} s={s * 0.9} />;
+            // tesne nad hlavou, vlavo hore od panacika (nad volnou podlahou medzi stolom a skrinou)
+            const [qx, qy] = iso(px - 30 + i * 18, py - 4, 112 + (i % 2) * 16 + (i === 2 ? 6 : 0));
+            return <QuestionMark key={i} x={qx} y={qy} s={s * 0.7} />;
           })}
         </svg>
       </Camera>

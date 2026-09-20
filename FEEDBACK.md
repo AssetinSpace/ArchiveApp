@@ -22,3 +22,13 @@
 | C3 Sklad | Polica na konci rozbitá, krabice splývajú, zložky a otázniky mimo obraz. | Menšie priblíženie a kamera nižšie (regál celý v obraze), menší zdvih zložiek, otáznik tesne nad regálom, obrysy na vekách krabíc. |
 | C4 Cena | Veľa otáznikov, tikajúce hodiny, šípka → nové vyhotovenie (rýchlejšie spraviť nanovo než hľadať). | Nová os: otázniky nad regálom, hodiny s točiacou sa ručičkou uprostred, šípka k výkresu, cenovky, až potom 2×. 9 s. |
 | C7 Hierarchia | Polica nie je celá; krabica z C5 je inak otočená než ostatné; podstavec buď všade, alebo nikde. | Uzly nižšie (celý rám v obraze); veľká krabica sa na konci oddialenia prelína do rovnakej krabice ako ostatné uzly (bez podstavca). |
+
+## Kolo 6 (20. 9. 2026)
+
+| Klip | Pripomienka (skrátene) | Riešenie |
+|---|---|---|
+| C1 Intro | Vycentrovať; text má zmiznúť v domčeku, domček skončí v strede a kamera preletí dovnútra. | Lockup centrovaný; pri zasúvaní textu sa skupina posunie tak, že domček je presne v strede, keď text zmizne; nájazd má stred v interiéri domčeka. |
+| C2 Kancelária | Otázniky bližšie k panáčikovi, nič neprekrývať; panáčik výraznejší, nie biely. | Otázniky tesne nad hlavou (nad voľnou podlahou medzi stolom a skriňou), stôl mierne odsunutý; panáčik v zelenej (brand). |
+| C3 Sklad | Priblíži sa iný regál, než ku ktorému panáčik prišiel; nevidno dno a hĺbku krabice; regál rozbitý (dosky nenadväzujú na stĺpiky). | Cesta končí pred stredným regálom, ktorý sa priblíži; panáčik bledne až počas nájazdu. Nová otvorená krabica (vnútorné steny, dno, zložky vnútri trčia von). Regál kreslený po vrstvách (stĺpiky po úrovniach, dosky so stĺpikmi nadväzujú), bez vrchnej dosky, aby bolo vidieť do krabíc. |
+| C4 Cena | Regál rozbitý; otázniky nad krabicami; hodiny nevycentrované a splývajú. | Rovnaký opravený regál; otázniky v dvoch zhlukoch nad stĺpcami krabíc; hodiny s tmavým ciferníkom a bielym prstencom v strede medzery medzi regálom a výkresom; šípka a výkres posunuté; „2×“ nad hodinami. |
+| C7 Hierarchia | Nevidno, že je to tá istá krabica; polička potrebuje ďalší rad a rovnakú opravu; zelené kruhy prekrývajú všetko. | Uzol „Krabica“ je priamo krabica z C5; súrodenci sú rovnaké krabice, objavia sa s medzerou uprostred a KR_01 sa do nej zasunie. Polica 2 rady (4 krabice) s opraveným regálom. Zelené kruhy odstránené, vetva sa zvýrazní len čiarou a rámčekom skenu. |

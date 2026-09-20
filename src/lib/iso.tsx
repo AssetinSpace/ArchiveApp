@@ -207,28 +207,82 @@ export const Pallet: React.FC<{ x: number; y: number; z?: number; w?: number; d?
 );
 
 /** Regal: dve police so stlpikmi. Obsah sa kresli zvlast. */
-export const ShelfFrame: React.FC<{ x: number; y: number; w: number; d: number; levels: number; levelH: number }> = ({
+export const ShelfFrame: React.FC<{
+  x: number;
+  y: number;
+  w: number;
+  d: number;
+  levels: number;
+  levelH: number;
+  /** obsah kazdej urovne (kresli sa medzi doskou a doskou nad nou) */
+  children?: (level: number) => React.ReactNode;
+  /** vrchna doska (false = otvoreny vrch, vidno do krabic na hornej urovni) */
+  topBoard?: boolean;
+}> = ({ x, y, w, d, levels, levelH, children, topBoard = true }) => {
+  const P = 6; // hrubka stlpika
+  const B = 4; // hrubka dosky
+  const post = { top: ISO.right, left: ISO.edge, right: ISO.ink };
+  const board = { top: ISO.right, left: ISO.edge, right: ISO.edge, edge: ISO.ink };
+  const H = levels * levelH + (topBoard ? B : 0);
+  const Board: React.FC<{ z: number }> = ({ z }) => <IsoBox x={x} y={y} z={z} w={w} d={d} h={B} faces={board} stroke />;
+  return (
+    <g>
+      {/* zadny stlpik v plnej vyske */}
+      <IsoBox x={x} y={y} z={0} w={P} d={P} h={H} faces={post} />
+      {Array.from({ length: levels }).map((_, i) => (
+        <g key={i}>
+          <Board z={i * levelH} />
+          {/* bocne stlpiky po urovniach: nad doskou, pod doskou nad nimi */}
+          <IsoBox x={x + w - P} y={y} z={i * levelH} w={P} d={P} h={levelH + (topBoard || i < levels - 1 ? B : 0)} faces={post} />
+          <IsoBox x={x} y={y + d - P} z={i * levelH} w={P} d={P} h={levelH + (topBoard || i < levels - 1 ? B : 0)} faces={post} />
+          {children ? children(i) : null}
+        </g>
+      ))}
+      {topBoard ? <Board z={levels * levelH} /> : null}
+      {/* predny stlpik v plnej vyske */}
+      <IsoBox x={x + w - P} y={y + d - P} z={0} w={P} d={P} h={H} faces={post} />
+    </g>
+  );
+};
+
+/**
+ * Otvorena krabica (bez veka): vidno vnutorne zadne steny a dno; deti (zlozky)
+ * sa kreslia vo vnutri, predne steny ich prekryju zospodu.
+ */
+export const OpenCarton: React.FC<{ x: number; y: number; z: number; w?: number; d?: number; h?: number; children?: React.ReactNode }> = ({
   x,
   y,
-  w,
-  d,
-  levels,
-  levelH,
-}) => (
-  <g>
-    {Array.from({ length: levels + 1 }).map((_, i) => (
-      <IsoBox key={`s${i}`} x={x} y={y} z={i * levelH} w={w} d={d} h={5} faces={{ top: ISO.left, left: ISO.right, right: ISO.edge }} />
-    ))}
-    {[
-      [x, y],
-      [x + w - 6, y],
-      [x, y + d - 6],
-      [x + w - 6, y + d - 6],
-    ].map(([px, py], i) => (
-      <IsoBox key={`p${i}`} x={px} y={py} z={0} w={6} d={6} h={levels * levelH + 5} faces={{ top: ISO.right, left: ISO.edge, right: ISO.ink }} />
-    ))}
-  </g>
-);
+  z,
+  w = 52,
+  d = 36,
+  h = 36,
+  children,
+}) => {
+  const t = 2; // hrubka steny
+  const A0 = iso(x, y, z + t),
+    B0 = iso(x + w, y, z + t),
+    C0 = iso(x + w, y + d, z + t),
+    D0 = iso(x, y + d, z + t);
+  const A1 = iso(x, y, z + h),
+    B1 = iso(x + w, y, z + h),
+    D1 = iso(x, y + d, z + h);
+  return (
+    <g>
+      {/* vnutorne zadne steny (x = 0 a y = 0) a dno */}
+      <polygon points={pts([A1, B1, B0, A0])} fill={ISO.edge} />
+      <polygon points={pts([A1, D1, D0, A0])} fill={ISO.right} />
+      <polygon points={pts([A0, B0, C0, D0])} fill="#7b8290" />
+      {children}
+      {/* predne steny bez vrchnej plochy */}
+      <polygon points={pts([D1, iso(x + w, y + d, z + h), iso(x + w, y + d, z), iso(x, y + d, z)])} fill={ISO.left} />
+      <polygon points={pts([B1, iso(x + w, y + d, z + h), iso(x + w, y + d, z), iso(x + w, y, z)])} fill={ISO.right} />
+      <polyline points={pts([iso(x, y + d, z), iso(x + w, y + d, z), iso(x + w, y, z)])} fill="none" stroke={ISO.edge} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
+      {/* horny okraj sten (hrubka t) */}
+      <polygon points={pts([D1, iso(x + w, y + d, z + h), iso(x + w, y + d - t, z + h), iso(x + t, y + d - t, z + h)])} fill={ISO.top} />
+      <polygon points={pts([B1, iso(x + w, y + d, z + h), iso(x + w - t, y + d - t, z + h), iso(x + w - t, y + t, z + h)])} fill={ISO.top} />
+    </g>
+  );
+};
 
 /** Zlozka (A4 sanon) stojaca chrbtom dopredu-vlavo. */
 export const Binder: React.FC<{ x: number; y: number; z: number; w?: number; d?: number; h?: number; lift?: number; qr?: number }> = ({

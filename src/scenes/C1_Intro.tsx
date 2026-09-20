@@ -21,24 +21,28 @@ export const C1_Intro: React.FC = () => {
   const zoom = tw(3600, 1100);
   const scale = 1 + zoom * 40;
   const MARK = 150;
+  // lockup (domcek + text) je pocas drzania centrovany; pri zasunuti textu sa skupina
+  // posunie tak, ze domcek skonci presne v strede - kamera potom letí do neho.
+  const TEXT_W = 500; // sirka clip panelu
+  const LOCK_W = 370; // skutocna sirka textu (assetin 96 px + padding)
+  const back = tw(3000, 500);
+  const shift = (-(LOCK_W - 10) / 2) * (1 - back);
   return (
     <Scene mode="dark">
-      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', transform: `scale(${scale})`, transformOrigin: '50% 47%' }}>
-          {/* domcek: pri najazde sa jeho vnutro (biela) vyplni cely frame, potom stmavne do navy */}
-          <div style={{ position: 'relative', width: MARK, zIndex: 2, opacity: logo, transform: `scale(${0.85 + 0.15 * logo})` }}>
-            <LogoMark size={MARK} color="#fff" />
-            <div style={{ position: 'absolute', left: '22%', top: '46%', width: '42%', height: '30%', background: `rgba(8,17,31,${zoom})` }} />
+      <div style={{ position: 'absolute', left: 960 - MARK / 2 + shift, top: 540 - MARK / 2, width: MARK, height: MARK, transform: `scale(${scale})`, transformOrigin: '45% 62%' }}>
+        {/* text vychadza spoza domceka doprava a zasuva sa spat "do domceka" */}
+        <div style={{ position: 'absolute', left: MARK - 10, top: -10, width: TEXT_W, height: 170, overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', left: 0, top: 10, transform: `translateX(${(out - 1) * TEXT_W}px)`, opacity: Math.min(1, out * 2), fontFamily: FONT.display, fontWeight: 800, fontSize: 96, lineHeight: 1, color: '#fff', letterSpacing: '-0.02em', paddingLeft: 30, whiteSpace: 'nowrap' }}>
+            asset<span style={{ color: BRAND[400] }}>in</span>
           </div>
-          {/* wordmark vychadza spoza domceka doprava */}
-          <div style={{ position: 'relative', overflow: 'hidden', width: 520, height: 170, marginLeft: -10 }}>
-            <div style={{ position: 'absolute', left: 0, top: 10, transform: `translateX(${(out - 1) * 520}px)`, opacity: Math.min(1, out * 2), fontFamily: FONT.display, fontWeight: 800, fontSize: 96, lineHeight: 1, color: '#fff', letterSpacing: '-0.02em', paddingLeft: 30 }}>
-              asset<span style={{ color: BRAND[400] }}>in</span>
-            </div>
-            <div style={{ position: 'absolute', left: 0, top: 108, transform: `translateX(${(sub - 1) * 520}px)`, opacity: Math.min(1, sub * 2), fontFamily: FONT.display, fontWeight: 600, fontSize: 44, lineHeight: 1, color: BRAND[300], letterSpacing: '0.16em', textTransform: 'uppercase', paddingLeft: 34 }}>
-              Archives
-            </div>
+          <div style={{ position: 'absolute', left: 0, top: 108, transform: `translateX(${(sub - 1) * TEXT_W}px)`, opacity: Math.min(1, sub * 2), fontFamily: FONT.display, fontWeight: 600, fontSize: 44, lineHeight: 1, color: BRAND[300], letterSpacing: '0.16em', textTransform: 'uppercase', paddingLeft: 34, whiteSpace: 'nowrap' }}>
+            Archives
           </div>
+        </div>
+        {/* domcek: pri najazde sa jeho vnutro vyplni cely frame a stmavne do navy */}
+        <div style={{ position: 'absolute', inset: 0, opacity: logo, transform: `scale(${0.85 + 0.15 * logo})` }}>
+          <LogoMark size={MARK} color="#fff" />
+          <div style={{ position: 'absolute', left: '18%', top: '44%', width: '52%', height: '38%', background: `rgba(8,17,31,${zoom})` }} />
         </div>
       </div>
       {/* prechod do navy na konci (prvy frame C2 je navy) */}
