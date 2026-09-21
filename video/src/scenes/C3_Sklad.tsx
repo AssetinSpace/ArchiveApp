@@ -12,8 +12,8 @@ import { BRAND, CM, SAFE } from '../theme';
 /**
  * C3 - Sklad -> regal. Siroky zaber (regaly, palety, postavicka kluckuje
  * ulickou, cesta pod objektmi, "?"), kamera najde na policu s dvoma krabicami:
- * prva sa otvori, zlozky sa postupne vyberu a vratia, zatvori sa; to iste
- * druha; nic sa nenaslo, "?" nad regalom. Sklad je na scene hned. Koniec = zaciatok C4. 13 s.
+ * prva sa vytiahne dopredu, otvori, zlozky sa postupne vyberu a vratia,
+ * zatvori a zasunie; to iste druha; nic sa nenaslo, "?" nad regalom. Sklad je na scene hned. Koniec = zaciatok C4. 13 s.
  */
 export const SV = 1.7;
 export const VB = { x: -565, y: -100 };
@@ -47,18 +47,21 @@ export const CAM_END = { x: T[0] - 960, y: T[1] - 540, scale: ZOOM };
 
 /** Otvorenie krabice: veko hore, 3 zlozky sa postupne vyberu (zdvihnu, podrzia, vratia), veko dole. */
 export const searchBox = (tw: (s: number, d: number) => number, start: number) => {
+  // krabica sa najprv vytiahne z police dopredu (vidno jej bocnu stenu a hlbku), na konci sa zasunie
+  const out = tw(start - 400, 400) * (1 - tw(start + 3000, 400));
   const lid = tw(start, 400) * (1 - tw(start + 2600, 400));
   const binders = [0, 1, 2].map((i) => {
     const s = start + 500 + i * 650;
     return tw(s, 250) * (1 - tw(s + 400, 250));
   }) as [number, number, number];
-  return { lid, binders };
+  return { out, lid, binders };
 };
 
-export const SearchCarton: React.FC<{ x: number; y: number; z: number; lid: number; binders: [number, number, number] }> = ({ x, y, z, lid, binders }) => {
+export const SearchCarton: React.FC<{ x: number; y: number; z: number; out?: number; lid: number; binders: [number, number, number] }> = ({ x, y: y0, z, out = 0, lid, binders }) => {
   const w = CM.carton.w,
     d = CM.carton.d,
     h = CM.carton.h;
+  const y = y0 + 12 * out; // vytiahnuta dopredu az po hranu police
   const isOpen = lid > 0.05;
   return (
     <g>
@@ -66,7 +69,7 @@ export const SearchCarton: React.FC<{ x: number; y: number; z: number; lid: numb
         <OpenCarton x={x} y={y} z={z} w={w} d={d} h={h}>
           {/* zlozky stojace vnutri: pri vybrati sa zdvihnu nad okraj */}
           {binders.map((b, i) => (
-            <Binder key={i} x={x + 8 + i * 14} y={y + 8} z={z + 2} w={8} d={d - 16} h={CM.binder.h - 4} lift={b * 30} />
+            <Binder key={i} x={x + 9 + i * 13} y={y + 10} z={z + 3} w={8} d={d - 20} h={h - 3} lift={b * 30} />
           ))}
         </OpenCarton>
       ) : (
@@ -148,7 +151,7 @@ export const C3_Sklad: React.FC = () => {
                         cz = lvl * CM.shelf.level + 4;
                       if (isTarget && lvl === SHELF_LEVEL) {
                         const st = k === 0 ? A : B;
-                        return <SearchCarton key={`${lvl}${k}`} x={cx} y={cy} z={cz} lid={st.lid} binders={st.binders} />;
+                        return <SearchCarton key={`${lvl}${k}`} x={cx} y={cy} z={cz} out={st.out} lid={st.lid} binders={st.binders} />;
                       }
                       return <Carton key={`${lvl}${k}`} x={cx} y={cy} z={cz} />;
                     })

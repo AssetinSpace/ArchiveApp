@@ -124,3 +124,10 @@
 | Klip | Zadanie | Riešenie |
 |---|---|---|
 | F1 Sken | Doriešiť prechod animácia → footage: celá obrazovka alebo orez na appku; jemné „tapy“ na tlačidlách; mobil viac vľavo a vpravo sprievodný text. | Footage orezané o stavovú lištu iOS a lištu Safari, beží vnútri nášho rámika mobilu (rovnaký ako v C5). Prechod: z bieleho framu (koniec C5) sa displej stiahne doľava do mobilu, footage sa škáluje s ním; vpravo sprievodný text po krokoch (Krok 1/4 … 4/4: Typ jednotky · Priradiť QR · Odfotiť štítok · Skontrolovať a vytvoriť) s bodkami postupu; zelené „tapy“ na tlačidlách (Ďalej, Skenovať QR z prílohy, Odfotiť/nahrať, spúšť, Use Photo, Vytvoriť); na konci fade do bielej. |
+
+## Kolo 19 (21. 9. 2026)
+
+| Klip | Zadanie | Riešenie |
+|---|---|---|
+| C3 Sklad | Pri otvorení druhej krabice na polici nevidno jednu stenu krabice ani jej hĺbku. | Prehľadávaná krabica sa najprv vytiahne z police dopredu (po hranu dosky), až potom sa otvorí; po zatvorení sa zasunie späť. Vďaka tomu je vidieť jej pravú stenu (predtým ju prekrývala susedná krabica / stĺpik regálu). Otvorená krabica má nový vnútrajšok: tmavšie zadné steny, tmavé dno a hrubší lem všetkých štyroch stien, zložky sú nižšie a užšie, takže vidno dno okolo nich – krabica má zreteľnú hĺbku. Platí pre obe krabice (`OpenCarton` v `lib/iso.tsx`). |
+| C5 Terén | QR nálepky lietajú sekane; má to byť plynulé a pekne nadväzovať. ZL_01 (ID zložky) je prekryté – dať inde, logicky. | Let nálepky predĺžený z 500 na 700 ms (ease-in-out po oblúku), v poslednej tretine sa nálepka sklopí do roviny plochy, na ktorú dosadá (pravá stena krabice / predná plocha zložky), tieň sa stratí a presne v okamihu dosadnutia ju nahradí nalepená QR v tej istej veľkosti a sklone (predtým nálepka zmizla a QR „vyskočila“ z nuly – to bol ten sek). Lety na zložky 3,0 / 3,5 / 4,0 s. ID zložky ZL_12 už nie je v rohu framu (kamera ho pri nájazde odrezala), ale ako štítok prilepený k hornému pravému rohu zeleného rámika okolo zložky – ide s kamerou a nič ho neprekrýva. |

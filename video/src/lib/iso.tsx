@@ -259,28 +259,32 @@ export const OpenCarton: React.FC<{ x: number; y: number; z: number; w?: number;
   h = 36,
   children,
 }) => {
-  const t = 2; // hrubka steny
+  const t = 3; // hrubka steny
   const A0 = iso(x, y, z + t),
     B0 = iso(x + w, y, z + t),
     C0 = iso(x + w, y + d, z + t),
     D0 = iso(x, y + d, z + t);
   const A1 = iso(x, y, z + h),
     B1 = iso(x + w, y, z + h),
+    C1 = iso(x + w, y + d, z + h),
     D1 = iso(x, y + d, z + h);
   return (
     <g>
-      {/* vnutorne zadne steny (x = 0 a y = 0) a dno */}
-      <polygon points={pts([A1, B1, B0, A0])} fill={ISO.edge} />
-      <polygon points={pts([A1, D1, D0, A0])} fill={ISO.right} />
-      <polygon points={pts([A0, B0, C0, D0])} fill="#7b8290" />
+      {/* vnutro: zadne steny (x = 0 a y = 0) tmavsie ako vonkajsie a dno - aby bolo vidiet hlbku */}
+      <polygon points={pts([A1, B1, B0, A0])} fill="#4b5563" />
+      <polygon points={pts([A1, D1, D0, A0])} fill="#7b8290" />
+      <polygon points={pts([A0, B0, C0, D0])} fill="#374151" />
       {children}
       {/* predne steny bez vrchnej plochy */}
-      <polygon points={pts([D1, iso(x + w, y + d, z + h), iso(x + w, y + d, z), iso(x, y + d, z)])} fill={ISO.left} />
-      <polygon points={pts([B1, iso(x + w, y + d, z + h), iso(x + w, y + d, z), iso(x + w, y, z)])} fill={ISO.right} />
+      <polygon points={pts([D1, C1, iso(x + w, y + d, z), iso(x, y + d, z)])} fill={ISO.left} />
+      <polygon points={pts([B1, C1, iso(x + w, y + d, z), iso(x + w, y, z)])} fill={ISO.right} />
       <polyline points={pts([iso(x, y + d, z), iso(x + w, y + d, z), iso(x + w, y, z)])} fill="none" stroke={ISO.edge} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
-      {/* horny okraj sten (hrubka t) */}
-      <polygon points={pts([D1, iso(x + w, y + d, z + h), iso(x + w, y + d - t, z + h), iso(x + t, y + d - t, z + h)])} fill={ISO.top} />
-      <polygon points={pts([B1, iso(x + w, y + d, z + h), iso(x + w - t, y + d - t, z + h), iso(x + w - t, y + t, z + h)])} fill={ISO.top} />
+      {/* horny okraj vsetkych styroch sten (hrubka t) */}
+      <polygon points={pts([A1, B1, iso(x + w - t, y + t, z + h), iso(x + t, y + t, z + h)])} fill={ISO.top} />
+      <polygon points={pts([A1, D1, iso(x + t, y + d - t, z + h), iso(x + t, y + t, z + h)])} fill={ISO.top} />
+      <polygon points={pts([D1, C1, iso(x + w - t, y + d - t, z + h), iso(x + t, y + d - t, z + h)])} fill={ISO.top} />
+      <polygon points={pts([B1, C1, iso(x + w - t, y + d - t, z + h), iso(x + w - t, y + t, z + h)])} fill={ISO.top} />
+      <polyline points={pts([D1, C1, B1])} fill="none" stroke={ISO.edge} strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" />
     </g>
   );
 };
