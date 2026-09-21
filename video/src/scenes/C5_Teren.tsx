@@ -191,14 +191,14 @@ export const C5_Teren: React.FC = () => {
           ZL_12
         </div>
 
-        {/* zeleny ramik "odfotene" okolo QR na vytiahnutej zlozke */}
+        {/* zeleny ramik "odfotene" okolo celej vytiahnutej zlozky */}
         <svg width={1920} height={1080} style={{ position: 'absolute', left: 0, top: 0, opacity: frameBox, pointerEvents: 'none' }}>
           {(() => {
-            // ramik "odfotene" okolo QR vytiahnutej prednej zlozky
-            const cx = boxLeft + ((86 + 78 * pull) / 240) * BOX,
-              cy = boxTop + ((135 - 40 * box.binders[0] + 34 * pull) / 240) * BOX;
-            const w = 0.55 * BOX * 0.22,
-              h = w * 1.15;
+            // ramik "odfotene" okolo celej vytiahnutej prednej zlozky (nie len QR)
+            const cx = boxLeft + ((93 + 78 * pull) / 240) * BOX,
+              cy = boxTop + ((146.5 - 40 * box.binders[0] + 34 * pull) / 240) * BOX;
+            const w = (50 / 240) * BOX,
+              h = (80 / 240) * BOX;
             return <rect x={cx - w / 2} y={cy - h / 2} width={w} height={h} fill="none" stroke={BRAND[600]} strokeWidth={5} rx={6} transform={`translate(${cx} ${cy}) scale(${1.3 - 0.3 * frameBox}) translate(${-cx} ${-cy})`} />;
           })()}
         </svg>

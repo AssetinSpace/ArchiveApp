@@ -96,4 +96,4 @@
 
 | Klip | Pripomienka (skrátene) | Riešenie |
 |---|---|---|
-| C5 Terén | Na zložkách má byť vidieť text; po vytiahnutí má mobil namieriť na zložku, záber, a potom strih do reality. | Každá zložka má na prednej ploche štítok s textom (PROJEKT 2018, ZMLUVY 2016, STAVBA B2); po vytiahnutí sa mobil priblíži k zložke, rámik sa zamkne na jej štítok, blesk, ID; kamera nájde na zložku s mobilom (5,8–7,4 s) a potom nájazd do displeja = strih do reality. |
+| C5 Terén | Na zložkách má byť vidieť text; po vytiahnutí má mobil namieriť na zložku, záber, a potom strih do reality. | Každá zložka má na prednej ploche štítok s textom (PROJEKT 2018, ZMLUVY 2016, STAVBA B2); po vytiahnutí sa mobil priblíži k zložke, rámik sa zamkne na celú zložku, blesk, ID; kamera nájde na zložku s mobilom (5,8–7,4 s) a potom nájazd do displeja = strih do reality. |
