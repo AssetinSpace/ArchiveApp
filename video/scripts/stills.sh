@@ -6,7 +6,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p out/stills
 node -e '
-const list = require("fs").readFileSync("src/scenesList.ts","utf8").split("OPTIONAL_LIST")[0];
+const list = require("fs").readFileSync("src/scenesList.ts","utf8").split("V1_LIST")[0];
 const re = /\[\x27([A-Za-z0-9-]+)\x27, \{[^}]*stills: \[([0-9, ]+)\]/g;
 let m; const out=[]; while ((m = re.exec(list))) out.push(`${m[1]} ${m[2].replace(/,/g," ")}`);
 console.log(out.join("\n"));

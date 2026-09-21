@@ -7,15 +7,10 @@ náhovor ho neopakuje doslova.
 ## C1 · Intro (4 s)
 _(bez náhovoru)_
 
-## C2 · Kancelária (8 s)
-- 0–3 s: „Dokumentáciu k svojim objektom máte. V skrini pri stole, v šanónoch, v rolkách paré.“
-- 3–8 s: _Dokumentáciu máte. Nikto ju nevie nájsť._ — „Bez označenia, alebo s popisom, ktorému rozumel človek, čo tam už päť rokov nepracuje. Ostáva vyhádzať skriňu.“
-
-## C3 · Sklad (14 s)
-- 0–4 s: „Vo veľkom archíve je to to isté, len vo väčšom: palety, regály, krabice bez označenia.“
-- 4–7 s: _V sklade to nie je lepšie._
-- 7–11 s: „Keď niekto požiada o kolaudačné rozhodnutie alebo projekt konkrétneho objektu, jediný spôsob je otvoriť krabicu a prejsť ju zložku po zložke…“
-- 11–14 s: _Je to niekde tam._ — „…a potom ďalšiu. A často sa nenájde nič.“
+## C2 · Hľadanie (11 s) – verzia 2 (spojené C2 + C3)
+- 0–3,5 s: „Dokumentáciu k svojim objektom máte. V skrini pri stole, v šanónoch, v rolkách paré…“ — _Dokumentáciu máte. V kancelárii, v sklade… niekde._
+- 3,5–6 s: „…alebo v archíve: palety, regály, krabice bez označenia.“
+- 6–11 s: _Len ju nikto nevie nájsť._ — „Jediný spôsob je otvoriť krabicu a prejsť ju zložku po zložke. A často sa nenájde nič.“
 
 ## C4 · Cena (9 s)
 - 0–3 s: „Archív, v ktorom sa nedá hľadať, nie je archív. Je to náklad. Platíte za uskladnenie…“
