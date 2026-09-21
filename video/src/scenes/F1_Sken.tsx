@@ -10,7 +10,7 @@ import { tween } from '../lib/anim';
  * Zdroj: public/footage/f1-sken.mp4 (priecinok nie je v gite).
  */
 export const F1_SRC = 'footage/f1-sken.mp4';
-export const F1_SECONDS = 15.8; // drz v sulade so scenesList.ts
+export const F1_SECONDS = 12.5; // drz v sulade so scenesList.ts (nahravanie prilohy zrychlene 4x)
 
 export const FootageClip: React.FC<{ src: string; seconds: number }> = ({ src, seconds }) => {
   const frame = useCurrentFrame();
