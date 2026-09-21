@@ -21,6 +21,8 @@ npm run dev            # Remotion Studio (náhľad + timeline) na http://localho
 npm run stills         # PNG stills všetkých klipov do out/stills/ (3 na klip) + kontrola caption zóny
 npm run stills -- C4-Teren              # len vybraný klip
 npm run render         # finálne MP4 všetkých klipov do out/mp4/ (bez textu v obraze; PNG medzisnímky, CRF 16)
+                       # klipy F* (footage z aplikácie) potrebujú zdroj v public/footage/ – priečinok nie je v gite,
+                       # originály sú u Samuela; bez nich render F1/Full padne
 CAP=1 npm run render   # verzie s titulkami v obraze do out/mp4/cap/ (titulky sú zatiaľ vypnuté, doriešia sa neskôr)
 node scripts/contact-sheet.mjs   # kontaktný hárok z posledných stills
 npm run render -- C4-Teren C5-Spracovanie
