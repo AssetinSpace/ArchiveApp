@@ -56,7 +56,7 @@ export const C4_Cena: React.FC = () => {
       </svg>
       {/* hodiny v strede medzery medzi regalom a vykresom */}
       <svg width={240} height={240} viewBox="-120 -120 240 240" style={{ position: 'absolute', left: 955, top: 380, opacity: clock, transform: `scale(${0.6 + 0.4 * clock})` }}>
-        <circle r={100} fill="#1B2A44" stroke="#fff" strokeWidth={10} />
+        <circle r={95} fill="#1B2A44" stroke="#fff" strokeWidth={10} />
         {[0, 90, 180, 270].map((a) => (
           <line key={a} x1={0} y1={-84} x2={0} y2={-68} stroke={BRAND[400]} strokeWidth={8} strokeLinecap="round" transform={`rotate(${a})`} />
         ))}
@@ -79,9 +79,10 @@ export const C4_Cena: React.FC = () => {
       <div style={{ position: 'absolute', left: 1395, top: 720 }}>
         <PriceTag text="nové vyhotovenie" s={tagB} color={BRAND[700]} size={36} />
       </div>
-      {/* 2x dole v strede, medzi cenovkami */}
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 640, textAlign: 'center', opacity: big, transform: `scale(${0.6 + 0.4 * big})` }}>
+      {/* 2x €€€ dole v strede, medzi cenovkami */}
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 640, textAlign: 'center', opacity: big, transform: `scale(${0.6 + 0.4 * big})`, whiteSpace: 'nowrap' }}>
         <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 200, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.04em' }}>2×</span>
+        <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 130, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.02em', marginLeft: 28 }}>€€€</span>
       </div>
       {showCap ? <Caption text={captions.C4} mode="dark" t={settle(frame, 5800)} y={SAFE.captionY} /> : null}
     </Scene>

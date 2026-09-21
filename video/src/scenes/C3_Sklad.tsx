@@ -13,7 +13,7 @@ import { BRAND, CM, SAFE } from '../theme';
  * C3 - Sklad -> regal. Siroky zaber (regaly, palety, postavicka kluckuje
  * ulickou, cesta pod objektmi, "?"), kamera najde na policu s dvoma krabicami:
  * prva sa otvori, zlozky sa postupne vyberu a vratia, zatvori sa; to iste
- * druha; nic sa nenaslo, "?" nad regalom. Koniec = zaciatok C4. 14 s.
+ * druha; nic sa nenaslo, "?" nad regalom. Sklad je na scene hned. Koniec = zaciatok C4. 13 s.
  */
 export const SV = 1.7;
 export const VB = { x: -565, y: -100 };
@@ -85,7 +85,7 @@ export const SEARCH_QMS: [number, number, number, number][] = (() => {
   const s = TARGET_SHELF;
   const top = SHELF_LEVEL * CM.shelf.level + 4 + CM.carton.h + 4;
   const out: [number, number, number, number][] = [];
-  [7200, 10400].forEach((start, k) => {
+  [6200, 9400].forEach((start, k) => {
     const cx = s.x + 8 + k * 60 + 26,
       cy = s.y + 12 + 18;
     // jedna bublinka na krabicu, pri vytiahnuti prvej zlozky
@@ -98,8 +98,8 @@ export const C3_Sklad: React.FC = () => {
   const frame = useCurrentFrame();
   const showCap = useCaptions();
   const tw = (s: number, d: number) => tween(frame, s, d);
-  const appear = settle(frame, 400);
-  const walk = tw(1500, 4500);
+  const appear = tw(0, 300);
+  const walk = tw(600, 4500);
   const seg = Math.min(PATH.length - 2, Math.floor(walk * (PATH.length - 1)));
   const lt = walk * (PATH.length - 1) - seg;
   const px = PATH[seg][0] + (PATH[seg + 1][0] - PATH[seg][0]) * lt;
@@ -108,13 +108,13 @@ export const C3_Sklad: React.FC = () => {
   const walked: [number, number][] = [...PATH.slice(0, seg + 1), [px, py]];
   const pathD = walked.map(([x, y], i) => `${i ? 'L' : 'M'}${iso(x, y, 0).join(' ')}`).join(' ');
   const qm: [number, number, number, number][] = [
-    [140, 60, 2600, 0],
-    [420, 60, 4200, 80],
+    [140, 60, 1700, 0],
+    [420, 60, 3300, 80],
   ];
-  const others = 1 - tw(6800, 500); // vsetko okrem cieloveho regalu zmizne
-  const A = searchBox(tw, 7200);
-  const B = searchBox(tw, 10400);
-  const qEnd = pop(frame, 13300);
+  const others = 1 - tw(5800, 500); // vsetko okrem cieloveho regalu zmizne
+  const A = searchBox(tw, 6200);
+  const B = searchBox(tw, 9400);
+  const qEnd = pop(frame, 12300);
 
   const Stack: React.FC<{ x: number; y: number }> = ({ x, y }) => (
     <g>
@@ -129,14 +129,14 @@ export const C3_Sklad: React.FC = () => {
 
   return (
     <Scene mode="dark">
-      <Camera keys={[{ ms: 6000, x: 0, y: 0, scale: 1 }, { ms: 8000, ...CAM_END }]}>
+      <Camera keys={[{ ms: 5000, x: 0, y: 0, scale: 1 }, { ms: 7000, ...CAM_END }]}>
         <svg width={1920} height={1080} viewBox={`${VB.x} ${VB.y} ${1920 / SV} ${1080 / SV}`} style={{ position: 'absolute', left: 0, top: 0, opacity: appear, transform: `translateY(${(1 - appear) * 30}px)` }}>
           <g opacity={others}>
             <Floor x={-60} y={-60} w={560} d={560} fill="#263246" edge="#131F31" />
             <path d={pathD} fill="none" stroke={BRAND[300]} strokeWidth={2.4} strokeDasharray="6 8" strokeLinecap="round" strokeLinejoin="round" opacity={0.9} />
           </g>
           {SHELVES.map((s, i) => {
-            const t = settle(frame, 600 + i * 140);
+            const t = 1; // sklad je na scene hned (ako kancelaria v C2)
             const isTarget = s === TARGET_SHELF;
             return (
               <g key={i} transform={`translate(0 ${(1 - t) * -30})`} opacity={t * (isTarget ? 1 : others)}>
@@ -172,7 +172,7 @@ export const C3_Sklad: React.FC = () => {
           })}
           <g opacity={others}>
             {PALLETS.map((p, i) => {
-              const t = settle(frame, 1000 + i * 140);
+              const t = 1;
               return (
                 <g key={i} transform={`translate(0 ${(1 - t) * -30})`} opacity={t}>
                   <Stack x={p.x} y={p.y} />
@@ -180,19 +180,19 @@ export const C3_Sklad: React.FC = () => {
               );
             })}
             {qm.map(([x, y, s0, z], i) => {
-              const s = pop(frame, s0) * (1 - tw(6000, 600));
+              const s = pop(frame, s0) * (1 - tw(5000, 600));
               const [qx, qy] = iso(x, y, 140 + z);
               return <QuestionMark key={i} x={qx} y={qy} s={s * 1.8} />;
             })}
           </g>
-          <Person x={sx} y={sy} scale={1.4} color={BRAND[400]} opacity={tw(1400, 300) * (1 - tw(6500, 800))} />
+          <Person x={sx} y={sy} scale={1.4} color={BRAND[400]} opacity={tw(500, 300) * (1 - tw(5500, 800))} />
         </svg>
       </Camera>
 
       {showCap ? (
         <>
-          <Caption text={captions.C3a} mode="dark" t={settle(frame, 4000)} out={tw(6300, 300)} y={SAFE.captionY} />
-          <Caption text={captions.C3b} mode="dark" t={settle(frame, 11500)} y={SAFE.captionY} />
+          <Caption text={captions.C3a} mode="dark" t={settle(frame, 3000)} out={tw(5300, 300)} y={SAFE.captionY} />
+          <Caption text={captions.C3b} mode="dark" t={settle(frame, 10500)} y={SAFE.captionY} />
         </>
       ) : null}
     </Scene>

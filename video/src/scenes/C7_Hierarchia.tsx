@@ -62,7 +62,7 @@ export const C7_Hierarchia: React.FC = () => {
   const bigTop = SAFE.illoTop - 40 + (nodeTop - (SAFE.illoTop - 40)) * zoomOut;
 
   const sib = [[], [-SIB, SIB], [-SIB, SIB], [-SIB, SIB]];
-  const Node: React.FC<{ level: number; x: number; y: number; main?: boolean; t: number; q: number }> = ({ level, x, y, main, t, q }) => {
+  const Node: React.FC<{ level: number; x: number; y: number; main?: boolean; t: number; q: number; docId?: string }> = ({ level, x, y, main, t, q, docId }) => {
     const dim = main ? 1 : 0.55 + 0.45 * (1 - glow);
     return (
       <g transform={`translate(${x} ${y}) translate(0 ${(1 - t) * -20})`} opacity={t * dim}>
@@ -117,6 +117,10 @@ export const C7_Hierarchia: React.FC = () => {
             <g>
               <IsoBox x={-10} y={-15} z={0} w={21} d={30} h={1} faces={{ top: '#fff', left: ISO.right, right: ISO.edge }} />
               <QrOnLeftFace x={-4} y={15} z={-3} size={8} s={q} />
+              {/* oznacenie dokumentu */}
+              <text x={0} y={46} textAnchor="middle" fontFamily="ui-monospace, Menlo, monospace" fontSize={18} fill={INK[500]} opacity={q}>
+                {docId}
+              </text>
             </g>
           )}
         </g>
@@ -145,9 +149,9 @@ export const C7_Hierarchia: React.FC = () => {
             i === 1 ? null : (
               <g key={i}>
                 {sib[i].map((dx, k) => (
-                  <Node key={k} level={i} x={NODE_X + dx} y={ny} t={lvl(i)} q={qr(i) * 0.9} />
+                  <Node key={k} level={i} x={NODE_X + dx} y={ny} t={lvl(i)} q={qr(i) * 0.9} docId={['DK_06', 'DK_08'][k]} />
                 ))}
-                <Node level={i} x={NODE_X} y={ny} main t={lvl(i)} q={qr(i)} />
+                <Node level={i} x={NODE_X} y={ny} main t={lvl(i)} q={qr(i)} docId="DK_07" />
               </g>
             ),
           )}

@@ -28,6 +28,9 @@ export const archiveBoxOpen: ArchiveBoxState = { lid: 1, binders: [1, 1, 1], qr:
  * a tri finder stvorce v rohoch - aby aj laik na prvy pohlad videl QR.
  * Finder stvorce sa odvodzuju z nalepky: p0..p3 = rohy stvoruholnika.
  */
+/** Mierka nalepky QR na krabici/zlozkach, aby zodpovedala bunke harku A4 (~3,6 cm). */
+export const QR_SCALE = 0.62;
+
 const Qr: React.FC<{ s: number; cx: number; cy: number; accent: string; paths: string[] }> = ({ s, cx, cy, paths }) => {
   const nums = paths[0].match(/-?[\d.]+/g)!.map(Number);
   const P: [number, number][] = [
@@ -51,7 +54,7 @@ const Qr: React.FC<{ s: number; cx: number; cy: number; accent: string; paths: s
     [0.08, 0.62],
   ];
   return (
-    <g opacity={Math.min(1, s * 1.3)} transform={`translate(${cx} ${cy}) scale(${s}) translate(${-cx} ${-cy})`}>
+    <g opacity={Math.min(1, s * 1.3)} transform={`translate(${cx} ${cy}) scale(${s * QR_SCALE}) translate(${-cx} ${-cy})`}>
       <path fill="#fff" stroke={ISO.edge} strokeWidth={0.8} d={paths[0]} />
       {finders.map(([u, v], i) => (
         <g key={i}>
@@ -100,6 +103,11 @@ export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accen
           <path fill="#e5e7eb" d="M73 165.5L105 181.5L105 131.5L73 115.5Z" />
           <path fill="#e5e7eb" d="M73 115.5L105 131.5L113 127.5L81 111.5Z" />
           <path fill="none" stroke="#6b7280" strokeWidth="2.2" strokeLinecap="round" d="M73 115.5L105 131.5" />
+          {/* stitok zlozky (text na prednej ploche, pod QR) */}
+          <g transform={`matrix(1 0.5 0 1 73 115.5)`}>
+            <text x={4} y={41} fontFamily="Inter, sans-serif" fontWeight={700} fontSize={5.2} fill="#1f2937">PROJEKT</text>
+            <text x={4} y={47.5} fontFamily="Inter, sans-serif" fontWeight={500} fontSize={4.6} fill="#6b7280">2018</text>
+          </g>
           {showQr ? (
             <Qr
               s={qr[0]}
@@ -139,6 +147,11 @@ export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accen
           <path fill="#e5e7eb" d="M129 137.5L161 153.5L161 103.5L129 87.5Z" />
           <path fill="#e5e7eb" d="M129 87.5L161 103.5L169 99.5L137 83.5Z" />
           <path fill="none" stroke="#6b7280" strokeWidth="2.2" strokeLinecap="round" d="M129 87.5L161 103.5" />
+          {/* stitok zlozky (text na prednej ploche, pod QR) */}
+          <g transform={`matrix(1 0.5 0 1 129 87.5)`}>
+            <text x={4} y={41} fontFamily="Inter, sans-serif" fontWeight={700} fontSize={5.2} fill="#1f2937">STAVBA</text>
+            <text x={4} y={47.5} fontFamily="Inter, sans-serif" fontWeight={500} fontSize={4.6} fill="#6b7280">B2</text>
+          </g>
           {showQr ? (
             <Qr
               s={qr[2]}
@@ -162,6 +175,11 @@ export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accen
           <path fill="#e5e7eb" d="M101 151.5L133 167.5L133 117.5L101 101.5Z" />
           <path fill="#e5e7eb" d="M101 101.5L133 117.5L141 113.5L109 97.5Z" />
           <path fill="none" stroke="#6b7280" strokeWidth="2.2" strokeLinecap="round" d="M101 101.5L133 117.5" />
+          {/* stitok zlozky (text na prednej ploche, pod QR) */}
+          <g transform={`matrix(1 0.5 0 1 101 101.5)`}>
+            <text x={4} y={41} fontFamily="Inter, sans-serif" fontWeight={700} fontSize={5.2} fill="#1f2937">ZMLUVY</text>
+            <text x={4} y={47.5} fontFamily="Inter, sans-serif" fontWeight={500} fontSize={4.6} fill="#6b7280">2016</text>
+          </g>
           {showQr ? (
             <Qr
               s={qr[1]}
