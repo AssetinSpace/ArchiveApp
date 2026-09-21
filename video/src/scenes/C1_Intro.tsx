@@ -1,52 +1,58 @@
 import React from 'react';
 import { useCurrentFrame } from 'remotion';
-import { LogoMark, Scene } from '../components/Scene';
+import { Scene } from '../components/Scene';
+import { BrandMod, BrandSep, BrandStack, LOCKUP, LOCKUP_W } from '../components/Brand';
 import { settle, tween } from '../lib/anim';
-import { BRAND, FONT } from '../theme';
 
 /**
- * C1 - Intro. Domcek (LogoMark) v strede; spoza neho vyjde "assetin",
- * pod nim "Archives"; hold; texty sa zasunu spat; kamera prejde cez domcek
- * (najazd do vnutra), obraz sa vyplni navy = prvy frame C2. 5 s.
+ * C1 - Intro. Lockup podla assetin-design-kitu: stohovany logotyp
+ * (assetin / .space), zvisly oddelovac, modul "Archives". Lockup je pocas
+ * drzania centrovany; na konci sa Archives zasunie za oddelovac, oddelovac
+ * sa stiahne, logotyp sa priblizi a vybledne do navy = prvy frame C2. 5 s.
  *
- * ms: 300 domcek · 900-1500 wordmark vychadza · 1300-1900 Archives ·
- * 3000-3500 zasunutie · 3600-4700 najazd cez domcek.
+ * ms: 300 assetin · 700 .space · 1100-1500 oddelovac · 1300-1900 Archives
+ * vychadza · 3200-3700 Archives sa zasuva (skupina ide do stredu) ·
+ * 3700-4000 oddelovac sa stiahne · 4000-4700 priblizenie + navy.
  */
 export const C1_Intro: React.FC = () => {
   const frame = useCurrentFrame();
   const tw = (s: number, d: number) => tween(frame, s, d);
-  const logo = settle(frame, 300);
-  const out = tw(900, 600) * (1 - tw(3000, 500));
-  const sub = tw(1300, 600) * (1 - tw(2900, 450));
-  const zoom = tw(3600, 1100);
-  const scale = 1 + zoom * 40;
-  const MARK = 150;
-  // lockup (domcek + text) je pocas drzania centrovany; pri zasunuti textu sa skupina
-  // posunie tak, ze domcek skonci presne v strede - kamera potom letí do neho.
-  const TEXT_W = 500; // sirka clip panelu
-  const LOCK_W = 370; // skutocna sirka textu (assetin 96 px + padding)
-  const back = tw(3000, 500);
-  const shift = (-(LOCK_W - 10) / 2) * (1 - back);
+  const stackIn = settle(frame, 300);
+  const domain = settle(frame, 700);
+  const sep = tw(1100, 400) * (1 - tw(3700, 300));
+  const mod = tw(1300, 600) * (1 - tw(3200, 500));
+  const back = tw(3200, 500);
+  const zoom = tw(4000, 700);
+  const navy = tw(4400, 300);
+
+  // pocas drzania je centrovany cely lockup; pri zasunuti Archives sa skupina
+  // (stack + sep) posunie tak, aby bol logotyp v strede
+  const stackLeftHold = 960 - LOCKUP_W / 2;
+  const stackLeftEnd = 960 - LOCKUP.stackW / 2;
+  const stackLeft = stackLeftHold + (stackLeftEnd - stackLeftHold) * back;
+  const sepLeft = stackLeft + LOCKUP.stackW + LOCKUP.gap;
+  const modLeft = sepLeft + LOCKUP.sepW + LOCKUP.gap;
+  const top = 540 - LOCKUP.sepH / 2;
+  const scale = 1 + zoom * 0.35;
+
   return (
     <Scene mode="dark">
-      <div style={{ position: 'absolute', left: 960 - MARK / 2 + shift, top: 540 - MARK / 2, width: MARK, height: MARK, transform: `scale(${scale})`, transformOrigin: '45% 62%' }}>
-        {/* text vychadza spoza domceka doprava a zasuva sa spat "do domceka" */}
-        <div style={{ position: 'absolute', left: MARK - 10, top: -10, width: TEXT_W, height: 170, overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', left: 0, top: 10, transform: `translateX(${(out - 1) * TEXT_W}px)`, opacity: Math.min(1, out * 2), fontFamily: FONT.display, fontWeight: 800, fontSize: 96, lineHeight: 1, color: '#fff', letterSpacing: '-0.02em', paddingLeft: 30, whiteSpace: 'nowrap' }}>
-            asset<span style={{ color: BRAND[400] }}>in</span>
-          </div>
-          <div style={{ position: 'absolute', left: 0, top: 108, transform: `translateX(${(sub - 1) * TEXT_W}px)`, opacity: Math.min(1, sub * 2), fontFamily: FONT.display, fontWeight: 600, fontSize: 44, lineHeight: 1, color: BRAND[300], letterSpacing: '0.16em', textTransform: 'uppercase', paddingLeft: 34, whiteSpace: 'nowrap' }}>
-            Archives
-          </div>
+      <div style={{ position: 'absolute', inset: 0, transform: `scale(${scale})`, transformOrigin: '50% 50%', opacity: 1 - zoom * 0.9, filter: `blur(${zoom * 6}px)` }}>
+        {/* stohovany logotyp */}
+        <div style={{ position: 'absolute', left: stackLeft, top: top + 4, opacity: stackIn, transform: `translateY(${(1 - stackIn) * 24}px)` }}>
+          <BrandStack domain={domain} />
         </div>
-        {/* domcek: pri najazde sa jeho vnutro vyplni cely frame a stmavne do navy */}
-        <div style={{ position: 'absolute', inset: 0, opacity: logo, transform: `scale(${0.85 + 0.15 * logo})` }}>
-          <LogoMark size={MARK} color="#fff" />
-          <div style={{ position: 'absolute', left: '18%', top: '44%', width: '52%', height: '38%', background: `rgba(8,17,31,${zoom})` }} />
+        {/* oddelovac */}
+        <div style={{ position: 'absolute', left: sepLeft, top }}>
+          <BrandSep t={sep} />
+        </div>
+        {/* modul Archives: vychadza spoza oddelovaca doprava (clip) */}
+        <div style={{ position: 'absolute', left: modLeft, top: top + 2, width: LOCKUP.modW + 40, height: LOCKUP.sepH, overflow: 'hidden' }}>
+          <BrandMod style={{ position: 'absolute', left: 0, top: 2, transform: `translateX(${(mod - 1) * (LOCKUP.modW + 40)}px)`, opacity: Math.min(1, mod * 2) }} />
         </div>
       </div>
       {/* prechod do navy na konci (prvy frame C2 je navy) */}
-      <div style={{ position: 'absolute', inset: 0, background: '#08111F', opacity: tw(4400, 300) }} />
+      <div style={{ position: 'absolute', inset: 0, background: '#08111F', opacity: navy }} />
     </Scene>
   );
 };

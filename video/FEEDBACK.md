@@ -67,3 +67,9 @@
 | C4 Cena | Nevycentrované; popisky dole malé; 2× viac v strede a dole. | Kompozícia posunutá na stred; cenovky väčšie (36 px) pod regálom a pod výkresom; 2× dole v strede medzi nimi. |
 | C5 Terén | Najprv hárok s QR, z neho sa odlepia kódy na krabicu, po otvorení na každú zložku. | Nová os: zatvorená krabica → hárok → nálepka letí z hárku na krabicu → veko a zložky → tri nálepky letia na zložky (bunky na hárku sa vyprázdnia) → mobil, blesk, KR_01 → nájazd. |
 | C7 Hierarchia | Na konci zvýrazniť krabicu, kde je hľadaný dokument (mobil vľavo hľadá). | Mobil ukáže hľadanie a výsledok KR_01; krabica KR_01 dostane zelený obrys a značku, ostatné stmavnú. |
+
+## Kolo 11 (21. 9. 2026)
+
+| Klip | Pripomienka (skrátene) | Riešenie |
+|---|---|---|
+| C1 Intro | Logo nahradiť lockupom z assetin-design-kitu (`.brand-lockup.rule.on-navy`: stohovaný `assetin` / `.space`, oddeľovač, modul `Archives`) podľa screenshotu. | Nový komponent `components/Brand.tsx` (BrandStack, BrandSep, BrandMod) a nové intro: logotyp vypláva, `.space` sa vysunie, oddeľovač sa nakreslí, `Archives` vyjde spoza neho; na konci sa zasunie späť, oddeľovač sa stiahne, logotyp sa priblíži a vybledne do navy. Domček v intre už nie je (C9 Outro ho zatiaľ má). |

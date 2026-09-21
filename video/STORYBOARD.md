@@ -1,4 +1,4 @@
-# Storyboard – Assetin Archives (kolo 10)
+# Storyboard – Assetin Archives (kolo 11)
 
 Stav: ☐ still na schválenie · ☑ still schválený · ▶ animácia hotová · 🎞 finálne MP4
 
@@ -11,7 +11,7 @@ strihový bod pre footage; náhľad Full má tvrdé strihy. Titulky v obraze sú
 
 | ID | Klip | Pozadie | Dej | Text v obraze | Dĺžka | Stav |
 |---|---|---|---|---|---|---|
-| C1-Intro | Intro | navy | Lockup (domček + „assetin“/„Archives“) v strede; texty sa zasunú do domčeka a domček sa pritom presunie presne do stredu; kamera preletí dovnútra domčeka do navy | – | 5 s | ☐ ▶ |
+| C1-Intro | Intro | navy | Lockup podľa assetin-design-kitu: stohovaný logotyp „assetin“ / „.space“ vypláva, zvislý oddeľovač sa nakreslí, „Archives“ vyjde spoza neho; hold; „Archives“ sa zasunie späť, oddeľovač sa stiahne, logotyp sa priblíži a vybledne do navy | – | 5 s | ☐ ▶ |
 | C2-Kancelaria | Skriňa pri stole | navy | Zelený panáčik príde ku skrini (stolička pred stolom), otvorí krídlo (otáča sa okolo pántu), vnútri šanóny so štítkami, rolky, listy; hľadá („?“ nad hlavou sa jemne vznášajú), vyhadzuje veci – šanón so štítkom, rolka a papiere vyletia oblúkom a dopadnú pred skriňou | 3 s „Dokumentáciu máte. Nikto ju nevie nájsť.“ | 8 s | ☐ ▶ |
 | C3-Sklad | Sklad → regál | navy | Zelená postavička klučkuje uličkou (cesta pod objektmi) a zastaví pred stredným regálom, dva „?“; kamera nájde na jeho hornú policu s dvoma krabicami (regál bez vrchnej dosky, vidno do krabíc), sklad vybledne; prvá krabica: veko sa odklopí, vidno dno a zložky vnútri, zložky sa postupne vyberú a vrátia (pri prvej zložke vyletí bublinka „?“ a zanikne), veko dole; to isté druhá; nič sa nenašlo, väčší „?“ | 4 s „V sklade to nie je lepšie.“ · 11,5 s „Je to niekde tam.“ | 14 s | ☐ ▶ |
 | C4-Cena | 2× | navy | Začína rovnakým regálom ako koniec C3; regál sa odsunie doľava, vedľa neho veľký „?“, vedľa hodiny rovnakej veľkosti s točiacou sa ručičkou (hľadanie trvá), šípka k výkresu s pečiatkou (rýchlejšie spraviť nanovo); veľké cenovky pod regálom a výkresom; „2×“ dole v strede | 5,8 s „Zaplatené dvakrát za tú istú dokumentáciu.“ | 9 s | ☐ ▶ |
@@ -45,7 +45,7 @@ S04-Pokusy (Excel a skener), S10-Nasadenie (U nás / U vás) vo Folder „Option
 - kolo 1: „vyzerá ako prezentácia, priveľa textu, nie je miesto na footage“ → kolo 2.
 - kolo 2: „mierka ikon nesedí, chýba kancelária, texty sa prekrývajú s ikonami, simulácia UI je zbytočná (príde footage), zelené QR, presahy medzi scénami“ → kolo 3 (tento stav).
 - kolo 3 + oprava QR/kancelárie: schválené → Fáza 2 (finálne MP4).
-- kolo 4 až 10 (pripomienky z review stránky, viď FEEDBACK.md): zapracované; nové MP4 na review stránke.
+- kolo 4 až 11 (pripomienky z review stránky, viď FEEDBACK.md): zapracované; nové MP4 na review stránke.
 
 ## Review stránka
 
