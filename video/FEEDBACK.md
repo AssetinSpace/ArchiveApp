@@ -139,3 +139,9 @@ Verzia 1 (dlhá, 88,5 s) je uložená: `out/mp4/v1/` (Full_v1_1080p.mp4, Full_v1
 | Klip | Zadanie | Riešenie |
 |---|---|---|
 | C2 + C3 | Obe scény sú „hľadanie“ (kancelária, archív); posúdiť spojenie a skrátenie, šetríme čas. | Spojené do jedného klipu **C2-Hladanie (11 s)** namiesto 8 + 13 s: kancelária (panáčik otvorí skriňu, „?“, vyletí jeden šanón, odíde doprava) → kamera s ním prejde panom do skladu (obe kulisy navy, spojité) → kratšia chôdza k regálu, kamera nájde na policu → prehľadá sa jedna krabica (vytiahne, otvorí, 3 zložky, zavrie, zasunie) → „?“ nad regálom = začiatok C4 (C4 bez zmeny). Full 78,5 s (−10 s). Nový caption: „Dokumentáciu máte. V kancelárii, v sklade… niekde.“ / „Len ju nikto nevie nájsť.“ (texty v obraze ostávajú vypnuté). |
+
+## Kolo 20 (21. 9. 2026)
+
+| Klip | Zadanie | Riešenie |
+|---|---|---|
+| C2 Hľadanie | Teraz je to zas extrémne rýchle; v kancelárii nech vyhodí zo skrine aspoň dve veci; v sklade treba postupne prehľadať obe krabice. | Klip predĺžený z 11 na 14,5 s. Kancelária: vyletí šanón aj rolka (2,0 / 2,5 s), panáčik odchádza až v 3,2 s, pan do skladu 4,2–5,2 s. Sklad: chôdza 1,8 s, kamera na policu 6,0–7,4 s, krabica A sa vytiahne, prehľadá a zasunie (6,5–10,3 s), potom to isté krabica B (9,9–13,7 s), pri každej bublinka „?“; veľký „?“ 13,8 s. Full 82 s. |
