@@ -12,7 +12,7 @@ export const LOCKUP = {
   stackW: 340, // sirka "assetin" pri 84 px
   gap: 28,
   sepW: 4,
-  sepH: 150,
+  sepH: 190,
   modW: 560, // sirka "Archives" pri 140 px
 };
 export const LOCKUP_W = LOCKUP.stackW + LOCKUP.gap + LOCKUP.sepW + LOCKUP.gap + LOCKUP.modW;
@@ -22,7 +22,8 @@ export const BrandStack: React.FC<{ domain?: number; style?: React.CSSProperties
     <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 84, lineHeight: 1, color: '#fff', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
       asset<span style={{ color: BRAND[400] }}>in</span>
     </div>
-    <div style={{ fontFamily: FONT.display, fontWeight: 500, fontSize: 44, lineHeight: 1, color: NAVY[300], letterSpacing: '-0.01em', marginTop: 6, whiteSpace: 'nowrap', opacity: Math.min(1, domain * 1.5), transform: `translateY(${(1 - domain) * -18}px)` }}>
+    {/* .space: rovnaky typ aj velkost pisma ako assetin, len tenkie a sive */}
+    <div style={{ fontFamily: FONT.display, fontWeight: 500, fontSize: 84, lineHeight: 1, color: NAVY[300], letterSpacing: '-0.02em', marginTop: 4, whiteSpace: 'nowrap', opacity: Math.min(1, domain * 1.5), transform: `translateY(${(1 - domain) * -18}px)` }}>
       .space
     </div>
   </div>

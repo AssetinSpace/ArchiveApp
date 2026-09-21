@@ -1,4 +1,4 @@
-# Storyboard – Assetin Archives (kolo 11)
+# Storyboard – Assetin Archives (kolo 12)
 
 Stav: ☐ still na schválenie · ☑ still schválený · ▶ animácia hotová · 🎞 finálne MP4
 
@@ -45,7 +45,7 @@ S04-Pokusy (Excel a skener), S10-Nasadenie (U nás / U vás) vo Folder „Option
 - kolo 1: „vyzerá ako prezentácia, priveľa textu, nie je miesto na footage“ → kolo 2.
 - kolo 2: „mierka ikon nesedí, chýba kancelária, texty sa prekrývajú s ikonami, simulácia UI je zbytočná (príde footage), zelené QR, presahy medzi scénami“ → kolo 3 (tento stav).
 - kolo 3 + oprava QR/kancelárie: schválené → Fáza 2 (finálne MP4).
-- kolo 4 až 11 (pripomienky z review stránky, viď FEEDBACK.md): zapracované; nové MP4 na review stránke.
+- kolo 4 až 12 (pripomienky z review stránky, viď FEEDBACK.md): zapracované; nové MP4 na review stránke.
 
 ## Review stránka
 
