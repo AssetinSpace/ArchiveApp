@@ -97,3 +97,12 @@
 | Klip | Pripomienka (skrátene) | Riešenie |
 |---|---|---|
 | C5 Terén | Na zložkách má byť vidieť text; po vytiahnutí má mobil namieriť na zložku, záber, a potom strih do reality. | Každá zložka má na prednej ploche štítok s textom (PROJEKT 2018, ZMLUVY 2016, STAVBA B2); po vytiahnutí sa mobil priblíži k zložke, rámik sa zamkne na celú zložku, blesk, ID; kamera nájde na zložku s mobilom (5,8–7,4 s) a potom nájazd do displeja = strih do reality. |
+
+## Kolo 16 (21. 9. 2026, 10:06)
+
+| Klip | Pripomienka (skrátene) | Riešenie |
+|---|---|---|
+| C3 Sklad | Skrátiť úvod – sklad má byť na scéne hneď, nie postupne nabiehať. | Regály a palety sú na scéne od začiatku (krátky fade), celá os posunutá o 1 s skôr; klip 13 s (Full 76 s). |
+| C4 Cena | Kruh s otáznikom a hodiny rovnako veľké; k 2× dopísať €€€. | Hodiny majú rovnaký vonkajší priemer ako otáznik; dole v strede „2× €€€“. |
+| C5 Terén | Nalepené QR sú oveľa väčšie ako na hárku. | QR na krabici a zložkách zmenšené (mierka 0,62) na veľkosť bunky hárku; letiaca nálepka dolieta v tej istej veľkosti. Prejaví sa aj v C7/C8. |
+| C7 Hierarchia | Dokumenty nemajú označenie. | Pod dokumentmi DK_06 / DK_07 / DK_08. |

@@ -28,6 +28,9 @@ export const archiveBoxOpen: ArchiveBoxState = { lid: 1, binders: [1, 1, 1], qr:
  * a tri finder stvorce v rohoch - aby aj laik na prvy pohlad videl QR.
  * Finder stvorce sa odvodzuju z nalepky: p0..p3 = rohy stvoruholnika.
  */
+/** Mierka nalepky QR na krabici/zlozkach, aby zodpovedala bunke harku A4 (~3,6 cm). */
+export const QR_SCALE = 0.62;
+
 const Qr: React.FC<{ s: number; cx: number; cy: number; accent: string; paths: string[] }> = ({ s, cx, cy, paths }) => {
   const nums = paths[0].match(/-?[\d.]+/g)!.map(Number);
   const P: [number, number][] = [
@@ -51,7 +54,7 @@ const Qr: React.FC<{ s: number; cx: number; cy: number; accent: string; paths: s
     [0.08, 0.62],
   ];
   return (
-    <g opacity={Math.min(1, s * 1.3)} transform={`translate(${cx} ${cy}) scale(${s}) translate(${-cx} ${-cy})`}>
+    <g opacity={Math.min(1, s * 1.3)} transform={`translate(${cx} ${cy}) scale(${s * QR_SCALE}) translate(${-cx} ${-cy})`}>
       <path fill="#fff" stroke={ISO.edge} strokeWidth={0.8} d={paths[0]} />
       {finders.map(([u, v], i) => (
         <g key={i}>

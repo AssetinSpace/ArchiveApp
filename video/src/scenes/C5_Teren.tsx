@@ -2,7 +2,7 @@ import React from 'react';
 import { useCurrentFrame } from 'remotion';
 import { Scene, useCaptions } from '../components/Scene';
 import { Caption } from '../components/Text';
-import { ArchiveBox, archiveBoxPxPerCm } from '../components/ArchiveBox';
+import { ArchiveBox, archiveBoxPxPerCm, QR_SCALE } from '../components/ArchiveBox';
 import { PhoneFrame } from '../components/Device';
 import { Camera } from '../lib/camera';
 import { pop, settle, tween } from '../lib/anim';
@@ -137,7 +137,7 @@ export const C5_Teren: React.FC = () => {
           const x = (1 - t) * (1 - t) * ax + 2 * (1 - t) * t * cx + t * t * bx;
           const y = (1 - t) * (1 - t) * ay + 2 * (1 - t) * t * cy + t * t * by;
           const size0 = 36 * sc,
-            size1 = (f.size / 240) * BOX * 1.1;
+            size1 = (f.size / 240) * BOX * 1.1 * QR_SCALE;
           const size = size0 + (size1 - size0) * t;
           return (
             <svg key={i} width={size} height={size} viewBox="0 0 36 36" style={{ position: 'absolute', left: x - size / 2, top: y - size / 2, transform: `rotate(${-8 + 8 * t}deg)`, filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.18))' }}>
