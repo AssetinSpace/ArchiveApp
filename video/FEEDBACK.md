@@ -73,3 +73,9 @@
 | Klip | Pripomienka (skrátene) | Riešenie |
 |---|---|---|
 | C1 Intro | Logo nahradiť lockupom z assetin-design-kitu (`.brand-lockup.rule.on-navy`: stohovaný `assetin` / `.space`, oddeľovač, modul `Archives`) podľa screenshotu. | Nový komponent `components/Brand.tsx` (BrandStack, BrandSep, BrandMod) a nové intro: logotyp vypláva, `.space` sa vysunie, oddeľovač sa nakreslí, `Archives` vyjde spoza neho; na konci sa zasunie späť, oddeľovač sa stiahne, logotyp sa priblíži a vybledne do navy. Domček v intre už nie je (C9 Outro ho zatiaľ má). |
+
+## Kolo 12 (21. 9. 2026)
+
+| Klip | Pripomienka (skrátene) | Riešenie |
+|---|---|---|
+| C1 Intro | `.space` veľkostne nedrží s `assetin`; rovnaký typ aj veľkosť písma, zarovnané na jednu os. | `.space` je Manrope 84 px (rovnako ako `assetin`), váha 500, sivé; stohovaný logotyp, oddeľovač (190 px) aj `Archives` sú vertikálne centrované na jednej osi. |

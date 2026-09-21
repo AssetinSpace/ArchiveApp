@@ -39,7 +39,7 @@ export const C1_Intro: React.FC = () => {
     <Scene mode="dark">
       <div style={{ position: 'absolute', inset: 0, transform: `scale(${scale})`, transformOrigin: '50% 50%', opacity: 1 - zoom * 0.9, filter: `blur(${zoom * 6}px)` }}>
         {/* stohovany logotyp */}
-        <div style={{ position: 'absolute', left: stackLeft, top: top + 4, opacity: stackIn, transform: `translateY(${(1 - stackIn) * 24}px)` }}>
+        <div style={{ position: 'absolute', left: stackLeft, top: top + (LOCKUP.sepH - 172) / 2, opacity: stackIn, transform: `translateY(${(1 - stackIn) * 24}px)` }}>
           <BrandStack domain={domain} />
         </div>
         {/* oddelovac */}
@@ -47,8 +47,8 @@ export const C1_Intro: React.FC = () => {
           <BrandSep t={sep} />
         </div>
         {/* modul Archives: vychadza spoza oddelovaca doprava (clip) */}
-        <div style={{ position: 'absolute', left: modLeft, top: top + 2, width: LOCKUP.modW + 40, height: LOCKUP.sepH, overflow: 'hidden' }}>
-          <BrandMod style={{ position: 'absolute', left: 0, top: 2, transform: `translateX(${(mod - 1) * (LOCKUP.modW + 40)}px)`, opacity: Math.min(1, mod * 2) }} />
+        <div style={{ position: 'absolute', left: modLeft, top, width: LOCKUP.modW + 40, height: LOCKUP.sepH, overflow: 'hidden' }}>
+          <BrandMod style={{ position: 'absolute', left: 0, top: (LOCKUP.sepH - 140) / 2, transform: `translateX(${(mod - 1) * (LOCKUP.modW + 40)}px)`, opacity: Math.min(1, mod * 2) }} />
         </div>
       </div>
       {/* prechod do navy na konci (prvy frame C2 je navy) */}
