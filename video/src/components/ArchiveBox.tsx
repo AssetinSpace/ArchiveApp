@@ -16,6 +16,8 @@ export type ArchiveBoxState = {
   lid: number;
   binders: [number, number, number];
   qr: [number, number, number, number];
+  /** 0..1: predna zlozka je vytiahnuta z krabice (doprava von, nad vsetko) */
+  pull?: number;
 };
 
 export const archiveBoxClosed: ArchiveBoxState = { lid: 0, binders: [0, 0, 0], qr: [0, 0, 0, 0] };
@@ -90,6 +92,33 @@ export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accen
   style,
 }) => {
   const { lid, binders, qr } = state;
+  const pull = state.pull ?? 0;
+  const binder0 = (
+    <g>
+        <g transform={`translate(0 ${-40 * binders[0]})`}>
+          <path fill="#9ca3af" d="M105 181.5L113 177.5L113 127.5L105 131.5Z" />
+          <path fill="#e5e7eb" d="M73 165.5L105 181.5L105 131.5L73 115.5Z" />
+          <path fill="#e5e7eb" d="M73 115.5L105 131.5L113 127.5L81 111.5Z" />
+          <path fill="none" stroke="#6b7280" strokeWidth="2.2" strokeLinecap="round" d="M73 115.5L105 131.5" />
+          {showQr ? (
+            <Qr
+              s={qr[0]}
+              cx={86}
+              cy={135}
+              accent={accent}
+              paths={[
+                'M79 124.5L93 131.5L93 145.5L79 138.5Z',
+                'M80.12 127.06L84.12 129.06L84.12 133.06L80.12 131.06Z',
+                'M87.4 130.7L91.4 132.7L91.4 136.7L87.4 134.7Z',
+                'M80.12 133.06L84.12 135.06L84.12 139.06L80.12 137.06Z',
+                'M84.04 132.02L88.04 134.02L88.04 138.02L84.04 136.02Z',
+                'M88.24 138.12L92.24 140.12L92.24 144.12L88.24 142.12Z',
+              ]}
+            />
+          ) : null}
+        </g>
+    </g>
+  );
   const lidT = `translate(120 120) translate(0 ${-86 * lid}) scale(1 ${1 - 0.45 * lid}) translate(-120 -120)`;
   return (
     <svg width={size} height={size} viewBox="0 0 240 240" style={{ display: 'block', ...style }}>
@@ -150,29 +179,7 @@ export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accen
             />
           ) : null}
         </g>
-        {/* zlozka 1 (predna) */}
-        <g transform={`translate(0 ${-40 * binders[0]})`}>
-          <path fill="#9ca3af" d="M105 181.5L113 177.5L113 127.5L105 131.5Z" />
-          <path fill="#e5e7eb" d="M73 165.5L105 181.5L105 131.5L73 115.5Z" />
-          <path fill="#e5e7eb" d="M73 115.5L105 131.5L113 127.5L81 111.5Z" />
-          <path fill="none" stroke="#6b7280" strokeWidth="2.2" strokeLinecap="round" d="M73 115.5L105 131.5" />
-          {showQr ? (
-            <Qr
-              s={qr[0]}
-              cx={86}
-              cy={135}
-              accent={accent}
-              paths={[
-                'M79 124.5L93 131.5L93 145.5L79 138.5Z',
-                'M80.12 127.06L84.12 129.06L84.12 133.06L80.12 131.06Z',
-                'M87.4 130.7L91.4 132.7L91.4 136.7L87.4 134.7Z',
-                'M80.12 133.06L84.12 135.06L84.12 139.06L80.12 137.06Z',
-                'M84.04 132.02L88.04 134.02L88.04 138.02L84.04 136.02Z',
-                'M88.24 138.12L92.24 140.12L92.24 144.12L88.24 142.12Z',
-              ]}
-            />
-          ) : null}
-        </g>
+        {pull > 0 ? null : binder0}
         {/* predne steny krabice */}
         <path fill="#e5e7eb" d="M52 110L104 136L103.84 130.88L62.24 110.08Z" />
         <path fill="#e5e7eb" d="M104 136L188 94L177.76 93.92L103.84 130.88Z" />
@@ -205,6 +212,8 @@ export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accen
           <path fill="none" stroke="#9ca3af" strokeWidth="1.3" strokeLinecap="round" d="M46 117L104 146" />
           <path fill="none" stroke="#6b7280" strokeWidth="1.8" strokeLinecap="round" d="M104 146L194 101" />
         </g>
+        {/* vytiahnuta predna zlozka: von z krabice doprava-dopredu, nad vsetkym */}
+        {pull > 0 ? <g transform={`translate(${78 * pull} ${34 * pull})`}>{binder0}</g> : null}
       </g>
     </svg>
   );

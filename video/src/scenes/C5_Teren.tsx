@@ -15,7 +15,9 @@ import { BRAND, CM, INK, ISO, SAFE } from '../theme';
  *
  * ms: 300 zatvorena krabica · 900 harok · 1500-2000 nalepka z harku na
  * krabicu · 2400 veko + zlozky · 3000/3400/3800 nalepky na zlozky (dolet
- * 3500/3900/4300) · 4800 mobil · 5400 blesk · 5900 ID · 7600-9300 najazd.
+ * 3500/3900/4300) · 4600 predna zlozka sa vytiahne · 4900 mobil · 5400 ramik
+ * na stitok zlozky · 5500 blesk · 6000 ID zlozky · 7600-9300 najazd = footage
+ * (fotenie stitku cez appku).
  */
 const BOX = 860;
 const PX = archiveBoxPxPerCm(BOX); // ~9.4 px/cm
@@ -41,15 +43,18 @@ export const C5_Teren: React.FC = () => {
   const FLY = 500;
   const qr: [number, number, number, number] = [0, 0, 0, 0];
   FLIGHTS.forEach((f) => (qr[f.qr] = pop(frame, f.start + FLY)));
+  // po nalepeni sa predna zlozka vytiahne z krabice (o dalsich 60 j.) a mobil mieri na jej stitok
+  const pull = tw(4600, 500);
   const box = {
     lid: tw(2400, 520),
-    binders: [tw(2500, 420), tw(2570, 420), tw(2640, 420)] as [number, number, number],
+    binders: [tw(2500, 420) + pull * 0.6, tw(2570, 420), tw(2640, 420)] as [number, number, number],
     qr,
+    pull,
   };
-  const phone = settle(frame, 4800);
-  const frameBox = tw(5300, 260);
-  const flash = tw(5400, 120) * (1 - tw(5520, 400));
-  const idT = pop(frame, 5900);
+  const phone = settle(frame, 4900);
+  const frameBox = tw(5400, 260);
+  const flash = tw(5500, 120) * (1 - tw(5620, 400));
+  const idT = pop(frame, 6000);
   const fill = tw(7600, 1700);
   const others = 1 - tw(7600, 900);
 
@@ -160,7 +165,7 @@ export const C5_Teren: React.FC = () => {
           );
         })}
 
-        {/* ID hore vpravo vedla krabice (ink, nie zelene) */}
+        {/* ID vytiahnutej zlozky hore vpravo vedla krabice (ink, nie zelene) */}
         <div
           style={{
             position: 'absolute',
@@ -178,16 +183,17 @@ export const C5_Teren: React.FC = () => {
             transform: `translateY(${(1 - idT) * 20}px) scale(${0.7 + 0.3 * idT})`,
           }}
         >
-          KR_01
+          ZL_12
         </div>
 
-        {/* zeleny ramik "odfotene" okolo QR na krabici */}
+        {/* zeleny ramik "odfotene" okolo QR na vytiahnutej zlozke */}
         <svg width={1920} height={1080} style={{ position: 'absolute', left: 0, top: 0, opacity: frameBox, pointerEvents: 'none' }}>
           {(() => {
-            const cx = boxLeft + (140.49 / 240) * BOX,
-              cy = boxTop + (145.75 / 240) * BOX;
-            const w = 0.55 * BOX * 0.25,
-              h = w * 1.1;
+            // ramik "odfotene" okolo QR vytiahnutej prednej zlozky
+            const cx = boxLeft + ((86 + 78 * pull) / 240) * BOX,
+              cy = boxTop + ((135 - 40 * box.binders[0] + 34 * pull) / 240) * BOX;
+            const w = 0.55 * BOX * 0.22,
+              h = w * 1.15;
             return <rect x={cx - w / 2} y={cy - h / 2} width={w} height={h} fill="none" stroke={BRAND[600]} strokeWidth={5} rx={6} transform={`translate(${cx} ${cy}) scale(${1.3 - 0.3 * frameBox}) translate(${-cx} ${-cy})`} />;
           })()}
         </svg>

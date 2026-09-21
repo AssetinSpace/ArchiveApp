@@ -85,3 +85,9 @@
 | Klip | Pripomienka (skrátene) | Riešenie |
 |---|---|---|
 | C1 Intro | `.space` pôsobí, že „uteká“ – nie je vycentrované/správne uložené. | Zarovnanie podľa nameraných glyfov (pngjs): stoh `assetin`/`.space` tesnejší (line-height 0,9), `.space` ľavou hranou presne pod `a`; stred glyfov stohu, oddeľovača aj `Archives` na y = 540 ± 2 px; `Archives` zväčšené na 230 px (verzálka ≈ výška stohu ako na screenshote); celý lockup vodorovne na strede. |
+
+## Kolo 14 (21. 9. 2026, 08:37)
+
+| Klip | Pripomienka (skrátene) | Riešenie |
+|---|---|---|
+| C5 Terén | Zvážiť: z krabice vybrať jednu zložku, namieriť na ňu mobil a až tam nadviazať footage fotenia štítku cez appku. | Áno – po nalepení QR sa predná zložka vytiahne z krabice (doprava, pred krabicu), mobil priletí a zelený rámik „odfotené“ sa zamkne na jej štítok, blesk, ID zložky ZL_12; nájazd do displeja = strih na footage fotenia štítku. `ArchiveBox` má nový prop `pull`. |
