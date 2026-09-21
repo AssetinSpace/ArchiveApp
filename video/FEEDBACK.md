@@ -131,3 +131,11 @@
 |---|---|---|
 | C3 Sklad | Pri otvorení druhej krabice na polici nevidno jednu stenu krabice ani jej hĺbku. | Prehľadávaná krabica sa najprv vytiahne z police dopredu (po hranu dosky), až potom sa otvorí; po zatvorení sa zasunie späť. Vďaka tomu je vidieť jej pravú stenu (predtým ju prekrývala susedná krabica / stĺpik regálu). Otvorená krabica má nový vnútrajšok: tmavšie zadné steny, tmavé dno a hrubší lem všetkých štyroch stien, zložky sú nižšie a užšie, takže vidno dno okolo nich – krabica má zreteľnú hĺbku. Platí pre obe krabice (`OpenCarton` v `lib/iso.tsx`). |
 | C5 Terén | QR nálepky lietajú sekane; má to byť plynulé a pekne nadväzovať. ZL_01 (ID zložky) je prekryté – dať inde, logicky. | Let nálepky predĺžený z 500 na 700 ms (ease-in-out po oblúku), v poslednej tretine sa nálepka sklopí do roviny plochy, na ktorú dosadá (pravá stena krabice / predná plocha zložky), tieň sa stratí a presne v okamihu dosadnutia ju nahradí nalepená QR v tej istej veľkosti a sklone (predtým nálepka zmizla a QR „vyskočila“ z nuly – to bol ten sek). Lety na zložky 3,0 / 3,5 / 4,0 s. ID zložky ZL_12 už nie je v rohu framu (kamera ho pri nájazde odrezala), ale ako štítok prilepený k hornému pravému rohu zeleného rámika okolo zložky – ide s kamerou a nič ho neprekrýva. |
+
+## Verzia 2 – zoštíhlenie (21. 9. 2026)
+
+Verzia 1 (dlhá, 88,5 s) je uložená: `out/mp4/v1/` (Full_v1_1080p.mp4, Full_v1_preview_540p.mp4, C2-Kancelaria.mp4, C3-Sklad.mp4), `out/stills/v1/`, scény `C2_Kancelaria.tsx` a `C3_Sklad.tsx` ostávajú v kóde (`V1_LIST` v `scenesList.ts`).
+
+| Klip | Zadanie | Riešenie |
+|---|---|---|
+| C2 + C3 | Obe scény sú „hľadanie“ (kancelária, archív); posúdiť spojenie a skrátenie, šetríme čas. | Spojené do jedného klipu **C2-Hladanie (11 s)** namiesto 8 + 13 s: kancelária (panáčik otvorí skriňu, „?“, vyletí jeden šanón, odíde doprava) → kamera s ním prejde panom do skladu (obe kulisy navy, spojité) → kratšia chôdza k regálu, kamera nájde na policu → prehľadá sa jedna krabica (vytiahne, otvorí, 3 zložky, zavrie, zasunie) → „?“ nad regálom = začiatok C4 (C4 bez zmeny). Full 78,5 s (−10 s). Nový caption: „Dokumentáciu máte. V kancelárii, v sklade… niekde.“ / „Len ju nikto nevie nájsť.“ (texty v obraze ostávajú vypnuté). |

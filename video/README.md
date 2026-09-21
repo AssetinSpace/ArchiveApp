@@ -89,3 +89,8 @@ do `FEEDBACK.md` a zapracúvajú po kolách; po každom kole sa nahrajú nové M
 
 Remotion je zadarmo pre jednotlivcov a firmy do 3 zamestnancov (aj komerčne).
 Väčšia firma potrebuje Company License – pozri LICENSE v balíku `remotion`.
+
+## Verzie
+
+- **Verzia 2 (aktuálna, 78,5 s)**: C2-Hladanie nahrádza C2-Kancelaria + C3-Sklad.
+- **Verzia 1 (88,5 s)**: rendre v `out/mp4/v1/` a `out/stills/v1/`; scény ostávajú v `src/scenes/` (`V1_LIST` v `scenesList.ts`, `npm run stills`/`render` ich preskakujú).

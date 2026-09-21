@@ -1,7 +1,9 @@
 /** Vsetky texty v obraze. Zdroj: brozura Assetin Archives (12 stran). */
 /** Kolo 2: jediny text v obraze per klip, max ~7 slov. */
 export const captions = {
-  C2: 'Dokumentáciu máte. Nikto ju nevie nájsť.',
+  C2: 'Dokumentáciu máte. V kancelárii, v sklade… niekde.',
+  C2b: 'Len ju nikto nevie nájsť.',
+  C2v1: 'Dokumentáciu máte. Nikto ju nevie nájsť.',
   C3a: 'V sklade to nie je lepšie.',
   C3b: 'Je to niekde tam.',
   C4: 'Zaplatené dvakrát za tú istú dokumentáciu.',

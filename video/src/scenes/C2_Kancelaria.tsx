@@ -134,7 +134,7 @@ export const C2_Kancelaria: React.FC = () => {
           })}
         </svg>
       </Camera>
-      {showCap ? <Caption text={captions.C2} mode="dark" t={settle(frame, 3200)} y={SAFE.captionY} /> : null}
+      {showCap ? <Caption text={captions.C2v1} mode="dark" t={settle(frame, 3200)} y={SAFE.captionY} /> : null}
     </Scene>
   );
 };
