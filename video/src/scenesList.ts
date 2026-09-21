@@ -4,6 +4,7 @@ import { C2_Kancelaria } from './scenes/C2_Kancelaria';
 import { C3_Sklad } from './scenes/C3_Sklad';
 import { C4_Cena } from './scenes/C4_Cena';
 import { C5_Teren } from './scenes/C5_Teren';
+import { F1_Sken } from './scenes/F1_Sken';
 import { C6_Spracovanie } from './scenes/C6_Spracovanie';
 import { C7_Hierarchia } from './scenes/C7_Hierarchia';
 import { C8_Pilot } from './scenes/C8_Pilot';
@@ -20,6 +21,7 @@ export const SCENE_LIST: [string, SceneDef][] = [
   ['C3-Sklad', { component: C3_Sklad, seconds: 13, stills: [90, 230, 380] }],
   ['C4-Cena', { component: C4_Cena, seconds: 9, stills: [10, 110, 250] }],
   ['C5-Teren', { component: C5_Teren, seconds: 10, stills: [70, 170, 285] }],
+  ['F1-Sken', { component: F1_Sken, seconds: 15.8, stills: [30, 200, 420] }],
   ['C6-Spracovanie', { component: C6_Spracovanie, seconds: 7, stills: [40, 110, 200] }],
   ['C7-Hierarchia', { component: C7_Hierarchia, seconds: 12, stills: [15, 120, 230] }],
   ['C8-Pilot', { component: C8_Pilot, seconds: 7, stills: [50, 110, 180] }],

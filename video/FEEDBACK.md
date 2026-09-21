@@ -106,3 +106,9 @@
 | C4 Cena | Kruh s otáznikom a hodiny rovnako veľké; k 2× dopísať €€€. | Hodiny majú rovnaký vonkajší priemer ako otáznik; dole v strede „2× €€€“. |
 | C5 Terén | Nalepené QR sú oveľa väčšie ako na hárku. | QR na krabici a zložkách zmenšené (mierka 0,62) na veľkosť bunky hárku; letiaca nálepka dolieta v tej istej veľkosti. Prejaví sa aj v C7/C8. |
 | C7 Hierarchia | Dokumenty nemajú označenie. | Pod dokumentmi DK_06 / DK_07 / DK_08. |
+
+## Footage 1 (21. 9. 2026)
+
+| Klip | Zadanie | Riešenie |
+|---|---|---|
+| F1 Sken | Prvé footage z mobilu (sken prvého štítku), poslané v dvoch častiach (HEVC 1206×2622, 60 fps, 10,5 s + 6 s); vložiť za C5 do Full náhľadu. | Časti prekódované na H.264 884×1920 30 fps a spojené (15,8 s, orezaný čierny koniec). Nová scéna `F1_Sken.tsx` (`FootageClip`): rozmazané pozadie z footage, ostrý portrét na výšku framu, fade z bielej a do bielej. Zaradené za C5 (Full 92 s). Zdroj v `public/footage/` mimo gitu. |

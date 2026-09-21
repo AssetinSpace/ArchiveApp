@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 
 const dir = 'out/stills';
 const files = readdirSync(dir)
-  .filter((n) => /^C\d-.*_\d\.png$/.test(n))
+  .filter((n) => /^[CF]\d-.*_\d\.png$/.test(n))
   .sort();
 const byClip = new Map();
 for (const f of files) {
