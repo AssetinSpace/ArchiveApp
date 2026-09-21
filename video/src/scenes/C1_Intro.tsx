@@ -33,13 +33,16 @@ export const C1_Intro: React.FC = () => {
   const sepLeft = stackLeft + LOCKUP.stackW + LOCKUP.gap;
   const modLeft = sepLeft + LOCKUP.sepW + LOCKUP.gap;
   const top = 540 - LOCKUP.sepH / 2;
+  // korekcie podla nameranych glyfov (stred glyfov na y = 540)
+  const STACK_DY = -2;
+  const MOD_DY = -30;
   const scale = 1 + zoom * 0.35;
 
   return (
     <Scene mode="dark">
       <div style={{ position: 'absolute', inset: 0, transform: `scale(${scale})`, transformOrigin: '50% 50%', opacity: 1 - zoom * 0.9, filter: `blur(${zoom * 6}px)` }}>
         {/* stohovany logotyp */}
-        <div style={{ position: 'absolute', left: stackLeft, top: top + (LOCKUP.sepH - 172) / 2, opacity: stackIn, transform: `translateY(${(1 - stackIn) * 24}px)` }}>
+        <div style={{ position: 'absolute', left: stackLeft, top: top + STACK_DY, opacity: stackIn, transform: `translateY(${(1 - stackIn) * 24}px)` }}>
           <BrandStack domain={domain} />
         </div>
         {/* oddelovac */}
@@ -48,7 +51,7 @@ export const C1_Intro: React.FC = () => {
         </div>
         {/* modul Archives: vychadza spoza oddelovaca doprava (clip) */}
         <div style={{ position: 'absolute', left: modLeft, top, width: LOCKUP.modW + 40, height: LOCKUP.sepH, overflow: 'hidden' }}>
-          <BrandMod style={{ position: 'absolute', left: 0, top: (LOCKUP.sepH - 140) / 2, transform: `translateX(${(mod - 1) * (LOCKUP.modW + 40)}px)`, opacity: Math.min(1, mod * 2) }} />
+          <BrandMod style={{ position: 'absolute', left: 0, top: MOD_DY, transform: `translateX(${(mod - 1) * (LOCKUP.modW + 40)}px)`, opacity: Math.min(1, mod * 2) }} />
         </div>
       </div>
       {/* prechod do navy na konci (prvy frame C2 je navy) */}
