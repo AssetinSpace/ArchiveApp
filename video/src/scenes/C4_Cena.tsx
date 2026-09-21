@@ -35,27 +35,27 @@ export const C4_Cena: React.FC = () => {
   const s = TARGET_SHELF;
   return (
     <Scene mode="dark">
-      <Camera keys={[{ ms: 0, ...CAM_END }, { ms: 1700, x: CAM_END.x + 500 / CAM_END.scale, y: CAM_END.y + 70 / CAM_END.scale, scale: 1.5 }]}>
+      <Camera keys={[{ ms: 0, ...CAM_END }, { ms: 1700, x: CAM_END.x + 590 / CAM_END.scale, y: CAM_END.y + 70 / CAM_END.scale, scale: 1.5 }]}>
         <svg width={1920} height={1080} viewBox={`${VB.x} ${VB.y} ${1920 / SV} ${1080 / SV}`} style={{ position: 'absolute', left: 0, top: 0 }}>
           <ShelfFrame x={s.x} y={s.y} w={CM.shelf.w} d={CM.shelf.d} levels={2} levelH={CM.shelf.level} topBoard={false}>
             {(lvl) => [0, 1].map((k) => <Carton key={`${lvl}${k}`} x={s.x + 8 + k * 60} y={s.y + 12} z={lvl * CM.shelf.level + 4} />)}
           </ShelfFrame>
           {(() => {
             const [qx, qy] = iso(s.x + 65, s.y + 30, 2 * CM.shelf.level + 14);
-            return <QuestionMark x={qx} y={qy} s={0.4 * (1 - tw(800, 500))} />;
+            return <QuestionMark x={qx} y={qy} s={0.7 * (1 - tw(800, 500))} />;
           })()}
         </svg>
       </Camera>
 
       {/* velky otaznik vedla regalu (rovnaka velkost ako hodiny) */}
-      <svg width={240} height={240} viewBox="-120 -120 240 240" style={{ position: 'absolute', left: 790, top: 380, opacity: Math.min(1, bigQ * 1.4), transform: `scale(${0.6 + 0.4 * bigQ})` }}>
+      <svg width={240} height={240} viewBox="-120 -120 240 240" style={{ position: 'absolute', left: 715, top: 380, opacity: Math.min(1, bigQ * 1.4), transform: `scale(${0.6 + 0.4 * bigQ})` }}>
         <circle r={100} fill={BRAND[300]} />
         <text x={0} y={48} textAnchor="middle" fontFamily="Manrope" fontWeight={800} fontSize={150} fill={NAVY[900]}>
           ?
         </text>
       </svg>
       {/* hodiny v strede medzery medzi regalom a vykresom */}
-      <svg width={240} height={240} viewBox="-120 -120 240 240" style={{ position: 'absolute', left: 1030, top: 380, opacity: clock, transform: `scale(${0.6 + 0.4 * clock})` }}>
+      <svg width={240} height={240} viewBox="-120 -120 240 240" style={{ position: 'absolute', left: 955, top: 380, opacity: clock, transform: `scale(${0.6 + 0.4 * clock})` }}>
         <circle r={100} fill="#1B2A44" stroke="#fff" strokeWidth={10} />
         {[0, 90, 180, 270].map((a) => (
           <line key={a} x1={0} y1={-84} x2={0} y2={-68} stroke={BRAND[400]} strokeWidth={8} strokeLinecap="round" transform={`rotate(${a})`} />
@@ -65,22 +65,23 @@ export const C4_Cena: React.FC = () => {
         <circle r={8} fill={BRAND[400]} />
       </svg>
       {/* sipka hodiny -> vykres */}
-      <svg width={180} height={80} viewBox="0 0 180 80" style={{ position: 'absolute', left: 1275, top: 460, opacity: arrow > 0 ? 1 : 0 }}>
+      <svg width={180} height={80} viewBox="0 0 180 80" style={{ position: 'absolute', left: 1200, top: 460, opacity: arrow > 0 ? 1 : 0 }}>
         <path d="M10 40 H150" fill="none" stroke={BRAND[400]} strokeWidth={8} strokeLinecap="round" {...drawProps(arrow, 140)} />
         <path d="M122 12 L156 40 L122 68" fill="none" stroke={BRAND[400]} strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" opacity={arrow > 0.85 ? 1 : 0} />
       </svg>
 
-      <div style={{ position: 'absolute', left: 330, top: 760 }}>
-        <PriceTag text="skladovanie" s={tagA} color={BRAND[700]} />
+      <div style={{ position: 'absolute', left: 300, top: 720 }}>
+        <PriceTag text="skladovanie" s={tagA} color={BRAND[700]} size={36} />
       </div>
-      <div style={{ position: 'absolute', left: 1470, top: 300, opacity: sheet, transform: `translateY(${(1 - sheet) * 30}px) rotate(-4deg)` }}>
+      <div style={{ position: 'absolute', left: 1395, top: 300, opacity: sheet, transform: `translateY(${(1 - sheet) * 30}px) rotate(-4deg)` }}>
         <Sheet w={280} h={390} lines={7} stamp />
       </div>
-      <div style={{ position: 'absolute', left: 1470, top: 740 }}>
-        <PriceTag text="nové vyhotovenie" s={tagB} color={BRAND[700]} />
+      <div style={{ position: 'absolute', left: 1395, top: 720 }}>
+        <PriceTag text="nové vyhotovenie" s={tagB} color={BRAND[700]} size={36} />
       </div>
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 20, textAlign: 'center', opacity: big, transform: `scale(${0.6 + 0.4 * big})`, paddingLeft: 380 }}>
-        <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 170, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.04em' }}>2×</span>
+      {/* 2x dole v strede, medzi cenovkami */}
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 640, textAlign: 'center', opacity: big, transform: `scale(${0.6 + 0.4 * big})` }}>
+        <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 200, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.04em' }}>2×</span>
       </div>
       {showCap ? <Caption text={captions.C4} mode="dark" t={settle(frame, 5800)} y={SAFE.captionY} /> : null}
     </Scene>

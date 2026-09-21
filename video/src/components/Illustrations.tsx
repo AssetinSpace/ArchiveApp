@@ -109,26 +109,26 @@ export const Sheet: React.FC<{ w?: number; h?: number; lines?: number; stamp?: b
 );
 
 /** Cenovka (tag) so sumou/textom. */
-export const PriceTag: React.FC<{ text: string; s?: number; color?: string }> = ({ text, s = 1, color = INK[900] }) => (
+export const PriceTag: React.FC<{ text: string; s?: number; color?: string; size?: number }> = ({ text, s = 1, color = INK[900], size = 26 }) => (
   <div
     style={{
       display: 'inline-flex',
       alignItems: 'center',
       gap: 12,
-      padding: '10px 20px 10px 16px',
-      borderRadius: 10,
+      padding: `${size * 0.45}px ${size * 0.85}px ${size * 0.45}px ${size * 0.65}px`,
+      borderRadius: size * 0.4,
       background: color,
       color: '#fff',
       fontFamily: 'Inter',
       fontWeight: 600,
-      fontSize: 26,
+      fontSize: size,
       whiteSpace: 'nowrap',
       opacity: Math.min(1, s * 1.4),
       transform: `scale(${0.6 + 0.4 * s})`,
       transformOrigin: 'left center',
     }}
   >
-    <span style={{ width: 10, height: 10, borderRadius: 5, background: '#fff', opacity: 0.7 }} />
+    <span style={{ width: size * 0.4, height: size * 0.4, borderRadius: size * 0.2, background: '#fff', opacity: 0.7 }} />
     {text}
   </div>
 );

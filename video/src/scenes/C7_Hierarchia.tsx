@@ -5,8 +5,9 @@ import { Caption } from '../components/Text';
 import { PhoneFrame } from '../components/Device';
 import { ArchiveBox } from '../components/ArchiveBox';
 import { Camera } from '../lib/camera';
-import { Binder, Carton, IsoBox, QrOnLeftFace, ShelfFrame } from '../lib/iso';
+import { Binder, Carton, IsoBox, QrOnLeftFace, ShelfFrame, iso, pts } from '../lib/iso';
 import { drawProps, pop, settle, tween } from '../lib/anim';
+import { Check } from '../components/Illustrations';
 import { captions } from '../copy/sk';
 import { BRAND, FONT, INK, ISO, SAFE } from '../theme';
 
@@ -21,7 +22,8 @@ import { BRAND, FONT, INK, ISO, SAFE } from '../theme';
  * ms: 0-500 hold · 500-2000 oddialenie + zaradenie · 900-1400 surodenci ·
  * 2100 polica, 2500 zlozky, 2900 dokumenty · 2600+i*200 QR · 3000 caption ·
  * 4200 sken · 4700 vetva · 5500-7000 priblizenie na policu · 6000+i*250
- * krabice do police · 8000 caption out · 8500 strom out · 9000-10500 najazd.
+ * krabice do police · 7300 mobil hlada · 7700 najdena krabica KR_01 sa
+ * zvyrazni (obrys, znacka), ostatne stmavnu · 8500 strom out · 9000-10500 najazd.
  */
 const PX = 3;
 const PHONE_AT = { x: 330, y: 330, w: 7 * PX * 6, h: 15 * PX * 6 };
@@ -46,6 +48,9 @@ export const C7_Hierarchia: React.FC = () => {
   const scan = tw(4200, 500) * (1 - tw(5500, 400));
   const glow = tw(4700, 400);
   const placed = (i: number) => pop(frame, 6000 + i * 250);
+  const search = tw(7300, 400);
+  const found = pop(frame, 7700);
+  const FOUND = 2; // KR_01
   const treeOut = 1 - tw(8500, 500);
   const fill = tw(9000, 1500);
 
@@ -69,9 +74,34 @@ export const C7_Hierarchia: React.FC = () => {
                   {[0, 1].map((k) => {
                     const i = lv * 2 + k;
                     const p = placed(i);
+                    const cx = -57 + k * 60,
+                      cy = -18,
+                      cz = lv * 44 + 4;
+                    const isFound = i === FOUND;
+                    const dim = isFound ? 1 : 1 - 0.45 * Math.min(1, found * 1.4);
+                    const w = 52,
+                      d = 36,
+                      h = 40;
                     return (
-                      <g key={k} transform={`translate(0 ${(1 - p) * -30})`} opacity={p}>
-                        <Carton x={-57 + k * 60} y={-18} z={lv * 44 + 4} qr={p} qrSize={0.3} />
+                      <g key={k} transform={`translate(0 ${(1 - p) * -30})`} opacity={p * dim}>
+                        <Carton x={cx} y={cy} z={cz} qr={p} qrSize={0.3} />
+                        {isFound && found > 0 ? (
+                          <g>
+                            {/* obrys siluety najdenej krabice + znacka nad nou */}
+                            <polygon
+                              points={pts([iso(cx - 2, cy + d + 2, cz), iso(cx + w + 2, cy + d + 2, cz), iso(cx + w + 2, cy - 2, cz), iso(cx + w + 2, cy - 2, cz + h), iso(cx - 2, cy - 2, cz + h), iso(cx - 2, cy + d + 2, cz + h)])}
+                              fill="none"
+                              stroke={BRAND[600]}
+                              strokeWidth={2.5 + Math.sin(frame / 4) * 0.6}
+                              strokeLinejoin="round"
+                              opacity={Math.min(1, found * 1.4)}
+                            />
+                            {(() => {
+                              const [mx, my] = iso(cx + w / 2, cy + d / 2, cz + h + 22 + Math.sin(frame / 8) * 2);
+                              return <Check x={mx} y={my} s={found * 0.55} />;
+                            })()}
+                          </g>
+                        ) : null}
                       </g>
                     );
                   })}
@@ -152,7 +182,18 @@ export const C7_Hierarchia: React.FC = () => {
       <div style={{ position: 'absolute', inset: 0, opacity: tw(4200, 500) * (fill > 0 ? 1 : 1) }}>
         <PhoneFrame at={PHONE_AT} fill={fill} rotate={-6}>
           <div style={{ position: 'absolute', inset: 0, background: '#fff' }}>
-            <div style={{ position: 'absolute', inset: '30% 18% 40% 18%', border: `3px solid ${BRAND[600]}`, borderRadius: 6, opacity: 1 - fill }} />
+            <div style={{ position: 'absolute', inset: '30% 18% 40% 18%', border: `3px solid ${BRAND[600]}`, borderRadius: 6, opacity: (1 - fill) * (1 - search) }} />
+            {/* hladanie v mobile: riadok s lupou a vysledok KR_01 */}
+            <div style={{ position: 'absolute', left: '10%', right: '10%', top: '14%', opacity: search * (1 - fill) }}>
+              <div style={{ height: 22, borderRadius: 6, border: `2px solid ${INK[300]}`, display: 'flex', alignItems: 'center', padding: '0 6px', gap: 5 }}>
+                <div style={{ width: 9, height: 9, borderRadius: '50%', border: `2px solid ${INK[500]}` }} />
+                <div style={{ height: 4, width: `${40 * search}%`, background: INK[400], borderRadius: 2 }} />
+              </div>
+              <div style={{ marginTop: 10, height: 26, borderRadius: 6, background: BRAND[100], display: 'flex', alignItems: 'center', padding: '0 6px', gap: 6, opacity: found, transform: `translateY(${(1 - found) * 8}px)` }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: BRAND[600] }} />
+                <span style={{ fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 11, fontWeight: 600, color: BRAND[800] }}>KR_01</span>
+              </div>
+            </div>
           </div>
         </PhoneFrame>
       </div>

@@ -88,7 +88,8 @@ export const SEARCH_QMS: [number, number, number, number][] = (() => {
   [7200, 10400].forEach((start, k) => {
     const cx = s.x + 8 + k * 60 + 26,
       cy = s.y + 12 + 18;
-    [0, 1, 2].forEach((i) => out.push([cx - 14 + i * 14, cy + (i === 1 ? -8 : 6), top + 22 + i * 14, start + 500 + i * 650]));
+    // jedna bublinka na krabicu, pri vytiahnuti prvej zlozky
+    out.push([cx, cy, top + 26, start + 500]);
   });
   return out;
 })();
@@ -107,10 +108,8 @@ export const C3_Sklad: React.FC = () => {
   const walked: [number, number][] = [...PATH.slice(0, seg + 1), [px, py]];
   const pathD = walked.map(([x, y], i) => `${i ? 'L' : 'M'}${iso(x, y, 0).join(' ')}`).join(' ');
   const qm: [number, number, number, number][] = [
-    [140, 60, 2400, 0],
-    [160, 250, 3200, 0],
-    [420, 60, 4000, 80],
-    [300, 250, 4800, 0],
+    [140, 60, 2600, 0],
+    [420, 60, 4200, 80],
   ];
   const others = 1 - tw(6800, 500); // vsetko okrem cieloveho regalu zmizne
   const A = searchBox(tw, 7200);
@@ -158,15 +157,15 @@ export const C3_Sklad: React.FC = () => {
                 {isTarget
                   ? SEARCH_QMS.map(([x, y, z, ms], i) => {
                       // bublinka: vyskoci, stupa a vlni sa, na konci zanikne (zivot 1,6 s)
-                      const life = tw(ms, 1600);
-                      const fade = 1 - tw(ms + 1200, 400);
-                      const [qx, qy] = iso(x + Math.sin(life * Math.PI * 2 + i) * 5, y, z + life * 22);
-                      return <QuestionMark key={`q${i}`} x={qx} y={qy} s={pop(frame, ms) * 0.3 * (0.6 + 0.4 * fade)} color={`rgba(134,194,140,${fade})`} />;
+                      const life = tw(ms, 2000);
+                      const fade = 1 - tw(ms + 1600, 400);
+                      const [qx, qy] = iso(x + Math.sin(life * Math.PI * 2 + i) * 6, y, z + life * 26);
+                      return <QuestionMark key={`q${i}`} x={qx} y={qy} s={pop(frame, ms) * 0.55 * fade} />;
                     })
                   : null}
                 {isTarget ? (() => {
                   const [qx, qy] = iso(s.x + 65 + Math.sin(frame / 9) * 2, s.y + 30, 2 * CM.shelf.level + 14 + Math.sin(frame / 12) * 3);
-                  return <QuestionMark x={qx} y={qy} s={qEnd * 0.4} />;
+                  return <QuestionMark x={qx} y={qy} s={qEnd * 0.7} />;
                 })() : null}
               </g>
             );
@@ -183,10 +182,10 @@ export const C3_Sklad: React.FC = () => {
             {qm.map(([x, y, s0, z], i) => {
               const s = pop(frame, s0) * (1 - tw(6000, 600));
               const [qx, qy] = iso(x, y, 140 + z);
-              return <QuestionMark key={i} x={qx} y={qy} s={s * 1.3} />;
+              return <QuestionMark key={i} x={qx} y={qy} s={s * 1.8} />;
             })}
           </g>
-          <Person x={sx} y={sy} scale={1.4} color="#ffffff" opacity={tw(1400, 300) * (1 - tw(6500, 800))} />
+          <Person x={sx} y={sy} scale={1.4} color={BRAND[400]} opacity={tw(1400, 300) * (1 - tw(6500, 800))} />
         </svg>
       </Camera>
 
