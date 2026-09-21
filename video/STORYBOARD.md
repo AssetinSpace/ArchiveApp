@@ -1,4 +1,4 @@
-# Storyboard – Assetin Archives (kolo 14)
+# Storyboard – Assetin Archives (kolo 15)
 
 Stav: ☐ still na schválenie · ☑ still schválený · ▶ animácia hotová · 🎞 finálne MP4
 
@@ -15,7 +15,7 @@ strihový bod pre footage; náhľad Full má tvrdé strihy. Titulky v obraze sú
 | C2-Kancelaria | Skriňa pri stole | navy | Zelený panáčik príde ku skrini (stolička pred stolom), otvorí krídlo (otáča sa okolo pántu), vnútri šanóny so štítkami, rolky, listy; hľadá („?“ nad hlavou sa jemne vznášajú), vyhadzuje veci – šanón so štítkom, rolka a papiere vyletia oblúkom a dopadnú pred skriňou | 3 s „Dokumentáciu máte. Nikto ju nevie nájsť.“ | 8 s | ☐ ▶ |
 | C3-Sklad | Sklad → regál | navy | Zelená postavička klučkuje uličkou (cesta pod objektmi) a zastaví pred stredným regálom, dva „?“; kamera nájde na jeho hornú policu s dvoma krabicami (regál bez vrchnej dosky, vidno do krabíc), sklad vybledne; prvá krabica: veko sa odklopí, vidno dno a zložky vnútri, zložky sa postupne vyberú a vrátia (pri prvej zložke vyletí bublinka „?“ a zanikne), veko dole; to isté druhá; nič sa nenašlo, väčší „?“ | 4 s „V sklade to nie je lepšie.“ · 11,5 s „Je to niekde tam.“ | 14 s | ☐ ▶ |
 | C4-Cena | 2× | navy | Začína rovnakým regálom ako koniec C3; regál sa odsunie doľava, vedľa neho veľký „?“, vedľa hodiny rovnakej veľkosti s točiacou sa ručičkou (hľadanie trvá), šípka k výkresu s pečiatkou (rýchlejšie spraviť nanovo); veľké cenovky pod regálom a výkresom; „2×“ dole v strede | 5,8 s „Zaplatené dvakrát za tú istú dokumentáciu.“ | 9 s | ☐ ▶ |
-| C5-Teren →📹 | V sklade | biela | Zatvorená krabica, priletí hárok nálepiek A4, z neho odletí QR na krabicu; veko sa otvorí, zložky vyjdú a z hárku priletia QR na každú zložku; predná zložka sa vytiahne z krabice, mobil sa zameria na jej štítok, blesk, ID ZL_12; nájazd do displeja → biely frame = footage fotenia štítku | 5 s „Nalepiť QR, odfotiť. Celá práca v teréne.“ | 10 s | ☐ ▶ |
+| C5-Teren →📹 | V sklade | biela | Zatvorená krabica, priletí hárok nálepiek A4, z neho odletí QR na krabicu; veko sa otvorí, zložky vyjdú a z hárku priletia QR na každú zložku; zložky majú štítky s textom; predná sa vytiahne z krabice, mobil sa k nej priblíži a zameria na štítok, blesk, ID ZL_12; kamera nájde na zložku s mobilom a potom nájazd do displeja → biely frame = strih do reality (footage fotenia štítku) | 5 s „Nalepiť QR, odfotiť. Celá práca v teréne.“ | 10 s | ☐ ▶ |
 | C6-Spracovanie →📹 (?) | Fotka → aplikácia | biela | Bez zmeny; možno vypadne a footage pôjde rovno za C5 | 3 s „Text z fotky rozpozná a navrhne údaje.“ | 7 s | ☐ ▶ |
 | C7-Hierarchia →📹 | Hierarchia + sken | biela | Začína tou istou krabicou ako C5 (KR_01), kamera sa oddiali, vedľa sa objavia dve rovnaké krabice s medzerou a KR_01 sa do nej zaradí; nad ňou vyrastie prázdna polica (2 rady), pod ňou zložky a dokumenty; mobil naskenuje krabicu, vetva sa zvýrazní zelenou čiarou; kamera nájde späť na policu, krabice sa do nej poukladajú (všetky s menším QR); mobil vľavo hľadá a nájde KR_01 – tá krabica sa zvýrazní (obrys, značka), ostatné stmavnú; strom vybledne, mobil nájde na celý frame → footage | 3 s „Každá položka má svoje miesto.“ | 12 s | ☐ ▶ |
 | C8-Pilot | Jedna krabica | biela | Bez zmeny (upraví sa neskôr) | 2 s „Začneme jednou krabicou.“ | 7 s | ☐ ▶ |
@@ -45,7 +45,7 @@ S04-Pokusy (Excel a skener), S10-Nasadenie (U nás / U vás) vo Folder „Option
 - kolo 1: „vyzerá ako prezentácia, priveľa textu, nie je miesto na footage“ → kolo 2.
 - kolo 2: „mierka ikon nesedí, chýba kancelária, texty sa prekrývajú s ikonami, simulácia UI je zbytočná (príde footage), zelené QR, presahy medzi scénami“ → kolo 3 (tento stav).
 - kolo 3 + oprava QR/kancelárie: schválené → Fáza 2 (finálne MP4).
-- kolo 4 až 14 (pripomienky z review stránky, viď FEEDBACK.md): zapracované; nové MP4 na review stránke.
+- kolo 4 až 15 (pripomienky z review stránky, viď FEEDBACK.md): zapracované; nové MP4 na review stránke.
 
 ## Review stránka
 

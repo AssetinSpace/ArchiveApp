@@ -100,6 +100,11 @@ export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accen
           <path fill="#e5e7eb" d="M73 165.5L105 181.5L105 131.5L73 115.5Z" />
           <path fill="#e5e7eb" d="M73 115.5L105 131.5L113 127.5L81 111.5Z" />
           <path fill="none" stroke="#6b7280" strokeWidth="2.2" strokeLinecap="round" d="M73 115.5L105 131.5" />
+          {/* stitok zlozky (text na prednej ploche, pod QR) */}
+          <g transform={`matrix(1 0.5 0 1 73 115.5)`}>
+            <text x={4} y={41} fontFamily="Inter, sans-serif" fontWeight={700} fontSize={5.2} fill="#1f2937">PROJEKT</text>
+            <text x={4} y={47.5} fontFamily="Inter, sans-serif" fontWeight={500} fontSize={4.6} fill="#6b7280">2018</text>
+          </g>
           {showQr ? (
             <Qr
               s={qr[0]}
@@ -139,6 +144,11 @@ export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accen
           <path fill="#e5e7eb" d="M129 137.5L161 153.5L161 103.5L129 87.5Z" />
           <path fill="#e5e7eb" d="M129 87.5L161 103.5L169 99.5L137 83.5Z" />
           <path fill="none" stroke="#6b7280" strokeWidth="2.2" strokeLinecap="round" d="M129 87.5L161 103.5" />
+          {/* stitok zlozky (text na prednej ploche, pod QR) */}
+          <g transform={`matrix(1 0.5 0 1 129 87.5)`}>
+            <text x={4} y={41} fontFamily="Inter, sans-serif" fontWeight={700} fontSize={5.2} fill="#1f2937">STAVBA</text>
+            <text x={4} y={47.5} fontFamily="Inter, sans-serif" fontWeight={500} fontSize={4.6} fill="#6b7280">B2</text>
+          </g>
           {showQr ? (
             <Qr
               s={qr[2]}
@@ -162,6 +172,11 @@ export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accen
           <path fill="#e5e7eb" d="M101 151.5L133 167.5L133 117.5L101 101.5Z" />
           <path fill="#e5e7eb" d="M101 101.5L133 117.5L141 113.5L109 97.5Z" />
           <path fill="none" stroke="#6b7280" strokeWidth="2.2" strokeLinecap="round" d="M101 101.5L133 117.5" />
+          {/* stitok zlozky (text na prednej ploche, pod QR) */}
+          <g transform={`matrix(1 0.5 0 1 101 101.5)`}>
+            <text x={4} y={41} fontFamily="Inter, sans-serif" fontWeight={700} fontSize={5.2} fill="#1f2937">ZMLUVY</text>
+            <text x={4} y={47.5} fontFamily="Inter, sans-serif" fontWeight={500} fontSize={4.6} fill="#6b7280">2016</text>
+          </g>
           {showQr ? (
             <Qr
               s={qr[1]}

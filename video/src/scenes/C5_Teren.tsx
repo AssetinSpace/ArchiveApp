@@ -4,6 +4,7 @@ import { Scene, useCaptions } from '../components/Scene';
 import { Caption } from '../components/Text';
 import { ArchiveBox, archiveBoxPxPerCm } from '../components/ArchiveBox';
 import { PhoneFrame } from '../components/Device';
+import { Camera } from '../lib/camera';
 import { pop, settle, tween } from '../lib/anim';
 import { captions } from '../copy/sk';
 import { BRAND, CM, INK, ISO, SAFE } from '../theme';
@@ -16,8 +17,9 @@ import { BRAND, CM, INK, ISO, SAFE } from '../theme';
  * ms: 300 zatvorena krabica · 900 harok · 1500-2000 nalepka z harku na
  * krabicu · 2400 veko + zlozky · 3000/3400/3800 nalepky na zlozky (dolet
  * 3500/3900/4300) · 4600 predna zlozka sa vytiahne · 4900 mobil · 5400 ramik
- * na stitok zlozky · 5500 blesk · 6000 ID zlozky · 7600-9300 najazd = footage
- * (fotenie stitku cez appku).
+ * na stitok zlozky · 5200 mobil sa priblizi · 5500 blesk · 6000 ID zlozky ·
+ * 5800-7400 kamera najde na zlozku + mobil · 7600-9300 najazd do displeja =
+ * strih do reality (fotenie stitku cez appku).
  */
 const BOX = 860;
 const PX = archiveBoxPxPerCm(BOX); // ~9.4 px/cm
@@ -52,6 +54,8 @@ export const C5_Teren: React.FC = () => {
     pull,
   };
   const phone = settle(frame, 4900);
+  const approach = tw(5200, 500); // mobil sa priblizi k vytiahnutej zlozke
+  const PHONE_NOW = { ...PHONE_AT, x: PHONE_AT.x - 150 * approach, y: PHONE_AT.y + 20 * approach };
   const frameBox = tw(5400, 260);
   const flash = tw(5500, 120) * (1 - tw(5620, 400));
   const idT = pop(frame, 6000);
@@ -72,6 +76,7 @@ export const C5_Teren: React.FC = () => {
 
   return (
     <Scene mode="light">
+      <Camera keys={[{ ms: 5800, x: 0, y: 0, scale: 1 }, { ms: 7400, x: 1200 - 960, y: 0, scale: 1.4 }]}>
       <div style={{ position: 'absolute', inset: 0, opacity: others }}>
         {/* harok nalepiek A4: 4 x 5 bielych QR */}
         <div style={{ position: 'absolute', left: 330 + (1 - sheet) * -260, top: SAFE.illoBottom - SHEET.h - 20, opacity: sheet, transform: 'rotate(-8deg)' }}>
@@ -201,7 +206,7 @@ export const C5_Teren: React.FC = () => {
 
       {/* mobil - ciel najazdu */}
       <div style={{ position: 'absolute', inset: 0, opacity: phone, transform: `translateX(${(1 - phone) * 260 * (1 - fill)}px)` }}>
-        <PhoneFrame at={PHONE_AT} fill={fill} rotate={8}>
+        <PhoneFrame at={PHONE_NOW} fill={fill} rotate={8 - 6 * approach}>
           <div style={{ position: 'absolute', inset: 0, background: '#fff' }}>
             <div style={{ position: 'absolute', inset: '18% 12% 22% 12%', opacity: (0.5 + 0.5 * frameBox) * (1 - fill) }}>
               {[
@@ -236,6 +241,7 @@ export const C5_Teren: React.FC = () => {
       </div>
 
       <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 60% 45%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 55%)', opacity: flash, pointerEvents: 'none' }} />
+      </Camera>
 
       {showCap ? <Caption text={captions.C5} t={settle(frame, 6200)} out={tw(7300, 300)} y={SAFE.captionY} /> : null}
     </Scene>

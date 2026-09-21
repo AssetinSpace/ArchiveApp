@@ -91,3 +91,9 @@
 | Klip | Pripomienka (skrátene) | Riešenie |
 |---|---|---|
 | C5 Terén | Zvážiť: z krabice vybrať jednu zložku, namieriť na ňu mobil a až tam nadviazať footage fotenia štítku cez appku. | Áno – po nalepení QR sa predná zložka vytiahne z krabice (doprava, pred krabicu), mobil priletí a zelený rámik „odfotené“ sa zamkne na jej štítok, blesk, ID zložky ZL_12; nájazd do displeja = strih na footage fotenia štítku. `ArchiveBox` má nový prop `pull`. |
+
+## Kolo 15 (21. 9. 2026, 08:49)
+
+| Klip | Pripomienka (skrátene) | Riešenie |
+|---|---|---|
+| C5 Terén | Na zložkách má byť vidieť text; po vytiahnutí má mobil namieriť na zložku, záber, a potom strih do reality. | Každá zložka má na prednej ploche štítok s textom (PROJEKT 2018, ZMLUVY 2016, STAVBA B2); po vytiahnutí sa mobil priblíži k zložke, rámik sa zamkne na jej štítok, blesk, ID; kamera nájde na zložku s mobilom (5,8–7,4 s) a potom nájazd do displeja = strih do reality. |
