@@ -112,3 +112,9 @@
 | Klip | Zadanie | Riešenie |
 |---|---|---|
 | F1 Sken | Prvé footage z mobilu (sken prvého štítku), poslané v dvoch častiach (HEVC 1206×2622, 60 fps, 10,5 s + 6 s); vložiť za C5 do Full náhľadu. | Časti prekódované na H.264 884×1920 30 fps a spojené (15,8 s, orezaný čierny koniec). Nová scéna `F1_Sken.tsx` (`FootageClip`): rozmazané pozadie z footage, ostrý portrét na výšku framu, fade z bielej a do bielej. Zaradené za C5 (Full 92 s). Zdroj v `public/footage/` mimo gitu. |
+
+## Footage 1 – úprava (21. 9. 2026)
+
+| Klip | Zadanie | Riešenie |
+|---|---|---|
+| F1 Sken | Nahrávanie prílohy zrýchliť; mená a údaje na štítku sú vymyslené, ostávajú. | Úsek po „Vytvoriť“ (11,4–15,8 s) zrýchlený 4× → F1 12,5 s, Full 88,5 s. Štítok bez rozmazania. |
