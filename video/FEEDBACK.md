@@ -118,3 +118,9 @@
 | Klip | Zadanie | Riešenie |
 |---|---|---|
 | F1 Sken | Nahrávanie prílohy zrýchliť; mená a údaje na štítku sú vymyslené, ostávajú. | Úsek po „Vytvoriť“ (11,4–15,8 s) zrýchlený 4× → F1 12,5 s, Full 88,5 s. Štítok bez rozmazania. |
+
+## Footage 1 – prechod a layout (21. 9. 2026)
+
+| Klip | Zadanie | Riešenie |
+|---|---|---|
+| F1 Sken | Doriešiť prechod animácia → footage: celá obrazovka alebo orez na appku; jemné „tapy“ na tlačidlách; mobil viac vľavo a vpravo sprievodný text. | Footage orezané o stavovú lištu iOS a lištu Safari, beží vnútri nášho rámika mobilu (rovnaký ako v C5). Prechod: z bieleho framu (koniec C5) sa displej stiahne doľava do mobilu, footage sa škáluje s ním; vpravo sprievodný text po krokoch (Krok 1/4 … 4/4: Typ jednotky · Priradiť QR · Odfotiť štítok · Skontrolovať a vytvoriť) s bodkami postupu; zelené „tapy“ na tlačidlách (Ďalej, Skenovať QR z prílohy, Odfotiť/nahrať, spúšť, Use Photo, Vytvoriť); na konci fade do bielej. |
