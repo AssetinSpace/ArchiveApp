@@ -8,26 +8,27 @@ import { Floor, Person, QuestionMark } from '../components/Illustrations';
 import { pop, settle, tween } from '../lib/anim';
 import { captions } from '../copy/sk';
 import { BRAND, CM, ISO, SAFE } from '../theme';
-import { CAM_END, PALLETS, SEARCH_QMS, SHELF_LEVEL, SHELVES, SV, SearchCarton, TARGET_SHELF, VB, searchBox } from './C3_Sklad';
+import { CAM_END, PALLETS, SEARCH_QMS, SHELF_LEVEL, SHELVES, SV, SearchCarton, TARGET_SHELF, VB } from './C3_Sklad';
 
 /**
- * C2 - Hladanie (verzia 2: spojene C2 Kancelaria + C3 Sklad, 14,5 s).
- * Kancelaria: panacik otvori skrinu, "?", vyhodi sanon a rolku, odide doprava.
- * Kamera s nim prejde (pan) do skladu: panacik pride k regalu, kamera
- * najde na policu, obe krabice sa postupne vytiahnu, prehladaju a vratia;
- * "?" nad regalom = zaciatok C4.
+ * C2 - Hladanie (verzia 2: spojene C2 Kancelaria + C3 Sklad, 12,5 s).
+ * Kancelaria: panacik otvori skrinu, vyhodi sanon a rolku (po kazdej veci
+ * vyskoci "?"), odide doprava. Prestrih: sklad je v suterene - platna s
+ * kancelariou sa posunie hore a odhali sklad. Panacik pride k regalu, kamera
+ * najde na policu; prva krabica von, veko, vsetky zlozky naraz hore, "?";
+ * druha to iste; velky "?" nad regalom = zaciatok C4.
  *
- * ms: 0 kancelaria · 300-1100 panacik ku skrini · 1100-1700 dvere · 1400/1900
- * "?" · 2000/2500 vyhodeny sanon a rolka · 3200-4100 panacik odchadza ·
- * 4200-5200 pan do skladu · 4700-6500 chodza k regalu · 5100/5700 "?" ·
- * 6000-7400 kamera na policu, 6500 sklad vybledne · 6500 krabica A von ·
- * 6900-10300 A: otvorit, 3 zlozky, zavriet, zasunut · 9900 krabica B von ·
- * 10300-13700 B to iste · 13800 "?".
+ * ms: 300-1100 panacik ku skrini · 1100-1700 dvere · 2000/2500 vyhodeny
+ * sanon a rolka, 2300/2800 "?" · 3200-4100 panacik odchadza · 4200-5400
+ * prestrih hore (suteren) · 5000-6600 chodza k regalu · 5400/6000 "?" ·
+ * 6300-7600 kamera na policu, 6700 sklad vybledne · 6900-9500 krabica A
+ * (von, veko, zlozky naraz, "?", spat) · 9200-11800 krabica B · 11900 "?".
  */
 const PX = 2.4;
 const CAB = { x: 280, y: 40 };
 const LEVEL = (CM.cabinet.h - 3) / 3;
 const PAN_AT = 4200;
+const PAN_MS = 1200;
 
 const TopLabel: React.FC<{ x: number; y: number; z: number; lines: [string, string] }> = ({ x, y, z, lines }) => {
   const [ox, oy] = iso(x, y, z);
@@ -61,7 +62,7 @@ const Office: React.FC<{ frame: number }> = ({ frame }) => {
   const open = tw(1100, 600);
   const leave = tw(3200, 900); // odide doprava von z framu skor, nez zacne pan
   const qmOut = 1 - tw(3100, 300);
-  const qm = [pop(frame, 1400) * qmOut, pop(frame, 1900) * qmOut];
+  const qm = [pop(frame, 2300) * qmOut, pop(frame, 2800) * qmOut]; // otaznik vyskoci po kazdej vyhodenej veci
   // panacik: ku skrini, potom odchadza doprava (pred skrinou) von z framu
   const atX = CAB.x - 70,
     atY = CAB.y + 70;
@@ -70,8 +71,8 @@ const Office: React.FC<{ frame: number }> = ({ frame }) => {
   const [sx, sy] = iso(px, py, 0);
   // vyhodene veci: sanon a rolka, obluk zo skrine na podlahu, dopad v rade
   const thrown = [
-    { start: 2000, tx: CAB.x - 30, ty: CAB.y + 100, kind: 'b' as const },
-    { start: 2500, tx: CAB.x + 15, ty: CAB.y + 96, kind: 'r' as const },
+    { start: 2000, tx: CAB.x + 5, ty: CAB.y + 106, kind: 'b' as const },
+    { start: 2500, tx: CAB.x + 55, ty: CAB.y + 100, kind: 'r' as const },
   ];
 
   return (
@@ -82,21 +83,6 @@ const Office: React.FC<{ frame: number }> = ({ frame }) => {
       <Lying x={60} y={170} z={75} label={['FAKTÚRY', '2021']} />
       <Papers x={104} y={168} z={75} h={5} />
       <Papers x={112} y={186} z={80} h={3} />
-      {thrown.map((it, i) => {
-        const t = tw(it.start, 700);
-        if (t <= 0) return null;
-        const sxp = CAB.x + 20,
-          syp = CAB.y + 60;
-        const x = sxp + (it.tx - sxp) * t,
-          y = syp + (it.ty - syp) * t;
-        const zz = 90 * (1 - t) + 80 * Math.sin(Math.PI * t);
-        const [cx, cy] = iso(x + 16, y + 15, zz);
-        return (
-          <g key={i} transform={`rotate(${(1 - t) * 40} ${cx} ${cy})`}>
-            {it.kind === 'b' ? <Lying x={x} y={y} z={zz} /> : <Roll x={x} y={y + 8} z={zz} len={90} />}
-          </g>
-        );
-      })}
       <Cabinet x={CAB.x} y={CAB.y} open={open}>
         {[4, 38, 62].map((bx, i) => (
           <Binder key={`b0${i}`} x={CAB.x + 3 + bx} y={CAB.y + 6 + [0, 10, 2][i]} z={3} d={30} />
@@ -113,6 +99,21 @@ const Office: React.FC<{ frame: number }> = ({ frame }) => {
         <Papers x={CAB.x + 62} y={CAB.y + 10} z={2 * LEVEL + 3} h={6} />
       </Cabinet>
       <Person x={sx} y={sy} scale={1.25} color={BRAND[400]} opacity={tw(200, 300)} />
+      {thrown.map((it, i) => {
+        const t = tw(it.start, 700);
+        if (t <= 0) return null;
+        const sxp = CAB.x + 20,
+          syp = CAB.y + 60;
+        const x = sxp + (it.tx - sxp) * t,
+          y = syp + (it.ty - syp) * t;
+        const zz = 90 * (1 - t) + 80 * Math.sin(Math.PI * t);
+        const [cx, cy] = iso(x + 16, y + 15, zz);
+        return (
+          <g key={i} transform={`rotate(${(1 - t) * 40} ${cx} ${cy})`}>
+            {it.kind === 'b' ? <Lying x={x} y={y} z={zz} /> : <Roll x={x} y={y + 8} z={zz} len={90} />}
+          </g>
+        );
+      })}
       {qm.map((s, i) => {
         const bob = Math.sin(frame / 10 + i * 2.1) * 3;
         const [qx, qy] = iso(atX - 46 + i * 30 + Math.sin(frame / 14 + i) * 1.5, atY - 4, 130 + (i % 2) * 18 + bob);
@@ -131,9 +132,17 @@ const PATH: [number, number][] = [
   [305, 120],
   [305, 138],
 ];
+/** Rychle prehladanie: krabica von, veko, vsetky zlozky naraz hore, "?", spat, veko, zasunut (2,2 s). */
+const fastSearch = (tw: (s: number, d: number) => number, start: number) => {
+  const out = tw(start - 400, 400) * (1 - tw(start + 1800, 400));
+  const lid = tw(start, 400) * (1 - tw(start + 1500, 400));
+  const binders = [0, 1, 2].map((i) => tw(start + 300 + i * 60, 300) * (1 - tw(start + 1200, 300))) as [number, number, number];
+  return { out, lid, binders };
+};
+
 const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
   const tw = (s: number, d: number) => tween(frame, s, d);
-  const walk = tw(4700, 1800); // panacik vojde do skladu, ked je uz sklad v zabere
+  const walk = tw(5000, 1600); // panacik vojde do skladu, ked je uz sklad v zabere
   const seg = Math.min(PATH.length - 2, Math.floor(walk * (PATH.length - 1)));
   const lt = walk * (PATH.length - 1) - seg;
   const px = PATH[seg][0] + (PATH[seg + 1][0] - PATH[seg][0]) * lt;
@@ -142,13 +151,13 @@ const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
   const walked: [number, number][] = [...PATH.slice(0, seg + 1), [px, py]];
   const pathD = walked.map(([x, y], i) => `${i ? 'L' : 'M'}${iso(x, y, 0).join(' ')}`).join(' ');
   const qm: [number, number, number, number][] = [
-    [140, 60, 5100, 0],
-    [420, 60, 5700, 80],
+    [140, 60, 5400, 0],
+    [420, 60, 6000, 80],
   ];
-  const others = 1 - tw(6500, 500);
-  const A = searchBox(tw, 6900);
-  const B = searchBox(tw, 10300);
-  const qEnd = pop(frame, 13800);
+  const others = 1 - tw(6700, 500);
+  const A = fastSearch(tw, 7300);
+  const B = fastSearch(tw, 9600);
+  const qEnd = pop(frame, 11900);
 
   const Stack: React.FC<{ x: number; y: number }> = ({ x, y }) => (
     <g>
@@ -162,7 +171,7 @@ const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
   );
 
   return (
-    <Camera keys={[{ ms: 6000, x: 0, y: 0, scale: 1 }, { ms: 7400, ...CAM_END }]}>
+    <Camera keys={[{ ms: 6300, x: 0, y: 0, scale: 1 }, { ms: 7600, ...CAM_END }]}>
       <svg width={1920} height={1080} viewBox={`${VB.x} ${VB.y} ${1920 / SV} ${1080 / SV}`} style={{ position: 'absolute', left: 0, top: 0 }}>
         <g opacity={others}>
           <Floor x={-60} y={-60} w={560} d={560} fill="#263246" edge="#131F31" />
@@ -187,7 +196,7 @@ const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
                 }
               </ShelfFrame>
               {isTarget
-                ? [7400, 10800].map((ms, k) => {
+                ? [7800, 10100].map((ms, k) => {
                     // bublinka "?" pri vytiahnuti prvej zlozky z kazdej krabice
                     const q = SEARCH_QMS[k];
                     const life = tw(ms, 2000);
@@ -210,12 +219,12 @@ const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
             <Stack key={i} x={p.x} y={p.y} />
           ))}
           {qm.map(([x, y, s0, z], i) => {
-            const s = pop(frame, s0) * (1 - tw(6000, 500));
+            const s = pop(frame, s0) * (1 - tw(6300, 500));
             const [qx, qy] = iso(x, y, 140 + z);
             return <QuestionMark key={i} x={qx} y={qy} s={s * 1.8} />;
           })}
         </g>
-        <Person x={sx} y={sy} scale={1.4} color={BRAND[400]} opacity={tw(4700, 200) * (1 - tw(6300, 600))} />
+        <Person x={sx} y={sy} scale={1.4} color={BRAND[400]} opacity={tw(5000, 200) * (1 - tw(6500, 600))} />
       </svg>
     </Camera>
   );
@@ -225,19 +234,19 @@ export const C2_Hladanie: React.FC = () => {
   const frame = useCurrentFrame();
   const showCap = useCaptions();
   const tw = (s: number, d: number) => tween(frame, s, d);
-  const pan = tw(PAN_AT, 1000);
+  const pan = tw(PAN_AT, PAN_MS);
 
   return (
     <Scene mode="dark">
-      {/* pan kamery: kancelaria odide dolava, sklad pride sprava (obe navy, spojite) */}
-      <div style={{ position: 'absolute', inset: 0, transform: `translateX(${-1920 * pan}px)` }}>
+      {/* prestrih: sklad je v suterene - platna s kancelariou sa posunie hore a odhali platnu so skladom pod nou */}
+      <div style={{ position: 'absolute', inset: 0, transform: `translateY(${-1080 * pan}px)` }}>
         {pan < 1 ? (
           <div style={{ position: 'absolute', left: 0, top: 0, width: 1920, height: 1080, overflow: 'hidden' }}>
             <Office frame={frame} />
           </div>
         ) : null}
         {pan > 0 ? (
-          <div style={{ position: 'absolute', left: 1920, top: 0, width: 1920, height: 1080, overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', left: 0, top: 1080, width: 1920, height: 1080, overflow: 'hidden' }}>
             <Warehouse frame={frame} />
           </div>
         ) : null}
@@ -245,7 +254,7 @@ export const C2_Hladanie: React.FC = () => {
       {showCap ? (
         <>
           <Caption text={captions.C2} mode="dark" t={settle(frame, 1500)} out={tw(4000, 300)} y={SAFE.captionY} />
-          <Caption text={captions.C2b} mode="dark" t={settle(frame, 8000)} y={SAFE.captionY} />
+          <Caption text={captions.C2b} mode="dark" t={settle(frame, 7800)} y={SAFE.captionY} />
         </>
       ) : null}
     </Scene>
