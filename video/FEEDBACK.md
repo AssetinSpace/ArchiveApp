@@ -145,3 +145,9 @@ Verzia 1 (dlhá, 88,5 s) je uložená: `out/mp4/v1/` (Full_v1_1080p.mp4, Full_v1
 | Klip | Zadanie | Riešenie |
 |---|---|---|
 | C2 Hľadanie | Teraz je to zas extrémne rýchle; v kancelárii nech vyhodí zo skrine aspoň dve veci; v sklade treba postupne prehľadať obe krabice. | Klip predĺžený z 11 na 14,5 s. Kancelária: vyletí šanón aj rolka (2,0 / 2,5 s), panáčik odchádza až v 3,2 s, pan do skladu 4,2–5,2 s. Sklad: chôdza 1,8 s, kamera na policu 6,0–7,4 s, krabica A sa vytiahne, prehľadá a zasunie (6,5–10,3 s), potom to isté krabica B (9,9–13,7 s), pri každej bublinka „?“; veľký „?“ 13,8 s. Full 82 s. |
+
+## Kolo 21 (22. 9. 2026)
+
+| Klip | Zadanie | Riešenie |
+|---|---|---|
+| C2 Hľadanie | Otázniky v kancelárii až po vytiahnutí položiek (prvá vec → „?“, druhá → „?“). Prebehnutie do skladu je príliš rýchle; radšej prestrih: sklad je v suteréne, platňa s kanceláriou sa posunie hore a odhalí platňu so skladom. V sklade zrýchliť: prvá krabica, všetky zložky naraz vystrčiť, „?“, druhá to isté, a ďalej ďalšia scéna. | „?“ vyskočí 0,3 s po každej vyhodenej veci (2,3 / 2,8 s); vyhodené veci dopadajú pred panáčika (nie pod neho). Prestrih vertikálne: platňa s kanceláriou ide hore (1,2 s, 4,2–5,4 s) a spod nej sa vysunie sklad ako suterén. Sklad: krabica von, veko, všetky tri zložky naraz hore, bublinka „?“, späť, veko, zasunúť (2,6 s na krabicu); A 6,9–9,5 s, B 9,2–11,8 s, veľký „?“ 11,9 s. Klip 12,5 s, Full 80 s. |
