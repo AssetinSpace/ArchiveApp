@@ -157,3 +157,15 @@ Verzia 1 (dlhá, 88,5 s) je uložená: `out/mp4/v1/` (Full_v1_1080p.mp4, Full_v1
 | Klip | Zadanie | Riešenie |
 |---|---|---|
 | C4 → C5 | Jasne definovať, že odtiaľto je to náš prístup a riešenie problému, ešte pred lepením QR na krabicu. | C4 predĺžené o 2,5 s (11,5 s): cenovky, hodiny, výkres a „?“ vyblednú, kamera nájde na krabicu na polici; z nej sa rozleje biele svetlo so zeleným lemom; na bielej sa nakreslí značka Assetin a pod ňou lockup „assetin \| Archives“ (ozvena intra); po 0,6 s značka a lockup zmiznú, na podstavci sa usadí krabica z C5 a zapne sa pätička so značkou. C5 začína tou istou krabicou (bez opätovného príchodu). Pätička so značkou a webom je zapnutá v C5–C8 (v problémovej časti nie) a mizne pri nájazde do displeja / okna, takže footage z aplikácie je bez nej. Do náhovoru na miesto predelu: „Dá sa to inak. Assetin Archives.“ Full 82,5 s. |
+
+## Kolo 23 (22. 9. 2026)
+
+| Klip | Zadanie | Riešenie |
+|---|---|---|
+| C1 Intro | Písmená nie sú vidieť celé, zospodu orezané. | Modul „Archives“ vychádza spoza oddeľovača cez orezový box; ten mal výšku oddeľovača a orezával spodok písmen. Box má zvislú rezervu 80 px hore aj dole, oreziava už len vodorovne. |
+| C2 Hľadanie | Prvá platňa má orezaný roh. Kancelária prebehne trochu rýchlo; otáznikov nemá byť toľko, iba jeden na konci po krátkej pauze, keď vyhádže všetky veci. | Záber kancelárie o 22 % širší (viewBox 980 × 551), celá platňa je vo frame. Zo skrine vyletí šanón, rolka a papiere (2,0 / 2,5 / 3,0 s), po pauze jeden väčší „?“ (3,9 s), panáčik odchádza 4,5 s, prestrih 5,5 s; sklad posunutý o 1,3 s. Klip 14 s. |
+| C4 Cena → predel | Kreslenie značky nedáva zmysel, radšej nech sa zobrazí a dlhšie drží. Priestor na body ako pri footage (na boku); krabicu dať viac na bok. Text ako jednotlivé kroky. | Značka a lockup sa objavia (bez kreslenia) a držia 1,4 s; potom sa usadí krabica vľavo (rovnaká poloha ako v C5). C4 12,5 s. Analýza: áno, má to zmysel – rovnaký jazyk ako pri footage (vľavo obraz, vpravo kroky) dáva hneď po predele štruktúru „nášho prístupu“, a divák ju potom vidí pokračovať v F1. Body sú v C5 (viď nižšie), C4 ostáva čistý predel so značkou. |
+| C5 Terén | Roztiahnutie displeja cez celý frame a potom zoštíhlenie do mobilu nedáva zmysel. | Nájazd do displeja zrušený. Krabica vľavo (x 200), hárok pri ľavom okraji, mobil pri zložke; vpravo kroky nášho prístupu: Krok 1/3 Označiť (0,9 s), 2/3 Odfotiť (4,6 s), 3/3 Zaevidovať (6,0 s), texty sú návrh na úpravu. Na konci (7,6–9,1 s) ostatné vybledne a mobil v skutočnej veľkosti prejde presne do rámika footage (F1), rotácia sa vyrovná. Pätička mizne s ním. |
+| F1 Sken | Stále to nie je orezané ideálne voči mobilu a reálnemu displeju. | Orez zmeraný na zázname: stavová lišta iOS 0–115 px, lišta Safari od 1743 px (z 1920). Rámik mobilu má teraz pomer displeja = pomer orezaného záznamu (884 × 1628), takže appka vypĺňa displej presne na šírku aj výšku, bez bielych pásov. F1 začína mobilom na mieste (C5 ho tam doviedol), displej sa za 0,3 s prelína z bielej do záznamu; sprievodný text bez zmeny. Rámik je spoločná konštanta `FOOTAGE_PHONE` (Device.tsx). |
+
+Full 85 s.

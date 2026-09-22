@@ -3,11 +3,11 @@ import { useCurrentFrame } from 'remotion';
 import { Scene, useCaptions } from '../components/Scene';
 import { Caption } from '../components/Text';
 import { ArchiveBox, archiveBoxPxPerCm, QR_SCALE } from '../components/ArchiveBox';
-import { PhoneFrame } from '../components/Device';
+import { FOOTAGE_PHONE, PhoneFrame } from '../components/Device';
 import { Camera } from '../lib/camera';
 import { pop, settle, tween } from '../lib/anim';
 import { captions } from '../copy/sk';
-import { BRAND, CM, INK, ISO, SAFE } from '../theme';
+import { BRAND, CM, FONT, INK, ISO, SAFE } from '../theme';
 
 /**
  * C5 - V sklade. Dlazdica z webu ako hrdina; harok nalepiek (A4) a mobil
@@ -19,20 +19,38 @@ import { BRAND, CM, INK, ISO, SAFE } from '../theme';
  * zlozky · 3000/3500/4000 nalepky na zlozky (dolet 3700/4200/4700) · 4600
  * predna zlozka sa vytiahne · 4900 mobil · 5400 ramik na zlozku · 5200 mobil
  * sa priblizi · 5500 blesk · 6000 ID zlozky ako stitok pri ramiku ·
- * 5800-7400 kamera najde na zlozku + mobil · 7600-9300 najazd do displeja =
- * strih do reality (fotenie stitku cez appku).
+ * 5800-7400 kamera najde na zlozku + mobil · 7600-9100 ostatne vybledne a
+ * mobil v skutocnej velkosti prejde do ramika footage (F1) = strih do reality.
+ * Krabica vlavo, vpravo kroky (Oznacit / Odfotit / Zaevidovat).
  */
 const BOX = 860;
+/** Krabica vlavo (vpravo je priestor na kroky), rovnaka poloha na konci C4. */
+export const C5_BOX_LEFT = 200;
 const PX = archiveBoxPxPerCm(BOX); // ~9.4 px/cm
 const SHEET = { w: CM.sheet.w * PX, h: CM.sheet.h * PX };
 const PHONE = { w: CM.phone.w * PX * 1.4, h: CM.phone.h * PX * 1.4 };
-const PHONE_AT = { x: 1420, y: 400, w: PHONE.w, h: PHONE.h };
+const PHONE_AT = { x: C5_BOX_LEFT + 1090, y: 400, w: PHONE.w, h: PHONE.h };
+/** Kamera na konci: najazd na vytiahnutu zlozku s mobilom. */
+const CAM_END = { x: C5_BOX_LEFT + 870 - 960, y: 0, scale: 1.4 };
+/** Mobil na konci prejde presne do ramika footage (F1), v suradniciach pred kamerou. */
+const PHONE_END = {
+  x: (FOOTAGE_PHONE.x - 960) / CAM_END.scale + 960 + CAM_END.x,
+  y: (FOOTAGE_PHONE.y - 540) / CAM_END.scale + 540 + CAM_END.y,
+  w: FOOTAGE_PHONE.w / CAM_END.scale,
+  h: FOOTAGE_PHONE.h / CAM_END.scale,
+};
+/** Nas pristup v troch krokoch (text vpravo, rovnaky jazyk ako pri footage). */
+const STEPS = [
+  { from: 900, title: 'Označiť', line: 'Každá položka dostane nálepku s QR kódom.' },
+  { from: 4600, title: 'Odfotiť', line: 'Štítok sa odfotí mobilom priamo v sklade.' },
+  { from: 6000, title: 'Zaevidovať', line: 'Fotka ide do aplikácie, položka dostane ID.' },
+];
 
 export const C5_Teren: React.FC = () => {
   const frame = useCurrentFrame();
   const showCap = useCaptions();
   const tw = (s: number, d: number) => tween(frame, s, d);
-  const boxLeft = 960 - BOX / 2;
+  const boxLeft = C5_BOX_LEFT;
   const boxTop = SAFE.illoTop - 40;
   const appear = 1; // krabica je na scene od zaciatku (usadila sa uz na konci C4)
   const sheet = settle(frame, 900);
@@ -62,11 +80,19 @@ export const C5_Teren: React.FC = () => {
   const frameBox = tw(5400, 260);
   const flash = tw(5500, 120) * (1 - tw(5620, 400));
   const idT = pop(frame, 6000);
-  const fill = tw(7600, 1700);
+  // zaver: mobil (v skutocnej velkosti, bez roztiahnutia) prejde do ramika footage, ostatne vybledne
+  const move = tw(7600, 1500);
   const others = 1 - tw(7600, 900);
+  const PHONE_MOVED = {
+    x: PHONE_NOW.x + (PHONE_END.x - PHONE_NOW.x) * move,
+    y: PHONE_NOW.y + (PHONE_END.y - PHONE_NOW.y) * move,
+    w: PHONE_NOW.w + (PHONE_END.w - PHONE_NOW.w) * move,
+    h: PHONE_NOW.h + (PHONE_END.h - PHONE_NOW.h) * move,
+  };
+  const stepIdx = Math.max(0, STEPS.findIndex((s, i) => frame * 1000 / 30 >= s.from && (i === STEPS.length - 1 || frame * 1000 / 30 < STEPS[i + 1].from)));
 
   // pozicia bunky harku v px (harok je otoceny o -8 stupnov okolo stredu)
-  const sheetLeft = 330,
+  const sheetLeft = 40,
     sheetTop = SAFE.illoBottom - SHEET.h - 20,
     sc = SHEET.w / 210,
     ang = (-8 * Math.PI) / 180;
@@ -78,11 +104,11 @@ export const C5_Teren: React.FC = () => {
   const used = (r: number, c: number) => FLIGHTS.some((f) => f.cell[0] === r && f.cell[1] === c && frame >= (f.start / 1000) * 30);
 
   return (
-    <Scene mode="light" footer footerOpacity={1 - fill}>
-      <Camera keys={[{ ms: 5800, x: 0, y: 0, scale: 1 }, { ms: 7400, x: 1200 - 960, y: 0, scale: 1.4 }]}>
+    <Scene mode="light" footer footerOpacity={1 - move}>
+      <Camera keys={[{ ms: 5800, x: 0, y: 0, scale: 1 }, { ms: 7400, ...CAM_END }]}>
       <div style={{ position: 'absolute', inset: 0, opacity: others }}>
         {/* harok nalepiek A4: 4 x 5 bielych QR */}
-        <div style={{ position: 'absolute', left: 330 + (1 - sheet) * -260, top: SAFE.illoBottom - SHEET.h - 20, opacity: sheet, transform: 'rotate(-8deg)' }}>
+        <div style={{ position: 'absolute', left: sheetLeft + (1 - sheet) * -260, top: sheetTop, opacity: sheet, transform: 'rotate(-8deg)' }}>
           <svg width={SHEET.w} height={SHEET.h} viewBox="0 0 210 300">
             <rect x={1} y={1} width={208} height={298} rx={4} fill="#fff" stroke={ISO.edge} strokeWidth={2} />
             {Array.from({ length: 5 }).map((_, r) =>
@@ -203,11 +229,11 @@ export const C5_Teren: React.FC = () => {
         </svg>
       </div>
 
-      {/* mobil - ciel najazdu */}
-      <div style={{ position: 'absolute', inset: 0, opacity: phone, transform: `translateX(${(1 - phone) * 260 * (1 - fill)}px)` }}>
-        <PhoneFrame at={PHONE_NOW} fill={fill} rotate={8 - 6 * approach}>
+      {/* mobil - na konci prejde do ramika footage (F1), bez roztiahnutia cez frame */}
+      <div style={{ position: 'absolute', inset: 0, opacity: phone, transform: `translateX(${(1 - phone) * 260}px)` }}>
+        <PhoneFrame at={PHONE_MOVED} rotate={(8 - 6 * approach) * (1 - move)}>
           <div style={{ position: 'absolute', inset: 0, background: '#fff' }}>
-            <div style={{ position: 'absolute', inset: '18% 12% 22% 12%', opacity: (0.5 + 0.5 * frameBox) * (1 - fill) }}>
+            <div style={{ position: 'absolute', inset: '18% 12% 22% 12%', opacity: (0.5 + 0.5 * frameBox) * (1 - move) }}>
               {[
                 { l: true, t: true },
                 { l: false, t: true },
@@ -232,7 +258,7 @@ export const C5_Teren: React.FC = () => {
                 />
               ))}
             </div>
-            <div style={{ position: 'absolute', left: '50%', bottom: '5%', width: '18%', aspectRatio: '1', transform: 'translateX(-50%)', borderRadius: '50%', border: `3px solid ${INK[400]}`, opacity: 1 - fill }}>
+            <div style={{ position: 'absolute', left: '50%', bottom: '5%', width: '18%', aspectRatio: '1', transform: 'translateX(-50%)', borderRadius: '50%', border: `3px solid ${INK[400]}`, opacity: 1 - move }}>
               <div style={{ position: 'absolute', inset: '18%', borderRadius: '50%', background: BRAND[600], opacity: 0.4 + 0.6 * flash }} />
             </div>
           </div>
@@ -241,6 +267,29 @@ export const C5_Teren: React.FC = () => {
 
       <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 60% 45%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 55%)', opacity: flash, pointerEvents: 'none' }} />
       </Camera>
+
+      {/* kroky vpravo: nas pristup (rovnaky jazyk ako pri footage); mimo kamery, nehybe sa pri najazde */}
+      <div style={{ position: 'absolute', left: 1380, top: 0, width: 500, height: 1080, display: 'flex', flexDirection: 'column', justifyContent: 'center', opacity: others }}>
+        {STEPS.map((s, i) => {
+          const on = i === stepIdx ? 1 : 0;
+          const inT = settle(frame, s.from);
+          return (
+            <div key={i} style={{ position: 'absolute', left: 0, right: 0, top: 320, opacity: on * inT, transform: `translateY(${(1 - inT) * 16}px)` }}>
+              <div style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: 22, letterSpacing: '0.14em', textTransform: 'uppercase', color: BRAND[600], marginBottom: 14 }}>
+                Krok {i + 1} / {STEPS.length}
+              </div>
+              <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 56, lineHeight: 1.05, color: INK[900], letterSpacing: '-0.02em', marginBottom: 14 }}>{s.title}</div>
+              <div style={{ fontFamily: FONT.body, fontWeight: 400, fontSize: 30, lineHeight: 1.35, color: INK[500] }}>{s.line}</div>
+              <div style={{ display: 'flex', gap: 10, marginTop: 28 }}>
+                {STEPS.map((_, k) => (
+                  <div key={k} style={{ width: k <= i ? 34 : 12, height: 12, borderRadius: 6, background: k <= i ? BRAND[500] : INK[200] }} />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
 
       {showCap ? <Caption text={captions.C5} t={settle(frame, 6200)} out={tw(7300, 300)} y={SAFE.captionY} /> : null}
     </Scene>
