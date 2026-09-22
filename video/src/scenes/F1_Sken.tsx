@@ -1,15 +1,15 @@
 import React from 'react';
 import { AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame } from 'remotion';
-import { PhoneFrame } from '../components/Device';
+import { FOOTAGE_PHONE, PHONE_BEZEL, PhoneFrame } from '../components/Device';
 import { settle, tween } from '../lib/anim';
 import { loadFonts } from '../lib/fonts';
 import { BRAND, FONT, INK } from '../theme';
 
 /**
  * F1 - Footage: sken prveho stitku v appke (screen recording z mobilu).
- * Nadvazuje na koniec C5 (biely frame = displej mobilu): ramik mobilu sa z
- * celeho framu stiahne dolava a footage uz bezi vnutri; vpravo sprievodny
- * text po krokoch; jemne "tapy" na tlacidlach; na konci fade do bielej (C6).
+ * Nadvazuje na koniec C5: mobil uz stoji vlavo v tom istom ramiku (C5 ho tam
+ * doviedol v skutocnej velkosti), displej sa z bielej prelinackou zmeni na
+ * zaznam; vpravo sprievodny text po krokoch; jemne "tapy" na tlacidlach; na konci fade do bielej (C6).
  * Footage je orezane o stavovu listu iOS a listu Safari (len appka).
  * Zdroj: public/footage/f1-sken.mp4 (priecinok nie je v gite).
  */
@@ -37,16 +37,17 @@ const F1_STEPS: Step[] = [
   { from: 9.9, title: 'Skontrolovať a vytvoriť', line: 'Jednotka má ID a svoje miesto.' },
 ];
 
-const PHONE = { x: 270, y: 60, w: 560, h: 960 };
-const CROP = { top: 0.065, bottom: 0.115 }; // stavova lista iOS, lista Safari
+const PHONE = FOOTAGE_PHONE;
+/** Orez zaznamu (namerane na f1-sken.mp4): stavova lista iOS 0-115 px, lista Safari od 1743 px z 1920. */
+const CROP = { top: 115 / 1920, bottom: 177 / 1920 };
 
 export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[]; steps?: Step[]; crop?: { top: number; bottom: number } }> = ({ src, seconds, taps = [], steps = [], crop = CROP }) => {
   const frame = useCurrentFrame();
   const ms = (frame / 30) * 1000;
   const tw = (s: number, d: number) => tween(frame, s, d);
-  const enter = 1 - tw(0, 900); // 1 = displej cez cely frame (koniec C5) -> 0 = mobil vlavo
+  const screenIn = tw(0, 300); // displej: z bielej (koniec C5) do zaznamu
   const fadeOut = tw(seconds * 1000 - 500, 400);
-  const textIn = settle(frame, 600);
+  const textIn = settle(frame, 300);
   const file = staticFile(src);
 
   React.useEffect(() => {
@@ -54,18 +55,17 @@ export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[];
   }, []);
   // displej mobilu (rovnake odvodenie ako v PhoneFrame: bezel 7 %); pocas "enter"
   // sa displej zmensuje z celeho framu, footage sa skaluje s nim (na vysku displeja)
-  const bezel = 0.07;
-  const screen0 = { w: PHONE.w * (1 - 2 * bezel), h: PHONE.h * (1 - 2 * bezel * 0.9) };
-  const screenW = screen0.w + (1920 - screen0.w) * enter;
-  const screenH = screen0.h + (1080 - screen0.h) * enter;
-  const videoH = screenH / (1 - crop.top - crop.bottom);
-  const videoW = (videoH * SRC_W) / SRC_H;
-  const videoLeft = (screenW - videoW) / 2;
+  // displej mobilu (rovnake odvodenie ako v PhoneFrame); zaznam sa skaluje na sirku displeja,
+  // orezany o systemove listy - pomer ramika je zvoleny tak, aby appka vyplnila displej presne
+  const screenW = PHONE.w * (1 - 2 * PHONE_BEZEL);
+  const videoW = screenW;
+  const videoH = (videoW * SRC_H) / SRC_W;
+  const videoLeft = 0;
   const stepIdx = Math.max(0, steps.findIndex((s, i) => ms / 1000 >= s.from && (i === steps.length - 1 || ms / 1000 < steps[i + 1].from)));
 
   return (
     <AbsoluteFill style={{ background: '#fff' }}>
-      <PhoneFrame at={PHONE} fill={enter}>
+      <PhoneFrame at={PHONE}>
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#fff' }}>
           {/* footage orezane o systemove listy: video sirsie o crop, posunute hore */}
           <div style={{ position: 'absolute', left: videoLeft, top: -crop.top * videoH, width: videoW, height: videoH }}>
@@ -80,11 +80,12 @@ export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[];
               );
             })}
           </div>
+          <div style={{ position: 'absolute', inset: 0, background: '#fff', opacity: 1 - screenIn, pointerEvents: 'none' }} />
         </div>
       </PhoneFrame>
 
       {/* sprievodny text vpravo */}
-      <div style={{ position: 'absolute', left: 960, top: 0, width: 800, height: 1080, display: 'flex', flexDirection: 'column', justifyContent: 'center', opacity: textIn * (1 - enter), transform: `translateX(${(1 - textIn) * 40}px)` }}>
+      <div style={{ position: 'absolute', left: 960, top: 0, width: 800, height: 1080, display: 'flex', flexDirection: 'column', justifyContent: 'center', opacity: textIn, transform: `translateX(${(1 - textIn) * 40}px)` }}>
         {steps.map((s, i) => {
           const on = i === stepIdx ? 1 : 0;
           const inT = settle(frame, s.from * 1000);

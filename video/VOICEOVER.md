@@ -7,18 +7,18 @@ náhovor ho neopakuje doslova.
 ## C1 · Intro (4 s)
 _(bez náhovoru)_
 
-## C2 · Hľadanie (12,5 s) – verzia 2 (spojené C2 + C3)
+## C2 · Hľadanie (14 s) – verzia 2 (spojené C2 + C3)
 - 0–4 s: „Dokumentáciu k svojim objektom máte. V skrini pri stole, v šanónoch, v rolkách paré…“ — _Dokumentáciu máte. V kancelárii, v sklade… niekde._
 - 4–7 s: „…alebo v archíve: palety, regály, krabice bez označenia.“
-- 7–12,5 s: _Len ju nikto nevie nájsť._ — „Jediný spôsob je otvoriť krabicu a prejsť ju zložku po zložke. A potom ďalšiu. A často sa nenájde nič.“
+- 8–14 s: _Len ju nikto nevie nájsť._ — „Jediný spôsob je otvoriť krabicu a prejsť ju zložku po zložke. A potom ďalšiu. A často sa nenájde nič.“
 
-## C4 · Cena + predel (11,5 s)
+## C4 · Cena + predel (12,5 s)
 - 0–3 s: „Archív, v ktorom sa nedá hľadať, nie je archív. Je to náklad. Platíte za uskladnenie…“
 - 3–6 s: „…hľadanie trvá hodiny, a tak je rýchlejšie dať dokumentáciu vyhotoviť nanovo.“
 - 6–9 s: _Zaplatené dvakrát za tú istú dokumentáciu._ — „Dvakrát za to isté.“
-- 9–11,5 s (predel, značka na bielej): „Dá sa to inak. Assetin Archives.“
+- 9–12,5 s (predel, značka na bielej): „Dá sa to inak. Assetin Archives.“
 
-## C5 · V sklade (10 s) →📹 mobil
+## C5 · V sklade (10 s) →📹 mobil — v obraze kroky: Označiť · Odfotiť · Zaevidovať
 - 0–4 s: „Riešenie začína v sklade. Položka dostane nálepku s jedinečným QR kódom…“
 - 4–7 s: _Nalepiť QR, odfotiť. Celá práca v teréne._ — „…a odfotí sa jej identifikačná strana. Stačí mobil alebo tablet.“
 - 7–10 s: „Fotka je dôkaz. Každý údaj sa kontroluje podľa nej.“ → footage: skenovanie a fotenie v appke

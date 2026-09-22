@@ -50,8 +50,9 @@ export const C1_Intro: React.FC = () => {
           <BrandSep t={sep} />
         </div>
         {/* modul Archives: vychadza spoza oddelovaca doprava (clip) */}
-        <div style={{ position: 'absolute', left: modLeft, top, width: LOCKUP.modW + 40, height: LOCKUP.sepH, overflow: 'hidden' }}>
-          <BrandMod style={{ position: 'absolute', left: 0, top: MOD_DY, transform: `translateX(${(mod - 1) * (LOCKUP.modW + 40)}px)`, opacity: Math.min(1, mod * 2) }} />
+        {/* clip len vodorovne (modul vychadza spoza oddelovaca) - zvislo s rezervou, aby sa neorezali pismena */}
+        <div style={{ position: 'absolute', left: modLeft, top: top - 80, width: LOCKUP.modW + 40, height: LOCKUP.sepH + 160, overflow: 'hidden' }}>
+          <BrandMod style={{ position: 'absolute', left: 0, top: MOD_DY + 80, transform: `translateX(${(mod - 1) * (LOCKUP.modW + 40)}px)`, opacity: Math.min(1, mod * 2) }} />
         </div>
       </div>
       {/* prechod do navy na konci (prvy frame C2 je navy) */}

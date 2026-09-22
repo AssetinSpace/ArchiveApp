@@ -92,5 +92,5 @@ Väčšia firma potrebuje Company License – pozri LICENSE v balíku `remotion`
 
 ## Verzie
 
-- **Verzia 2 (aktuálna, 82,5 s)**: C2-Hladanie nahrádza C2-Kancelaria + C3-Sklad.
+- **Verzia 2 (aktuálna, 85 s)**: C2-Hladanie nahrádza C2-Kancelaria + C3-Sklad.
 - **Verzia 1 (88,5 s)**: rendre v `out/mp4/v1/` a `out/stills/v1/`; scény ostávajú v `src/scenes/` (`V1_LIST` v `scenesList.ts`, `npm run stills`/`render` ich preskakujú).

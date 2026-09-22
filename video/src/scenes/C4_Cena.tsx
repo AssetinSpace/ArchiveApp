@@ -2,6 +2,7 @@ import React from 'react';
 import { useCurrentFrame } from 'remotion';
 import { LogoMark, Scene, useCaptions } from '../components/Scene';
 import { ArchiveBox, archiveBoxClosed } from '../components/ArchiveBox';
+import { C5_BOX_LEFT } from './C5_Teren';
 import { Caption } from '../components/Text';
 import { Camera } from '../lib/camera';
 import { Carton, ShelfFrame, iso } from '../lib/iso';
@@ -19,13 +20,13 @@ import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
  * regalu vybledne, kamera najde na krabicu, z nej sa rozleje biele svetlo
  * so zelenym lemom, na bielej sa nakresli znacka Assetin s lockupom
  * (ozvena intra), lockup zmizne do paticky a na podstavci sa usadi krabica
- * z C5. 11,5 s.
+ * z C5. 12,5 s.
  *
  * ms: 800 odsun · 1400+i*220 "?" · 2600 hodiny · 2600-4200 rucicka ·
  * 3400 sipka · 3600 vykres · 4200 cenovka B · 4600 cenovka A · 5400 "2x" ·
  * 5800 caption · 9000-9500 vsetko vybledne, kamera na krabicu · 9700-10400
- * rozsvietenie · 10200-10800 znacka sa kresli · 10500 lockup · 11000 znacka
- * a lockup odchadzaju, krabica C5 sa usadi, 11100 paticka.
+ * rozsvietenie · 10300 znacka, 10450 lockup (drzi 1,4 s) · 11700 znacka a
+ * lockup odchadzaju · 11900 krabica C5 sa usadi vlavo · 12000 paticka. 12,5 s.
  */
 const BOX = 860;
 export const C4_Cena: React.FC = () => {
@@ -45,14 +46,13 @@ export const C4_Cena: React.FC = () => {
   const out = 1 - tw(9000, 500); // cenovky, hodiny, vykres, "?" vyblednu
   const light = tw(9700, 700); // biele svetlo z krabice
   const R = light * 1500;
-  const markDraw = tw(10200, 600);
-  const markFill = tw(10700, 300);
-  const lockup = settle(frame, 10500);
-  const brandOut = tw(10850, 300);
-  const box = settle(frame, 11100);
-  const footer = tw(11100, 400);
+  const mark = settle(frame, 10300); // znacka sa objavi (bez kreslenia) a drzi ~1,4 s
+  const lockup = settle(frame, 10450);
+  const brandOut = tw(11700, 300);
+  const box = settle(frame, 11900);
+  const footer = tw(12000, 400);
   const CAM_MID = { x: CAM_END.x + 590 / CAM_END.scale, y: CAM_END.y + 70 / CAM_END.scale, scale: 1.5 };
-  const boxLeft = 960 - BOX / 2;
+  const boxLeft = C5_BOX_LEFT; // rovnaka poloha ako v C5 (krabica vlavo, vpravo kroky)
   const boxTop = SAFE.illoTop - 40;
   return (
     <Scene mode="dark" footer footerMode="light" footerOpacity={footer}>
@@ -121,15 +121,10 @@ export const C4_Cena: React.FC = () => {
       {light >= 1 ? <div style={{ position: 'absolute', inset: 0, background: '#fff' }} /> : null}
 
       {/* znacka Assetin + lockup (ozvena intra) na bielej */}
-      {markDraw > 0 ? (
+      {mark > 0 ? (
         <div style={{ position: 'absolute', inset: 0, opacity: 1 - brandOut, transform: `scale(${1 - 0.15 * brandOut})`, transformOrigin: '50% 50%' }}>
-          <div style={{ position: 'absolute', left: 960 - 80, top: 300 }}>
-            <div style={{ position: 'absolute', left: 0, top: 0 }}>
-              <LogoMark size={160} color={BRAND[700]} draw={markDraw} />
-            </div>
-            <div style={{ position: 'absolute', left: 0, top: 0, opacity: markFill }}>
-              <LogoMark size={160} color={BRAND[700]} />
-            </div>
+          <div style={{ position: 'absolute', left: 960 - 80, top: 300, opacity: mark, transform: `scale(${0.85 + 0.15 * mark})`, transformOrigin: '50% 50%' }}>
+            <LogoMark size={160} color={BRAND[700]} />
           </div>
           <div
             style={{

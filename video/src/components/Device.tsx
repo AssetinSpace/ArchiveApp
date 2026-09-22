@@ -10,6 +10,10 @@ import { BRAND, H, INK, W } from '../theme';
  */
 export type Rect = { x: number; y: number; w: number; h: number };
 
+/** Mobil vlavo pre footage z aplikacie (F1): pomer displeja = pomer orezaneho zaznamu (884 x 1628). */
+export const FOOTAGE_PHONE: Rect = { x: 285, y: 60, w: 530, h: 960 };
+export const PHONE_BEZEL = 0.07;
+
 const lerpRect = (a: Rect, b: Rect, t: number): Rect => ({
   x: interpolate(t, [0, 1], [a.x, b.x]),
   y: interpolate(t, [0, 1], [a.y, b.y]),
