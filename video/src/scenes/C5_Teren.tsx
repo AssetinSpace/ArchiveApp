@@ -34,7 +34,7 @@ export const C5_Teren: React.FC = () => {
   const tw = (s: number, d: number) => tween(frame, s, d);
   const boxLeft = 960 - BOX / 2;
   const boxTop = SAFE.illoTop - 40;
-  const appear = settle(frame, 300);
+  const appear = 1; // krabica je na scene od zaciatku (usadila sa uz na konci C4)
   const sheet = settle(frame, 900);
   // lety nalepiek: z bunky harku (r, c) na ciel v krabici (suradnice viewBox 240); dolet = pop QR
   // skew = sklon plochy, na ktoru nalepka doleta (krabica: prava stena -26,6 stupna; zlozky: predna plocha +26,6 stupna)
@@ -78,7 +78,7 @@ export const C5_Teren: React.FC = () => {
   const used = (r: number, c: number) => FLIGHTS.some((f) => f.cell[0] === r && f.cell[1] === c && frame >= (f.start / 1000) * 30);
 
   return (
-    <Scene mode="light">
+    <Scene mode="light" footer footerOpacity={1 - fill}>
       <Camera keys={[{ ms: 5800, x: 0, y: 0, scale: 1 }, { ms: 7400, x: 1200 - 960, y: 0, scale: 1.4 }]}>
       <div style={{ position: 'absolute', inset: 0, opacity: others }}>
         {/* harok nalepiek A4: 4 x 5 bielych QR */}

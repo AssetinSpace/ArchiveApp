@@ -27,7 +27,7 @@ export const C8_Pilot: React.FC = () => {
     </div>
   );
   return (
-    <Scene mode="light">
+    <Scene mode="light" footer>
       <div style={{ position: 'absolute', left: 960 - BOX / 2, top: -50, opacity: box, transform: `translateY(${(1 - box) * 30}px)` }}>
         <ArchiveBox state={{ lid: 0, binders: [0, 0, 0], qr: [0, 0, 0, qr] }} size={BOX} />
       </div>

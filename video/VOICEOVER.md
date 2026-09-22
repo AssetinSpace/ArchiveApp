@@ -12,10 +12,11 @@ _(bez náhovoru)_
 - 4–7 s: „…alebo v archíve: palety, regály, krabice bez označenia.“
 - 7–12,5 s: _Len ju nikto nevie nájsť._ — „Jediný spôsob je otvoriť krabicu a prejsť ju zložku po zložke. A potom ďalšiu. A často sa nenájde nič.“
 
-## C4 · Cena (9 s)
+## C4 · Cena + predel (11,5 s)
 - 0–3 s: „Archív, v ktorom sa nedá hľadať, nie je archív. Je to náklad. Platíte za uskladnenie…“
 - 3–6 s: „…hľadanie trvá hodiny, a tak je rýchlejšie dať dokumentáciu vyhotoviť nanovo.“
 - 6–9 s: _Zaplatené dvakrát za tú istú dokumentáciu._ — „Dvakrát za to isté.“
+- 9–11,5 s (predel, značka na bielej): „Dá sa to inak. Assetin Archives.“
 
 ## C5 · V sklade (10 s) →📹 mobil
 - 0–4 s: „Riešenie začína v sklade. Položka dostane nálepku s jedinečným QR kódom…“
