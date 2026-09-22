@@ -14,9 +14,11 @@ export const useCaptions = () => {
   return p.captions === true;
 };
 
-export const Scene: React.FC<{ mode?: Mode; footer?: boolean; band?: boolean; children: React.ReactNode }> = ({
+export const Scene: React.FC<{ mode?: Mode; footer?: boolean; footerOpacity?: number; footerMode?: Mode; band?: boolean; children: React.ReactNode }> = ({
   mode = 'light',
   footer = false,
+  footerOpacity = 1,
+  footerMode,
   band = false,
   children,
 }) => {
@@ -24,6 +26,8 @@ export const Scene: React.FC<{ mode?: Mode; footer?: boolean; band?: boolean; ch
     loadFonts();
   }, []);
   const c = modeColors(mode);
+  const fm = footerMode ?? mode; // paticka moze mat iny rezim (C4: navy scena, biela paticka na konci)
+  const fc = modeColors(fm);
   return (
     <AbsoluteFill style={{ background: mode === 'dark' ? `linear-gradient(135deg, ${c.bg} 0%, ${c.bg2} 100%)` : c.bg, overflow: 'hidden' }}>
       {children}
@@ -34,21 +38,22 @@ export const Scene: React.FC<{ mode?: Mode; footer?: boolean; band?: boolean; ch
             left: 120,
             right: 120,
             bottom: 56,
+            opacity: footerOpacity,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             fontFamily: FONT.body,
             fontSize: 24,
-            color: c.muted,
+            color: fc.muted,
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <LogoMark size={34} color={mode === 'dark' ? '#ffffff' : BRAND[700]} />
-            <span style={{ width: 1, height: 28, background: c.rule }} />
-            <span style={{ fontFamily: FONT.display, fontWeight: 700, color: mode === 'dark' ? '#fff' : '#0F172A' }}>
+            <LogoMark size={34} color={fm === 'dark' ? '#ffffff' : BRAND[700]} />
+            <span style={{ width: 1, height: 28, background: fc.rule }} />
+            <span style={{ fontFamily: FONT.display, fontWeight: 700, color: fm === 'dark' ? '#fff' : '#0F172A' }}>
               asset<span style={{ color: BRAND[600] }}>in</span>
             </span>
-            <span style={{ width: 1, height: 28, background: c.rule }} />
+            <span style={{ width: 1, height: 28, background: fc.rule }} />
             <span>Archives</span>
           </div>
           <div>www.assetin.sk</div>

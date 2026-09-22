@@ -19,7 +19,7 @@ export type SceneDef = { component: React.FC; seconds: number; stills: number[] 
 export const SCENE_LIST: [string, SceneDef][] = [
   ['C1-Intro', { component: C1_Intro, seconds: 5, stills: [45, 75, 125] }],
   ['C2-Hladanie', { component: C2_Hladanie, seconds: 12.5, stills: [75, 150, 250] }],
-  ['C4-Cena', { component: C4_Cena, seconds: 9, stills: [10, 110, 250] }],
+  ['C4-Cena', { component: C4_Cena, seconds: 11.5, stills: [10, 110, 250, 320] }],
   ['C5-Teren', { component: C5_Teren, seconds: 10, stills: [70, 170, 285] }],
   ['F1-Sken', { component: F1_Sken, seconds: 12.5, stills: [30, 200, 350] }],
   ['C6-Spracovanie', { component: C6_Spracovanie, seconds: 7, stills: [40, 110, 200] }],

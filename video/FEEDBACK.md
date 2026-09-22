@@ -151,3 +151,9 @@ Verzia 1 (dlhá, 88,5 s) je uložená: `out/mp4/v1/` (Full_v1_1080p.mp4, Full_v1
 | Klip | Zadanie | Riešenie |
 |---|---|---|
 | C2 Hľadanie | Otázniky v kancelárii až po vytiahnutí položiek (prvá vec → „?“, druhá → „?“). Prebehnutie do skladu je príliš rýchle; radšej prestrih: sklad je v suteréne, platňa s kanceláriou sa posunie hore a odhalí platňu so skladom. V sklade zrýchliť: prvá krabica, všetky zložky naraz vystrčiť, „?“, druhá to isté, a ďalej ďalšia scéna. | „?“ vyskočí 0,3 s po každej vyhodenej veci (2,3 / 2,8 s); vyhodené veci dopadajú pred panáčika (nie pod neho). Prestrih vertikálne: platňa s kanceláriou ide hore (1,2 s, 4,2–5,4 s) a spod nej sa vysunie sklad ako suterén. Sklad: krabica von, veko, všetky tri zložky naraz hore, bublinka „?“, späť, veko, zasunúť (2,6 s na krabicu); A 6,9–9,5 s, B 9,2–11,8 s, veľký „?“ 11,9 s. Klip 12,5 s, Full 80 s. |
+
+## Kolo 22 – predel problém → riešenie (22. 9. 2026)
+
+| Klip | Zadanie | Riešenie |
+|---|---|---|
+| C4 → C5 | Jasne definovať, že odtiaľto je to náš prístup a riešenie problému, ešte pred lepením QR na krabicu. | C4 predĺžené o 2,5 s (11,5 s): cenovky, hodiny, výkres a „?“ vyblednú, kamera nájde na krabicu na polici; z nej sa rozleje biele svetlo so zeleným lemom; na bielej sa nakreslí značka Assetin a pod ňou lockup „assetin \| Archives“ (ozvena intra); po 0,6 s značka a lockup zmiznú, na podstavci sa usadí krabica z C5 a zapne sa pätička so značkou. C5 začína tou istou krabicou (bez opätovného príchodu). Pätička so značkou a webom je zapnutá v C5–C8 (v problémovej časti nie) a mizne pri nájazde do displeja / okna, takže footage z aplikácie je bez nej. Do náhovoru na miesto predelu: „Dá sa to inak. Assetin Archives.“ Full 82,5 s. |

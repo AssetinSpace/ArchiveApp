@@ -129,7 +129,7 @@ export const C7_Hierarchia: React.FC = () => {
   };
 
   return (
-    <Scene mode="light">
+    <Scene mode="light" footer footerOpacity={1 - fill}>
       <Camera keys={[{ ms: 5500, x: 0, y: 0, scale: 1 }, { ms: 7000, x: SHELF_C.x - 960, y: SHELF_C.y - 540, scale: 2.4 }]}>
         <svg width={1400} height={760} viewBox="0 0 1400 760" style={{ position: 'absolute', left: SVG_AT.x, top: SVG_AT.y, opacity: treeOut }}>
           {NODES_Y.slice(1).map((ny, i) => {

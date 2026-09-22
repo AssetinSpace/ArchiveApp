@@ -30,7 +30,7 @@ export const C6_Spracovanie: React.FC = () => {
   const fill = tw(4800, 1100);
   const bar = tw(1800, 900); // progress "nahravanie"
   return (
-    <Scene mode="light">
+    <Scene mode="light" footer footerOpacity={1 - fill}>
       <WindowFrame at={WIN} fill={fill} chrome={chrome}>
         <div style={{ position: 'absolute', left: (WIN.w - PH.w) / 2, top: 70 - upload * 30, transform: `scale(${1 + 0.3 * fill})`, transformOrigin: '50% 0', opacity: 1 - tw(5300, 500) }}>
           <PhotoCard w={PH.w} h={PH.h} t={photo} />
