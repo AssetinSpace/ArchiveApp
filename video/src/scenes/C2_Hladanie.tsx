@@ -11,7 +11,7 @@ import { BRAND, CM, ISO, SAFE } from '../theme';
 import { CAM_END, PALLETS, SEARCH_QMS, SHELF_LEVEL, SHELVES, SV, SearchCarton, TARGET_SHELF, VB } from './C3_Sklad';
 
 /**
- * C2 - Hladanie (verzia 2: spojene C2 Kancelaria + C3 Sklad, 11,5 s).
+ * C2 - Hladanie (verzia 2: spojene C2 Kancelaria + C3 Sklad, 12 s).
  * Kancelaria: panacik otvori skrinu, vyhodi sanon, rolku a papiere, po
  * kratkej pauze jeden "?", odide doprava. Prestrih: sklad je v suterene -
  * platna s kancelariou sa posunie hore a odhali sklad. Panacik pride k
@@ -19,16 +19,16 @@ import { CAM_END, PALLETS, SEARCH_QMS, SHELF_LEVEL, SHELVES, SV, SearchCarton, T
  * naraz hore, "?"; druha to iste; velky "?" nad regalom = zaciatok C4.
  *
  * ms: 300-1100 panacik ku skrini · 1100-1700 dvere · 1700/2100/2500
- * vyhodene veci · 3100 "?" · 3600-4400 panacik odchadza · 4500-5600
- * prestrih hore (suteren) · 5200-6500 chodza k regalu · 5500/6000 "?" ·
- * 6000-6900 kamera na policu, 6300 sklad vybledne · 6300-8900 krabica A
- * (von, veko, zlozky naraz, "?", spat) · 8500-11300 krabica B · 11200 "?". 11,5 s.
+ * vyhodene veci · 3000 jeden kratky "?" (panacik stoji) · 3700-4600 prestrih
+ * dole (suteren) · 4300-6500 chodza k regalu (pomalsie) · 4800/5400 "?" ·
+ * 6300-7200 kamera na policu, 6600 sklad vybledne · 6600-9200 krabica A
+ * (von, veko, zlozky naraz, "?", spat) · 8800-11600 krabica B · 11500 "?". 12 s.
  */
 const PX = 2.4;
 const CAB = { x: 280, y: 40 };
 const LEVEL = (CM.cabinet.h - 3) / 3;
-const PAN_AT = 4500;
-const PAN_MS = 1100;
+const PAN_AT = 3700;
+const PAN_MS = 900;
 
 const TopLabel: React.FC<{ x: number; y: number; z: number; lines: [string, string] }> = ({ x, y, z, lines }) => {
   const [ox, oy] = iso(x, y, z);
@@ -60,9 +60,9 @@ const Office: React.FC<{ frame: number }> = ({ frame }) => {
   const tw = (s: number, d: number) => tween(frame, s, d);
   const walk = tw(300, 800);
   const open = tw(1100, 600);
-  const leave = tw(3600, 800); // odide doprava von z framu skor, nez zacne pan
-  const qmOut = 1 - tw(3500, 300);
-  const qm = [pop(frame, 3100) * qmOut]; // jeden otaznik po kratkej pauze, ked je vsetko vyhadzane
+  const leave = 0; // panacik po vyhadzani stoji (odchod vypadol, scena ide rovno dole do skladu)
+  const qmOut = 1 - tw(3600, 250);
+  const qm = [pop(frame, 3000) * qmOut]; // jeden kratky otaznik // jeden otaznik po kratkej pauze, ked je vsetko vyhadzane
   // panacik: ku skrini, potom odchadza doprava (pred skrinou) von z framu
   const atX = CAB.x - 70,
     atY = CAB.y + 70;
@@ -143,7 +143,7 @@ const fastSearch = (tw: (s: number, d: number) => number, start: number, hold = 
 
 const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
   const tw = (s: number, d: number) => tween(frame, s, d);
-  const walk = tw(5200, 1300); // panacik vojde do skladu, ked je uz sklad v zabere
+  const walk = tw(4300, 2200); // panacik vojde do skladu pomalsie (2,2 s)
   const seg = Math.min(PATH.length - 2, Math.floor(walk * (PATH.length - 1)));
   const lt = walk * (PATH.length - 1) - seg;
   const px = PATH[seg][0] + (PATH[seg + 1][0] - PATH[seg][0]) * lt;
@@ -152,13 +152,13 @@ const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
   const walked: [number, number][] = [...PATH.slice(0, seg + 1), [px, py]];
   const pathD = walked.map(([x, y], i) => `${i ? 'L' : 'M'}${iso(x, y, 0).join(' ')}`).join(' ');
   const qm: [number, number, number, number][] = [
-    [140, 60, 5500, 0],
-    [420, 60, 6000, 80],
+    [140, 60, 4800, 0],
+    [420, 60, 5400, 80],
   ];
-  const others = 1 - tw(6300, 500);
-  const A = fastSearch(tw, 6700);
-  const B = fastSearch(tw, 8900, 200); // druha krabica drzi otvorena o 0,2 s dlhsie
-  const qEnd = pop(frame, 11200);
+  const others = 1 - tw(6600, 500);
+  const A = fastSearch(tw, 7000);
+  const B = fastSearch(tw, 9200, 200); // druha krabica drzi otvorena o 0,2 s dlhsie
+  const qEnd = pop(frame, 11500);
 
   const Stack: React.FC<{ x: number; y: number }> = ({ x, y }) => (
     <g>
@@ -172,7 +172,7 @@ const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
   );
 
   return (
-    <Camera keys={[{ ms: 6000, x: 0, y: 0, scale: 1 }, { ms: 6900, ...CAM_END }]}>
+    <Camera keys={[{ ms: 6300, x: 0, y: 0, scale: 1 }, { ms: 7200, ...CAM_END }]}>
       <svg width={1920} height={1080} viewBox={`${VB.x} ${VB.y} ${1920 / SV} ${1080 / SV}`} style={{ position: 'absolute', left: 0, top: 0 }}>
         <g opacity={others}>
           <Floor x={-60} y={-60} w={560} d={560} fill="#263246" edge="#131F31" />
@@ -197,7 +197,7 @@ const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
                 }
               </ShelfFrame>
               {isTarget
-                ? [7200, 9300].map((ms, k) => {
+                ? [7500, 9600].map((ms, k) => {
                     // bublinka "?" pri vytiahnuti prvej zlozky z kazdej krabice
                     const q = SEARCH_QMS[k];
                     const life = tw(ms, 2000);
@@ -220,12 +220,12 @@ const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
             <Stack key={i} x={p.x} y={p.y} />
           ))}
           {qm.map(([x, y, s0, z], i) => {
-            const s = pop(frame, s0) * (1 - tw(6000, 500));
+            const s = pop(frame, s0) * (1 - tw(6300, 500));
             const [qx, qy] = iso(x, y, 140 + z);
             return <QuestionMark key={i} x={qx} y={qy} s={s * 1.8} />;
           })}
         </g>
-        <Person x={sx} y={sy} scale={1.4} color={BRAND[400]} opacity={tw(5200, 200) * (1 - tw(6300, 600))} />
+        <Person x={sx} y={sy} scale={1.4} color={BRAND[400]} opacity={tw(4300, 200) * (1 - tw(6600, 600))} />
       </svg>
     </Camera>
   );
@@ -254,8 +254,8 @@ export const C2_Hladanie: React.FC = () => {
       </div>
       {showCap ? (
         <>
-          <Caption text={captions.C2} mode="dark" t={settle(frame, 1500)} out={tw(4300, 300)} y={SAFE.captionY} />
-          <Caption text={captions.C2b} mode="dark" t={settle(frame, 7200)} y={SAFE.captionY} />
+          <Caption text={captions.C2} mode="dark" t={settle(frame, 1500)} out={tw(3500, 300)} y={SAFE.captionY} />
+          <Caption text={captions.C2b} mode="dark" t={settle(frame, 7500)} y={SAFE.captionY} />
         </>
       ) : null}
     </Scene>

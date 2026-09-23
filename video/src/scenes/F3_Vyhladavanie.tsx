@@ -18,7 +18,7 @@ const F3_TAPS: Tap[] = [
   { t: 4.5, x: 0.16, y: 0.25 }, // klik na vysledok ZL_01
 ];
 const F3_MARKS: Mark[] = [
-  { from: 0.2, to: 1.8, x: 0.08, y: 0.42, w: 0.44, h: 0.08 }, // pole vyhladavania pocas pisania
+  { from: 0.4, to: 2.2, x: 0.108, y: 0.462, w: 0.075, h: 0.05, sweep: 1.3 }, // pisane slovo "vodovod" - jemna fixka zlava
 ];
 /** F3 zacina z bielej (F4 konci fade-om), okno sa objavi. */
 export const F3_Vyhladavanie: React.FC = () => <DesktopFootageClip src="footage/f3-search.mp4" seconds={F3_SECONDS} steps={F3_STEPS} taps={F3_TAPS} marks={F3_MARKS} enter />;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BRAND, FONT, NAVY } from '../theme';
+import { BRAND, FONT, INK, NAVY } from '../theme';
 
 /**
  * Lockup podla assetin-design-kitu (.brand-lockup.rule.on-navy):
@@ -19,24 +19,24 @@ export const LOCKUP = {
 };
 export const LOCKUP_W = LOCKUP.stackW + LOCKUP.gap + LOCKUP.sepW + LOCKUP.gap + LOCKUP.modW;
 
-export const BrandStack: React.FC<{ domain?: number; style?: React.CSSProperties }> = ({ domain = 1, style }) => (
+export const BrandStack: React.FC<{ domain?: number; light?: boolean; style?: React.CSSProperties }> = ({ domain = 1, light = false, style }) => (
   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: LOCKUP.stackW, ...style }}>
-    <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: LOCKUP.stackSize, lineHeight: 0.9, color: '#fff', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
-      asset<span style={{ color: BRAND[400] }}>in</span>
+    <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: LOCKUP.stackSize, lineHeight: 0.9, color: light ? INK[900] : '#fff', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
+      asset<span style={{ color: light ? BRAND[600] : BRAND[400] }}>in</span>
     </div>
     {/* .space: rovnaky typ aj velkost pisma ako assetin, len tenkie a sive */}
-    <div style={{ fontFamily: FONT.display, fontWeight: 500, fontSize: LOCKUP.stackSize, lineHeight: 0.9, color: NAVY[300], letterSpacing: '-0.02em', marginTop: 0, marginLeft: -4, whiteSpace: 'nowrap', opacity: Math.min(1, domain * 1.5), transform: `translateY(${(1 - domain) * -18}px)` }}>
+    <div style={{ fontFamily: FONT.display, fontWeight: 500, fontSize: LOCKUP.stackSize, lineHeight: 0.9, color: light ? INK[400] : NAVY[300], letterSpacing: '-0.02em', marginTop: 0, marginLeft: -4, whiteSpace: 'nowrap', opacity: Math.min(1, domain * 1.5), transform: `translateY(${(1 - domain) * -18}px)` }}>
       .space
     </div>
   </div>
 );
 
-export const BrandSep: React.FC<{ t?: number }> = ({ t = 1 }) => (
+export const BrandSep: React.FC<{ t?: number; light?: boolean }> = ({ t = 1, light = false }) => (
   <div style={{ width: LOCKUP.sepW, height: LOCKUP.sepH, display: 'flex', alignItems: 'center' }}>
-    <div style={{ width: LOCKUP.sepW, height: LOCKUP.sepH * t, borderRadius: 2, background: NAVY[300], opacity: 0.6 }} />
+    <div style={{ width: LOCKUP.sepW, height: LOCKUP.sepH * t, borderRadius: 2, background: light ? INK[300] : NAVY[300], opacity: 0.6 }} />
   </div>
 );
 
-export const BrandMod: React.FC<{ text?: string; style?: React.CSSProperties }> = ({ text = 'Archives', style }) => (
-  <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: LOCKUP.modSize, lineHeight: 1, color: '#fff', letterSpacing: '-0.02em', whiteSpace: 'nowrap', ...style }}>{text}</div>
+export const BrandMod: React.FC<{ text?: string; light?: boolean; style?: React.CSSProperties }> = ({ text = 'Archives', light = false, style }) => (
+  <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: LOCKUP.modSize, lineHeight: 1, color: light ? INK[900] : '#fff', letterSpacing: '-0.02em', whiteSpace: 'nowrap', ...style }}>{text}</div>
 );

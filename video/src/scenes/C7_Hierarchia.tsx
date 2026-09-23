@@ -3,6 +3,7 @@ import { useCurrentFrame } from 'remotion';
 import { Scene, useCaptions } from '../components/Scene';
 import { Caption } from '../components/Text';
 import { PhoneFrame } from '../components/Device';
+import { StepsPanel } from '../components/Steps';
 import { ArchiveBox } from '../components/ArchiveBox';
 import { Camera } from '../lib/camera';
 import { Binder, Carton, IsoBox, QrOnLeftFace, ShelfFrame, iso, pts } from '../lib/iso';
@@ -17,13 +18,13 @@ import { BRAND, FONT, INK, ISO, SAFE } from '../theme';
  * medzerou a velka krabica sa do nej zaradi; nad nou vyrastie prazdna polica
  * (2 rady), pod nou zlozky a dokumenty. Mobil naskenuje krabicu, vetva sa
  * zvyrazni; kamera sa priblizi spat na policu a krabice sa do nej poukladaju
- * (KR_01 s QR); strom aj mobil vyblednu = biela, nasleduje C6. 8,5 s.
- * Zaradene hned za F1 (po naskenovani ma krabica miesto v hierarchii).
+ * mobil naskenuje krabicu, vetva sa zvyrazni; strom aj mobil vyblednu = biela,
+ * nasleduje C6. 5 s. Zaradene hned za F1 (po naskenovani ma krabica miesto).
+ * Vpravo kroky: Miesto v hierarchii · Hotovo v terene.
  *
  * ms: 0-500 hold · 500-2000 oddialenie + zaradenie · 900-1400 surodenci ·
  * 2100 polica, 2500 zlozky, 2900 dokumenty · 2600+i*200 QR · 3000 caption ·
- * 4200 sken · 4700 vetva · 5500-7000 priblizenie na policu · 6000+i*250
- * krabice do police · 7300-7900 strom a mobil vyblednu.
+ * 3300 sken · 3700 vetva · 4400-5000 strom a mobil vyblednu.
  */
 const PX = 3;
 const PHONE_AT = { x: 330, y: 330, w: 7 * PX * 6, h: 15 * PX * 6 };
@@ -34,6 +35,11 @@ const SIB = 230;
 const SVG_AT = { x: 260, y: SAFE.illoTop };
 // stred police (v px stranky) pre priblizenie
 const SHELF_C = { x: SVG_AT.x + NODE_X - 3, y: SVG_AT.y + NODES_Y[0] + 20 - 47 };
+/** Kroky vpravo (rovnaky jazyk ako v C5 a pri footage). */
+const C7_STEPS = [
+  { from: 600, title: 'Miesto v hierarchii', line: 'Polica, krabica, zložka, dokument. Presne podľa reality.' },
+  { from: 3300, title: 'Hotovo v teréne', line: 'QR kódy, fotky a hierarchia. Zvyšok je práca v aplikácii.' },
+];
 
 export const C7_Hierarchia: React.FC = () => {
   const frame = useCurrentFrame();
@@ -45,13 +51,13 @@ export const C7_Hierarchia: React.FC = () => {
   const line = (i: number) => tw([2300, 2500, 2900][i], 400);
   const qr = (i: number) => pop(frame, 2600 + i * 200);
   const sibIn = (k: number) => settle(frame, 900 + k * 250);
-  const scan = tw(4200, 500) * (1 - tw(5500, 400));
-  const glow = tw(4700, 400);
+  const scan = tw(3300, 500) * (1 - tw(4300, 400));
+  const glow = tw(3700, 400);
   const placed = (i: number) => pop(frame, 6000 + i * 250);
   const search = 0; // hladanie v mobile vypadlo (ukaze ho desktop footage F3)
   const found = 0;
   const FOUND = 2; // KR_01
-  const treeOut = 1 - tw(7300, 600); // strom aj mobil vyblednu do bielej (nasleduje C6)
+  const treeOut = 1 - tw(4400, 600); // strom aj mobil vyblednu do bielej (nasleduje C6)
   const fill = 1 - treeOut;
 
   // velka krabica z C5 (ArchiveBox 860 px) sa zmensi a zasunie do medzery medzi rovnake krabice
@@ -183,7 +189,8 @@ export const C7_Hierarchia: React.FC = () => {
         </div>
       </Camera>
 
-      <div style={{ position: 'absolute', inset: 0, opacity: tw(4200, 500) * treeOut }}>
+      <StepsPanel frame={frame} steps={C7_STEPS} left={1400} width={480} opacity={treeOut} />
+      <div style={{ position: 'absolute', inset: 0, opacity: tw(3300, 500) * treeOut }}>
         <PhoneFrame at={PHONE_AT} rotate={-6}>
           <div style={{ position: 'absolute', inset: 0, background: '#fff' }}>
             <div style={{ position: 'absolute', inset: '30% 18% 40% 18%', border: `3px solid ${BRAND[600]}`, borderRadius: 6, opacity: 1 - search }} />
