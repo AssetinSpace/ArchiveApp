@@ -24,7 +24,7 @@ import { BRAND, FONT, INK, ISO, SAFE } from '../theme';
  *
  * ms: 0-500 hold · 500-2000 oddialenie + zaradenie · 900-1400 surodenci ·
  * 2100 polica, 2500 zlozky, 2900 dokumenty · 2600+i*200 QR · 3000 caption ·
- * 3300 sken · 3700 vetva · 4400-5000 strom a mobil vyblednu.
+ * 3300 vetva sa zvyrazni (bez mobilu a ramika) · 4400-5000 strom vybledne.
  */
 const PX = 3;
 const PHONE_AT = { x: 330, y: 330, w: 7 * PX * 6, h: 15 * PX * 6 };
@@ -51,8 +51,8 @@ export const C7_Hierarchia: React.FC = () => {
   const line = (i: number) => tw([2300, 2500, 2900][i], 400);
   const qr = (i: number) => pop(frame, 2600 + i * 200);
   const sibIn = (k: number) => settle(frame, 900 + k * 250);
-  const scan = tw(3300, 500) * (1 - tw(4300, 400));
-  const glow = tw(3700, 400);
+  const scan = 0; // mobil a ramik na konci vypadli, ostava len zvyraznenie vetvy
+  const glow = tw(3300, 400);
   const placed = (i: number) => pop(frame, 6000 + i * 250);
   const search = 0; // hladanie v mobile vypadlo (ukaze ho desktop footage F3)
   const found = 0;
@@ -190,7 +190,7 @@ export const C7_Hierarchia: React.FC = () => {
       </Camera>
 
       <StepsPanel frame={frame} steps={C7_STEPS} left={1400} width={480} opacity={treeOut} />
-      <div style={{ position: 'absolute', inset: 0, opacity: tw(3300, 500) * treeOut }}>
+      <div style={{ position: 'absolute', inset: 0, opacity: 0 }}>
         <PhoneFrame at={PHONE_AT} rotate={-6}>
           <div style={{ position: 'absolute', inset: 0, background: '#fff' }}>
             <div style={{ position: 'absolute', inset: '30% 18% 40% 18%', border: `3px solid ${BRAND[600]}`, borderRadius: 6, opacity: 1 - search }} />

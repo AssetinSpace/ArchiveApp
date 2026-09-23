@@ -11,7 +11,7 @@ import { BRAND, CM, ISO, SAFE } from '../theme';
 import { CAM_END, PALLETS, SEARCH_QMS, SHELF_LEVEL, SHELVES, SV, SearchCarton, TARGET_SHELF, VB } from './C3_Sklad';
 
 /**
- * C2 - Hladanie (verzia 2: spojene C2 Kancelaria + C3 Sklad, 12 s).
+ * C2 - Hladanie (verzia 2: spojene C2 Kancelaria + C3 Sklad, 10,5 s).
  * Kancelaria: panacik otvori skrinu, vyhodi sanon, rolku a papiere, po
  * kratkej pauze jeden "?", odide doprava. Prestrih: sklad je v suterene -
  * platna s kancelariou sa posunie hore a odhali sklad. Panacik pride k
@@ -21,8 +21,8 @@ import { CAM_END, PALLETS, SEARCH_QMS, SHELF_LEVEL, SHELVES, SV, SearchCarton, T
  * ms: 300-1100 panacik ku skrini · 1100-1700 dvere · 1700/2100/2500
  * vyhodene veci · 3000 jeden kratky "?" (panacik stoji) · 3700-4600 prestrih
  * dole (suteren) · 4300-6500 chodza k regalu (pomalsie) · 4800/5400 "?" ·
- * 6300-7200 kamera na policu, 6600 sklad vybledne · 6600-9200 krabica A
- * (von, veko, zlozky naraz, "?", spat) · 8800-11600 krabica B · 11500 "?". 12 s.
+ * 6300-7200 kamera na policu, 6600 sklad vybledne · 6600-9500 obe krabice
+ * naraz (von, veko, zlozky, "?", spat) · 9700 "?". 10,5 s. Bez ciary trajektorie.
  */
 const PX = 2.4;
 const CAB = { x: 280, y: 40 };
@@ -149,16 +149,14 @@ const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
   const px = PATH[seg][0] + (PATH[seg + 1][0] - PATH[seg][0]) * lt;
   const py = PATH[seg][1] + (PATH[seg + 1][1] - PATH[seg][1]) * lt;
   const [sx, sy] = iso(px, py, 0);
-  const walked: [number, number][] = [...PATH.slice(0, seg + 1), [px, py]];
-  const pathD = walked.map(([x, y], i) => `${i ? 'L' : 'M'}${iso(x, y, 0).join(' ')}`).join(' ');
   const qm: [number, number, number, number][] = [
     [140, 60, 4800, 0],
     [420, 60, 5400, 80],
   ];
   const others = 1 - tw(6600, 500);
-  const A = fastSearch(tw, 7000);
-  const B = fastSearch(tw, 9200, 200); // druha krabica drzi otvorena o 0,2 s dlhsie
-  const qEnd = pop(frame, 11500);
+  const A = fastSearch(tw, 7000, 300); // obe krabice naraz
+  const B = fastSearch(tw, 7100, 300);
+  const qEnd = pop(frame, 9700);
 
   const Stack: React.FC<{ x: number; y: number }> = ({ x, y }) => (
     <g>
@@ -176,7 +174,6 @@ const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
       <svg width={1920} height={1080} viewBox={`${VB.x} ${VB.y} ${1920 / SV} ${1080 / SV}`} style={{ position: 'absolute', left: 0, top: 0 }}>
         <g opacity={others}>
           <Floor x={-60} y={-60} w={560} d={560} fill="#263246" edge="#131F31" />
-          <path d={pathD} fill="none" stroke={BRAND[300]} strokeWidth={2.4} strokeDasharray="6 8" strokeLinecap="round" strokeLinejoin="round" opacity={0.9} />
         </g>
         {SHELVES.map((s, i) => {
           const isTarget = s === TARGET_SHELF;
@@ -197,7 +194,7 @@ const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
                 }
               </ShelfFrame>
               {isTarget
-                ? [7500, 9600].map((ms, k) => {
+                ? [7500, 7650].map((ms, k) => {
                     // bublinka "?" pri vytiahnuti prvej zlozky z kazdej krabice
                     const q = SEARCH_QMS[k];
                     const life = tw(ms, 2000);
@@ -255,7 +252,7 @@ export const C2_Hladanie: React.FC = () => {
       {showCap ? (
         <>
           <Caption text={captions.C2} mode="dark" t={settle(frame, 1500)} out={tw(3500, 300)} y={SAFE.captionY} />
-          <Caption text={captions.C2b} mode="dark" t={settle(frame, 7500)} y={SAFE.captionY} />
+          <Caption text={captions.C2b} mode="dark" t={settle(frame, 7400)} y={SAFE.captionY} />
         </>
       ) : null}
     </Scene>

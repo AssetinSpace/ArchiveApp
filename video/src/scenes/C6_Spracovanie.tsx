@@ -15,8 +15,8 @@ import { BRAND, FONT, INK, SAFE } from '../theme';
  * (rozpoznanie, navrh, potvrdenie uz ukaze appka); vpravo text, ze dalej
  * uz prebieha praca v desktopovej webovej aplikacii. 3 s.
  *
- * ms: 200 fotka · 700 upload (kratke) · 900 text vpravo · 1000 okno ·
- * 1900-2800 okno prejde do okna footage.
+ * ms: 0 okno (z bielej) · 150 fotka v strede okna · 700 upload (kratke) ·
+ * 900 text vpravo · 1900-2800 okno prejde do okna footage.
  */
 const WIN = { x: 560, y: 90, w: 800, h: 700 };
 const PH = { w: 380, h: 500 };
@@ -25,9 +25,9 @@ export const C6_Spracovanie: React.FC = () => {
   const frame = useCurrentFrame();
   const showCap = useCaptions();
   const tw = (s: number, d: number) => tween(frame, s, d);
-  const photo = settle(frame, 200);
+  const photo = settle(frame, 150);
   const upload = tw(700, 400);
-  const chrome = tw(1000, 400);
+  const chrome = tw(0, 350); // okno je na scene od zaciatku (z bielej), fotka v jeho strede
   const fill = tw(1900, 900); // okno prejde do FOOTAGE_WINDOW (bez roztiahnutia cez frame)
   const note = settle(frame, 900) * (1 - tw(2600, 300)); // text vpravo: dalej uz len v desktopovej aplikacii
   const at = { x: WIN.x + (FOOTAGE_WINDOW.x - WIN.x) * fill, y: WIN.y + (FOOTAGE_WINDOW.y - WIN.y) * fill, w: WIN.w + (FOOTAGE_WINDOW.w - WIN.w) * fill, h: WIN.h + (FOOTAGE_WINDOW.h - WIN.h) * fill };
@@ -35,7 +35,7 @@ export const C6_Spracovanie: React.FC = () => {
   return (
     <Scene mode="light" footer footerOpacity={1 - fill}>
       <WindowFrame at={at} chrome={chrome}>
-        <div style={{ position: 'absolute', left: (at.w - PH.w) / 2, top: 70 - upload * 30, opacity: 1 - tw(2300, 400) }}>
+        <div style={{ position: 'absolute', left: (at.w - PH.w) / 2, top: (at.h - 44 - PH.h - 40) / 2 - upload * 16, opacity: 1 - tw(2300, 400) }}>
           <PhotoCard w={PH.w} h={PH.h} t={photo} />
           <div style={{ position: 'absolute', left: 0, right: 0, top: PH.h + 24, height: 8, borderRadius: 4, background: INK[200], opacity: bar > 0 && bar < 1 ? 1 : 1 - tw(1200, 300) }}>
             <div style={{ width: `${bar * 100}%`, height: '100%', borderRadius: 4, background: INK[700] }} />
