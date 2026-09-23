@@ -200,3 +200,19 @@ Zadanie: niekde je to zbytočne dlhé, niekde sa neukáže všetko; prejsť ešt
 | C9 Outro | 5 s | 4 s | Kratšie držanie. |
 
 Full 123 s → **101 s**. Všetkých 12 klipov, predel, kroky aj obe krabice ostávajú.
+
+## Kolo 25 (23. 9. 2026)
+
+| Klip | Zadanie | Riešenie |
+|---|---|---|
+| C2 Hľadanie | Všade inde je komentár na boku; nedoplniť aj tu bodovo? Zanalyzovať. | Ponechané bez textu. Kroky vpravo sú zámerne jazyk riešenia („náš prístup“) a začínajú až po predele v C4; v problémovej časti by ten istý formát predel oslabil. Problémová časť sa má cítiť, nie čítať; nesie ju náhovor. Ak by bolo treba, dá sa doplniť jedna veta v inom štýle (napr. veľký citát), nie kroky. |
+| C4 Cena | Po „2× €€€“ je to dlhé; zvážiť, či argument vôbec treba, alebo ísť po prehľadávaní rovno na predel. | Držanie po „2×“ skrátené z 2,9 s na 1,2 s, C4 má 9 s. Argument odporúčam nechať: „platíte dvakrát“ je jediný ekonomický dôvod vo filme a pre správcu majetku je to hlavný argument na zmenu; bez neho je predel len „máme appku“. Ak chcete ísť rovno na predel, vypadne 5 s (C4 by malo iba nájazd na krabicu a rozsvietenie). |
+| C5 Terén | Tri zložky otagovať naraz; mobil radšej prepnúť do rámika ďalšej scény priblížením? | Nálepky na zložky letia takmer naraz (3,0 / 3,12 / 3,24 s), zvyšok osi posunutý o 0,5–0,7 s, C5 má 9 s. Mobil ostáva ako je: v skutočnej veľkosti prejde presne do rámika F1 (bez roztiahnutia), to je presne „prepnutie do mobilového framu ďalšej scény“, len fyzicky, nie strihom. |
+| C6 Spracovanie | Nie je to celé navyše? Ako vymyslieť prechody do footage lepšie? | Ponechané (4 s): je to jediné miesto, kde divák vidí, že fotka z mobilu ide do aplikácie na desktope, a rámik okna sa pritom „roztiahne“ presne do okna footage. Rovnaký princíp má teraz celý film: mobil → rámik F1, okno → F2, a F3 začína oknom, ktoré sa objaví z bielej. |
+| C7 Hierarchia | Nemala by byť pred predchádzajúcou scénkou (zaradenie hneď po naskenovaní)? Hľadanie krabice tu možno netreba. | Presunuté hneď za F1: sken → krabica dostane miesto v hierarchii → C6 fotka do aplikácie → F2 → F4 → F3. Hľadanie v mobile a zvýraznenie KR_01 vypadlo (ukazuje ho F3), C7 končí vyblednutím do bielej; 8,5 s. |
+| F1 Sken | Začiatok footage nevidno ani pol sekundy, kroky nerovnomerné; rámik stále nesedí na footage. | Prvý obraz drží 0,5 s a úvod beží 1×; kroky teraz 2,1 / 2,75 / 2,8 / 2,4 s; mierenie 2×, nahrávanie 5×; F1 10 s. Orez premeraný na oboch častiach záznamu: stavová lišta 0–112 px, lišta Safari od 1743 px, rámik má pomer presne 884 : 1628, takže appka vypĺňa displej na šírku aj výšku. Ak „nesedí“ znamená niečo iné (napr. sivé okraje samotnej appky nad kartou a pod lištou 1/4), pošlite screenshot – tie sú súčasť appky, nie orezu. |
+| F2 Extrakcia | Zvýrazniť kurzor ako pri mobilnom footage. | Zelené kliky na výber prílohy, Extrahovať metadáta, potvrdenie šablóny a spustenie; spoločné pre všetky desktop klipy (`taps`). F2 8,3 s. |
+| F3 Vyhľadávanie | Zvýrazniť písanie do vyhľadávania a kurzor. | Pole vyhľadávania má počas písania zelený rámik s podfarbením (`marks`), klik na výsledok ZL_01 má zelený kruh. |
+| F4 Kontrola | Pozastaviť sa na správne navrhnutom texte a podčiarknuť, čo to znamená; v úvode uviesť, že sa dá overiť voči fotke. | Krok 1: „Každý návrh sa dá kedykoľvek overiť voči fotke štítku.“ Nový krok 2 „Správny návrh“: obraz sa zastaví 1,2 s na hodnote „Novostavba bytového domu SLNEČNÁ 12, BRATISLAVA“ so zeleným rámikom, potom sa prijme (zelený klik). Kliky aj na Prijať úpravu a Odoslať. F4 12,9 s. |
+
+Poradie: C1 · C2 · C4 · C5 · F1 · C7 · C6 · F2 · F4 · F3 · C8 · C9. Full 101 s → **99 s**.

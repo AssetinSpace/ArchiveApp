@@ -14,7 +14,7 @@ import { BRAND, FONT, INK } from '../theme';
  * Zdroj: public/footage/f1-sken.mp4 (priecinok nie je v gite).
  */
 export const F1_SRC = 'footage/f1-sken.mp4';
-export const F1_SECONDS = 10.8; // drz v sulade so scenesList.ts (cakanie a mierenie 1,5x, nahravanie 5x)
+export const F1_SECONDS = 10; // drz v sulade so scenesList.ts (uvod drzi 0,5 s, mierenie 2x, nahravanie 5x)
 const SRC_W = 884,
   SRC_H = 1920;
 
@@ -22,19 +22,19 @@ export type Tap = { t: number; x: number; y: number }; // s, podiel sirky/vysky 
 export type Step = { from: number; title: string; line: string }; // s
 
 const F1_TAPS: Tap[] = [
-  { t: 1.07, x: 0.94, y: 0.79 }, // Dalej
-  { t: 3.37, x: 0.5, y: 0.36 }, // Skenovat QR z prilohy
-  { t: 3.82, x: 0.94, y: 0.79 }, // Dalej
-  { t: 5.57, x: 0.5, y: 0.32 }, // Odfotit/nahrat fotografiu
-  { t: 7.4, x: 0.5, y: 0.85 }, // spust
-  { t: 8.45, x: 0.9, y: 0.92 }, // Use Photo
-  { t: 9.65, x: 0.9, y: 0.79 }, // Vytvorit
+  { t: 2.1, x: 0.94, y: 0.79 }, // Dalej
+  { t: 4.4, x: 0.5, y: 0.36 }, // Skenovat QR z prilohy
+  { t: 4.85, x: 0.94, y: 0.79 }, // Dalej
+  { t: 5.73, x: 0.5, y: 0.32 }, // Odfotit/nahrat fotografiu
+  { t: 7.1, x: 0.5, y: 0.85 }, // spust
+  { t: 7.63, x: 0.9, y: 0.92 }, // Use Photo
+  { t: 8.83, x: 0.9, y: 0.79 }, // Vytvorit
 ];
 const F1_STEPS: Step[] = [
   { from: 0, title: 'Typ jednotky', line: 'Zložka pod krabicou KR_01.' },
-  { from: 1.22, title: 'Priradiť QR', line: 'Kód sa prečíta z fotky štítku.' },
-  { from: 3.97, title: 'Odfotiť štítok', line: 'Fotka je dôkaz. Appka z nej číta údaje.' },
-  { from: 8.45, title: 'Skontrolovať a vytvoriť', line: 'Jednotka má ID a svoje miesto.' },
+  { from: 2.2, title: 'Priradiť QR', line: 'Kód sa prečíta z fotky štítku.' },
+  { from: 4.9, title: 'Odfotiť štítok', line: 'Fotka je dôkaz. Appka z nej číta údaje.' },
+  { from: 7.7, title: 'Skontrolovať a vytvoriť', line: 'Jednotka má ID a svoje miesto.' },
 ];
 
 const PHONE = FOOTAGE_PHONE;
