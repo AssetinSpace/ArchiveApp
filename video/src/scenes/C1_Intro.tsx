@@ -19,11 +19,11 @@ export const C1_Intro: React.FC = () => {
   const tw = (s: number, d: number) => tween(frame, s, d);
   const stackIn = settle(frame, 300);
   const domain = settle(frame, 700);
-  const sep = tw(1100, 400) * (1 - tw(3700, 300));
-  const mod = tw(1300, 600) * (1 - tw(3200, 500));
-  const back = tw(3200, 500);
-  const zoom = tw(4000, 700);
-  const navy = tw(4400, 300);
+  const sep = tw(1100, 400) * (1 - tw(2900, 300));
+  const mod = tw(1300, 600) * (1 - tw(2400, 500));
+  const back = tw(2400, 500);
+  const zoom = tw(3200, 700);
+  const navy = tw(3600, 300);
 
   // pocas drzania je centrovany cely lockup; pri zasunuti Archives sa skupina
   // (stack + sep) posunie tak, aby bol logotyp v strede

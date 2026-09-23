@@ -20,18 +20,18 @@ export type SceneDef = { component: React.FC; seconds: number; stills: number[] 
 
 /** Klipy (kolo 3), dlzka v sekundach a frame-y pre stills (zaciatok akcie, stred, koniec). */
 export const SCENE_LIST: [string, SceneDef][] = [
-  ['C1-Intro', { component: C1_Intro, seconds: 5, stills: [45, 75, 125] }],
-  ['C2-Hladanie', { component: C2_Hladanie, seconds: 14, stills: [100, 190, 290] }],
-  ['C4-Cena', { component: C4_Cena, seconds: 12.5, stills: [10, 110, 250, 340] }],
+  ['C1-Intro', { component: C1_Intro, seconds: 4, stills: [45, 65, 100] }],
+  ['C2-Hladanie', { component: C2_Hladanie, seconds: 11.5, stills: [80, 160, 240] }],
+  ['C4-Cena', { component: C4_Cena, seconds: 10.5, stills: [10, 100, 210, 290] }],
   ['C5-Teren', { component: C5_Teren, seconds: 10, stills: [70, 170, 285] }],
-  ['F1-Sken', { component: F1_Sken, seconds: 12.5, stills: [30, 200, 350] }],
-  ['C6-Spracovanie', { component: C6_Spracovanie, seconds: 7, stills: [40, 110, 200] }],
-  ['F2-Metadata', { component: F2_Metadata, seconds: 10.5, stills: [20, 110, 260] }],
-  ['F4-Kontrola', { component: F4_Kontrola, seconds: 15, stills: [30, 200, 420] }],
-  ['C7-Hierarchia', { component: C7_Hierarchia, seconds: 12, stills: [15, 120, 230] }],
-  ['F3-Vyhladavanie', { component: F3_Vyhladavanie, seconds: 12.5, stills: [30, 150, 340] }],
-  ['C8-Pilot', { component: C8_Pilot, seconds: 7, stills: [50, 110, 180] }],
-  ['C9-Outro', { component: C9_Outro, seconds: 5, stills: [40, 120] }],
+  ['F1-Sken', { component: F1_Sken, seconds: 10.8, stills: [30, 170, 300] }],
+  ['C6-Spracovanie', { component: C6_Spracovanie, seconds: 4, stills: [25, 60, 115] }],
+  ['F2-Metadata', { component: F2_Metadata, seconds: 8, stills: [15, 80, 200] }],
+  ['F4-Kontrola', { component: F4_Kontrola, seconds: 11.5, stills: [20, 150, 320] }],
+  ['C7-Hierarchia', { component: C7_Hierarchia, seconds: 10.5, stills: [15, 120, 230] }],
+  ['F3-Vyhladavanie', { component: F3_Vyhladavanie, seconds: 11, stills: [30, 150, 300] }],
+  ['C8-Pilot', { component: C8_Pilot, seconds: 5, stills: [40, 90, 140] }],
+  ['C9-Outro', { component: C9_Outro, seconds: 4, stills: [40, 100] }],
 ];
 
 /** Verzia 1 (dlha): samostatna kancelaria a sklad, nahradene klipom C2-Hladanie. */

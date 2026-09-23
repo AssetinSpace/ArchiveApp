@@ -180,3 +180,23 @@ Full 85 s.
 | F4 Kontrola metadát | Screen recording „Review metadat – v2“ (2 min 7 s): fotka štítku zblízka, zoznam 25 navrhnutých hodnôt, každú používateľ prijme (zelená), jednu ručne opraví, Odoslať, prázdny zoznam kontrol. | Zostrih na 15 s: fotka (0,5–2,5 s) → prvý návrh a prijatie (19–22 s) → montáž ďalších prijatí zrýchlená 22× (22–88 s, počítadlo 1 → 17) → ručná oprava hodnoty (93–97,5 s, 1,5×) → Odoslať a prázdny zoznam (122,5–126,5 s). Zaradené za F2 (extrakcia → kontrola človekom → hierarchia). Vpravo kroky: Fotka je dôkaz · Návrhy metadát · Oprava · Odoslať. |
 
 Spoločný komponent `DesktopFootageClip` (okno vľavo + kroky vpravo) a `StepsPanel` (rovnaký jazyk krokov ako v C5 a F1). Full 123 s.
+
+## Kolo 24 – skrátenie (23. 9. 2026)
+
+Zadanie: niekde je to zbytočne dlhé, niekde sa neukáže všetko; prejsť ešte raz, zachovať podstatu, skrátiť.
+
+| Klip | Predtým | Teraz | Zmena |
+|---|---|---|---|
+| C1 Intro | 5 s | 4 s | Kratšie držanie lockupu (zasunutie od 2,4 s). |
+| C2 Hľadanie | 14 s | 11,5 s | Veci vyletia 1,7 / 2,1 / 2,5 s, „?“ 3,1 s, odchod 3,6 s, prestrih 4,5 s, chôdza 1,3 s, kamera 0,9 s; druhá krabica drží otvorená o 0,3 s dlhšie. |
+| C4 Cena → predel | 12,5 s | 10,5 s | Ručička 1 s, cenovky a „2×“ skôr, značka drží 1 s. |
+| F1 Sken | 12,5 s | 10,8 s | Čakanie pred prvým klikom a mierenie fotoaparátom 1,5×, nahrávanie 5×; tapy a kroky prepočítané. |
+| C6 Fotka → aplikácia | 7 s | 4 s | Iba prechod do okna footage, bez držania. |
+| F2 Extrakcia | 10,5 s | 8 s | Prehľad 0,8 s, dialog šablóny vystrihnutý (nič nepridával), priebeh 10 → 60 % 1,7×. |
+| F4 Kontrola | 15 s | 11,5 s | Montáž 12× (22–56 s) a zmrazený obraz 0,5 s na počítadle, aby sa dal prečítať; oprava 1,8×, odoslanie 1,6×. |
+| C7 Hierarchia | 12 s | 10,5 s | Držanie po objavení okna 0,3 s namiesto 1,8 s. |
+| F3 Vyhľadávanie | 12,5 s | 11 s | Písanie 1,3×, čakanie na klik 2×; **zvýraznená zhoda drží 2 s pri 1×** (predtým preblikla za pol sekundy); QR 1,2×. |
+| C8 Pilot | 7 s | 5 s | Kroky 2,4 / 2,75 / 3,1 s, koniec hneď po treťom. |
+| C9 Outro | 5 s | 4 s | Kratšie držanie. |
+
+Full 123 s → **101 s**. Všetkých 12 klipov, predel, kroky aj obe krabice ostávajú.
