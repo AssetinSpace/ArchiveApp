@@ -2,7 +2,7 @@ import React from 'react';
 import { useCurrentFrame } from 'remotion';
 import { Scene, useCaptions } from '../components/Scene';
 import { Caption } from '../components/Text';
-import { FOOTAGE_WINDOW, PhoneFrame, WindowFrame } from '../components/Device';
+import { PhoneFrame } from '../components/Device';
 import { ArchiveBox } from '../components/ArchiveBox';
 import { Camera } from '../lib/camera';
 import { Binder, Carton, IsoBox, QrOnLeftFace, ShelfFrame, iso, pts } from '../lib/iso';
@@ -17,13 +17,13 @@ import { BRAND, FONT, INK, ISO, SAFE } from '../theme';
  * medzerou a velka krabica sa do nej zaradi; nad nou vyrastie prazdna polica
  * (2 rady), pod nou zlozky a dokumenty. Mobil naskenuje krabicu, vetva sa
  * zvyrazni; kamera sa priblizi spat na policu a krabice sa do nej poukladaju
- * (KR_01 s QR); strom vybledne, mobil najde na cely frame = strih. 12 s.
+ * (KR_01 s QR); strom aj mobil vyblednu = biela, nasleduje C6. 8,5 s.
+ * Zaradene hned za F1 (po naskenovani ma krabica miesto v hierarchii).
  *
  * ms: 0-500 hold · 500-2000 oddialenie + zaradenie · 900-1400 surodenci ·
  * 2100 polica, 2500 zlozky, 2900 dokumenty · 2600+i*200 QR · 3000 caption ·
  * 4200 sken · 4700 vetva · 5500-7000 priblizenie na policu · 6000+i*250
- * krabice do police · 7300 mobil hlada · 7700 najdena krabica KR_01 sa
- * zvyrazni (obrys, znacka), ostatne stmavnu · 8500 strom out · 9000-10500 najazd.
+ * krabice do police · 7300-7900 strom a mobil vyblednu.
  */
 const PX = 3;
 const PHONE_AT = { x: 330, y: 330, w: 7 * PX * 6, h: 15 * PX * 6 };
@@ -48,11 +48,11 @@ export const C7_Hierarchia: React.FC = () => {
   const scan = tw(4200, 500) * (1 - tw(5500, 400));
   const glow = tw(4700, 400);
   const placed = (i: number) => pop(frame, 6000 + i * 250);
-  const search = tw(7300, 400);
-  const found = pop(frame, 7700);
+  const search = 0; // hladanie v mobile vypadlo (ukaze ho desktop footage F3)
+  const found = 0;
   const FOUND = 2; // KR_01
-  const treeOut = 1 - tw(8500, 500);
-  const fill = tw(9000, 1200); // strom a mobil vyblednu, objavi sa okno aplikacie (desktop footage F3)
+  const treeOut = 1 - tw(7300, 600); // strom aj mobil vyblednu do bielej (nasleduje C6)
+  const fill = 1 - treeOut;
 
   // velka krabica z C5 (ArchiveBox 860 px) sa zmensi a zasunie do medzery medzi rovnake krabice
   const bigSize = 860 - (860 - BOX) * zoomOut;
@@ -129,7 +129,7 @@ export const C7_Hierarchia: React.FC = () => {
   };
 
   return (
-    <Scene mode="light" footer footerOpacity={1 - fill}>
+    <Scene mode="light" footer>
       <Camera keys={[{ ms: 5500, x: 0, y: 0, scale: 1 }, { ms: 7000, x: SHELF_C.x - 960, y: SHELF_C.y - 540, scale: 2.4 }]}>
         <svg width={1400} height={760} viewBox="0 0 1400 760" style={{ position: 'absolute', left: SVG_AT.x, top: SVG_AT.y, opacity: treeOut }}>
           {NODES_Y.slice(1).map((ny, i) => {
@@ -183,7 +183,7 @@ export const C7_Hierarchia: React.FC = () => {
         </div>
       </Camera>
 
-      <div style={{ position: 'absolute', inset: 0, opacity: tw(4200, 500) * (1 - fill) }}>
+      <div style={{ position: 'absolute', inset: 0, opacity: tw(4200, 500) * treeOut }}>
         <PhoneFrame at={PHONE_AT} rotate={-6}>
           <div style={{ position: 'absolute', inset: 0, background: '#fff' }}>
             <div style={{ position: 'absolute', inset: '30% 18% 40% 18%', border: `3px solid ${BRAND[600]}`, borderRadius: 6, opacity: 1 - search }} />
@@ -202,14 +202,6 @@ export const C7_Hierarchia: React.FC = () => {
         </PhoneFrame>
       </div>
 
-      {/* okno aplikacie (desktop): objavi sa na mieste okna footage F3, obsah biely - F3 don prelina zaznam */}
-      {fill > 0 ? (
-        <div style={{ position: 'absolute', inset: 0, opacity: fill, transform: `scale(${0.94 + 0.06 * fill})`, transformOrigin: `${FOOTAGE_WINDOW.x + FOOTAGE_WINDOW.w / 2}px ${FOOTAGE_WINDOW.y + FOOTAGE_WINDOW.h / 2}px` }}>
-          <WindowFrame at={FOOTAGE_WINDOW}>
-            <div style={{ position: 'absolute', inset: 0, background: '#fff' }} />
-          </WindowFrame>
-        </div>
-      ) : null}
       {showCap ? <Caption text={captions.C7} t={settle(frame, 3000)} out={tw(6800, 300)} y={SAFE.captionY} /> : null}
     </Scene>
   );

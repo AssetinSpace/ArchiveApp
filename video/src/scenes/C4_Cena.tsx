@@ -20,13 +20,13 @@ import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
  * regalu vybledne, kamera najde na krabicu, z nej sa rozleje biele svetlo
  * so zelenym lemom, na bielej sa nakresli znacka Assetin s lockupom
  * (ozvena intra), lockup zmizne do paticky a na podstavci sa usadi krabica
- * z C5. 10,5 s.
+ * z C5. 9 s.
  *
  * ms: 800 odsun · 1100 "?" · 2600 hodiny · 2600-3600 rucicka · 3000 sipka ·
  * 3200 vykres · 3600 cenovka B · 3900 cenovka A · 4400 "2x" · 4800 caption ·
- * 7300-7800 vsetko vybledne, kamera na krabicu · 8000-8700 rozsvietenie ·
- * 8600 znacka, 8750 lockup (drzi 1 s) · 9600 znacka a lockup odchadzaju ·
- * 9800 krabica C5 sa usadi vlavo · 9900 paticka. 10,5 s.
+ * 5600-6100 vsetko vybledne, kamera na krabicu · 6300-7000 rozsvietenie ·
+ * 6900 znacka, 7050 lockup (drzi 1 s) · 7900 znacka a lockup odchadzaju ·
+ * 8100 krabica C5 sa usadi vlavo · 8200 paticka. 9 s.
  */
 const BOX = 860;
 export const C4_Cena: React.FC = () => {
@@ -43,20 +43,20 @@ export const C4_Cena: React.FC = () => {
   const big = pop(frame, 4400, { damping: 12 });
   const s = TARGET_SHELF;
   // predel problem -> riesenie
-  const out = 1 - tw(7300, 500); // cenovky, hodiny, vykres, "?" vyblednu
-  const light = tw(8000, 700); // biele svetlo z krabice
+  const out = 1 - tw(5600, 500); // cenovky, hodiny, vykres, "?" vyblednu
+  const light = tw(6300, 700); // biele svetlo z krabice
   const R = light * 1500;
-  const mark = settle(frame, 8600); // znacka sa objavi (bez kreslenia) a drzi ~1 s
-  const lockup = settle(frame, 8750);
-  const brandOut = tw(9600, 300);
-  const box = settle(frame, 9800);
-  const footer = tw(9900, 400);
+  const mark = settle(frame, 6900); // znacka sa objavi (bez kreslenia) a drzi ~1 s
+  const lockup = settle(frame, 7050);
+  const brandOut = tw(7900, 300);
+  const box = settle(frame, 8100);
+  const footer = tw(8200, 400);
   const CAM_MID = { x: CAM_END.x + 590 / CAM_END.scale, y: CAM_END.y + 70 / CAM_END.scale, scale: 1.5 };
   const boxLeft = C5_BOX_LEFT; // rovnaka poloha ako v C5 (krabica vlavo, vpravo kroky)
   const boxTop = SAFE.illoTop - 40;
   return (
     <Scene mode="dark" footer footerMode="light" footerOpacity={footer}>
-      <Camera keys={[{ ms: 0, ...CAM_END }, { ms: 1700, ...CAM_MID }, { ms: 7300, ...CAM_MID }, { ms: 8400, x: CAM_END.x, y: CAM_END.y, scale: 2.4 }]}>
+      <Camera keys={[{ ms: 0, ...CAM_END }, { ms: 1700, ...CAM_MID }, { ms: 5600, ...CAM_MID }, { ms: 6700, x: CAM_END.x, y: CAM_END.y, scale: 2.4 }]}>
         <svg width={1920} height={1080} viewBox={`${VB.x} ${VB.y} ${1920 / SV} ${1080 / SV}`} style={{ position: 'absolute', left: 0, top: 0 }}>
           <ShelfFrame x={s.x} y={s.y} w={CM.shelf.w} d={CM.shelf.d} levels={2} levelH={CM.shelf.level} topBoard={false}>
             {(lvl) => [0, 1].map((k) => <Carton key={`${lvl}${k}`} x={s.x + 8 + k * 60} y={s.y + 12} z={lvl * CM.shelf.level + 4} />)}
@@ -105,7 +105,7 @@ export const C4_Cena: React.FC = () => {
         <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 200, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.04em' }}>2×</span>
         <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 130, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.02em', marginLeft: 28 }}>€€€</span>
       </div>
-      {showCap ? <Caption text={captions.C4} mode="dark" t={settle(frame, 4800)} out={tw(7000, 400)} y={SAFE.captionY} /> : null}
+      {showCap ? <Caption text={captions.C4} mode="dark" t={settle(frame, 4800)} out={tw(5400, 300)} y={SAFE.captionY} /> : null}
 
       {/* rozsvietenie: biele svetlo z krabice so zelenym lemom */}
       {light > 0 ? (

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Step } from '../components/Steps';
-import { DesktopFootageClip } from './F2_Metadata';
+import { DesktopFootageClip, Mark, Tap } from './F2_Metadata';
 
 /**
  * F3 - Vyhladavanie (16 s zaznam zostrihany na 11 s): pisanie "vodovod"
@@ -14,4 +14,11 @@ const F3_STEPS: Step[] = [
   { from: 4800, title: 'Metadáta', line: 'Kľúče a hodnoty z fotky štítku, zhoda je zvýraznená.' },
   { from: 9100, title: 'QR kód', line: 'Z výsledku rovno k fyzickej zložke na polici.' },
 ];
-export const F3_Vyhladavanie: React.FC = () => <DesktopFootageClip src="footage/f3-search.mp4" seconds={F3_SECONDS} steps={F3_STEPS} />;
+const F3_TAPS: Tap[] = [
+  { t: 4.5, x: 0.16, y: 0.25 }, // klik na vysledok ZL_01
+];
+const F3_MARKS: Mark[] = [
+  { from: 0.2, to: 1.8, x: 0.08, y: 0.42, w: 0.44, h: 0.08 }, // pole vyhladavania pocas pisania
+];
+/** F3 zacina z bielej (F4 konci fade-om), okno sa objavi. */
+export const F3_Vyhladavanie: React.FC = () => <DesktopFootageClip src="footage/f3-search.mp4" seconds={F3_SECONDS} steps={F3_STEPS} taps={F3_TAPS} marks={F3_MARKS} enter />;

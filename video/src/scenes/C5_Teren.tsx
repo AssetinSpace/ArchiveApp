@@ -12,7 +12,7 @@ import { BRAND, CM, FONT, INK, ISO, SAFE } from '../theme';
 /**
  * C5 - V sklade. Dlazdica z webu ako hrdina; harok nalepiek (A4) a mobil
  * (7x15 cm x1.4) v jednej mierke odvodenej z krabice. QR cierno-biele.
- * Zaver: najazd do displeja mobilu = strih na footage. 10 s.
+ * Zaver: mobil prejde do ramika footage = strih na footage. 9 s.
  *
  * ms: 300 zatvorena krabica · 900 harok · 1500-2200 nalepka z harku na
  * krabicu (let 700 ms, dosadne sklopena do roviny steny) · 2400 veko +
@@ -42,8 +42,8 @@ const PHONE_END = {
 /** Nas pristup v troch krokoch (text vpravo, rovnaky jazyk ako pri footage). */
 const STEPS = [
   { from: 900, title: 'Označiť', line: 'Každá položka dostane nálepku s QR kódom.' },
-  { from: 4600, title: 'Odfotiť', line: 'Štítok sa odfotí mobilom priamo v sklade.' },
-  { from: 6000, title: 'Zaevidovať', line: 'Fotka ide do aplikácie, položka dostane ID.' },
+  { from: 4100, title: 'Odfotiť', line: 'Štítok sa odfotí mobilom priamo v sklade.' },
+  { from: 5300, title: 'Zaevidovať', line: 'Fotka ide do aplikácie, položka dostane ID.' },
 ];
 
 export const C5_Teren: React.FC = () => {
@@ -59,30 +59,30 @@ export const C5_Teren: React.FC = () => {
   const FLIGHTS = [
     { cell: [0, 0], start: 1500, target: [140.49, 145.75], size: 16, qr: 3, skew: -26.57 },
     { cell: [0, 1], start: 3000, target: [86, 135 - 40], size: 14, qr: 0, skew: 26.57 },
-    { cell: [0, 2], start: 3500, target: [114, 121 - 40], size: 14, qr: 1, skew: 26.57 },
-    { cell: [0, 3], start: 4000, target: [142, 107 - 40], size: 14, qr: 2, skew: 26.57 },
+    { cell: [0, 2], start: 3120, target: [114, 121 - 40], size: 14, qr: 1, skew: 26.57 },
+    { cell: [0, 3], start: 3240, target: [142, 107 - 40], size: 14, qr: 2, skew: 26.57 },
   ] as const;
   const FLY = 700;
   // nalepena QR sa objavi v okamihu doletu v plnej velkosti (letiaca nalepka ma v tom momente rovnaku velkost aj sklon)
   const qr: [number, number, number, number] = [0, 0, 0, 0];
   FLIGHTS.forEach((f) => (qr[f.qr] = (frame * 1000) / 30 >= f.start + FLY - 1 ? 1 : 0));
   // po nalepeni sa predna zlozka vytiahne z krabice (o dalsich 60 j.) a mobil mieri na jej stitok
-  const pull = tw(4600, 500);
+  const pull = tw(4100, 500);
   const box = {
     lid: tw(2400, 520),
     binders: [tw(2500, 420) + pull * 0.6, tw(2570, 420), tw(2640, 420)] as [number, number, number],
     qr,
     pull,
   };
-  const phone = settle(frame, 4900);
-  const approach = tw(5200, 500); // mobil sa priblizi k vytiahnutej zlozke
+  const phone = settle(frame, 4300);
+  const approach = tw(4600, 500); // mobil sa priblizi k vytiahnutej zlozke
   const PHONE_NOW = { ...PHONE_AT, x: PHONE_AT.x - 150 * approach, y: PHONE_AT.y + 20 * approach };
-  const frameBox = tw(5400, 260);
-  const flash = tw(5500, 120) * (1 - tw(5620, 400));
-  const idT = pop(frame, 6000);
+  const frameBox = tw(4800, 260);
+  const flash = tw(4900, 120) * (1 - tw(5020, 400));
+  const idT = pop(frame, 5300);
   // zaver: mobil (v skutocnej velkosti, bez roztiahnutia) prejde do ramika footage, ostatne vybledne
-  const move = tw(7600, 1500);
-  const others = 1 - tw(7600, 900);
+  const move = tw(6800, 1500);
+  const others = 1 - tw(6800, 900);
   const PHONE_MOVED = {
     x: PHONE_NOW.x + (PHONE_END.x - PHONE_NOW.x) * move,
     y: PHONE_NOW.y + (PHONE_END.y - PHONE_NOW.y) * move,
@@ -105,7 +105,7 @@ export const C5_Teren: React.FC = () => {
 
   return (
     <Scene mode="light" footer footerOpacity={1 - move}>
-      <Camera keys={[{ ms: 5800, x: 0, y: 0, scale: 1 }, { ms: 7400, ...CAM_END }]}>
+      <Camera keys={[{ ms: 5200, x: 0, y: 0, scale: 1 }, { ms: 6600, ...CAM_END }]}>
       <div style={{ position: 'absolute', inset: 0, opacity: others }}>
         {/* harok nalepiek A4: 4 x 5 bielych QR */}
         <div style={{ position: 'absolute', left: sheetLeft + (1 - sheet) * -260, top: sheetTop, opacity: sheet, transform: 'rotate(-8deg)' }}>
@@ -291,7 +291,7 @@ export const C5_Teren: React.FC = () => {
       </div>
 
 
-      {showCap ? <Caption text={captions.C5} t={settle(frame, 6200)} out={tw(7300, 300)} y={SAFE.captionY} /> : null}
+      {showCap ? <Caption text={captions.C5} t={settle(frame, 5500)} out={tw(6600, 300)} y={SAFE.captionY} /> : null}
     </Scene>
   );
 };
