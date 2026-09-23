@@ -18,6 +18,7 @@ strihový bod pre footage; náhľad Full má tvrdé strihy. Titulky v obraze sú
 | F1-Sken 📹 | Footage: sken štítku | footage | Screen recording z mobilu (2 časti spojené): pridanie jednotky pod KR_01 → Priradiť QR → fotoaparát na štítok s QR → Use Photo → kontrola jednotky → Vytvoriť → nahrávanie prílohy 100 % (zrýchlené 4×). Orez presne na appku (bez líšt iOS/Safari, pomer rámika = pomer záznamu), mobil vľavo už stojí na mieste z C5, displej sa prelína z bielej do záznamu; vpravo sprievodný text po krokoch (Krok 1–4) s bodkami postupu; jemné zelené tapy na tlačidlách; fade do bielej (C6) | – | 12,5 s | ☐ ▶ |
 | C6-Spracovanie →📹 | Fotka → aplikácia | biela | Fotka štítku sa nahrá, okolo nej sa vykreslí okno aplikácie; okno prejde presne do okna footage vľavo (bez roztiahnutia cez frame) | 3 s „Text z fotky rozpozná a navrhne údaje.“ | 7 s | ☐ ▶ |
 | F2-Metadata 📹 | Footage: extrakcia metadát | footage | Desktop záznam (zostrih 10,5 s): prehľad príloh, výber prílohy, Extrahovať metadáta, dialog, stránka Kontroly s náhľadom a priebehom; okno vľavo, vpravo kroky Príloha čaká · Extrahovať metadáta · Návrh na kontrolu; fade do bielej | – | 10,5 s | ☐ ▶ |
+| F4-Kontrola 📹 | Footage: kontrola metadát | footage | Desktop záznam (zostrih 15 s z 2 min): fotka štítku zblízka, prvý navrhnutý údaj a jeho prijatie, montáž ďalších prijatí (22×), ručná oprava hodnoty, Odoslať a prázdny zoznam kontrol; okno vľavo, vpravo kroky Fotka je dôkaz · Návrhy metadát · Oprava · Odoslať; fade do bielej | – | 15 s | ☐ ▶ |
 | C7-Hierarchia →📹 | Hierarchia + sken | biela | Začína tou istou krabicou ako C5 (KR_01), kamera sa oddiali, vedľa sa objavia dve rovnaké krabice s medzerou a KR_01 sa do nej zaradí; nad ňou vyrastie prázdna polica (2 rady), pod ňou zložky a dokumenty; mobil naskenuje krabicu, vetva sa zvýrazní zelenou čiarou; kamera nájde späť na policu, krabice sa do nej poukladajú (všetky s menším QR); mobil vľavo hľadá a nájde KR_01 – tá krabica sa zvýrazní (obrys, značka), ostatné stmavnú; strom a mobil vyblednú, objaví sa okno aplikácie na mieste okna footage → desktop footage | 3 s „Každá položka má svoje miesto.“ | 12 s | ☐ ▶ |
 | F3-Vyhladavanie 📹 | Footage: vyhľadávanie | footage | Desktop záznam (zostrih 12,5 s): slovo „vodovod“, zhoda ZL_01, zoznam metadát so zvýraznenou zhodou (zrýchlené 2×), QR kód zložky; okno vľavo, vpravo kroky Hľadať · Zhoda · Metadáta · QR kód; fade do bielej | – | 12,5 s | ☐ ▶ |
 | C8-Pilot | Jedna krabica | biela | Bez zmeny (upraví sa neskôr) | 2 s „Začneme jednou krabicou.“ | 7 s | ☐ ▶ |
@@ -63,7 +64,7 @@ Všetko 1920×1080, 30 fps, H.264, yuv420p (obmedzený rozsah), bez zvuku.
 | Súbor | Obsah |
 |---|---|
 | `out/mp4/C1-Intro.mp4` … `C9-Outro.mp4` | klipy bez textu v obraze (titulky vypnuté, doriešia sa neskôr) |
-| `out/mp4/Full_1080p.mp4` | všetkých 9 klipov za sebou, tvrdé strihy, 108 s – kontrola tempa |
+| `out/mp4/Full_1080p.mp4` | všetkých 9 klipov za sebou, tvrdé strihy, 123 s – kontrola tempa |
 | `out/mp4/Full_preview_540p.mp4` | to isté v polovičnom rozlíšení |
 | `out/mp4/F_phone_enter.mp4`, `F_window_enter.mp4` | placeholder rámika zariadenia (8 s), do ktorého sa v Remotione dá vložiť footage |
 | `out/stills/contact-sheet.png` | stredný frame každého klipu v mriežke |

@@ -23,7 +23,7 @@ _(bez náhovoru)_
 - 4–7 s: _Nalepiť QR, odfotiť. Celá práca v teréne._ — „…a odfotí sa jej identifikačná strana. Stačí mobil alebo tablet.“
 - 7–10 s: „Fotka je dôkaz. Každý údaj sa kontroluje podľa nej.“ → footage: skenovanie a fotenie v appke
 
-## C6 · Spracovanie (7 s) →📹 okno aplikácie (F2 Extrakcia metadát, 10,5 s)
+## C6 · Spracovanie (7 s) →📹 okno aplikácie (F2 Extrakcia metadát 10,5 s → F4 Kontrola metadát 15 s: „Návrh nie je záznam. Konzultant každú hodnotu potvrdí podľa fotky, čo nesedí, opraví.“)
 - 0–3 s: „Fotka ide do aplikácie.“
 - 3–7 s: _Text z fotky rozpozná a navrhne údaje._ — „Text rozpozná automaticky a navrhne metadáta: stavbu, projektanta, rok, stupeň.“ → footage: OCR, návrh metadát, potvrdenie konzultantom („Návrh nie je záznam, platný je až po kontrole človekom.“)
 

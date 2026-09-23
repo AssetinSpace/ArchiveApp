@@ -92,9 +92,9 @@ Väčšia firma potrebuje Company License – pozri LICENSE v balíku `remotion`
 
 ## Footage
 
-`public/footage/` nie je v gite. Potrebné súbory: `f1-sken.mp4` (mobil, 884 × 1920), `f2-metadata.mp4` a `f3-search.mp4` (desktop, 1520 × 882, zostrihy z `Extrakce_metadat_-_v1.mp4` a `Vyhladavanie_-_v3.mp4`, orez 1520:882:400:150). Postup zostrihu je vo FEEDBACK.md.
+`public/footage/` nie je v gite. Potrebné súbory: `f1-sken.mp4` (mobil, 884 × 1920), `f2-metadata.mp4`, `f4-review.mp4` a `f3-search.mp4` (desktop, 1520 × 882, zostrihy z `Extrakce_metadat_-_v1.mp4`, `Review_metadat_-_v2.mp4` a `Vyhladavanie_-_v3.mp4`, orez 1520:882:400:150). Postup zostrihu je vo FEEDBACK.md.
 
 ## Verzie
 
-- **Verzia 2 (aktuálna, 108 s)**: C2-Hladanie nahrádza C2-Kancelaria + C3-Sklad.
+- **Verzia 2 (aktuálna, 123 s)**: C2-Hladanie nahrádza C2-Kancelaria + C3-Sklad.
 - **Verzia 1 (88,5 s)**: rendre v `out/mp4/v1/` a `out/stills/v1/`; scény ostávajú v `src/scenes/` (`V1_LIST` v `scenesList.ts`, `npm run stills`/`render` ich preskakujú).
