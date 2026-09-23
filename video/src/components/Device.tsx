@@ -13,6 +13,9 @@ export type Rect = { x: number; y: number; w: number; h: number };
 /** Mobil vlavo pre footage z aplikacie (F1): pomer displeja = pomer orezaneho zaznamu (884 x 1628). */
 export const FOOTAGE_PHONE: Rect = { x: 285, y: 60, w: 530, h: 960 };
 export const PHONE_BEZEL = 0.07;
+/** Okno aplikacie vlavo pre desktop footage (F2, F3): obsah 1300 x 754 = pomer orezaneho zaznamu (1520 x 882). */
+export const FOOTAGE_WINDOW: Rect = { x: 40, y: 100, w: 1300, h: 754 + 44 };
+export const WINDOW_TITLE = 'archives.assetin.sk';
 
 const lerpRect = (a: Rect, b: Rect, t: number): Rect => ({
   x: interpolate(t, [0, 1], [a.x, b.x]),
@@ -56,7 +59,7 @@ export const WindowFrame: React.FC<{ at: Rect; fill?: number; children?: React.R
   children,
   opacity = 1,
   chrome = 1,
-  title = 'archiveapp.assetin.space',
+  title = WINDOW_TITLE,
 }) => {
   const target: Rect = { x: -4, y: -60, w: W + 8, h: H + 64 };
   const box = lerpRect(at, target, fill);
