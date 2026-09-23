@@ -36,14 +36,14 @@ export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps:
 };
 
 /**
- * F2 - Extrakcia metadat (36 s zaznam zostrihany na 10,5 s): prehlad priloh
- * (3,0-4,5 s) + vyber prilohy, "Extrahovat metadata", dialog, stranka
- * Kontroly s nahladom a priebehom spracovania (14,5-23,5 s).
+ * F2 - Extrakcia metadat (36 s zaznam zostrihany na 8 s): prehlad priloh
+ * (3,0-3,8 s) + vyber prilohy a "Extrahovat metadata" (14,5-17,0 s, dialog
+ * vystrihnuty), stranka Kontroly s nahladom a priebehom (18-21 s, 21-23,5 s 1,7x).
  */
-export const F2_SECONDS = 10.5;
+export const F2_SECONDS = 8;
 const F2_STEPS: Step[] = [
   { from: 0, title: 'Príloha čaká', line: 'Fotka štítku je pri zložke ZL_01, pripravená na extrakciu.' },
-  { from: 2300, title: 'Extrahovať metadáta', line: 'Jeden klik. Údaje sa čítajú z fotky.' },
-  { from: 5200, title: 'Návrh na kontrolu', line: 'Aplikácia rozpozná text a navrhne metadáta. Platné sú až po kontrole človekom.' },
+  { from: 1800, title: 'Extrahovať metadáta', line: 'Jeden klik. Údaje sa čítajú z fotky.' },
+  { from: 3400, title: 'Návrh na kontrolu', line: 'Aplikácia rozpozná text a navrhne metadáta. Platné sú až po kontrole človekom.' },
 ];
 export const F2_Metadata: React.FC = () => <DesktopFootageClip src="footage/f2-metadata.mp4" seconds={F2_SECONDS} steps={F2_STEPS} />;

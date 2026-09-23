@@ -8,7 +8,7 @@ import { pop, settle } from '../lib/anim';
 import { captions } from '../copy/sk';
 import { BRAND, CM, FONT, INK, SAFE } from '../theme';
 
-/** C8 - Pilot: jedna zatvorena krabica, QR doskoci, ikony 1-2-3 v mierke A4. 7 s. */
+/** C8 - Pilot: jedna zatvorena krabica, QR doskoci, ikony 1-2-3 v mierke A4. 5 s. */
 const BOX = 660;
 const PX = archiveBoxPxPerCm(BOX);
 const SHEET = { w: CM.sheet.w * PX, h: CM.sheet.h * PX };
@@ -17,8 +17,8 @@ export const C8_Pilot: React.FC = () => {
   const frame = useCurrentFrame();
   const showCap = useCaptions();
   const box = settle(frame, 300);
-  const qr = pop(frame, 1300);
-  const steps = [pop(frame, 3200), pop(frame, 3600), pop(frame, 4000)];
+  const qr = pop(frame, 1000);
+  const steps = [pop(frame, 2400), pop(frame, 2750), pop(frame, 3100)];
   const rowTop = SAFE.illoBottom - SHEET.h - 10;
   const Step: React.FC<{ n: number; t: number; x: number; children: React.ReactNode }> = ({ n, t, x, children }) => (
     <div style={{ position: 'absolute', left: x, top: rowTop, opacity: Math.min(1, t * 1.4), transform: `translateY(${(1 - t) * 24}px)` }}>
@@ -49,7 +49,7 @@ export const C8_Pilot: React.FC = () => {
           <Sheet w={SHEET.w} h={SHEET.h} lines={6} stamp />
         </div>
       </Step>
-      {showCap ? <Caption text={captions.C8} t={settle(frame, 1900)} y={SAFE.captionY} /> : null}
+      {showCap ? <Caption text={captions.C8} t={settle(frame, 1500)} y={SAFE.captionY} /> : null}
     </Scene>
   );
 };
