@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCurrentFrame } from 'remotion';
 import { LogoMark, Scene, useCaptions } from '../components/Scene';
+import { BrandMod, BrandSep, BrandStack, LOCKUP, LOCKUP_W } from '../components/Brand';
 import { ArchiveBox, archiveBoxClosed } from '../components/ArchiveBox';
 import { C5_BOX_LEFT } from './C5_Teren';
 import { Caption } from '../components/Text';
@@ -17,9 +18,9 @@ import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
  * dolava; nad nim vyskoci vela otaznikov; uprostred tikaju hodiny (hladanie
  * trva); sipka doprava -> vykres "nove vyhotovenie" (rychlejsie spravit
  * nanovo); cenovky; "2x". Potom predel problem -> riesenie: vsetko okrem
- * regalu vybledne, kamera najde na krabicu, z nej sa rozleje biele svetlo
- * so zelenym lemom, na bielej sa nakresli znacka Assetin s lockupom
- * (ozvena intra), lockup zmizne do paticky a na podstavci sa usadi krabica
+ * regalu vybledne, kamera najde na krabicu, cista prelinacka do bielej, na
+ * bielej znacka Assetin a lockup z design kitu (assetin/.space | Archives),
+ * lockup zmizne do paticky a na podstavci sa usadi krabica
  * z C5. 9 s.
  *
  * ms: 800 odsun · 1100 "?" · 2600 hodiny · 2600-3600 rucicka · 3000 sipka ·
@@ -44,8 +45,7 @@ export const C4_Cena: React.FC = () => {
   const s = TARGET_SHELF;
   // predel problem -> riesenie
   const out = 1 - tw(5600, 500); // cenovky, hodiny, vykres, "?" vyblednu
-  const light = tw(6300, 700); // biele svetlo z krabice
-  const R = light * 1500;
+  const light = tw(6300, 700); // cista prelinacka do bielej
   const mark = settle(frame, 6900); // znacka sa objavi (bez kreslenia) a drzi ~1 s
   const lockup = settle(frame, 7050);
   const brandOut = tw(7900, 300);
@@ -107,48 +107,38 @@ export const C4_Cena: React.FC = () => {
       </div>
       {showCap ? <Caption text={captions.C4} mode="dark" t={settle(frame, 4800)} out={tw(5400, 300)} y={SAFE.captionY} /> : null}
 
-      {/* rozsvietenie: biele svetlo z krabice so zelenym lemom */}
-      {light > 0 ? (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: `radial-gradient(circle at 50% 50%, #fff ${R}px, ${BRAND[400]} ${R + 8}px, rgba(79,168,90,0) ${R + 60}px)`,
-            pointerEvents: 'none',
-          }}
-        />
-      ) : null}
-      {light >= 1 ? <div style={{ position: 'absolute', inset: 0, background: '#fff' }} /> : null}
+      {/* prechod do bielej: cista prelinacka (bez svetelneho efektu) */}
+      {light > 0 ? <div style={{ position: 'absolute', inset: 0, background: '#fff', opacity: light, pointerEvents: 'none' }} /> : null}
 
-      {/* znacka Assetin + lockup (ozvena intra) na bielej */}
+      {/* znacka Assetin + lockup z design kitu (assetin / .space | Archives), svetla verzia */}
       {mark > 0 ? (
-        <div style={{ position: 'absolute', inset: 0, opacity: 1 - brandOut, transform: `scale(${1 - 0.15 * brandOut})`, transformOrigin: '50% 50%' }}>
-          <div style={{ position: 'absolute', left: 960 - 80, top: 300, opacity: mark, transform: `scale(${0.85 + 0.15 * mark})`, transformOrigin: '50% 50%' }}>
-            <LogoMark size={160} color={BRAND[700]} />
+        <div style={{ position: 'absolute', inset: 0, opacity: (1 - brandOut) * Math.min(1, mark * 1.2), transform: `scale(${(1 - 0.06 * brandOut) * (0.97 + 0.03 * mark)})`, transformOrigin: '50% 50%' }}>
+          <div style={{ position: 'absolute', left: 960 - 60, top: 310 }}>
+            <LogoMark size={120} color={BRAND[700]} />
           </div>
-          <div
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: 520,
-              textAlign: 'center',
-              opacity: lockup,
-              transform: `translateY(${(1 - lockup) * 16}px)`,
-              fontFamily: FONT.display,
-              fontSize: 84,
-              lineHeight: 1,
-              letterSpacing: '-0.02em',
-              color: INK[900],
-              whiteSpace: 'nowrap',
-            }}
-          >
-            <span style={{ fontWeight: 800 }}>
-              asset<span style={{ color: BRAND[600] }}>in</span>
-            </span>
-            <span style={{ display: 'inline-block', width: 4, height: 64, background: INK[300], borderRadius: 2, margin: '0 28px', verticalAlign: 'middle', opacity: 0.6 }} />
-            <span style={{ fontWeight: 800 }}>Archives</span>
-          </div>
+          {(() => {
+            const k = 0.6;
+            const left = 960 - (LOCKUP_W * k) / 2;
+            const top = 470;
+            const stackLeft = 0,
+              sepLeft = LOCKUP.stackW + LOCKUP.gap,
+              modLeft = sepLeft + LOCKUP.sepW + LOCKUP.gap;
+            return (
+              <div style={{ position: 'absolute', left, top, width: LOCKUP_W * k, height: LOCKUP.sepH * k, opacity: lockup, transform: `translateY(${(1 - lockup) * 10}px)` }}>
+                <div style={{ position: 'absolute', left: 0, top: 0, transform: `scale(${k})`, transformOrigin: '0 0', width: LOCKUP_W, height: LOCKUP.sepH }}>
+                  <div style={{ position: 'absolute', left: stackLeft, top: -2 }}>
+                    <BrandStack light />
+                  </div>
+                  <div style={{ position: 'absolute', left: sepLeft, top: 0 }}>
+                    <BrandSep light />
+                  </div>
+                  <div style={{ position: 'absolute', left: modLeft, top: -30 }}>
+                    <BrandMod light />
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       ) : null}
 

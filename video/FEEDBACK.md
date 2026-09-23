@@ -216,3 +216,18 @@ Full 123 s → **101 s**. Všetkých 12 klipov, predel, kroky aj obe krabice ost
 | F4 Kontrola | Pozastaviť sa na správne navrhnutom texte a podčiarknuť, čo to znamená; v úvode uviesť, že sa dá overiť voči fotke. | Krok 1: „Každý návrh sa dá kedykoľvek overiť voči fotke štítku.“ Nový krok 2 „Správny návrh“: obraz sa zastaví 1,2 s na hodnote „Novostavba bytového domu SLNEČNÁ 12, BRATISLAVA“ so zeleným rámikom, potom sa prijme (zelený klik). Kliky aj na Prijať úpravu a Odoslať. F4 12,9 s. |
 
 Poradie: C1 · C2 · C4 · C5 · F1 · C7 · C6 · F2 · F4 · F3 · C8 · C9. Full 101 s → **99 s**.
+
+## Kolo 26 (23. 9. 2026)
+
+| Klip | Zadanie | Riešenie |
+|---|---|---|
+| C2 Hľadanie | Po vyhádzaní vecí sa panáčik už nemá hýbať, jeden krátky „?“, svižne dole do skladu; v sklade panáčik uteká príliš rýchlo. | Odchod doprava vypadol, panáčik stojí; „?“ 3,0–3,6 s; prestrih dole 3,7–4,6 s; chôdza v sklade 2,2 s (bola 1,3 s). Klip 12 s. |
+| C4 Cena → predel | Prestrih na Assetin Archives nemá byť „prepálený“; profi, rešpektovať logo Archives. | Svetelný efekt so zeleným lemom nahradený čistou prelínačkou do bielej (0,7 s). Na bielej je značka a lockup presne z design kitu (assetin / .space \| Archives, komponenty z intra vo svetlej verzii), jemné 3 % scale-in. |
+| C6 Spracovanie | Nahrávanie zbytočne dlhé; má tu byť, že ďalej už nastáva len práca v desktopovej webovej aplikácii. | Nahrávanie 0,4 s; vpravo text „Z terénu do kancelárie / Fotka je v aplikácii / Ďalšia práca prebieha v desktopovej webovej aplikácii.“ Klip 3 s. |
+| C7 Hierarchia | Skončiť okolo 4. s (koniec práce v teréne: QR, fotky, hierarchia podľa reality); doplniť text na bok bodovo ako inde. | Sken 3,3 s, vyblednutie 4,4–5,0 s, klip 5 s (polica s krabicami vypadla). Vpravo kroky: 1/2 Miesto v hierarchii („Polica, krabica, zložka, dokument. Presne podľa reality.“), 2/2 Hotovo v teréne („QR kódy, fotky a hierarchia. Zvyšok je práca v aplikácii.“). |
+| F1 Sken | Footage nerovnomerné, prvý krok skoro nevidno. | Prvá obrazovka (krabica KR_01) drží 1,5 s ako vlastný krok 1/5; potom typ jednotky 2 s (dohrané 0,6 s), QR 2,1 s (1,3×), fotenie 2,2 s (2,5×), kontrola 2 s (0,75×), nahrávanie 0,7 s. Klip 10,5 s. |
+| F2 Extrakcia | Načítavanie príliš dlho, posledný záber netreba, prvý zas krátko; rovnomerne. | Prehľad 2 s, výber + Extrahovať + potvrdenie 3 s, začiatok spracovania 2 s (10 %), zvyšok priebehu vystrihnutý. Klip 7 s. |
+| F3 Vyhľadávanie | Zvýraznenie strašné, nesedí; jemnejší highlight zacentrovaný na text, postupne ako fixkou. | Rámik nahradený polopriehľadnou zelenou plochou presne na slove „vodovod“ (multiply), ktorá sa nakreslí zľava doprava za 1,3 s. Rovnaký štýl pre všetky zvýraznenia (`marks` so `sweep`). |
+| F4 Kontrola | Posledný záber netreba; príliš rýchle a neprehľadné, oprava nejasná; prvý krok „fotka je dôkaz“ moc rýchlo. | Fotka štítku 2 s; správny návrh + fixka 1,2 s + prijatie; montáž; oprava 1×-ish (93–99 s pri 1,2×, 5 s) s klikom na ceruzku a fixkou na poli Hodnota, potom Prijať úpravu; Odoslať 1,4 s bez prázdneho zoznamu. Text kroku 4: „Číslo zmeny nesedí. Hodnota sa opraví priamo v návrhu a potvrdí.“ Klip 15,4 s. |
+
+Full 99 s → **95 s**.

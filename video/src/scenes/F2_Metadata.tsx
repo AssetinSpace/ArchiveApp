@@ -14,7 +14,7 @@ import { BRAND } from '../theme';
  * Zdroj: public/footage/ (priecinok nie je v gite).
  */
 export type Tap = { t: number; x: number; y: number }; // s, podiel sirky/vysky obsahu okna
-export type Mark = { from: number; to: number; x: number; y: number; w: number; h: number }; // s, podiely obsahu okna
+export type Mark = { from: number; to: number; x: number; y: number; w: number; h: number; sweep?: number }; // s, podiely obsahu okna; sweep = s, za ktore sa zvyraznenie "nakresli" zlava (ako fixkou)
 
 export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps: Step[]; taps?: Tap[]; marks?: Mark[]; enter?: boolean }> = ({ src, seconds, steps, taps = [], marks = [], enter = false }) => {
   const frame = useCurrentFrame();
@@ -35,11 +35,12 @@ export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps:
         <WindowFrame at={FOOTAGE_WINDOW}>
           <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#fff' }}>
             <OffthreadVideo src={staticFile(src)} muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            {/* zvyraznenie oblasti (napr. pole vyhladavania, spravna hodnota): zeleny ramik s jemnym podfarbenim */}
+            {/* jemne zvyraznenie textu ako fixkou: polopriehladna zelena plocha, nakresli sa zlava doprava */}
             {marks.map((m, i) => {
-              const a = tw(m.from * 1000, 250) * (1 - tw(m.to * 1000 - 250, 250));
+              const a = tw(m.from * 1000, 200) * (1 - tw(m.to * 1000 - 250, 250));
               if (a <= 0) return null;
-              return <div key={`m${i}`} style={{ position: 'absolute', left: m.x * cw - 6, top: m.y * ch - 6, width: m.w * cw + 12, height: m.h * ch + 12, borderRadius: 8, border: `3px solid ${BRAND[500]}`, background: 'rgba(79,168,90,0.10)', boxShadow: '0 0 0 4px rgba(79,168,90,0.18)', opacity: a, pointerEvents: 'none' }} />;
+              const sweep = m.sweep ? tw(m.from * 1000, m.sweep * 1000) : 1;
+              return <div key={`m${i}`} style={{ position: 'absolute', left: m.x * cw - 4, top: m.y * ch, width: (m.w * cw + 8) * sweep, height: m.h * ch, borderRadius: 4, background: 'rgba(79,168,90,0.28)', opacity: a, pointerEvents: 'none', mixBlendMode: 'multiply' }} />;
             })}
             {/* kliky: jemny zeleny kruh ako pri mobilnom footage */}
             {taps.map((tp, i) => {
@@ -59,20 +60,20 @@ export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps:
 };
 
 /**
- * F2 - Extrakcia metadat (36 s zaznam zostrihany na 8,3 s): prehlad priloh
- * (3,0-3,8 s) + vyber prilohy, "Extrahovat metadata" a potvrdenie (14-17 s),
- * stranka Kontroly s nahladom a priebehom (18-21 s, 21-23,5 s 1,7x). Kliky zvyraznene.
+ * F2 - Extrakcia metadat (36 s zaznam zostrihany na 7 s, rovnomerne): prehlad
+ * priloh (2,5-4,5 s), vyber prilohy, "Extrahovat metadata" a potvrdenie
+ * (14-17 s), zaciatok spracovania (18-20 s). Kliky zvyraznene.
  */
-export const F2_SECONDS = 8.3;
+export const F2_SECONDS = 7;
 const F2_STEPS: Step[] = [
   { from: 0, title: 'Príloha čaká', line: 'Fotka štítku je pri zložke ZL_01, pripravená na extrakciu.' },
-  { from: 1000, title: 'Extrahovať metadáta', line: 'Jeden klik. Údaje sa čítajú z fotky.' },
-  { from: 3800, title: 'Návrh na kontrolu', line: 'Aplikácia rozpozná text a navrhne metadáta. Platné sú až po kontrole človekom.' },
+  { from: 2200, title: 'Extrahovať metadáta', line: 'Jeden klik. Údaje sa čítajú z fotky.' },
+  { from: 5000, title: 'Spracúva sa', line: 'Aplikácia číta text z fotky a pripravuje návrh metadát na kontrolu.' },
 ];
 const F2_TAPS: Tap[] = [
-  { t: 1.1, x: 0.099, y: 0.93 }, // vyber prilohy (checkbox)
-  { t: 1.6, x: 0.75, y: 0.94 }, // Extrahovat metadata
-  { t: 2.6, x: 0.81, y: 0.93 }, // potvrdit sablonu
-  { t: 3.6, x: 0.842, y: 0.937 }, // spustit
+  { t: 2.3, x: 0.099, y: 0.93 }, // vyber prilohy (checkbox)
+  { t: 2.8, x: 0.75, y: 0.94 }, // Extrahovat metadata
+  { t: 3.8, x: 0.81, y: 0.93 }, // potvrdit sablonu
+  { t: 4.8, x: 0.842, y: 0.937 }, // spustit
 ];
 export const F2_Metadata: React.FC = () => <DesktopFootageClip src="footage/f2-metadata.mp4" seconds={F2_SECONDS} steps={F2_STEPS} taps={F2_TAPS} />;

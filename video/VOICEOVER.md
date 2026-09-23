@@ -7,7 +7,7 @@ náhovor ho neopakuje doslova.
 ## C1 · Intro (4 s)
 _(bez náhovoru)_
 
-## C2 · Hľadanie (11,5 s) – verzia 2 (spojené C2 + C3)
+## C2 · Hľadanie (12 s) – verzia 2 (spojené C2 + C3)
 - 0–4 s: „Dokumentáciu k svojim objektom máte. V skrini pri stole, v šanónoch, v rolkách paré…“ — _Dokumentáciu máte. V kancelárii, v sklade… niekde._
 - 4–7 s: „…alebo v archíve: palety, regály, krabice bez označenia.“
 - 8–14 s: _Len ju nikto nevie nájsť._ — „Jediný spôsob je otvoriť krabicu a prejsť ju zložku po zložke. A potom ďalšiu. A často sa nenájde nič.“
@@ -23,11 +23,11 @@ _(bez náhovoru)_
 - 4–7 s: _Nalepiť QR, odfotiť. Celá práca v teréne._ — „…a odfotí sa jej identifikačná strana. Stačí mobil alebo tablet.“
 - 7–10 s: „Fotka je dôkaz. Každý údaj sa kontroluje podľa nej.“ → footage: skenovanie a fotenie v appke
 
-## C6 · Spracovanie (4 s) →📹 okno aplikácie (F2 Extrakcia metadát 8 s → F4 Kontrola metadát 11,5 s: „Návrh nie je záznam. Konzultant každú hodnotu potvrdí podľa fotky, čo nesedí, opraví.“)
+## C6 · Spracovanie (3 s) →📹 okno aplikácie (F2 Extrakcia metadát 8 s → F4 Kontrola metadát 11,5 s: „Návrh nie je záznam. Konzultant každú hodnotu potvrdí podľa fotky, čo nesedí, opraví.“)
 - 0–3 s: „Fotka ide do aplikácie.“
 - 3–7 s: _Text z fotky rozpozná a navrhne údaje._ — „Text rozpozná automaticky a navrhne metadáta: stavbu, projektanta, rok, stupeň.“ → footage: OCR, návrh metadát, potvrdenie konzultantom („Návrh nie je záznam, platný je až po kontrole človekom.“)
 
-## C7 · Hierarchia (8,5 s) – hneď za F1 (po naskenovaní má krabica miesto)
+## C7 · Hierarchia (5 s) – hneď za F1 (po naskenovaní má krabica miesto)
 - 0–3 s: „Tá istá krabica má odteraz jednoznačné ID a miesto v hierarchii: polica, krabica, zložka, dokument.“
 - 3–6 s: _Každá položka má svoje miesto._ — „Naskenujete krabicu a viete, čo je vnútri. Bez otvárania.“
 - 6–9 s: „…a viete aj, na ktorej polici stojí.“ (kamera nájde na policu, krabice sa poukladajú)
