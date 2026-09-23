@@ -23,15 +23,15 @@ _(bez náhovoru)_
 - 4–7 s: _Nalepiť QR, odfotiť. Celá práca v teréne._ — „…a odfotí sa jej identifikačná strana. Stačí mobil alebo tablet.“
 - 7–10 s: „Fotka je dôkaz. Každý údaj sa kontroluje podľa nej.“ → footage: skenovanie a fotenie v appke
 
-## C6 · Spracovanie (7 s) →📹 okno aplikácie
+## C6 · Spracovanie (7 s) →📹 okno aplikácie (F2 Extrakcia metadát, 10,5 s)
 - 0–3 s: „Fotka ide do aplikácie.“
 - 3–7 s: _Text z fotky rozpozná a navrhne údaje._ — „Text rozpozná automaticky a navrhne metadáta: stavbu, projektanta, rok, stupeň.“ → footage: OCR, návrh metadát, potvrdenie konzultantom („Návrh nie je záznam, platný je až po kontrole človekom.“)
 
-## C7 · Hierarchia (12 s) →📹 mobil
+## C7 · Hierarchia (12 s) →📹 okno aplikácie (F3 Vyhľadávanie, 12,5 s)
 - 0–3 s: „Tá istá krabica má odteraz jednoznačné ID a miesto v hierarchii: polica, krabica, zložka, dokument.“
 - 3–6 s: _Každá položka má svoje miesto._ — „Naskenujete krabicu a viete, čo je vnútri. Bez otvárania.“
 - 6–9 s: „…a viete aj, na ktorej polici stojí.“ (kamera nájde na policu, krabice sa poukladajú)
-- 9–12 s: → footage: vyhľadávanie, filtrovanie, fyzická lokácia („Celý archív v jednej tabuľke. Od dotazu k policovému miestu jeden krok.“)
+- 9–12 s: → F3 footage: vyhľadávanie slova „vodovod“, zhoda, metadáta, QR kód („Stačí slovo. Aplikácia nájde zložku, ukáže metadáta aj QR kód, ktorý vás dovedie k fyzickej zložke na polici.“)
 
 ## C8 · Pilot (7 s)
 - 0–3 s: _Začneme jednou krabicou._ — „Nezačíname celým archívom.“

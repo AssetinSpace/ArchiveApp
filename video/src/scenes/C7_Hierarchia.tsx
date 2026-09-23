@@ -2,7 +2,7 @@ import React from 'react';
 import { useCurrentFrame } from 'remotion';
 import { Scene, useCaptions } from '../components/Scene';
 import { Caption } from '../components/Text';
-import { PhoneFrame } from '../components/Device';
+import { FOOTAGE_WINDOW, PhoneFrame, WindowFrame } from '../components/Device';
 import { ArchiveBox } from '../components/ArchiveBox';
 import { Camera } from '../lib/camera';
 import { Binder, Carton, IsoBox, QrOnLeftFace, ShelfFrame, iso, pts } from '../lib/iso';
@@ -52,7 +52,7 @@ export const C7_Hierarchia: React.FC = () => {
   const found = pop(frame, 7700);
   const FOUND = 2; // KR_01
   const treeOut = 1 - tw(8500, 500);
-  const fill = tw(9000, 1500);
+  const fill = tw(9000, 1200); // strom a mobil vyblednu, objavi sa okno aplikacie (desktop footage F3)
 
   // velka krabica z C5 (ArchiveBox 860 px) sa zmensi a zasunie do medzery medzi rovnake krabice
   const bigSize = 860 - (860 - BOX) * zoomOut;
@@ -183,12 +183,12 @@ export const C7_Hierarchia: React.FC = () => {
         </div>
       </Camera>
 
-      <div style={{ position: 'absolute', inset: 0, opacity: tw(4200, 500) * (fill > 0 ? 1 : 1) }}>
-        <PhoneFrame at={PHONE_AT} fill={fill} rotate={-6}>
+      <div style={{ position: 'absolute', inset: 0, opacity: tw(4200, 500) * (1 - fill) }}>
+        <PhoneFrame at={PHONE_AT} rotate={-6}>
           <div style={{ position: 'absolute', inset: 0, background: '#fff' }}>
-            <div style={{ position: 'absolute', inset: '30% 18% 40% 18%', border: `3px solid ${BRAND[600]}`, borderRadius: 6, opacity: (1 - fill) * (1 - search) }} />
+            <div style={{ position: 'absolute', inset: '30% 18% 40% 18%', border: `3px solid ${BRAND[600]}`, borderRadius: 6, opacity: 1 - search }} />
             {/* hladanie v mobile: riadok s lupou a vysledok KR_01 */}
-            <div style={{ position: 'absolute', left: '10%', right: '10%', top: '14%', opacity: search * (1 - fill) }}>
+            <div style={{ position: 'absolute', left: '10%', right: '10%', top: '14%', opacity: search }}>
               <div style={{ height: 22, borderRadius: 6, border: `2px solid ${INK[300]}`, display: 'flex', alignItems: 'center', padding: '0 6px', gap: 5 }}>
                 <div style={{ width: 9, height: 9, borderRadius: '50%', border: `2px solid ${INK[500]}` }} />
                 <div style={{ height: 4, width: `${40 * search}%`, background: INK[400], borderRadius: 2 }} />
@@ -202,6 +202,14 @@ export const C7_Hierarchia: React.FC = () => {
         </PhoneFrame>
       </div>
 
+      {/* okno aplikacie (desktop): objavi sa na mieste okna footage F3, obsah biely - F3 don prelina zaznam */}
+      {fill > 0 ? (
+        <div style={{ position: 'absolute', inset: 0, opacity: fill, transform: `scale(${0.94 + 0.06 * fill})`, transformOrigin: `${FOOTAGE_WINDOW.x + FOOTAGE_WINDOW.w / 2}px ${FOOTAGE_WINDOW.y + FOOTAGE_WINDOW.h / 2}px` }}>
+          <WindowFrame at={FOOTAGE_WINDOW}>
+            <div style={{ position: 'absolute', inset: 0, background: '#fff' }} />
+          </WindowFrame>
+        </div>
+      ) : null}
       {showCap ? <Caption text={captions.C7} t={settle(frame, 3000)} out={tw(6800, 300)} y={SAFE.captionY} /> : null}
     </Scene>
   );

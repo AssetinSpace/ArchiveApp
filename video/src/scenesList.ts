@@ -7,6 +7,8 @@ import { C4_Cena } from './scenes/C4_Cena';
 import { C5_Teren } from './scenes/C5_Teren';
 import { F1_Sken } from './scenes/F1_Sken';
 import { C6_Spracovanie } from './scenes/C6_Spracovanie';
+import { F2_Metadata } from './scenes/F2_Metadata';
+import { F3_Vyhladavanie } from './scenes/F3_Vyhladavanie';
 import { C7_Hierarchia } from './scenes/C7_Hierarchia';
 import { C8_Pilot } from './scenes/C8_Pilot';
 import { C9_Outro } from './scenes/C9_Outro';
@@ -23,7 +25,9 @@ export const SCENE_LIST: [string, SceneDef][] = [
   ['C5-Teren', { component: C5_Teren, seconds: 10, stills: [70, 170, 285] }],
   ['F1-Sken', { component: F1_Sken, seconds: 12.5, stills: [30, 200, 350] }],
   ['C6-Spracovanie', { component: C6_Spracovanie, seconds: 7, stills: [40, 110, 200] }],
+  ['F2-Metadata', { component: F2_Metadata, seconds: 10.5, stills: [20, 110, 260] }],
   ['C7-Hierarchia', { component: C7_Hierarchia, seconds: 12, stills: [15, 120, 230] }],
+  ['F3-Vyhladavanie', { component: F3_Vyhladavanie, seconds: 12.5, stills: [30, 150, 340] }],
   ['C8-Pilot', { component: C8_Pilot, seconds: 7, stills: [50, 110, 180] }],
   ['C9-Outro', { component: C9_Outro, seconds: 5, stills: [40, 120] }],
 ];

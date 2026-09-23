@@ -5,7 +5,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 
 const dir = 'out/stills';
 // klipy bez caption (intro, outro) sa nekontroluju
-const EXEMPT = ['C1-', 'C9-', 'F1-', 'contact-'];
+const EXEMPT = ['C1-', 'C9-', 'F1-', 'F2-', 'F3-', 'contact-'];
 // tmave klipy s podlahou: hrana podlahy prechadza pasom, tolerancia vyssia
 const FLOOR = ['C2-', 'C3-'];
 let bad = 0;

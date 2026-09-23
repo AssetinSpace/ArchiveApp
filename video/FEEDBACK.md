@@ -169,3 +169,12 @@ Verzia 1 (dlhá, 88,5 s) je uložená: `out/mp4/v1/` (Full_v1_1080p.mp4, Full_v1
 | F1 Sken | Stále to nie je orezané ideálne voči mobilu a reálnemu displeju. | Orez zmeraný na zázname: stavová lišta iOS 0–115 px, lišta Safari od 1743 px (z 1920). Rámik mobilu má teraz pomer displeja = pomer orezaného záznamu (884 × 1628), takže appka vypĺňa displej presne na šírku aj výšku, bez bielych pásov. F1 začína mobilom na mieste (C5 ho tam doviedol), displej sa za 0,3 s prelína z bielej do záznamu; sprievodný text bez zmeny. Rámik je spoločná konštanta `FOOTAGE_PHONE` (Device.tsx). |
 
 Full 85 s.
+
+## Footage 2 a 3 – desktop (23. 9. 2026)
+
+| Klip | Zadanie | Riešenie |
+|---|---|---|
+| F2 Extrakcia metadát | Screen recording z prehliadača „Extrakce metadat – v1“ (1920 × 1032, 36 s): prehľad príloh, výber prílohy, Extrahovať metadáta, dialog so šablónou, stránka Kontroly s náhľadom a priebehom spracovania (od 24 s statické 60 %). | Zostrih na 10,5 s: prehľad (3,0–4,5 s) + akcia (14,5–23,5 s); orez o lištu prehliadača (150 px) a bočný panel appky (400 px) → 1520 × 882. Zaradené za C6; C6 už nekončí roztiahnutím okna cez frame, okno prejde presne do okna footage vľavo (`FOOTAGE_WINDOW`, 1300 × 798). Vpravo kroky: Príloha čaká · Extrahovať metadáta · Návrh na kontrolu (texty na úpravu). Fade do bielej (C7). |
+| F3 Vyhľadávanie | Screen recording „Vyhladavanie – v3“ (16 s): zadanie slova „vodovod“, zhoda ZL_01, detail so zoznamom metadát a zvýraznenou zhodou, QR kód zložky. | Zostrih na 12,5 s: 0,5–7,5 s 1×, scroll metadát 7,5–14 s zrýchlený 2×, QR 14–16,2 s; rovnaký orez. Zaradené za C7; C7 už nekončí nájazdom do mobilu (footage je desktop): strom a mobil vyblednú a objaví sa okno aplikácie na mieste okna footage. Vpravo kroky: Hľadať · Zhoda · Metadáta · QR kód. Fade do bielej (C8). |
+
+Spoločný komponent `DesktopFootageClip` (okno vľavo + kroky vpravo) a `StepsPanel` (rovnaký jazyk krokov ako v C5 a F1). Full 108 s.
