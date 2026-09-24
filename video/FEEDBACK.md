@@ -231,3 +231,14 @@ Poradie: C1 · C2 · C4 · C5 · F1 · C7 · C6 · F2 · F4 · F3 · C8 · C9. F
 | F4 Kontrola | Posledný záber netreba; príliš rýchle a neprehľadné, oprava nejasná; prvý krok „fotka je dôkaz“ moc rýchlo. | Fotka štítku 2 s; správny návrh + fixka 1,2 s + prijatie; montáž; oprava 1×-ish (93–99 s pri 1,2×, 5 s) s klikom na ceruzku a fixkou na poli Hodnota, potom Prijať úpravu; Odoslať 1,4 s bez prázdneho zoznamu. Text kroku 4: „Číslo zmeny nesedí. Hodnota sa opraví priamo v návrhu a potvrdí.“ Klip 15,4 s. |
 
 Full 99 s → **95 s**.
+
+## Kolo 27 (23. 9. 2026)
+
+| Klip | Zadanie | Riešenie |
+|---|---|---|
+| C2 Hľadanie | Krabice na polici otvoriť obidve naraz, ušetrí sa čas; otázka, či nechať trajektóriu. | Obe krabice sa vytiahnu a otvoria naraz (7,0 / 7,1 s), zložky hore, dve bublinky „?“, späť; veľký „?“ 9,7 s. Čiarkovaná čiara trajektórie vypadla (chôdza panáčika stačí). Klip 10,5 s. |
+| C6 Spracovanie | Na začiatku nie je kompozícia dobrá. | Okno aplikácie je na scéne od začiatku (prelína sa z bielej), fotka štítku je v jeho strede (nie hore s osamotenou lištou), lišta nahrávania až pri nahrávaní. |
+| C7 Hierarchia | Mobil a obdĺžnik na konci tam nemusia byť. | Vypadli; ostáva len zvýraznenie vetvy polica → krabica → zložka → dokument zelenou (3,3 s) a text „Hotovo v teréne“. |
+| F3 Vyhľadávanie | Niekde príliš pomalé; zastavovať na rovnaký čas tam, kde to má zmysel. | Rovnaké zastávky ~1,5 s: písanie slova, zoznam výsledkov, detail zložky (freeze 0,8 s), zvýraznená zhoda (freeze 1,5 s), QR kód (1,5 s + freeze 0,8 s); prechody medzi nimi 3×. Klip 10,3 s. |
+
+Full 95 s → **92,8 s**.
