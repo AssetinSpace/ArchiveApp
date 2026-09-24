@@ -103,5 +103,5 @@ Full sa potom zlepí z klipov (`npx remotion ffmpeg -f concat ...`).
 
 ## Verzie
 
-- **Verzia 2 (aktuálna, 96,9 s)**: C2-Hladanie nahrádza C2-Kancelaria + C3-Sklad.
+- **Verzia 2 (aktuálna, 96,8 s)**: C2-Hladanie nahrádza C2-Kancelaria + C3-Sklad.
 - **Verzia 1 (88,5 s)**: rendre v `out/mp4/v1/` a `out/stills/v1/`; scény ostávajú v `src/scenes/` (`V1_LIST` v `scenesList.ts`, `npm run stills`/`render` ich preskakujú).

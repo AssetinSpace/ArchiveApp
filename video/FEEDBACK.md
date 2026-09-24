@@ -257,4 +257,4 @@ Zadanie: doplniť texty na niektoré klipy. Rozhodnutia: bez hovoreného slova (
 | C8 Pilot | Krabica a ikony posunuté doľava, vpravo „Prvý krok / Začneme jednou krabicou. / Nie celým archívom. Výsledok uvidíte na vlastnej dokumentácii.“; pod ikonami popisky Obhliadka skladu · Pilot na jednej krabici · Rozsah a ponuka. Klip 7 s. |
 | C9 Outro | Bez zmeny (len web). |
 
-Full 92,8 s → **96,9 s**. F1-F4 vyrenderované cez `src/patch/` (footage nie je v tomto prostredí): záznam je z renderu kola 27, nový je len panel s krokmi.
+Full 92,8 s → **96,8 s**. F1-F4 vyrenderované cez `src/patch/` (footage nie je v tomto prostredí): záznam je z renderu kola 27, nový je len panel s krokmi.
