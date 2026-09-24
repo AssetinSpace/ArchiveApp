@@ -2,25 +2,23 @@ import React from 'react';
 import { Step } from '../components/Steps';
 import { DesktopFootageClip, Mark, Tap } from './F2_Metadata';
 import { phases } from '../copy/sk';
+import { cutDuration, cutTime, segStart } from '../lib/cuts';
 
 /**
- * F3 - Vyhladavanie (16 s zaznam zostrihany na 10,3 s): rovnake zastavky
- * ~1,5 s tam, kde to ma zmysel - pisanie (0,5-2,5 s 1,3x), vysledok (2,5-4 s),
- * prechody 3x, detail (freeze 7,5 s 0,8 s), zvyraznena zhoda (freeze 10,8 s
- * 1,5 s), QR kod (14-16,1 s 1,5x + freeze 0,8 s).
+ * F3 - Vyhladavanie: zostrih podla src/footage/cuts.json (f3-search). Kolo 29: tri
+ * kroky (Hladat slovo / Zlozka najdena / QR k polici), pauza pred kazdym, zhoda drzi 1,5 s.
  */
-export const F3_SECONDS = 10.3;
+export const F3_SECONDS = cutDuration('f3-search');
 const F3_STEPS: Step[] = [
-  { from: 0, title: 'Hľadať', line: 'Stačí slovo. Napríklad „vodovod“.' },
-  { from: 1600, title: 'Zhoda', line: 'Nájde zložku, v ktorej sa slovo vyskytuje: v názve, poznámke aj v texte prílohy.' },
-  { from: 4300, title: 'Metadáta', line: 'Kľúče a hodnoty z fotky štítku, zhoda je zvýraznená.' },
-  { from: 8100, title: 'QR kód', line: 'Z výsledku rovno k fyzickej zložke na polici.' },
+  { from: 0, title: 'Hľadať slovo' },
+  { from: segStart('f3-search', 1) * 1000, title: 'Zložka nájdená' },
+  { from: segStart('f3-search', 5) * 1000, title: 'QR k polici' },
 ];
 const F3_TAPS: Tap[] = [
-  { t: 3.1, x: 0.16, y: 0.25 }, // klik na vysledok ZL_01
+  { t: cutTime('f3-search', 4.0), x: 0.16, y: 0.25 }, // klik na vysledok ZL_01
 ];
 const F3_MARKS: Mark[] = [
-  { from: 0.4, to: 2.2, x: 0.108, y: 0.462, w: 0.075, h: 0.05, sweep: 1.3 }, // pisane slovo "vodovod" - jemna fixka zlava
+  { from: cutTime('f3-search', 1.0), to: cutTime('f3-search', 2.5), x: 0.108, y: 0.462, w: 0.075, h: 0.05, sweep: 1.3 }, // pisane slovo "vodovod" - jemna fixka zlava
 ];
 /** F3 zacina z bielej (F4 konci fade-om), okno sa objavi. */
 export const F3_Vyhladavanie: React.FC = () => <DesktopFootageClip src="footage/f3-search.mp4" seconds={F3_SECONDS} steps={F3_STEPS} phase={phases.search} taps={F3_TAPS} marks={F3_MARKS} enter />;

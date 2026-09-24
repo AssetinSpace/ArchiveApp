@@ -42,13 +42,17 @@ src/
   scenesList.ts       zoznam klipov, dĺžky (s) a frame-y pre schvaľovacie stills
   theme.ts            paleta, fonty, rozmery, ms→frames
   copy/sk.ts          všetky texty v obraze (SK)
+  copy/vo.json        scenár náhovoru: klip, čas vety (ms), text, nameraná dĺžka; z neho je zvuk aj titulky
+  footage/cuts.json   zostrih desktop footage (segmenty zdroja, zrýchlenie, zmrazený obraz); lib/cuts.ts z neho počíta časy
   lib/anim.ts         tween/pop/settle/stagger – prevod CSS transitions z webu na frame-y
   lib/camera.tsx      Camera – nájazd/posun kamery podľa keyframov (ms, x, y, scale)
   lib/iso.tsx         2:1 dimetrická projekcia + primitívy (IsoBox, Carton, Pallet, ShelfFrame, Binder, QR)
   lib/fonts.ts        načítanie lokálnych fontov z public/fonts
   components/
     ArchiveBox.tsx    doslovný port dlaždice „Neprehľadný archív“ (QuickStart.astro) – veko, zložky, QR
-    Scene.tsx         obal scény (pozadie), LogoMark, useCaptions (titulky len s prop captions:true)
+    Scene.tsx         obal scény (pozadie), LogoMark, useCaptions (texty v obraze; C8 zapnuté, ostatné len s prop captions:true)
+    Paced.tsx         obal klipu: pauzy (Freeze) bez prepisovania animácie, náhovor (public/vo/<klip>.wav), titulky
+    Subtitles.tsx     titulky náhovoru z copy/vo.json (jeden riadok dole, y 926); prop subtitles:false ich vypne
     Device.tsx        PhoneFrame / WindowFrame – rámik zariadenia, fill 0..1 = nájazd na celý frame
     Text.tsx          Caption (jediný text v obraze) + Kicker/Headline/Body pre optional scény
     Illustrations.tsx Person, QuestionMark, Check, Sheet, PriceTag, Chip, PhotoCard, Floor
@@ -57,6 +61,8 @@ src/
 public/brand/         logo (kópia z assetin.sk)
 public/fonts/         Manrope 600/700/800, Inter 400/500/600 (TTF)
 scripts/stills.sh, render.sh, check-stills.mjs (kontrola, že ilustrácia nesiaha do caption zóny)
+scripts/vo.mjs        náhovor: espeak-ng (sk) po vetách -> public/vo/<klip>.wav, dopíše dĺžky do vo.json, hlási prekryvy
+scripts/cut-footage.mjs  zostrih desktop footage z originálov podľa footage/cuts.json (ffmpeg z pip imageio-ffmpeg)
 out/stills/           schvaľovacie PNG (commitované)
 out/mp4/              finálne MP4 scén (commitované po schválení)
 ```
@@ -94,14 +100,26 @@ Väčšia firma potrebuje Company License – pozri LICENSE v balíku `remotion`
 
 `public/footage/` nie je v gite. Potrebné súbory: `f1-sken.mp4` (mobil, 884 × 1920), `f2-metadata.mp4`, `f4-review.mp4` a `f3-search.mp4` (desktop, 1520 × 882, zostrihy z `Extrakce_metadat_-_v1.mp4`, `Review_metadat_-_v2.mp4` a `Vyhladavanie_-_v3.mp4`, orez 1520:882:400:150). Postup zostrihu je vo FEEDBACK.md.
 
-Bez footage (napr. v cloudovom prostredí), keď sa pri F klipoch mení len text krokov vpravo:
-`src/patch/` vyrenderuje klip ako starší render (`old/<ID>.mp4`) a novú verziu klipu iba v páse
-vpravo od zariadenia. Public dir na to: kópia `public/`, `old/<ID>.mp4` = posledný render a
-`footage/*.mp4` = ľubovoľné MP4 s rovnakým menom (v orezanej časti sa nezobrazí).
-`npx remotion render src/patch/index.ts Patch-F3-Vyhladavanie out/mp4/F3-Vyhladavanie.mp4 --public-dir=<dir>`;
-Full sa potom zlepí z klipov (`npx remotion ffmpeg -f concat ...`).
+Zostrih desktop klipov (F2, F3, F4) je v `src/footage/cuts.json` a robí sa z originálov
+`public/footage/src/{extrakce,review,vyhladavanie}.mp4` (mimo gitu): `node scripts/cut-footage.mjs`.
+Mobilné footage F1 (`f1-sken.mp4`) v tomto prostredí nie je; klip beží ako `F1_SkenPatched`
+(starší render `public/footage/f1-old.mp4` = out/mp4/F1-Sken.mp4 a nanovo kreslený panel vpravo).
+Po nahratí `f1-sken.mp4` prepnúť v `scenesList.ts` späť na `F1_Sken`.
+
+## Náhovor a titulky
+
+Video je s hovoreným slovom (kolo 29). Scenár je v `src/copy/vo.json`: pre každý klip vety s časom
+`at` (ms od začiatku klipu, vo výstupnom čase aj s pauzami). `node scripts/vo.mjs` vyrobí dočasný
+hlas (espeak-ng, slovenčina, len na tempo) do `public/vo/<klip>.wav` (mimo gitu), zmeria dĺžky viet
+a dopíše ich do `vo.json` (`dur`); z toho istého súboru bežia titulky. Kvalitný hlas: vety sa
+vygenerujú inde (Google Cloud TTS sk-SK, ElevenLabs, alebo reálny speaker podľa `VOICEOVER.md`) do
+`public/vo/lines/<klip>-<i>.wav` a spustí sa `node scripts/vo.mjs --reuse`. Render bez zvuku:
+`--props='{"voice":false}'`, bez titulkov: `--props='{"subtitles":false}'` (prezentácia so živým komentárom).
+
+Tempo: každý klip má v `scenesList.ts` pauzy (`holds`, zmrazený obraz hneď po nástupe textu kroku), vety
+sa nesmú prekrývať (`vo.mjs` to hlási) a text v obraze je len názov kroku (2-3 slová); vetu hovorí náhovor.
 
 ## Verzie
 
-- **Verzia 2 (aktuálna, 96,8 s)**: C2-Hladanie nahrádza C2-Kancelaria + C3-Sklad.
+- **Verzia 2 (aktuálna, kolo 29, ~125 s)**: C2-Hladanie nahrádza C2-Kancelaria + C3-Sklad; od kola 29 hovorené slovo + titulky, pauzy pred dejom.
 - **Verzia 1 (88,5 s)**: rendre v `out/mp4/v1/` a `out/stills/v1/`; scény ostávajú v `src/scenes/` (`V1_LIST` v `scenesList.ts`, `npm run stills`/`render` ich preskakujú).

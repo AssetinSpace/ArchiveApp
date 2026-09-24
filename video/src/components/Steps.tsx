@@ -2,7 +2,7 @@ import React from 'react';
 import { settle } from '../lib/anim';
 import { BRAND, FONT, INK } from '../theme';
 
-export type Step = { from: number; title: string; line: string }; // from v ms
+export type Step = { from: number; title: string; line?: string }; // from v ms; line uz nepouzivame (kolo 29: jeden textovy prud, vetu nesie nahovor)
 
 /**
  * Sprievodne kroky vpravo (nazov fazy, nazov kroku, riadok, body postupu) - rovnaky
@@ -22,7 +22,7 @@ export const StepsPanel: React.FC<{ frame: number; steps: Step[]; phase?: string
               {phase ?? `Krok ${i + 1} / ${steps.length}`}
             </div>
             <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 56, lineHeight: 1.05, color: INK[900], letterSpacing: '-0.02em', marginBottom: 14 }}>{s.title}</div>
-            <div style={{ fontFamily: FONT.body, fontWeight: 400, fontSize: 30, lineHeight: 1.35, color: INK[500] }}>{s.line}</div>
+            {s.line ? <div style={{ fontFamily: FONT.body, fontWeight: 400, fontSize: 30, lineHeight: 1.35, color: INK[500] }}>{s.line}</div> : null}
             <div style={{ display: steps.length > 1 ? 'flex' : 'none', gap: 10, marginTop: 28 }}>
               {steps.map((_, k) => (
                 <div key={k} style={{ width: k <= i ? 34 : 12, height: 12, borderRadius: 6, background: k <= i ? BRAND[500] : INK[200] }} />

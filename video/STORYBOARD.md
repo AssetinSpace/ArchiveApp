@@ -7,7 +7,7 @@ jediný text v obraze (≤ 7 slov) v caption zóne y 860–980, do ktorej ilustr
 nesiaha (kontroluje `scripts/check-stills.mjs`); QR čierno-biele, zelená len na
 dianí okolo (rámik skenu, blesk, glow); žiadna simulácia UI aplikácie – klipy →📹
 končia nájazdom do obrazovky zariadenia a posledný frame je čistá plocha =
-strihový bod pre footage; náhľad Full má tvrdé strihy. Titulky v obraze boli od kola 9 vypnuté; od kola 28 sú zapnuté v C2, C4 a C8 (video je bez náhovoru, len s hudobným podmazom).
+strihový bod pre footage; náhľad Full má tvrdé strihy. Od kola 29 má video hovorené slovo (scenár `src/copy/vo.json`) a titulky náhovoru dole (y 926); text v obraze je len názov kroku vpravo, v C2/C4 žiadny (nesie ho titulok). Pauzy pred dejom sú v `scenesList.ts` (`holds`).
 
 | ID | Klip | Pozadie | Dej | Text v obraze | Dĺžka | Stav |
 |---|---|---|---|---|---|---|

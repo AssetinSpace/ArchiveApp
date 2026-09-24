@@ -3,6 +3,7 @@ import { AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame } from 'remot
 import { FOOTAGE_WINDOW, WindowFrame } from '../components/Device';
 import { Step, StepsPanel } from '../components/Steps';
 import { phases } from '../copy/sk';
+import { cutDuration, cutTime, segStart } from '../lib/cuts';
 import { settle, tween } from '../lib/anim';
 import { loadFonts } from '../lib/fonts';
 import { BRAND } from '../theme';
@@ -61,20 +62,19 @@ export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps:
 };
 
 /**
- * F2 - Extrakcia metadat (36 s zaznam zostrihany na 7 s, rovnomerne): prehlad
- * priloh (2,5-4,5 s), vyber prilohy, "Extrahovat metadata" a potvrdenie
- * (14-17 s), zaciatok spracovania (18-20 s). Kliky zvyraznene.
+ * F2 - Extrakcia metadat: zostrih podla src/footage/cuts.json (f2-metadata), casy
+ * krokov a klikov sa pocitaju z casu zdroja. Kolo 29: kazdy krok zacina zmrazenym
+ * obrazom (pauza, citanie, dej), kliky 1x.
  */
-export const F2_SECONDS = 7;
+export const F2_SECONDS = cutDuration('f2-metadata');
 const F2_STEPS: Step[] = [
-  { from: 0, title: 'Príloha čaká', line: 'Fotka štítku je pri zložke ZL_01, pripravená na extrakciu.' },
-  { from: 2200, title: 'Extrahovať metadáta', line: 'Jeden klik. Údaje sa čítajú z fotky.' },
-  { from: 5000, title: 'Spracúva sa', line: 'Aplikácia číta text z fotky a pripravuje návrh metadát na kontrolu.' },
+  { from: 0, title: 'Príloha čaká' },
+  { from: segStart('f2-metadata', 1) * 1000, title: 'Extrahovať metadáta' },
 ];
 const F2_TAPS: Tap[] = [
-  { t: 2.3, x: 0.099, y: 0.93 }, // vyber prilohy (checkbox)
-  { t: 2.8, x: 0.75, y: 0.94 }, // Extrahovat metadata
-  { t: 3.8, x: 0.81, y: 0.93 }, // potvrdit sablonu
-  { t: 4.8, x: 0.842, y: 0.937 }, // spustit
+  { t: cutTime('f2-metadata', 14.3), x: 0.099, y: 0.93 }, // vyber prilohy (checkbox)
+  { t: cutTime('f2-metadata', 14.8), x: 0.75, y: 0.94 }, // Extrahovat metadata
+  { t: cutTime('f2-metadata', 15.8), x: 0.81, y: 0.93 }, // potvrdit sablonu
+  { t: cutTime('f2-metadata', 16.8), x: 0.842, y: 0.937 }, // spustit
 ];
 export const F2_Metadata: React.FC = () => <DesktopFootageClip src="footage/f2-metadata.mp4" seconds={F2_SECONDS} steps={F2_STEPS} taps={F2_TAPS} />;

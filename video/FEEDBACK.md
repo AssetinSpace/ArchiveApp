@@ -258,3 +258,26 @@ Zadanie: doplniť texty na niektoré klipy. Rozhodnutia: bez hovoreného slova (
 | C9 Outro | Bez zmeny (len web). |
 
 Full 92,8 s → **96,8 s**. F1-F4 vyrenderované cez `src/patch/` (footage nie je v tomto prostredí): záznam je z renderu kola 27, nový je len panel s krokmi.
+
+## Kolo 29 (24. 9. 2026): spomaliť a prestavať, hovorené slovo
+
+Zadanie: pre diváka je to príliš náročné (kroky vpravo, veta pod nimi, animácia alebo obrazovka aplikácie naraz). Zanalyzovať, spomaliť, prestavať; zvážiť hovorené slovo s titulkami alebo len text s hudbou.
+
+Diagnóza (kolo 28): 21 z 22 textov krokov držalo kratšie, než trvá ich prečítanie (0,5 s + 0,4 s/slovo), nový text každých 2,6 s, ~215 slov v riešení, a to bez textu v samotnej aplikácii. Príčiny: dva textové prúdy naraz (nadpis + veta), text nastupoval presne s dejom, priveľa krokov (F1 5, F4 5, F3 4), oko cestuje z okna vľavo na text vpravo.
+
+Rozhodnutie: **hovorené slovo + titulky náhovoru**, text v obraze len názov kroku. "Len text + hudba" by znamenalo ~125 s čítania namiesto pozerania na aplikáciu.
+
+| Oblasť | Riešenie |
+|---|---|
+| Náhovor | Scenár `src/copy/vo.json` (28 viet, ~150 slov). Dočasný hlas espeak-ng (sk, 165 wpm) cez `scripts/vo.mjs`: jedna stopa na klip (`public/vo/`), dĺžky viet sa merajú a zapisujú do `vo.json`, skript hlási prekryvy. Reálny speaker alebo Google/ElevenLabs TTS sa dosadí po vetách (`--reuse`). |
+| Titulky | `components/Subtitles.tsx`: jedna veta dole (y 926), biela na tmavých, ink na svetlých klipoch, drží presne pokým znie veta. Vypnuteľné (`subtitles:false`), zvuk vypnuteľný (`voice:false`). |
+| Pauzy | `components/Paced.tsx`: zmrazený obraz (Freeze) vložený do hotovej animácie hneď po nástupe textu kroku, dej sa rozbehne až potom. Pauzy sú v `scenesList.ts` (`holds`), animácie sa neprepisovali. |
+| Kroky | Len názov (2-3 slová), veta vypadla (hovorí ju náhovor). F1 4 kroky (Pridať zložku · Naskenovať QR · Odfotiť štítok · Uložiť), F2 2 (Príloha čaká · Extrahovať metadáta), F4 3 (Overiť voči fotke · Potvrdiť návrhy · Opraviť a odoslať), F3 3 (Hľadať slovo · Zložka nájdená · QR k polici), C7 1 (Miesto v hierarchii), C5 3 bez zmeny. |
+| Desktop footage | Nový zostrih z originálov podľa `src/footage/cuts.json` (`scripts/cut-footage.mjs`): pred každým krokom zmrazený obraz 0,6-0,8 s, kliky 1x, zrýchlené len prechody a čakanie; správna hodnota v F4 drží 1,2 s, zhoda v F3 1,5 s, QR kód 2,6 s. Časy krokov, klikov a zvýraznení sa počítajú z časov zdroja (`lib/cuts.ts`), nie ručne. |
+| F1 | Mobilné footage v prostredí nie je: klip beží ako `F1_SkenPatched` (starší render + nový panel), pauzy 3x 0,8 s pred krokmi. Po nahratí `f1-sken.mp4` sa dorobí 1x sken a fotenie. |
+| C2 | Bez textu v obraze; vety nesie náhovor. Pauza 1,5 s v kancelárii (panáčik stojí), aby dobehla prvá veta. 12 s. |
+| C4 | Bez textu v obraze. "2×" príde až so slovami "platíte dvakrát" (pauza 3,2 s pred ním), po ňom pauza 1 s, predel, "Assetin Archives." pod lockupom. 15,3 s. |
+| C8 | Ikony 1-2-3 po 1,2 s s popiskami, nadpis vpravo bez vety, pauza 1 s po nadpise. 9 s. |
+| C9 | 6 s (veta "Assetin Archives. Zistíte, čo máte v archíve a kde presne to leží."). |
+
+Full 96,8 s → **~125 s** (dočasný hlas je pomalší než reálny speaker, ~1,9 slova/s; pri 2,3 slova/s sa dá stiahnuť o ~10 s skrátením páuz).

@@ -36,7 +36,7 @@ const H = 800; // dlhsie drzanie znacky s popisom
 const BOX = 860;
 export const C4_Cena: React.FC = () => {
   const frame = useCurrentFrame();
-  const showCap = useCaptions(true);
+  const showCap = useCaptions(); // kolo 29: vety nesie nahovor + titulky (Paced)
   const tw = (s: number, d: number) => tween(frame, s, d);
   const bigQ = pop(frame, 1100);
   const clock = settle(frame, 2600);

@@ -1,0 +1,160 @@
+{
+  "_": "Scenar nahovoru (kolo 29). at = start vety v ms od zaciatku klipu (vo vystupnom case, po vlozenych pauzach). dur dopise scripts/vo.mjs z vygenerovanej stopy. Z tohto suboru sa robi zvuk (public/vo/<klip>.wav) aj titulky (components/Subtitles.tsx), takze su vzdy zosynchronizovane.",
+  "C2-Hladanie": [
+    {
+      "at": 800,
+      "text": "Dokumentáciu k svojim objektom máte. V skrini, v šanónoch, v rolkách.",
+      "dur": 5360
+    },
+    {
+      "at": 6500,
+      "text": "Alebo v archíve. A tam ju nikto nevie nájsť.",
+      "dur": 3200
+    }
+  ],
+  "C4-Cena": [
+    {
+      "at": 2300,
+      "text": "Hľadanie trvá hodiny.",
+      "dur": 1700
+    },
+    {
+      "at": 4200,
+      "text": "Rýchlejšie je dať dokumentáciu vyhotoviť nanovo.",
+      "dur": 3220
+    },
+    {
+      "at": 7600,
+      "text": "A tak platíte dvakrát za to isté.",
+      "dur": 2480
+    },
+    {
+      "at": 12800,
+      "text": "Assetin Archives.",
+      "dur": 1380
+    }
+  ],
+  "C5-Teren": [
+    {
+      "at": 400,
+      "text": "Riešenie začína v sklade.",
+      "dur": 1930
+    },
+    {
+      "at": 2600,
+      "text": "Každá položka dostane nálepku s QR kódom",
+      "dur": 3380
+    },
+    {
+      "at": 6300,
+      "text": "a odfotí sa jej štítok. Stačí mobil.",
+      "dur": 2930
+    }
+  ],
+  "F1-Sken": [
+    {
+      "at": 4300,
+      "text": "Naskenujete kód,",
+      "dur": 1200
+    },
+    {
+      "at": 7200,
+      "text": "odfotíte štítok",
+      "dur": 1580
+    },
+    {
+      "at": 10200,
+      "text": "a zložka má svoje ID.",
+      "dur": 1800
+    }
+  ],
+  "C7-Hierarchia": [
+    {
+      "at": 500,
+      "text": "Krabica má odteraz miesto v hierarchii: polica, krabica, zložka, dokument.",
+      "dur": 5580
+    },
+    {
+      "at": 6400,
+      "text": "Práca v teréne je hotová.",
+      "dur": 2170
+    }
+  ],
+  "C6-Spracovanie": [
+    {
+      "at": 400,
+      "text": "Fotka ide do aplikácie.",
+      "dur": 1850
+    }
+  ],
+  "F2-Metadata": [
+    {
+      "at": 3000,
+      "text": "Text z fotky aplikácia rozpozná",
+      "dur": 2650
+    },
+    {
+      "at": 5800,
+      "text": "a navrhne metadáta: stavbu, projektanta, rok, stupeň.",
+      "dur": 4210
+    }
+  ],
+  "F4-Kontrola": [
+    {
+      "at": 500,
+      "text": "Návrh nie je záznam.",
+      "dur": 1720
+    },
+    {
+      "at": 3600,
+      "text": "Konzultant každú hodnotu overí podľa fotky a potvrdí.",
+      "dur": 3950
+    },
+    {
+      "at": 11500,
+      "text": "Čo nesedí, opraví priamo v návrhu.",
+      "dur": 2870
+    },
+    {
+      "at": 15600,
+      "text": "Až potom sú metadáta platné.",
+      "dur": 2130
+    }
+  ],
+  "F3-Vyhladavanie": [
+    {
+      "at": 900,
+      "text": "Stačí slovo.",
+      "dur": 1150
+    },
+    {
+      "at": 3600,
+      "text": "Aplikácia nájde zložku a ukáže jej metadáta.",
+      "dur": 3270
+    },
+    {
+      "at": 10400,
+      "text": "QR kód vás dovedie k fyzickej zložke na polici.",
+      "dur": 3660
+    }
+  ],
+  "C8-Pilot": [
+    {
+      "at": 600,
+      "text": "Nezačíname celým archívom.",
+      "dur": 2080
+    },
+    {
+      "at": 3300,
+      "text": "Obhliadka skladu, pilot na jednej krabici, a až potom rozsah a ponuka.",
+      "dur": 4690
+    }
+  ],
+  "C9-Outro": [
+    {
+      "at": 700,
+      "text": "Assetin Archives. Zistíte, čo máte v archíve a kde presne to leží.",
+      "dur": 5110
+    }
+  ]
+}

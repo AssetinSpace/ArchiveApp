@@ -37,8 +37,7 @@ const SVG_AT = { x: 260, y: SAFE.illoTop };
 const SHELF_C = { x: SVG_AT.x + NODE_X - 3, y: SVG_AT.y + NODES_Y[0] + 20 - 47 };
 /** Kroky vpravo (rovnaky jazyk ako v C5 a pri footage). */
 const C7_STEPS = [
-  { from: 600, title: 'Miesto v hierarchii', line: 'Polica, krabica, zložka, dokument. Presne podľa reality.' },
-  { from: 3300, title: 'Hotovo v teréne', line: 'QR kódy, fotky a hierarchia. Zvyšok je práca v aplikácii.' },
+  { from: 600, title: 'Miesto v hierarchii' },
 ];
 
 export const C7_Hierarchia: React.FC = () => {
@@ -209,7 +208,6 @@ export const C7_Hierarchia: React.FC = () => {
         </PhoneFrame>
       </div>
 
-      {showCap ? <Caption text={captions.C7} t={settle(frame, 3000)} out={tw(6800, 300)} y={SAFE.captionY} /> : null}
     </Scene>
   );
 };

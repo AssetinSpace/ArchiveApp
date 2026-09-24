@@ -230,7 +230,7 @@ const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
 
 export const C2_Hladanie: React.FC = () => {
   const frame = useCurrentFrame();
-  const showCap = useCaptions(true);
+  const showCap = useCaptions(); // kolo 29: vety nesie nahovor + titulky (Paced), Caption ostava len na CAP=1
   const tw = (s: number, d: number) => tween(frame, s, d);
   const pan = tw(PAN_AT, PAN_MS);
 

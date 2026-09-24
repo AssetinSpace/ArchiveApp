@@ -40,10 +40,10 @@ const PHONE_END = {
   h: FOOTAGE_PHONE.h / CAM_END.scale,
 };
 /** Nas pristup v troch krokoch (text vpravo, rovnaky jazyk ako pri footage). */
-const STEPS = [
-  { from: 900, title: 'Označiť', line: 'Každá položka dostane nálepku s QR kódom.' },
-  { from: 4100, title: 'Odfotiť', line: 'Štítok sa odfotí mobilom priamo v sklade.' },
-  { from: 5300, title: 'Zaevidovať', line: 'Fotka ide do aplikácie, položka dostane ID.' },
+const STEPS: { from: number; title: string; line?: string }[] = [
+  { from: 900, title: 'Označiť' },
+  { from: 4100, title: 'Odfotiť' },
+  { from: 6000, title: 'Zaevidovať' },
 ];
 
 export const C5_Teren: React.FC = () => {
@@ -279,7 +279,7 @@ export const C5_Teren: React.FC = () => {
                 {phases.teren}
               </div>
               <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 56, lineHeight: 1.05, color: INK[900], letterSpacing: '-0.02em', marginBottom: 14 }}>{s.title}</div>
-              <div style={{ fontFamily: FONT.body, fontWeight: 400, fontSize: 30, lineHeight: 1.35, color: INK[500] }}>{s.line}</div>
+              {s.line ? <div style={{ fontFamily: FONT.body, fontWeight: 400, fontSize: 30, lineHeight: 1.35, color: INK[500] }}>{s.line}</div> : null}
               <div style={{ display: 'flex', gap: 10, marginTop: 28 }}>
                 {STEPS.map((_, k) => (
                   <div key={k} style={{ width: k <= i ? 34 : 12, height: 12, borderRadius: 6, background: k <= i ? BRAND[500] : INK[200] }} />
@@ -291,7 +291,6 @@ export const C5_Teren: React.FC = () => {
       </div>
 
 
-      {showCap ? <Caption text={captions.C5} t={settle(frame, 5500)} out={tw(6600, 300)} y={SAFE.captionY} /> : null}
     </Scene>
   );
 };

@@ -5,7 +5,7 @@ import { C2_Kancelaria } from './scenes/C2_Kancelaria';
 import { C3_Sklad } from './scenes/C3_Sklad';
 import { C4_Cena } from './scenes/C4_Cena';
 import { C5_Teren } from './scenes/C5_Teren';
-import { F1_Sken } from './scenes/F1_Sken';
+import { F1_SkenPatched } from './scenes/F1_Sken';
 import { C6_Spracovanie } from './scenes/C6_Spracovanie';
 import { F2_Metadata } from './scenes/F2_Metadata';
 import { F3_Vyhladavanie } from './scenes/F3_Vyhladavanie';
@@ -15,23 +15,39 @@ import { C8_Pilot } from './scenes/C8_Pilot';
 import { C9_Outro } from './scenes/C9_Outro';
 import { S04_Pokusy } from './scenes/optional/S04_Pokusy';
 import { S10_Nasadenie } from './scenes/optional/S10_Nasadenie';
+import { Hold, Paced, holdsSeconds } from './components/Paced';
+import { F2_SECONDS } from './scenes/F2_Metadata';
+import { F3_SECONDS } from './scenes/F3_Vyhladavanie';
+import { F4_SECONDS } from './scenes/F4_Kontrola';
 
 export type SceneDef = { component: React.FC; seconds: number; stills: number[] };
+/** Klip s pauzami (holds, ms v case sceny), nahovorom (vo) a titulkami; seconds = dlzka sceny bez pauz. */
+type PacedDef = { scene: React.FC; seconds: number; stills: number[]; holds?: Hold[]; vo?: boolean; dark?: boolean; darkUntil?: number };
+const paced = (id: string, d: PacedDef): [string, SceneDef] => {
+  const Scene = d.scene;
+  const component: React.FC = () =>
+    React.createElement(Paced, { id, holds: d.holds, vo: d.vo, dark: d.dark, darkUntil: d.darkUntil, children: React.createElement(Scene) });
+  return [id, { component, seconds: d.seconds + holdsSeconds(d.holds), stills: d.stills }];
+};
 
-/** Klipy (kolo 3), dlzka v sekundach a frame-y pre stills (zaciatok akcie, stred, koniec). */
+/**
+ * Klipy (kolo 29): dlzka sceny v sekundach + pauzy (Paced), frame-y pre stills (vo vystupnom case).
+ * Pravidlo: text kroku nastupi, obraz sa zastavi (hold), az potom dej; vetu hovori nahovor a titulok.
+ */
 export const SCENE_LIST: [string, SceneDef][] = [
   ['C1-Intro', { component: C1_Intro, seconds: 4, stills: [45, 65, 100] }],
-  ['C2-Hladanie', { component: C2_Hladanie, seconds: 10.5, stills: [80, 160, 240] }],
-  ['C4-Cena', { component: C4_Cena, seconds: 11.1, stills: [100, 180, 285, 325] }],
-  ['C5-Teren', { component: C5_Teren, seconds: 9, stills: [70, 160, 260] }],
-  ['F1-Sken', { component: F1_Sken, seconds: 10.5, stills: [20, 150, 270] }],
-  ['C7-Hierarchia', { component: C7_Hierarchia, seconds: 5, stills: [15, 80, 120] }],
-  ['C6-Spracovanie', { component: C6_Spracovanie, seconds: 3, stills: [20, 45, 85] }],
-  ['F2-Metadata', { component: F2_Metadata, seconds: 7, stills: [20, 90, 180] }],
-  ['F4-Kontrola', { component: F4_Kontrola, seconds: 15.4, stills: [20, 110, 360] }],
-  ['F3-Vyhladavanie', { component: F3_Vyhladavanie, seconds: 10.3, stills: [30, 150, 280] }],
-  ['C8-Pilot', { component: C8_Pilot, seconds: 7, stills: [50, 110, 190] }],
-  ['C9-Outro', { component: C9_Outro, seconds: 4, stills: [40, 100] }],
+  paced('C2-Hladanie', { scene: C2_Hladanie, seconds: 10.5, vo: true, dark: true, holds: [{ at: 3600, hold: 1500 }], stills: [80, 200, 300] }),
+  paced('C4-Cena', { scene: C4_Cena, seconds: 11.1, vo: true, darkUntil: 12200, holds: [{ at: 4300, hold: 3200 }, { at: 6800, hold: 1000 }], stills: [100, 230, 380, 440] }),
+  paced('C5-Teren', { scene: C5_Teren, seconds: 9, vo: true, holds: [{ at: 1400, hold: 800 }, { at: 4600, hold: 800 }, { at: 6300, hold: 800 }], stills: [70, 190, 280] }),
+  paced('F1-Sken', { scene: F1_SkenPatched, // bez zdrojoveho footage: stary render + novy panel (F1_Sken po nahrati f1-sken.mp4)
+ seconds: 10.5, vo: true, holds: [{ at: 3400, hold: 800 }, { at: 5500, hold: 800 }, { at: 7700, hold: 800 }], stills: [20, 170, 330] }),
+  paced('C7-Hierarchia', { scene: C7_Hierarchia, seconds: 5, vo: true, holds: [{ at: 3300, hold: 1200 }, { at: 4300, hold: 2600 }], stills: [15, 120, 230] }),
+  paced('C6-Spracovanie', { scene: C6_Spracovanie, seconds: 3, vo: true, stills: [20, 45, 85] }),
+  paced('F2-Metadata', { scene: F2_Metadata, seconds: F2_SECONDS, vo: true, stills: [10, 100, 240] }),
+  paced('F4-Kontrola', { scene: F4_Kontrola, seconds: F4_SECONDS, vo: true, stills: [10, 150, 400] }),
+  paced('F3-Vyhladavanie', { scene: F3_Vyhladavanie, seconds: F3_SECONDS, vo: true, stills: [10, 170, 340] }),
+  paced('C8-Pilot', { scene: C8_Pilot, seconds: 8, vo: true, holds: [{ at: 2300, hold: 1000 }], stills: [50, 130, 240] }),
+  paced('C9-Outro', { scene: C9_Outro, seconds: 6, vo: true, dark: true, stills: [40, 120] }),
 ];
 
 /** Verzia 1 (dlha): samostatna kancelaria a sklad, nahradene klipom C2-Hladanie. */
