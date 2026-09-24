@@ -1,5 +1,9 @@
 # Voiceover – Assetin Archives (podklad na náhovor alebo titulky)
 
+**Kolo 28: video je bez náhovoru.** Príbeh nesú texty v obraze (C2, C4, C8 a kroky vpravo),
+zvuk bude len hudobný podmaz. Tento súbor ostáva ako podklad, ak by sa náhovor doplnil neskôr
+(napr. pre verziu na prezentáciu).
+
 Tempo ~2,5 slova/s. Časy od začiatku klipu; „→📹“ = koniec animácie nájazdom
 do zariadenia, ďalej footage z aplikácie. Text v obraze (caption) kurzívou –
 náhovor ho neopakuje doslova.

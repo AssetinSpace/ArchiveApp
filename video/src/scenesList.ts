@@ -22,7 +22,7 @@ export type SceneDef = { component: React.FC; seconds: number; stills: number[] 
 export const SCENE_LIST: [string, SceneDef][] = [
   ['C1-Intro', { component: C1_Intro, seconds: 4, stills: [45, 65, 100] }],
   ['C2-Hladanie', { component: C2_Hladanie, seconds: 10.5, stills: [80, 160, 240] }],
-  ['C4-Cena', { component: C4_Cena, seconds: 9, stills: [10, 100, 180, 255] }],
+  ['C4-Cena', { component: C4_Cena, seconds: 11.1, stills: [100, 180, 285, 325] }],
   ['C5-Teren', { component: C5_Teren, seconds: 9, stills: [70, 160, 260] }],
   ['F1-Sken', { component: F1_Sken, seconds: 10.5, stills: [20, 150, 270] }],
   ['C7-Hierarchia', { component: C7_Hierarchia, seconds: 5, stills: [15, 80, 120] }],
@@ -30,7 +30,7 @@ export const SCENE_LIST: [string, SceneDef][] = [
   ['F2-Metadata', { component: F2_Metadata, seconds: 7, stills: [20, 90, 180] }],
   ['F4-Kontrola', { component: F4_Kontrola, seconds: 15.4, stills: [20, 110, 360] }],
   ['F3-Vyhladavanie', { component: F3_Vyhladavanie, seconds: 10.3, stills: [30, 150, 280] }],
-  ['C8-Pilot', { component: C8_Pilot, seconds: 5, stills: [40, 90, 140] }],
+  ['C8-Pilot', { component: C8_Pilot, seconds: 7, stills: [50, 110, 190] }],
   ['C9-Outro', { component: C9_Outro, seconds: 4, stills: [40, 100] }],
 ];
 

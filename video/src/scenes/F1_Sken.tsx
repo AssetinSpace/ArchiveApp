@@ -3,6 +3,7 @@ import { AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame } from 'remot
 import { FOOTAGE_PHONE, PHONE_BEZEL, PhoneFrame } from '../components/Device';
 import { settle, tween } from '../lib/anim';
 import { loadFonts } from '../lib/fonts';
+import { phases } from '../copy/sk';
 import { BRAND, FONT, INK } from '../theme';
 
 /**
@@ -93,7 +94,7 @@ export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[];
           return (
             <div key={i} style={{ position: 'absolute', left: 0, right: 0, opacity: on * inT, transform: `translateY(${(1 - inT) * 16}px)` }}>
               <div style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: 24, letterSpacing: '0.14em', textTransform: 'uppercase', color: BRAND[600], marginBottom: 18 }}>
-                Krok {i + 1} / {steps.length}
+                {phases.teren}
               </div>
               <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 64, lineHeight: 1.05, color: INK[900], letterSpacing: '-0.02em', marginBottom: 18 }}>{s.title}</div>
               <div style={{ fontFamily: FONT.body, fontWeight: 400, fontSize: 34, lineHeight: 1.35, color: INK[500], maxWidth: 640 }}>{s.line}</div>

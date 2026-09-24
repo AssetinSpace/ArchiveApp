@@ -242,3 +242,19 @@ Full 99 s → **95 s**.
 | F3 Vyhľadávanie | Niekde príliš pomalé; zastavovať na rovnaký čas tam, kde to má zmysel. | Rovnaké zastávky ~1,5 s: písanie slova, zoznam výsledkov, detail zložky (freeze 0,8 s), zvýraznená zhoda (freeze 1,5 s), QR kód (1,5 s + freeze 0,8 s); prechody medzi nimi 3×. Klip 10,3 s. |
 
 Full 95 s → **92,8 s**.
+
+## Kolo 28 (24. 9. 2026): texty v obraze
+
+Zadanie: doplniť texty na niektoré klipy. Rozhodnutia: bez hovoreného slova (len hudobný podmaz), kroky vpravo zjednotiť na názvy fáz, C9 len web, na predel niečo nenápadné.
+
+| Klip | Riešenie |
+|---|---|
+| C2 Hľadanie | Titulky zapnuté: „Dokumentáciu k objektom máte.“ (1,1-3,8 s, kancelária), „Len ju nikto nevie nájsť.“ (7,4 s do konca, pri veľkom „?“). Dĺžka bez zmeny. |
+| C4 Cena → predel | „Hľadanie trvá dlhšie než nové vyhotovenie.“ (2,5-4,6 s, pri hodinách a výkrese), „Zaplatené dvakrát za tú istú dokumentáciu.“ pod „2× €€€“ (4,7-7,1 s). Predel posunutý o 1,3 s, značka drží o 0,8 s dlhšie a pod lockupom je tichý popis „Digitálna katalogizácia archívnej dokumentácie“ (sivý, 30 px, bez sloganu). Klip 11,1 s. |
+| C5, F1, C7 | „Krok i / n“ nahradený názvom fázy **V teréne** (body postupu ostávajú). |
+| F2, F4 | Názov fázy **V aplikácii**. C6 si nechal „Z terénu do kancelárie“ (je to prechod medzi fázami). |
+| F3 | Názov fázy **Vyhľadávanie**. |
+| C8 Pilot | Krabica a ikony posunuté doľava, vpravo „Prvý krok / Začneme jednou krabicou. / Nie celým archívom. Výsledok uvidíte na vlastnej dokumentácii.“; pod ikonami popisky Obhliadka skladu · Pilot na jednej krabici · Rozsah a ponuka. Klip 7 s. |
+| C9 Outro | Bez zmeny (len web). |
+
+Full 92,8 s → **96,9 s**. F1-F4 vyrenderované cez `src/patch/` (footage nie je v tomto prostredí): záznam je z renderu kola 27, nový je len panel s krokmi.

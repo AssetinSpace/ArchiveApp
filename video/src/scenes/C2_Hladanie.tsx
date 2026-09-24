@@ -230,7 +230,7 @@ const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
 
 export const C2_Hladanie: React.FC = () => {
   const frame = useCurrentFrame();
-  const showCap = useCaptions();
+  const showCap = useCaptions(true);
   const tw = (s: number, d: number) => tween(frame, s, d);
   const pan = tw(PAN_AT, PAN_MS);
 
@@ -251,7 +251,7 @@ export const C2_Hladanie: React.FC = () => {
       </div>
       {showCap ? (
         <>
-          <Caption text={captions.C2} mode="dark" t={settle(frame, 1500)} out={tw(3500, 300)} y={SAFE.captionY} />
+          <Caption text={captions.C2} mode="dark" t={settle(frame, 1100)} out={tw(3500, 300)} y={SAFE.captionY} />
           <Caption text={captions.C2b} mode="dark" t={settle(frame, 7400)} y={SAFE.captionY} />
         </>
       ) : null}

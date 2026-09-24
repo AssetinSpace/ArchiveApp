@@ -6,7 +6,7 @@ import { ArchiveBox, archiveBoxPxPerCm, QR_SCALE } from '../components/ArchiveBo
 import { FOOTAGE_PHONE, PhoneFrame } from '../components/Device';
 import { Camera } from '../lib/camera';
 import { pop, settle, tween } from '../lib/anim';
-import { captions } from '../copy/sk';
+import { captions, phases } from '../copy/sk';
 import { BRAND, CM, FONT, INK, ISO, SAFE } from '../theme';
 
 /**
@@ -276,7 +276,7 @@ export const C5_Teren: React.FC = () => {
           return (
             <div key={i} style={{ position: 'absolute', left: 0, right: 0, top: 320, opacity: on * inT, transform: `translateY(${(1 - inT) * 16}px)` }}>
               <div style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: 22, letterSpacing: '0.14em', textTransform: 'uppercase', color: BRAND[600], marginBottom: 14 }}>
-                Krok {i + 1} / {STEPS.length}
+                {phases.teren}
               </div>
               <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 56, lineHeight: 1.05, color: INK[900], letterSpacing: '-0.02em', marginBottom: 14 }}>{s.title}</div>
               <div style={{ fontFamily: FONT.body, fontWeight: 400, fontSize: 30, lineHeight: 1.35, color: INK[500] }}>{s.line}</div>

@@ -4,8 +4,8 @@ import { PNG } from 'pngjs';
 import { readFileSync, readdirSync } from 'node:fs';
 
 const dir = 'out/stills';
-// klipy bez caption (intro, outro) sa nekontroluju
-const EXEMPT = ['C1-', 'C9-', 'F1-', 'F2-', 'F3-', 'F4-', 'contact-'];
+// klipy bez caption (intro, outro) sa nekontroluju; C8 ma v pase zamerne popisky pod ikonami (kolo 28)
+const EXEMPT = ['C1-', 'C8-', 'C9-', 'F1-', 'F2-', 'F3-', 'F4-', 'contact-'];
 // tmave klipy s podlahou: hrana podlahy prechadza pasom, tolerancia vyssia
 const FLOOR = ['C2-', 'C3-'];
 let bad = 0;

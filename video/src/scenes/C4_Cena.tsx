@@ -28,11 +28,15 @@ import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
  * 5600-6100 vsetko vybledne, kamera na krabicu · 6300-7000 rozsvietenie ·
  * 6900 znacka, 7050 lockup (drzi 1 s) · 7900 znacka a lockup odchadzaju ·
  * 8100 krabica C5 sa usadi vlavo · 8200 paticka. 9 s.
+ * Kolo 28: texty v obraze (2500 "Hladanie trva...", 4700 "Zaplatene dvakrat..."),
+ * predel posunuty o D, znacka drzi o H dlhsie a pod lockupom je popis. 11,1 s.
  */
+const D = 1300; // posun predelu, aby sa dal precitat text pod "2x"
+const H = 800; // dlhsie drzanie znacky s popisom
 const BOX = 860;
 export const C4_Cena: React.FC = () => {
   const frame = useCurrentFrame();
-  const showCap = useCaptions();
+  const showCap = useCaptions(true);
   const tw = (s: number, d: number) => tween(frame, s, d);
   const bigQ = pop(frame, 1100);
   const clock = settle(frame, 2600);
@@ -44,19 +48,20 @@ export const C4_Cena: React.FC = () => {
   const big = pop(frame, 4400, { damping: 12 });
   const s = TARGET_SHELF;
   // predel problem -> riesenie
-  const out = 1 - tw(5600, 500); // cenovky, hodiny, vykres, "?" vyblednu
-  const light = tw(6300, 700); // cista prelinacka do bielej
-  const mark = settle(frame, 6900); // znacka sa objavi (bez kreslenia) a drzi ~1 s
-  const lockup = settle(frame, 7050);
-  const brandOut = tw(7900, 300);
-  const box = settle(frame, 8100);
-  const footer = tw(8200, 400);
+  const out = 1 - tw(5600 + D, 500); // cenovky, hodiny, vykres, "?" vyblednu
+  const light = tw(6300 + D, 700); // cista prelinacka do bielej
+  const mark = settle(frame, 6900 + D); // znacka sa objavi (bez kreslenia) a drzi ~1 s
+  const lockup = settle(frame, 7050 + D);
+  const desc = settle(frame, 7400 + D); // tichy popis pod lockupom
+  const brandOut = tw(7900 + D + H, 300);
+  const box = settle(frame, 8100 + D + H);
+  const footer = tw(8200 + D + H, 400);
   const CAM_MID = { x: CAM_END.x + 590 / CAM_END.scale, y: CAM_END.y + 70 / CAM_END.scale, scale: 1.5 };
   const boxLeft = C5_BOX_LEFT; // rovnaka poloha ako v C5 (krabica vlavo, vpravo kroky)
   const boxTop = SAFE.illoTop - 40;
   return (
     <Scene mode="dark" footer footerMode="light" footerOpacity={footer}>
-      <Camera keys={[{ ms: 0, ...CAM_END }, { ms: 1700, ...CAM_MID }, { ms: 5600, ...CAM_MID }, { ms: 6700, x: CAM_END.x, y: CAM_END.y, scale: 2.4 }]}>
+      <Camera keys={[{ ms: 0, ...CAM_END }, { ms: 1700, ...CAM_MID }, { ms: 5600 + D, ...CAM_MID }, { ms: 6700 + D, x: CAM_END.x, y: CAM_END.y, scale: 2.4 }]}>
         <svg width={1920} height={1080} viewBox={`${VB.x} ${VB.y} ${1920 / SV} ${1080 / SV}`} style={{ position: 'absolute', left: 0, top: 0 }}>
           <ShelfFrame x={s.x} y={s.y} w={CM.shelf.w} d={CM.shelf.d} levels={2} levelH={CM.shelf.level} topBoard={false}>
             {(lvl) => [0, 1].map((k) => <Carton key={`${lvl}${k}`} x={s.x + 8 + k * 60} y={s.y + 12} z={lvl * CM.shelf.level + 4} />)}
@@ -105,7 +110,12 @@ export const C4_Cena: React.FC = () => {
         <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 200, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.04em' }}>2×</span>
         <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 130, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.02em', marginLeft: 28 }}>€€€</span>
       </div>
-      {showCap ? <Caption text={captions.C4} mode="dark" t={settle(frame, 4800)} out={tw(5400, 300)} y={SAFE.captionY} /> : null}
+      {showCap ? (
+        <>
+          <Caption text={captions.C4a} mode="dark" t={settle(frame, 2500)} out={tw(4300, 300)} y={SAFE.captionY} />
+          <Caption text={captions.C4} mode="dark" t={settle(frame, 4700)} out={tw(5500 + D, 300)} y={SAFE.captionY} />
+        </>
+      ) : null}
 
       {/* prechod do bielej: cista prelinacka (bez svetelneho efektu) */}
       {light > 0 ? <div style={{ position: 'absolute', inset: 0, background: '#fff', opacity: light, pointerEvents: 'none' }} /> : null}
@@ -139,6 +149,10 @@ export const C4_Cena: React.FC = () => {
               </div>
             );
           })()}
+          {/* tichy popis pod lockupom (nie slogan) */}
+          <div style={{ position: 'absolute', left: 0, right: 0, top: 470 + LOCKUP.sepH * 0.6 + 56, textAlign: 'center', fontFamily: FONT.body, fontWeight: 500, fontSize: 30, letterSpacing: '0.01em', color: INK[500], opacity: desc, transform: `translateY(${(1 - desc) * 8}px)` }}>
+            {captions.C4brand}
+          </div>
         </div>
       ) : null}
 

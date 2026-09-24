@@ -9,7 +9,7 @@ import { Camera } from '../lib/camera';
 import { Binder, Carton, IsoBox, QrOnLeftFace, ShelfFrame, iso, pts } from '../lib/iso';
 import { drawProps, pop, settle, tween } from '../lib/anim';
 import { Check } from '../components/Illustrations';
-import { captions } from '../copy/sk';
+import { captions, phases } from '../copy/sk';
 import { BRAND, FONT, INK, ISO, SAFE } from '../theme';
 
 /**
@@ -189,7 +189,7 @@ export const C7_Hierarchia: React.FC = () => {
         </div>
       </Camera>
 
-      <StepsPanel frame={frame} steps={C7_STEPS} left={1400} width={480} opacity={treeOut} />
+      <StepsPanel frame={frame} steps={C7_STEPS} phase={phases.teren} left={1400} width={480} opacity={treeOut} />
       <div style={{ position: 'absolute', inset: 0, opacity: 0 }}>
         <PhoneFrame at={PHONE_AT} rotate={-6}>
           <div style={{ position: 'absolute', inset: 0, background: '#fff' }}>

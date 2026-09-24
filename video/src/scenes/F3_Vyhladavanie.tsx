@@ -1,6 +1,7 @@
 import React from 'react';
 import { Step } from '../components/Steps';
 import { DesktopFootageClip, Mark, Tap } from './F2_Metadata';
+import { phases } from '../copy/sk';
 
 /**
  * F3 - Vyhladavanie (16 s zaznam zostrihany na 10,3 s): rovnake zastavky
@@ -22,4 +23,4 @@ const F3_MARKS: Mark[] = [
   { from: 0.4, to: 2.2, x: 0.108, y: 0.462, w: 0.075, h: 0.05, sweep: 1.3 }, // pisane slovo "vodovod" - jemna fixka zlava
 ];
 /** F3 zacina z bielej (F4 konci fade-om), okno sa objavi. */
-export const F3_Vyhladavanie: React.FC = () => <DesktopFootageClip src="footage/f3-search.mp4" seconds={F3_SECONDS} steps={F3_STEPS} taps={F3_TAPS} marks={F3_MARKS} enter />;
+export const F3_Vyhladavanie: React.FC = () => <DesktopFootageClip src="footage/f3-search.mp4" seconds={F3_SECONDS} steps={F3_STEPS} phase={phases.search} taps={F3_TAPS} marks={F3_MARKS} enter />;

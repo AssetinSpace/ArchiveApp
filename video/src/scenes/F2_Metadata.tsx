@@ -2,6 +2,7 @@ import React from 'react';
 import { AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame } from 'remotion';
 import { FOOTAGE_WINDOW, WindowFrame } from '../components/Device';
 import { Step, StepsPanel } from '../components/Steps';
+import { phases } from '../copy/sk';
 import { settle, tween } from '../lib/anim';
 import { loadFonts } from '../lib/fonts';
 import { BRAND } from '../theme';
@@ -16,7 +17,7 @@ import { BRAND } from '../theme';
 export type Tap = { t: number; x: number; y: number }; // s, podiel sirky/vysky obsahu okna
 export type Mark = { from: number; to: number; x: number; y: number; w: number; h: number; sweep?: number }; // s, podiely obsahu okna; sweep = s, za ktore sa zvyraznenie "nakresli" zlava (ako fixkou)
 
-export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps: Step[]; taps?: Tap[]; marks?: Mark[]; enter?: boolean }> = ({ src, seconds, steps, taps = [], marks = [], enter = false }) => {
+export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps: Step[]; phase?: string; taps?: Tap[]; marks?: Mark[]; enter?: boolean }> = ({ src, seconds, steps, phase = phases.app, taps = [], marks = [], enter = false }) => {
   const frame = useCurrentFrame();
   const ms = (frame / 30) * 1000;
   const tw = (s: number, d: number) => tween(frame, s, d);
@@ -53,7 +54,7 @@ export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps:
           </div>
         </WindowFrame>
       </div>
-      <StepsPanel frame={frame} steps={steps} opacity={textIn} />
+      <StepsPanel frame={frame} steps={steps} phase={phase} opacity={textIn} />
       <AbsoluteFill style={{ background: '#fff', opacity: fadeOut, pointerEvents: 'none' }} />
     </AbsoluteFill>
   );

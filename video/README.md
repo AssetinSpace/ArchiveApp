@@ -22,7 +22,7 @@ npm run stills         # PNG stills všetkých klipov do out/stills/ (3 na klip)
 npm run stills -- C4-Teren              # len vybraný klip
 npm run render         # finálne MP4 všetkých klipov do out/mp4/ (bez textu v obraze; PNG medzisnímky, CRF 16)
                        # klipy F* (footage z aplikácie) potrebujú zdroj v public/footage/ – priečinok nie je v gite,
-                       # originály sú u Samuela; bez nich render F1/Full padne
+                       # originály sú u Samuela; bez nich render F1/Full padne (náhradný postup nižšie v časti Footage)
 CAP=1 npm run render   # verzie s titulkami v obraze do out/mp4/cap/ (titulky sú zatiaľ vypnuté, doriešia sa neskôr)
 node scripts/contact-sheet.mjs   # kontaktný hárok z posledných stills
 npm run render -- C4-Teren C5-Spracovanie
@@ -94,7 +94,14 @@ Väčšia firma potrebuje Company License – pozri LICENSE v balíku `remotion`
 
 `public/footage/` nie je v gite. Potrebné súbory: `f1-sken.mp4` (mobil, 884 × 1920), `f2-metadata.mp4`, `f4-review.mp4` a `f3-search.mp4` (desktop, 1520 × 882, zostrihy z `Extrakce_metadat_-_v1.mp4`, `Review_metadat_-_v2.mp4` a `Vyhladavanie_-_v3.mp4`, orez 1520:882:400:150). Postup zostrihu je vo FEEDBACK.md.
 
+Bez footage (napr. v cloudovom prostredí), keď sa pri F klipoch mení len text krokov vpravo:
+`src/patch/` vyrenderuje klip ako starší render (`old/<ID>.mp4`) a novú verziu klipu iba v páse
+vpravo od zariadenia. Public dir na to: kópia `public/`, `old/<ID>.mp4` = posledný render a
+`footage/*.mp4` = ľubovoľné MP4 s rovnakým menom (v orezanej časti sa nezobrazí).
+`npx remotion render src/patch/index.ts Patch-F3-Vyhladavanie out/mp4/F3-Vyhladavanie.mp4 --public-dir=<dir>`;
+Full sa potom zlepí z klipov (`npx remotion ffmpeg -f concat ...`).
+
 ## Verzie
 
-- **Verzia 2 (aktuálna, 92,8 s)**: C2-Hladanie nahrádza C2-Kancelaria + C3-Sklad.
+- **Verzia 2 (aktuálna, 96,9 s)**: C2-Hladanie nahrádza C2-Kancelaria + C3-Sklad.
 - **Verzia 1 (88,5 s)**: rendre v `out/mp4/v1/` a `out/stills/v1/`; scény ostávajú v `src/scenes/` (`V1_LIST` v `scenesList.ts`, `npm run stills`/`render` ich preskakujú).
