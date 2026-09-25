@@ -9,8 +9,10 @@
 // z huggingface.co/rhasspy/piper-voices), --rate ako length_scale (1.0 = normal, 1.1 = pomalsie).
 // Veta moze mat `say` = text pre hlas (foneticky prepis: "Archives" -> "Arkajvs", "PL_01" -> "pe el nula jedna"),
 // titulok ukazuje `text`. Gemini `say` nedostava, cita cisty `text` (anglictinu a skratky zvlada sam).
-// --engine gemini: Gemini TTS cez scripts/gemini_tts.py (GEMINI_API_KEY v prostredi), hlas --voice "Velvet 1",
-// styl z vo.json `_style` (speech_metadata), --header posle "## Transcript:" pred text (len na kontrolu).
+// --engine gemini: Gemini TTS cez scripts/gemini_tts.py (GEMINI_API_KEY v prostredi alebo z proxy), hlas "Velvet 1"
+// = prompted hlas voice_7ws1j8pd39cu (v ucte je "Velvet 1" viackrat, toto je najnovsi z 25. 9.; nazvom neprejde),
+// styl z vo.json `_style` (speech_metadata). --header posle "## Transcript:" pred text; vypnute, lebo model ho
+// obcas precita nahlas ("Transkript.", kolo 32).
 // Pouzitie: node scripts/vo.mjs [--reuse] [--engine espeak|edge|piper|gemini] [--speed 150] [--voice ...] [--rate -5%]
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -44,7 +46,7 @@ for (const [clip, lines] of Object.entries(vo)) {
     if (!reuse || !existsSync(file)) {
       const say = engine === 'gemini' ? l.text : (l.say ?? l.text);
       if (engine === 'gemini') {
-        const gv = args.includes('--voice') ? voice : 'Velvet 1';
+        const gv = args.includes('--voice') ? voice : 'voice_7ws1j8pd39cu';
         const style = vo._style ? ['--style', vo._style] : [];
         const header = args.includes('--header') ? ['--header'] : [];
         execFileSync('python3', ['scripts/gemini_tts.py', '--text', say, '--out', file + '.raw.wav', '--voice', gv, ...style, ...header], { stdio: ['ignore', 'inherit', 'inherit'] });

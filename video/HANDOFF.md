@@ -40,10 +40,10 @@ stiahnuť cez `Artifact read` s `url` stránky a `path` = id:
 | `src/search2.mp4` | `2c36ba26831c4f1d86ba1b899d94c988` | desktop F3, nový záznam z 25. 9. (19 s) |
 
 Overené v kole 32: assety sa sťahujú cez `Artifact read` s `path` = id (jeden súbor na volanie, nie `paths`),
-po `cut-footage` sedia dĺžky F1 9,8 s, F2 11 s, F3 18 s, F4 20 s.
+po `cut-footage` (kolo 32) majú zostrihy F1 10,8 s, F2 13,6 s, F3 21,9 s, F4 21,8 s; skript hlási, ak nameraná dĺžka nesedí s tabuľkou.
 
 Potom: `node scripts/cut-footage.mjs` (vyrobí `public/footage/f1-sken.mp4`, `f2-metadata.mp4`, `f3-search.mp4`, `f4-review.mp4`),
-`node scripts/vo.mjs --engine piper` (hlas + dĺžky viet), `npm run stills`, `bash scripts/render.sh`.
+`node scripts/vo.mjs --engine gemini --reuse` (hlas + dĺžky viet; `--reuse` vezme vety z `public/vo/lines`, bez neho sa generujú znova), `npm run stills`, `bash scripts/render.sh`.
 Full sa lepí z klipov (C1 potrebuje tichú stopu, inak concat zahodí zvuk):
 
 ```bash
@@ -64,28 +64,23 @@ CA proxy treba pridať do certifi: `cat /root/.ccr/ca-bundle.crt >> $(python3 -c
   (2-3 slová), a to kľúčové slová z vety, ktorá práve znie. Pred dejom pauza (zmrazený obraz).
 - Oslovenie zmiešané, rozprávač uvedie problém a naše riešenie. Musí zaznieť "fotka je dôkaz" a to, že
   každý záznam potvrdí človek. "Assetin" s tvrdým t, "Archives" po anglicky, QR "kjúár".
-- Hlas zatiaľ Piper Lili (Microsoft hlasy pôsobia ako AI). Cieľ: Gemini TTS, hlas "Velvet 1".
+- Hlas: Gemini TTS "Velvet 1" (`voice_7ws1j8pd39cu`) od kola 32, čaká na schválenie; Piper Lili ostáva ako záloha (`--engine piper`).
 - C4: bez domčeka na bielom slide, bez popisu pod lockupom (vetu hovorí náhovor).
 - F3: musí byť vidieť drobček PL_01 / KR_01 / ZL_03, automatické zvýraznenie zhody a QR dole.
-- Poradie klipov: C1 · C2 · C4 · C5 · F1 · C7 · C6 · F2 · F4 · F3 · C8 · C9. Full má 134 s.
+- Poradie klipov: C1 · C2 · C4 · C5 · F1 · C7 · C6 · F2 · F4 · F3 · C8 · C9. Full má 155,5 s (kolo 32, hlas Gemini).
 
-## Rozpracované: hlas cez Gemini TTS
+## Hlas cez Gemini TTS (kolo 32)
 
-1. Kľúč: v cloud session ho do požiadaviek na `generativelanguage.googleapis.com` vkladá proxy prostredia
-   (API credentials), premenná `GEMINI_API_KEY` v env nie je a skript bez nej pošle zástupnú hodnotu.
-   V kole 32 Google uložený kľúč odmietol (`API_KEY_INVALID`), treba ho v nastaveniach prostredia opraviť
-   a spustiť novú session. Kľúč nikdy nedávať do chatu ani do gitu.
-2. Overiť API: `cd video && python3 scripts/gemini_tts.py --list-voices` (vypíše prompted hlasy, id `voice_...`).
-3. Kontrola hlavičky: jednu vetu vygenerovať s `--header` aj bez a porovnať dĺžky; ak s hlavičkou trvá dlhšie,
-   model číta "## Transcript:" nahlas a hlavička ostáva vypnutá (predvolené).
-4. Pri Gemini neposielať fonetické prepisy (`say`), len čistý `text` (Gemini číta angličtinu a skratky sám);
-   hotové v kole 32 (`vo.mjs` pre `gemini` posiela `text`, `say` ostáva pre Piper/edge/espeak).
-5. Model `gemini-3.8-flash-tts` je z exportu AI Studia; hlas "Velvet 1", temperature 0,85, štýl v
-   `speech_metadata` (`vo.json` -> `_style`).
-6. `node scripts/vo.mjs --engine gemini`, potom prepočítať `at` podľa nameraných dĺžok (skript hlási prekryvy),
-   prípadne pauzy v `scenesList.ts` a `after` v `cuts.json`, render, Full, upload na review stránku, commit.
+- Kľúč vkladá proxy prostredia (`generativelanguage.googleapis.com`), `GEMINI_API_KEY` v env byť nemusí. Nikdy ho nedávať do chatu ani do gitu.
+- `python3 scripts/gemini_tts.py --list-voices`: "Velvet 1" je v účte päťkrát, používa sa `voice_7ws1j8pd39cu` (natvrdo vo `vo.mjs`, iný cez `--voice`).
+- Kvóta 10 požiadaviek za minútu na model, skript pri 429 čaká. Celý náhovor (27 viet) trvá asi 4 minúty.
+- Gemini dostáva čistý `text` (bez `say`); výslovnosť QR, PL_01 a pod. rieši anglický pokyn v `_style`. Pri temperature 0,85 sa výsledok medzi pokusmi mení, preto po generovaní každú vetu skontrolovať prepisom (`gemini-3.8-flash`, audio na vstupe) a chybné vety vygenerovať znova (zmazať `public/vo/lines/<klip>-<i>.wav`, `vo.mjs --engine gemini --reuse`).
+- Hlavička "## Transcript:" vypnutá, model ju občas prečíta nahlas.
+- Vety majú asi 0,25 s ticha na začiatku a 0,35 s na konci; medzera medzi vetami aspoň 150 ms (skript hlási prekryvy).
 
 ## Otvorené body
+
+- Schválenie hlasu Gemini a tempa (Full 155,5 s, o 21 s dlhší ako s Piperom); ak je to priveľa, skrátiť pauzy alebo texty.
 
 - Druhá časť mobilného záznamu F1 (Vytvoriť + nahrávanie) chýba, klip končí zmrazenou obrazovkou Skontrolovať jednotku.
 - Nové desktop záznamy sú celoobrazovkové, orez 300:150 odreže titulok "Archív PD" vľavo; pri ďalšom nahrávaní užšie okno alebo 90 % zoom.

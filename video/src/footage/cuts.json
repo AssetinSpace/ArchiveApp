@@ -13,7 +13,7 @@
       {
         "from": 13.0,
         "to": 14.4,
-        "before": 0.8,
+        "before": 1.3,
         "note": "vyber prilohy (13,4 s), potvrdenie sablony (14,0 s)"
       },
       {
@@ -30,8 +30,8 @@
       {
         "from": 17.2,
         "to": 35.8,
-        "speed": 6,
-        "after": 1.0,
+        "speed": 4,
+        "after": 1.6,
         "note": "spracovanie 10 -> 100 % zrychlene"
       }
     ]
@@ -43,7 +43,7 @@
       {
         "from": 2.3,
         "to": 4.2,
-        "before": 0.8,
+        "before": 1.0,
         "note": "pisanie slova vodovod"
       },
       {
@@ -55,7 +55,7 @@
       {
         "from": 6.0,
         "to": 8.3,
-        "after": 3.6,
+        "after": 7.0,
         "note": "vysledok ZL_03 a detail, drobcek PL_01 / KR_01 / ZL_03 (zmrazene, zvyraznenie)"
       },
       {
@@ -80,7 +80,7 @@
         "from": 16.9,
         "to": 19.3,
         "speed": 1.5,
-        "after": 2.6,
+        "after": 2.9,
         "note": "QR kod zlozky"
       }
     ]
@@ -92,8 +92,9 @@
       {
         "from": 0.5,
         "to": 2.5,
-        "before": 0.8,
-        "note": "fotka stitku a prvy navrh (Nazov projektu)"
+        "before": 1.2,
+        "note": "fotka stitku a prvy navrh (Nazov projektu)",
+        "after": 0.9
       },
       {
         "from": 6.3,
@@ -125,7 +126,7 @@
         "from": 64.8,
         "to": 67.5,
         "speed": 1.2,
-        "after": 2.1,
+        "after": 2.6,
         "note": "Odoslat 66,6 s, Odosielanie kontroly"
       }
     ]
@@ -137,7 +138,7 @@
       {
         "from": 0.0,
         "to": 1.9,
-        "before": 1.0,
+        "before": 1.5,
         "note": "KR_01, Vybrat typ jednotky, Dalej (1,7 s)"
       },
       {
@@ -156,7 +157,7 @@
         "from": 10.0,
         "to": 10.45,
         "before": 0.8,
-        "after": 2.2,
+        "after": 2.7,
         "note": "Skontrolovat jednotku (druha cast zaznamu s Vytvorit a nahravanim chyba)"
       }
     ],

@@ -1,158 +1,158 @@
 {
   "_": "Scenar nahovoru (kolo 30, podla dokumentu Scenar nahovoru). at = start vety v ms od zaciatku klipu (vo vystupnom case, po vlozenych pauzach). dur dopise scripts/vo.mjs. `say` = text pre hlas, ak sa lisi od titulku (foneticky prepis). Z tohto suboru sa robi zvuk (public/vo/<klip>.wav) aj titulky (components/Subtitles.tsx).",
-  "_style": "pokojný, vecný firemný rozprávač; stredné tempo; zreteľná výslovnosť; bez emócií navyše",
+  "_style": "pokojný, vecný firemný rozprávač; stredné tempo; zreteľná výslovnosť; bez emócií navyše. Pronunciation: say the abbreviation QR in English, like 'cue are'. Codes like PL_01, KR_01, ZL_03 are read as Slovak letter names plus the plain number, without the underscore and without the leading zero (never say 'nula' or 'pomlčka'): 'pé el jedna, ká er jedna, zet el tri'.",
   "C2-Hladanie": [
     {
       "at": 600,
       "text": "Kedy ste naposledy nevedeli nájsť nejaký dokument? Či už správu, výkres alebo protokol?",
-      "dur": 5560
+      "dur": 7560
     },
     {
-      "at": 7000,
+      "at": 8400,
       "text": "Vy viete, že tam niekde je. V sklade, na polici, v krabici alebo zložke.",
-      "dur": 4660
+      "dur": 6320
     }
   ],
   "C4-Cena": [
     {
       "at": 500,
       "text": "Bez jasného systému trvá hľadanie hodiny.",
-      "dur": 2550
-    },
-    {
-      "at": 3400,
-      "text": "Niekedy je rýchlejšie dať dokumentáciu vyhotoviť nanovo.",
-      "dur": 3160
-    },
-    {
-      "at": 6900,
-      "text": "A tak sa môže stať, že zaplatíte dvakrát za to isté.",
       "dur": 3200
     },
     {
-      "at": 12200,
+      "at": 3900,
+      "text": "Niekedy je rýchlejšie dať dokumentáciu vyhotoviť nanovo.",
+      "dur": 3720
+    },
+    {
+      "at": 7800,
+      "text": "A tak sa môže stať, že zaplatíte dvakrát za to isté.",
+      "dur": 3920
+    },
+    {
+      "at": 14000,
       "text": "Riešením je naše softvérové riešenie Assetin Archives pre digitálnu katalogizáciu fyzicky archivovanej dokumentácie.",
       "say": "Riešením je naše softvérové riešenie Asetyn Árkajvs pre digitálnu katalogizáciu fyzicky archivovanej dokumentácie.",
-      "dur": 7090
+      "dur": 8720
     }
   ],
   "C5-Teren": [
     {
-      "at": 400,
+      "at": 300,
       "text": "Riešenie začína fyzickými dokumentmi.",
-      "dur": 2310
+      "dur": 3000
     },
     {
-      "at": 2900,
+      "at": 3900,
       "text": "Jedinečný QR kód sa prilepí na každú položku",
       "say": "Jedinečný kjúár kód sa prilepí na každú položku",
-      "dur": 2990
+      "dur": 3960
     },
     {
-      "at": 6800,
+      "at": 8050,
       "text": "a mobilom sa odfotí jej identifikačná strana.",
-      "dur": 2910
+      "dur": 3400
     }
   ],
   "F1-Sken": [
     {
       "at": 400,
       "text": "V mobile stačí vybrať typ položky",
-      "dur": 1830
+      "dur": 2720
     },
     {
-      "at": 3200,
+      "at": 3500,
       "text": "a odfotiť identifikačnú stranu.",
-      "dur": 2150
+      "dur": 2680
     },
     {
-      "at": 7000,
+      "at": 7150,
       "text": "Položka tým dostane svoj digitálny záznam.",
-      "dur": 2560
+      "dur": 3320
     }
   ],
   "C7-Hierarchia": [
     {
       "at": 500,
       "text": "Každá položka má presné miesto v hierarchii: polica, krabica, zložka, dokument.",
-      "dur": 5630
+      "dur": 7280
     }
   ],
   "C6-Spracovanie": [
     {
       "at": 300,
       "text": "Fotku ďalej spracuje aplikácia.",
-      "dur": 2140
+      "dur": 2520
     }
   ],
   "F2-Metadata": [
     {
       "at": 2900,
       "text": "Najprv aplikácia rozpozná text na identifikačnej strane,",
-      "dur": 3700
+      "dur": 4120
     },
     {
-      "at": 6900,
+      "at": 7450,
       "text": "potom navrhne metadáta: autora, názov projektu, rok.",
-      "dur": 4020
+      "dur": 5560
     }
   ],
   "F4-Kontrola": [
     {
       "at": 500,
       "text": "Návrh ale nie je finálny záznam.",
-      "dur": 2410
+      "dur": 3360
     },
     {
-      "at": 3200,
+      "at": 4200,
       "text": "Človek každú hodnotu overí a potvrdí. Fotka je dôkaz a ostáva pri zázname.",
-      "dur": 4750
+      "dur": 6960
     },
     {
-      "at": 10600,
+      "at": 11800,
       "text": "Prípadné opravy a doplnenia prebiehajú priamo v návrhu.",
-      "dur": 3440
+      "dur": 4080
     },
     {
-      "at": 15900,
+      "at": 16200,
       "text": "Tým vznikne overený a dohľadateľný záznam fyzického dokumentu.",
-      "dur": 3870
+      "dur": 5000
     }
   ],
   "F3-Vyhladavanie": [
     {
       "at": 900,
       "text": "Stačí zadať kľúčové slovo.",
-      "dur": 1790
+      "dur": 2360
     },
     {
-      "at": 3500,
+      "at": 3600,
       "text": "Aplikácia záznam nájde a zobrazí jeho podrobnosti.",
-      "dur": 3360
+      "dur": 4040
     },
     {
-      "at": 7200,
+      "at": 7900,
       "text": "Označenie PL_01, KR_01, ZL_03 vás dovedie na policu.",
       "say": "Označenie pé el jedna, ká er jedna, zet el tri vás dovedie na policu.",
-      "dur": 4580
+      "dur": 6720
     },
     {
-      "at": 14000,
+      "at": 17600,
       "text": "QR kód overí obsah bez otvárania.",
       "say": "Kjúár kód overí obsah bez otvárania.",
-      "dur": 2420
+      "dur": 3280
     }
   ],
   "C8-Pilot": [
     {
       "at": 600,
       "text": "Nezačíname celým archívom.",
-      "dur": 1610
+      "dur": 2600
     },
     {
-      "at": 3300,
+      "at": 3400,
       "text": "Obhliadka skladu, pilot na jednej krabici, a až potom rozsah a ponuka.",
-      "dur": 4290
+      "dur": 5720
     }
   ],
   "C9-Outro": [
@@ -160,7 +160,7 @@
       "at": 700,
       "text": "Assetin Archives. Zistíte, čo máte v archíve a kde presne to leží.",
       "say": "Asetyn Árkajvs. Zistíte, čo máte v archíve a kde presne to leží.",
-      "dur": 4460
+      "dur": 6080
     }
   ]
 }

@@ -42,8 +42,8 @@ const PHONE_END = {
 /** Nas pristup v troch krokoch (text vpravo, rovnaky jazyk ako pri footage). */
 const STEPS: { from: number; title: string; line?: string }[] = [
   { from: 900, title: 'Fyzické dokumenty' },
-  { from: 1200, title: 'Prilepiť QR kód' },
-  { from: 4100, title: 'Odfotiť identifikačnú stranu' },
+  { from: 1450, title: 'Prilepiť QR kód' }, // kolo 32: po pauze na prvu vetu (hold 1400)
+  { from: 4350, title: 'Odfotiť identifikačnú stranu' }, // kolo 32: pred pauzou (hold 4750, po dopade poslednej nalepky), aby bol na zmrazenom obraze cely
 ];
 
 export const C5_Teren: React.FC = () => {

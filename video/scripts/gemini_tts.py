@@ -7,15 +7,17 @@ Pouzitie:
 
 Hlas sa zadava nazvom (prebuilt / display_name). Ak API hlasi, ze hlas neexistuje, skript vypise
 prompted hlasy uctu (client.voices.list(type_=["prompted"])) a pouzije id toho, ktoreho display_name
-sedi s --voice. Styl ide do speech_metadata (Part), nie do textu. --header prida "## Transcript:"
-pred text (len na prvu kontrolu, ci ho model necita nahlas; predvolene sa neposiela).
+sedi s --voice. Styl ide do speech_metadata (Part), nie do textu. --header prida "## Transcript:" (vo.mjs ho posiela, model ho necita)
+pred text ako export AI Studia. --voice moze byt aj priamo id voice_...
 Kluc: GEMINI_API_KEY v prostredi. V cloud session ho vklada proxy prostredia (generativelanguage.googleapis.com),
 vtedy staci lubovolna hodnota premennej; bez nej skript posle zastupnu hodnotu.
 """
 import argparse
 import os
+import re
 import struct
 import sys
+import time
 
 from google import genai
 from google.genai import types
@@ -55,7 +57,9 @@ def list_prompted(client):
 
 
 def resolve_voice(client, name: str):
-    """Vrati VoiceConfig: najprv prebuilt podla nazvu, po chybe id prompted hlasu podla display_name."""
+    """Vrati VoiceConfig: id prompted hlasu (voice_...) priamo, inak prebuilt podla nazvu (po chybe id podla display_name)."""
+    if name.startswith("voice_"):
+        return types.VoiceConfig(voice=name)
     return types.VoiceConfig(prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=name))
 
 
@@ -80,6 +84,7 @@ def synth(client, text: str, voice_cfg, style: str | None, header: bool) -> tupl
         temperature=0.85,
         response_modalities=["audio"],
         speech_config=types.SpeechConfig(voice_config=voice_cfg),
+        automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
     )
     audio = bytearray()
     mime = ""
@@ -119,7 +124,17 @@ def main():
     if not a.text or not a.out:
         raise SystemExit("--text a --out su povinne")
     try:
-        audio, mime = synth(client, a.text, resolve_voice(client, a.voice), a.style, a.header)
+        for attempt in range(6):  # kvota 10 poziadaviek/min na model: pri 429 pockat podla retryDelay
+            try:
+                audio, mime = synth(client, a.text, resolve_voice(client, a.voice), a.style, a.header)
+                break
+            except Exception as e:
+                if "RESOURCE_EXHAUSTED" not in str(e) or attempt == 5:
+                    raise
+                m = re.search(r"retry in ([\d.]+)s", str(e))
+                wait = float(m.group(1)) + 2 if m else 20
+                print(f"Kvota (429), cakam {wait:.0f} s.", file=sys.stderr)
+                time.sleep(wait)
     except Exception as e:  # hlas nazvom neexistuje -> id prompted hlasu
         msg = str(e)
         if "API_KEY_INVALID" in msg:

@@ -31,22 +31,22 @@ const paced = (id: string, d: PacedDef): [string, SceneDef] => {
 };
 
 /**
- * Klipy (kolo 29): dlzka sceny v sekundach + pauzy (Paced), frame-y pre stills (vo vystupnom case).
+ * Klipy (kolo 29, pauzy kolo 32 podla hlasu Gemini): dlzka sceny v sekundach + pauzy (Paced), frame-y pre stills (vo vystupnom case).
  * Pravidlo: text kroku nastupi, obraz sa zastavi (hold), az potom dej; vetu hovori nahovor a titulok.
  */
 export const SCENE_LIST: [string, SceneDef][] = [
   ['C1-Intro', { component: C1_Intro, seconds: 4, stills: [45, 65, 100] }],
-  paced('C2-Hladanie', { scene: C2_Hladanie, seconds: 10.5, vo: true, dark: true, holds: [{ at: 3600, hold: 2800 }], stills: [80, 240, 370] }),
-  paced('C4-Cena', { scene: C4_Cena, seconds: 16.9, skip: 800, vo: true, darkUntil: 11600, holds: [{ at: 4300, hold: 3400 }, { at: 6800, hold: 1000 }], stills: [60, 220, 400, 560] }),
-  paced('C5-Teren', { scene: C5_Teren, seconds: 9, vo: true, holds: [{ at: 1400, hold: 800 }, { at: 4600, hold: 800 }, { at: 6300, hold: 800 }], stills: [70, 190, 280] }),
-  paced('F1-Sken', { scene: F1_Sken, seconds: F1_SECONDS, vo: true, subtitleLeft: 900, stills: [20, 170, 330] }),
-  paced('C7-Hierarchia', { scene: C7_Hierarchia, seconds: 5, vo: true, holds: [{ at: 3300, hold: 1200 }, { at: 4300, hold: 1400 }], stills: [15, 110, 200] }),
+  paced('C2-Hladanie', { scene: C2_Hladanie, seconds: 10.5, vo: true, dark: true, holds: [{ at: 1700, hold: 2700 }, { at: 3600, hold: 1900 }], stills: [80, 170, 300, 420] }),
+  paced('C4-Cena', { scene: C4_Cena, seconds: 16.9, skip: 800, vo: true, darkUntil: 13500, holds: [{ at: 1700, hold: 1200 }, { at: 2150, hold: 2600 }, { at: 3500, hold: 2500 }, { at: 8000, hold: 2900 }], stills: [100, 190, 310, 480, 720] }),
+  paced('C5-Teren', { scene: C5_Teren, seconds: 9, vo: true, holds: [{ at: 1400, hold: 2600 }, { at: 4750, hold: 1700 }], stills: [70, 190, 270, 300] }),
+  paced('F1-Sken', { scene: F1_Sken, seconds: F1_SECONDS, vo: true, subtitleLeft: 900, stills: [20, 170, 310] }),
+  paced('C7-Hierarchia', { scene: C7_Hierarchia, seconds: 5, vo: true, holds: [{ at: 2050, hold: 1900 }, { at: 3300, hold: 1200 }, { at: 4300, hold: 500 }], stills: [15, 125, 200] }),
   paced('C6-Spracovanie', { scene: C6_Spracovanie, seconds: 3, vo: true, stills: [20, 45, 85] }),
   paced('F2-Metadata', { scene: F2_Metadata, seconds: F2_SECONDS, vo: true, stills: [10, 100, 240] }),
   paced('F4-Kontrola', { scene: F4_Kontrola, seconds: F4_SECONDS, vo: true, stills: [10, 150, 400] }),
   paced('F3-Vyhladavanie', { scene: F3_Vyhladavanie, seconds: F3_SECONDS, vo: true, stills: [10, 170, 340] }),
-  paced('C8-Pilot', { scene: C8_Pilot, seconds: 8, vo: true, holds: [{ at: 2300, hold: 1000 }], stills: [50, 130, 240] }),
-  paced('C9-Outro', { scene: C9_Outro, seconds: 6, vo: true, dark: true, stills: [40, 120] }),
+  paced('C8-Pilot', { scene: C8_Pilot, seconds: 8, vo: true, holds: [{ at: 2300, hold: 1300 }, { at: 3500, hold: 300 }, { at: 4700, hold: 600 }], stills: [50, 160, 290] }),
+  paced('C9-Outro', { scene: C9_Outro, seconds: 7.3, vo: true, dark: true, stills: [40, 150] }),
 ];
 
 /** Verzia 1 (dlha): samostatna kancelaria a sklad, nahradene klipom C2-Hladanie. */

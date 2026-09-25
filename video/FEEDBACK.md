@@ -314,12 +314,28 @@ Technika: `scripts/vo.mjs --engine piper` (model sk_SK-lili-medium z huggingface
 | F3 | Nový footage (search2.mp4, 19 s): drobček ľudsky čitateľnej cesty, automatické zvýraznenie kľúčového slova, dole QR kód. | Nový zostrih (orez 300:150, iný layout): písanie 1x, výsledok ZL_03 s detailom, zmrazený obraz 3,6 s na drobčeku PL_01 / KR_01 / ZL_03 so zvýraznením fixkou, scroll 3x, automaticky zvýraznená zhoda drží 1,5 s, QR kód 1,6 s + 2,6 s. Veta „Označenie PL_01, KR_01, ZL_03 vás dovedie na policu.“ (hlas „pé el jedna, ká er jedna, zet el tri“). Kroky: Kľúčové slovo · Záznam a podrobnosti · QR kód overí obsah. 18 s. |
 | F4 | Nový prehľadnejší footage (review2.mp4, 70 s). | Nový zostrih (orez 300:150): fotka a prvý návrh, priblíženie fotky (6,3-9,5 s, „overí podľa fotky“), fixka na správnej hodnote a prijatie (12,45 s), montáž 12x, oprava Číslo zmeny 1 -> 2 (ceruzka 43,6 s, Prijať úpravu 49,2 s, 1,6x), Odoslať (66,6 s) a „Odosielanie kontroly“. Kliky premerané po 0,1 s. Kroky: Návrh metadát · Overiť a potvrdiť · Opraviť a odoslať. 20 s. |
 
-## Kolo 32 (25. 9. 2026): hlas cez Gemini TTS (zablokované kľúčom)
+## Kolo 32 (25. 9. 2026): hlas cez Gemini TTS
 
-| Krok | Zadanie | Stav |
-|---|---|---|
-| Prostredie | npm ci, pip, Piper model, zdrojové záznamy z review stránky, `cut-footage`. | Hotové. Štyri assety stiahnuté (review2-30.mp4 uložený ako review2.mp4), klipy F1 9,8 s, F2 11 s, F3 18 s, F4 20 s ako v kole 31. |
-| API | `GEMINI_API_KEY` v prostredí, `--list-voices`, hlas "Velvet 1". | Zablokované. Premenná v env nie je, kľúč vkladá proxy prostredia, ale Google ho odmieta (`API_KEY_INVALID`, 400) pri zozname hlasov aj pri syntéze. Treba opraviť kľúč v nastaveniach prostredia (API credentials) a spustiť novú session. `gemini_tts.py` teraz pri zlom kľúči skončí zrozumiteľnou hláškou a bez premennej pošle zástupnú hodnotu (kľúč doplní proxy). |
-| Hlavička | Porovnať vetu s `--header` a bez. | Čaká na kľúč. |
-| Fonetika | Pri Gemini neposielať `say`, len `text`. | Hotové vo `vo.mjs`; `say` ostáva pre Piper, edge a espeak. Štýl v `speech_metadata`, temperature 0,85, model `gemini-3.8-flash-tts` bez zmeny. |
-| Render | `vo.mjs --engine gemini`, prepočet `at`, pauzy, render, Full, review stránka. | Čaká na kľúč; review stránka a Full ostávajú z kola 31 (Piper Lili, 134 s). |
+Zadanie: nahradiť Piper Lili hlasom Gemini TTS "Velvet 1" (model `gemini-3.8-flash-tts`, temperature 0,85, štýl v `speech_metadata`), Gemini dostáva čistý text bez fonetických prepisov, prečasovať klipy podľa nameraných dĺžok.
+
+| Téma | Riešenie |
+|---|---|
+| Kľúč | V env nie je, vkladá ho proxy prostredia. Prvý pokus: `API_KEY_INVALID`, po oprave kľúča v nastaveniach prostredia funguje. `gemini_tts.py` bez premennej pošle zástupnú hodnotu, pri zlom kľúči skončí jednou vetou, pri kvóte (10 požiadaviek/min na model, 429) počká podľa `retryDelay`. |
+| Hlas | "Velvet 1" názvom neprejde (nie je prebuilt) a v účte je päťkrát ako prompted hlas. Použitý najnovší `voice_7ws1j8pd39cu` (11:10, popis "velvety mid-low female register, seasoned documentary narrator, Slovak accent"); `gemini_tts.py` berie aj priamo id `voice_...`. |
+| Hlavička | S "## Transcript:" a bez: rovnaká dĺžka vety (3,20 / 3,24 s), ale pri plnom behu model v jednej vete (C5) prečítal "Transkript." nahlas. Hlavička ostáva vypnutá (`--header` len ručne). |
+| Čistý text | `vo.mjs` pre `gemini` posiela `text`, `say` ostáva pre Piper/edge/espeak. Pri čistom texte Gemini čítal QR ako "kvé er" a PL_01 ako "pé el pomlčka nula jedna". Oprava bez zásahu do textu: pokyn pre výslovnosť po anglicky v `_style` (QR "cue are", kódy ako písmená + číslo bez núl a podčiarkovníka). Slovenský pokyn nezabral. |
+| Kontrola | Každú vetu prepísal `gemini-3.8-flash` foneticky a skript skontroloval: žiadny "Transkript", QR ako kjúár, PL_01 bez "nula"/"pomlčka", zhoda slov s textom. Chybné vety (F3 veta 3 a 4) sa generovali znova, kým neprešli (3 pokusy). Výsledok: "Asetin Archajvs", "kjú ár kód", "pé el jedna, ká er jedna, zet el tri". |
+| Tempo | Gemini je o 30-40 % pomalší ako Piper (spolu +21 s reči). Full 134 -> 155,5 s. |
+| C2 15,1 s | Pauza 2,7 s pred vyhadzovaním vecí (veci letia s "Či už správu, výkres alebo protokol?"), 1,9 s pri "?"; otázka dobehne pred prestrihom (8,3 s), druhá veta od 8,4 s. |
+| C4 25,3 s | Pauzy: 1,2 s pred hodinami (hodiny so slovom "hodiny"), 2,6 s pred šípkou (výkres s "vyhotoviť nanovo"), 2,5 s pred "2×" (teraz naozaj so slovami "zaplatíte dvakrát"; v kole 31 nastupovalo už pri druhej vete), 2,9 s na značke (veta Riešením... 14,0-22,7 s). Stará pauza pri rozsvietení vypadla. |
+| C5 13,3 s | Pauza 2,6 s na "Fyzické dokumenty" (krok Prilepiť QR kód od 1450 ms scény), krok Odfotiť od 4350 ms, pauza 1,7 s po dopade poslednej nálepky (4750), blesk na slove "odfotí". Krok nesmie začínať presne na snímke pauzy, inak je počas nej panel prázdny (opravené). |
+| C7 8,7 s | Pauza 1,9 s pred policou (polica so slovom "polica"), 1,2 s na zvýraznenej vetve, 0,5 s pred vyblednutím. |
+| C8 10,3 s | Ikony so slovami: obhliadka skladu 3,7 s, pilot 5,2 s, rozsah a ponuka 7,0 s. |
+| C9 7,3 s | Predĺžený, aby dobehla veta. |
+| F1 10,8 s | Úvod 1,5 s, na konci drží 2,7 s. |
+| F2 13,6 s | Pauza pri výbere prílohy 1,3 s, spracovanie zrýchlené 4× (predtým 6×), drží 1,6 s. |
+| F3 21,9 s | Drobček PL_01 / KR_01 / ZL_03 drží 7 s (hlas číta kódy 7,9-12,8 s), QR kód od 17,4 s, drží 2,9 s. |
+| F4 21,8 s | Úvod 1,2 + 0,9 s na "Návrh ale nie je finálny záznam", Odoslať počas "Tým vznikne overený..." (18,4 s), drží 2,6 s. |
+| Chyba zostrihu | `cut-footage.mjs`: `tpad` za `setpts` pri ffmpeg 7 zmrazené obrazy (`before`/`after`) ticho vynechal, zostrihy boli kratšie (F1 5,2 s namiesto 10,8 s; týkalo sa to zrejme aj kola 31). Oprava: `fps=30` pred `tpad`, skript meria skutočnú dĺžku a hlási odchýlku nad 0,3 s. |
+
+Review stránka: nové klipy C2-C9, F1-F4 a Full (hlas Gemini, 155,5 s).
