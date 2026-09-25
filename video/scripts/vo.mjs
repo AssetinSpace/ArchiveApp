@@ -2,14 +2,21 @@
 // na svojich casoch) a do vo.json dopise namerane trvanie viet (dur, ms) pre titulky.
 // Hlas: espeak-ng (sk) = docasny robot na doladenie tempa. Kvalitny hlas sa dosadi tak,
 // ze sa vety vygeneruju inde do public/vo/lines/<klip>-<i>.wav a spusti sa `--reuse`.
-// Pouzitie: node scripts/vo.mjs [--reuse] [--speed 150]
+// Kvalitny hlas zadarmo: --engine edge (Microsoft neural sk-SK-LukasNeural cez pip edge-tts; potrebuje
+// v sieti prostredia povoleny host speech.platform.bing.com), --voice sk-SK-ViktoriaNeural pre zensky hlas,
+// --rate -10% pre pomalsie tempo.
+// Pouzitie: node scripts/vo.mjs [--reuse] [--engine espeak|edge] [--speed 150] [--voice ...] [--rate -5%]
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 const FF = process.env.FFMPEG ?? execFileSync('python3', ['-c', 'import imageio_ffmpeg as f; print(f.get_ffmpeg_exe())']).toString().trim();
 const args = process.argv.slice(2);
 const reuse = args.includes('--reuse');
-const speed = args.includes('--speed') ? args[args.indexOf('--speed') + 1] : '150';
+const opt = (k, d) => (args.includes(k) ? args[args.indexOf(k) + 1] : d);
+const speed = opt('--speed', '150');
+const engine = opt('--engine', 'espeak');
+const voice = opt('--voice', 'sk-SK-LukasNeural');
+const rate = opt('--rate', '-5%');
 const vo = JSON.parse(readFileSync('src/copy/vo.json', 'utf8'));
 mkdirSync('public/vo/lines', { recursive: true });
 
@@ -29,7 +36,13 @@ for (const [clip, lines] of Object.entries(vo)) {
   lines.forEach((l, i) => {
     const file = `public/vo/lines/${clip}-${i}.wav`;
     if (!reuse || !existsSync(file)) {
-      execFileSync('espeak-ng', ['-v', 'sk', '-s', speed, '-p', '40', '-a', '170', '-w', file, l.text]);
+      if (engine === 'edge') {
+        // edge-tts pise mp3; prevod na wav, aby mal mix rovnaky format. CA proxy: SSL_CERT_FILE.
+        execFileSync('edge-tts', ['--voice', voice, '--rate', rate, '--text', l.text, '--write-media', file + '.mp3'], { env: { ...process.env, SSL_CERT_FILE: process.env.SSL_CERT_FILE ?? '/root/.ccr/ca-bundle.crt' } });
+        execFileSync(FF, ['-v', 'error', '-y', '-i', file + '.mp3', '-ar', '48000', '-ac', '1', file]);
+      } else {
+        execFileSync('espeak-ng', ['-v', 'sk', '-s', speed, '-p', '40', '-a', '170', '-w', file, l.text]);
+      }
     }
     l.dur = duration(file);
     inputs.push('-i', file);

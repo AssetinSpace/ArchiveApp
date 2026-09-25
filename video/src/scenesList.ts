@@ -5,7 +5,7 @@ import { C2_Kancelaria } from './scenes/C2_Kancelaria';
 import { C3_Sklad } from './scenes/C3_Sklad';
 import { C4_Cena } from './scenes/C4_Cena';
 import { C5_Teren } from './scenes/C5_Teren';
-import { F1_SkenPatched } from './scenes/F1_Sken';
+import { F1_SECONDS, F1_Sken } from './scenes/F1_Sken';
 import { C6_Spracovanie } from './scenes/C6_Spracovanie';
 import { F2_Metadata } from './scenes/F2_Metadata';
 import { F3_Vyhladavanie } from './scenes/F3_Vyhladavanie';
@@ -22,11 +22,11 @@ import { F4_SECONDS } from './scenes/F4_Kontrola';
 
 export type SceneDef = { component: React.FC; seconds: number; stills: number[] };
 /** Klip s pauzami (holds, ms v case sceny), nahovorom (vo) a titulkami; seconds = dlzka sceny bez pauz. */
-type PacedDef = { scene: React.FC; seconds: number; stills: number[]; holds?: Hold[]; vo?: boolean; dark?: boolean; darkUntil?: number };
+type PacedDef = { scene: React.FC; seconds: number; stills: number[]; holds?: Hold[]; vo?: boolean; dark?: boolean; darkUntil?: number; subtitleLeft?: number };
 const paced = (id: string, d: PacedDef): [string, SceneDef] => {
   const Scene = d.scene;
   const component: React.FC = () =>
-    React.createElement(Paced, { id, holds: d.holds, vo: d.vo, dark: d.dark, darkUntil: d.darkUntil, children: React.createElement(Scene) });
+    React.createElement(Paced, { id, holds: d.holds, vo: d.vo, dark: d.dark, darkUntil: d.darkUntil, subtitleLeft: d.subtitleLeft, children: React.createElement(Scene) });
   return [id, { component, seconds: d.seconds + holdsSeconds(d.holds), stills: d.stills }];
 };
 
@@ -39,8 +39,7 @@ export const SCENE_LIST: [string, SceneDef][] = [
   paced('C2-Hladanie', { scene: C2_Hladanie, seconds: 10.5, vo: true, dark: true, holds: [{ at: 3600, hold: 1500 }], stills: [80, 200, 300] }),
   paced('C4-Cena', { scene: C4_Cena, seconds: 11.1, vo: true, darkUntil: 12200, holds: [{ at: 4300, hold: 3200 }, { at: 6800, hold: 1000 }], stills: [100, 230, 380, 440] }),
   paced('C5-Teren', { scene: C5_Teren, seconds: 9, vo: true, holds: [{ at: 1400, hold: 800 }, { at: 4600, hold: 800 }, { at: 6300, hold: 800 }], stills: [70, 190, 280] }),
-  paced('F1-Sken', { scene: F1_SkenPatched, // bez zdrojoveho footage: stary render + novy panel (F1_Sken po nahrati f1-sken.mp4)
- seconds: 10.5, vo: true, holds: [{ at: 3400, hold: 800 }, { at: 5500, hold: 800 }, { at: 7700, hold: 800 }], stills: [20, 170, 330] }),
+  paced('F1-Sken', { scene: F1_Sken, seconds: F1_SECONDS, vo: true, subtitleLeft: 900, stills: [20, 170, 330] }),
   paced('C7-Hierarchia', { scene: C7_Hierarchia, seconds: 5, vo: true, holds: [{ at: 3300, hold: 1200 }, { at: 4300, hold: 2600 }], stills: [15, 120, 230] }),
   paced('C6-Spracovanie', { scene: C6_Spracovanie, seconds: 3, vo: true, stills: [20, 45, 85] }),
   paced('F2-Metadata', { scene: F2_Metadata, seconds: F2_SECONDS, vo: true, stills: [10, 100, 240] }),

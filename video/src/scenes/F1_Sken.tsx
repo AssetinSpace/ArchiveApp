@@ -4,6 +4,7 @@ import { FOOTAGE_PHONE, PHONE_BEZEL, PhoneFrame } from '../components/Device';
 import { settle, tween } from '../lib/anim';
 import { loadFonts } from '../lib/fonts';
 import { phases } from '../copy/sk';
+import { cutDuration, cutTime, segStart } from '../lib/cuts';
 import { BRAND, FONT, INK } from '../theme';
 
 /**
@@ -15,7 +16,7 @@ import { BRAND, FONT, INK } from '../theme';
  * Zdroj: public/footage/f1-sken.mp4 (priecinok nie je v gite).
  */
 export const F1_SRC = 'footage/f1-sken.mp4';
-export const F1_SECONDS = 10.5; // drz v sulade so scenesList.ts (kazdy krok ~2 s: KR_01 1,5 s, typ 2 s, QR 2,1 s, foto 2,2 s, kontrola 2 s, nahravanie 0,7 s)
+export const F1_SECONDS = cutDuration('f1-sken'); // zostrih podla src/footage/cuts.json (kolo 29: pauza pred kazdym krokom, fotenie ~1x)
 const SRC_W = 884,
   SRC_H = 1920;
 
@@ -23,19 +24,18 @@ export type Tap = { t: number; x: number; y: number }; // s, podiel sirky/vysky 
 export type Step = { from: number; title: string; line?: string }; // s
 
 const F1_TAPS: Tap[] = [
-  { t: 3.4, x: 0.94, y: 0.79 }, // Dalej
-  { t: 5.2, x: 0.5, y: 0.36 }, // Skenovat QR z prilohy
-  { t: 5.55, x: 0.94, y: 0.79 }, // Dalej
-  { t: 6.27, x: 0.5, y: 0.32 }, // Odfotit/nahrat fotografiu
-  { t: 7.37, x: 0.5, y: 0.85 }, // spust
-  { t: 7.79, x: 0.9, y: 0.92 }, // Use Photo
-  { t: 9.39, x: 0.9, y: 0.79 }, // Vytvorit
+  { t: cutTime('f1-sken', 1.2), x: 0.94, y: 0.79 }, // Dalej
+  { t: cutTime('f1-sken', 4.2), x: 0.5, y: 0.36 }, // Skenovat QR z prilohy
+  { t: cutTime('f1-sken', 4.4), x: 0.94, y: 0.79 }, // Dalej
+  { t: cutTime('f1-sken', 6.2), x: 0.5, y: 0.32 }, // Odfotit/nahrat fotografiu
+  { t: cutTime('f1-sken', 8.7), x: 0.5, y: 0.85 }, // spust
+  { t: cutTime('f1-sken', 9.7), x: 0.9, y: 0.92 }, // Use Photo
 ];
 const F1_STEPS: Step[] = [
   { from: 0, title: 'Pridať zložku' },
-  { from: 3.45, title: 'Naskenovať QR' },
-  { from: 5.57, title: 'Odfotiť štítok' },
-  { from: 7.79, title: 'Uložiť' },
+  { from: segStart('f1-sken', 1), title: 'Naskenovať QR' },
+  { from: segStart('f1-sken', 2), title: 'Odfotiť štítok' },
+  { from: segStart('f1-sken', 5), title: 'Uložiť' },
 ];
 
 const PHONE = FOOTAGE_PHONE;

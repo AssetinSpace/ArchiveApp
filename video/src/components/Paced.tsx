@@ -29,7 +29,7 @@ export const sceneFrame = (outFrame: number, holds: Hold[] = []) => {
  * Obal klipu: pauzy (Freeze), nahovor (public/vo/<id>.wav) a titulky.
  * Prop voice: false vypne zvuk, subtitles: false titulky.
  */
-export const Paced: React.FC<{ id: string; holds?: Hold[]; vo?: boolean; dark?: boolean; darkUntil?: number; children: React.ReactNode }> = ({ id, holds = [], vo = false, dark, darkUntil, children }) => {
+export const Paced: React.FC<{ id: string; holds?: Hold[]; vo?: boolean; dark?: boolean; darkUntil?: number; subtitleLeft?: number; children: React.ReactNode }> = ({ id, holds = [], vo = false, dark, darkUntil, subtitleLeft, children }) => {
   const frame = useCurrentFrame();
   const p = getInputProps() as { voice?: boolean; subtitles?: boolean };
   const inner = holds.length ? <Freeze frame={sceneFrame(frame, holds)}>{children}</Freeze> : <>{children}</>;
@@ -37,7 +37,7 @@ export const Paced: React.FC<{ id: string; holds?: Hold[]; vo?: boolean; dark?: 
     <>
       {inner}
       {vo && p.voice !== false ? <Audio src={staticFile(`vo/${id}.wav`)} /> : null}
-      {vo && p.subtitles !== false ? <Subtitles clip={id} dark={dark} darkUntil={darkUntil} /> : null}
+      {vo && p.subtitles !== false ? <Subtitles clip={id} dark={dark} darkUntil={darkUntil} left={subtitleLeft} /> : null}
     </>
   );
 };

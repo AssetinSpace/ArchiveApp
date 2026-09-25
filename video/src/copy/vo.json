@@ -53,17 +53,17 @@
   ],
   "F1-Sken": [
     {
-      "at": 4300,
+      "at": 3200,
       "text": "Naskenujete kód,",
       "dur": 1200
     },
     {
-      "at": 7200,
+      "at": 5600,
       "text": "odfotíte štítok",
       "dur": 1580
     },
     {
-      "at": 10200,
+      "at": 11000,
       "text": "a zložka má svoje ID.",
       "dur": 1800
     }

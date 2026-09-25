@@ -102,9 +102,10 @@ Väčšia firma potrebuje Company License – pozri LICENSE v balíku `remotion`
 
 Zostrih desktop klipov (F2, F3, F4) je v `src/footage/cuts.json` a robí sa z originálov
 `public/footage/src/{extrakce,review,vyhladavanie}.mp4` (mimo gitu): `node scripts/cut-footage.mjs`.
-Mobilné footage F1 (`f1-sken.mp4`) v tomto prostredí nie je; klip beží ako `F1_SkenPatched`
-(starší render `public/footage/f1-old.mp4` = out/mp4/F1-Sken.mp4 a nanovo kreslený panel vpravo).
-Po nahratí `f1-sken.mp4` prepnúť v `scenesList.ts` späť na `F1_Sken`.
+Mobilné footage F1 sa strihá rovnako z originálu `public/footage/src/sken-1.mov` (HEVC 1206 x 2622, 60 fps,
+prvá časť záznamu po obrazovku Skontrolovať jednotku; druhá časť s Vytvoriť a nahrávaním zatiaľ chýba),
+segment `f1-sken` v `cuts.json` má vlastný filter `scale=884:1920`. `F1_SkenPatched` v `F1_Sken.tsx` je
+záložná verzia bez footage (starší render + nový panel).
 
 ## Náhovor a titulky
 
