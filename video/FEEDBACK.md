@@ -313,3 +313,13 @@ Technika: `scripts/vo.mjs --engine piper` (model sk_SK-lili-medium z huggingface
 | F2 | Text na slide nesúvisí s hlasom, bublinky mimo; nahrávanie inak osekané ako predtým, staré footage? | Footage je nový zostrih z originálu (nie starý súbor). Kliky premerané: výber prílohy 13,4 s, potvrdenie šablóny 14,0 s, spustenie 16,5 s; žiadny dialóg šablóny v zázname nie je (predtým bol klik „Extrahovať metadáta“ na nesprávnom mieste). Spracovanie 10 -> 100 % zrýchlené 6× (3,1 s) namiesto strihu pri 10 %. Kroky: Príloha čaká · Rozpoznať text · Navrhnúť metadáta. Klip 11 s. |
 | F3 | Nový footage (search2.mp4, 19 s): drobček ľudsky čitateľnej cesty, automatické zvýraznenie kľúčového slova, dole QR kód. | Nový zostrih (orez 300:150, iný layout): písanie 1x, výsledok ZL_03 s detailom, zmrazený obraz 3,6 s na drobčeku PL_01 / KR_01 / ZL_03 so zvýraznením fixkou, scroll 3x, automaticky zvýraznená zhoda drží 1,5 s, QR kód 1,6 s + 2,6 s. Veta „Označenie PL_01, KR_01, ZL_03 vás dovedie na policu.“ (hlas „pé el jedna, ká er jedna, zet el tri“). Kroky: Kľúčové slovo · Záznam a podrobnosti · QR kód overí obsah. 18 s. |
 | F4 | Nový prehľadnejší footage (review2.mp4, 70 s). | Nový zostrih (orez 300:150): fotka a prvý návrh, priblíženie fotky (6,3-9,5 s, „overí podľa fotky“), fixka na správnej hodnote a prijatie (12,45 s), montáž 12x, oprava Číslo zmeny 1 -> 2 (ceruzka 43,6 s, Prijať úpravu 49,2 s, 1,6x), Odoslať (66,6 s) a „Odosielanie kontroly“. Kliky premerané po 0,1 s. Kroky: Návrh metadát · Overiť a potvrdiť · Opraviť a odoslať. 20 s. |
+
+## Kolo 32 (25. 9. 2026): hlas cez Gemini TTS (zablokované kľúčom)
+
+| Krok | Zadanie | Stav |
+|---|---|---|
+| Prostredie | npm ci, pip, Piper model, zdrojové záznamy z review stránky, `cut-footage`. | Hotové. Štyri assety stiahnuté (review2-30.mp4 uložený ako review2.mp4), klipy F1 9,8 s, F2 11 s, F3 18 s, F4 20 s ako v kole 31. |
+| API | `GEMINI_API_KEY` v prostredí, `--list-voices`, hlas "Velvet 1". | Zablokované. Premenná v env nie je, kľúč vkladá proxy prostredia, ale Google ho odmieta (`API_KEY_INVALID`, 400) pri zozname hlasov aj pri syntéze. Treba opraviť kľúč v nastaveniach prostredia (API credentials) a spustiť novú session. `gemini_tts.py` teraz pri zlom kľúči skončí zrozumiteľnou hláškou a bez premennej pošle zástupnú hodnotu (kľúč doplní proxy). |
+| Hlavička | Porovnať vetu s `--header` a bez. | Čaká na kľúč. |
+| Fonetika | Pri Gemini neposielať `say`, len `text`. | Hotové vo `vo.mjs`; `say` ostáva pre Piper, edge a espeak. Štýl v `speech_metadata`, temperature 0,85, model `gemini-3.8-flash-tts` bez zmeny. |
+| Render | `vo.mjs --engine gemini`, prepočet `at`, pauzy, render, Full, review stránka. | Čaká na kľúč; review stránka a Full ostávajú z kola 31 (Piper Lili, 134 s). |

@@ -8,7 +8,7 @@
 // --engine piper: Piper sk_SK-lili-medium (offline, model v PIPER_MODEL alebo /root/piper/sk_SK-lili-medium.onnx,
 // z huggingface.co/rhasspy/piper-voices), --rate ako length_scale (1.0 = normal, 1.1 = pomalsie).
 // Veta moze mat `say` = text pre hlas (foneticky prepis: "Archives" -> "Arkajvs", "PL_01" -> "pe el nula jedna"),
-// titulok ukazuje `text`.
+// titulok ukazuje `text`. Gemini `say` nedostava, cita cisty `text` (anglictinu a skratky zvlada sam).
 // --engine gemini: Gemini TTS cez scripts/gemini_tts.py (GEMINI_API_KEY v prostredi), hlas --voice "Velvet 1",
 // styl z vo.json `_style` (speech_metadata), --header posle "## Transcript:" pred text (len na kontrolu).
 // Pouzitie: node scripts/vo.mjs [--reuse] [--engine espeak|edge|piper|gemini] [--speed 150] [--voice ...] [--rate -5%]
@@ -42,7 +42,7 @@ for (const [clip, lines] of Object.entries(vo)) {
   lines.forEach((l, i) => {
     const file = `public/vo/lines/${clip}-${i}.wav`;
     if (!reuse || !existsSync(file)) {
-      const say = l.say ?? l.text;
+      const say = engine === 'gemini' ? l.text : (l.say ?? l.text);
       if (engine === 'gemini') {
         const gv = args.includes('--voice') ? voice : 'Velvet 1';
         const style = vo._style ? ['--style', vo._style] : [];

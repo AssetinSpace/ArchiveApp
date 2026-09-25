@@ -1,4 +1,4 @@
-# Odovzdanie práce na videu (stav k 25. 9. 2026, kolo 31)
+# Odovzdanie práce na videu (stav k 25. 9. 2026, kolo 32)
 
 Tento súbor je pre novú session. Všetko dôležité je v gite na vetve `claude/progress-preview-vo1ocm`,
 okrem zdrojových záznamov a vygenerovaného hlasu (tie sú mimo gitu, postup obnovy nižšie).
@@ -11,7 +11,7 @@ okrem zdrojových záznamov a vygenerovaného hlasu (tie sú mimo gitu, postup o
   `Artifact read` (url vyššie) a upraviť. Nové videá sa nahrávajú ako assety (`publish` s `asset: true`)
   a ich `/_blob/<id>` sa dopĺňajú do poľa `CLIPS` v HTML (`cap`, `poster`, `len`, `desc`).
 - Dokument so scenárom náhovoru (tabuľka viet, pravidlá): https://claude.ai/code/artifact/4dda9745-5ee0-442b-8175-ff309c835dbc
-- História kôl a rozhodnutí: `FEEDBACK.md` (kolo 1 až 31), storyboard `STORYBOARD.md`, návod `README.md`.
+- História kôl a rozhodnutí: `FEEDBACK.md` (kolo 1 až 32), storyboard `STORYBOARD.md`, návod `README.md`.
 - Scenár náhovoru (jediný zdroj pravdy pre zvuk aj titulky): `src/copy/vo.json` (vety, `at` v ms, `say` = fonetický prepis, `_style`).
 - Zostrih footage: `src/footage/cuts.json` (segmenty zdroja, zrýchlenie, zmrazený obraz, orez), `scripts/cut-footage.mjs`.
 - Pauzy a poradie klipov: `src/scenesList.ts` (`paced(...)`: `holds`, `skip`, `vo`, `dark`, `subtitleLeft`).
@@ -38,6 +38,9 @@ stiahnuť cez `Artifact read` s `url` stránky a `path` = id:
 | `src/extrakce.mp4` | `1aa84bb6286f29fd9a601c5dad7ce270` | desktop F2 (36 s) |
 | `src/review2-30.mp4` | `7c14646acc6c3a9316d2711a0a944b17` | desktop F4, nový záznam z 25. 9. (70 s), prevod 30 fps; v `cuts.json` je `src/review2.mp4`, po stiahnutí premenovať alebo upraviť `src` |
 | `src/search2.mp4` | `2c36ba26831c4f1d86ba1b899d94c988` | desktop F3, nový záznam z 25. 9. (19 s) |
+
+Overené v kole 32: assety sa sťahujú cez `Artifact read` s `path` = id (jeden súbor na volanie, nie `paths`),
+po `cut-footage` sedia dĺžky F1 9,8 s, F2 11 s, F3 18 s, F4 20 s.
 
 Potom: `node scripts/cut-footage.mjs` (vyrobí `public/footage/f1-sken.mp4`, `f2-metadata.mp4`, `f3-search.mp4`, `f4-review.mp4`),
 `node scripts/vo.mjs --engine piper` (hlas + dĺžky viet), `npm run stills`, `bash scripts/render.sh`.
@@ -68,12 +71,15 @@ CA proxy treba pridať do certifi: `cat /root/.ccr/ca-bundle.crt >> $(python3 -c
 
 ## Rozpracované: hlas cez Gemini TTS
 
-1. Kľúč `GEMINI_API_KEY` je v nastaveniach prostredia (nová session ho má v env; nikdy ho nedávať do chatu ani do gitu).
+1. Kľúč: v cloud session ho do požiadaviek na `generativelanguage.googleapis.com` vkladá proxy prostredia
+   (API credentials), premenná `GEMINI_API_KEY` v env nie je a skript bez nej pošle zástupnú hodnotu.
+   V kole 32 Google uložený kľúč odmietol (`API_KEY_INVALID`), treba ho v nastaveniach prostredia opraviť
+   a spustiť novú session. Kľúč nikdy nedávať do chatu ani do gitu.
 2. Overiť API: `cd video && python3 scripts/gemini_tts.py --list-voices` (vypíše prompted hlasy, id `voice_...`).
 3. Kontrola hlavičky: jednu vetu vygenerovať s `--header` aj bez a porovnať dĺžky; ak s hlavičkou trvá dlhšie,
    model číta "## Transcript:" nahlas a hlavička ostáva vypnutá (predvolené).
 4. Pri Gemini neposielať fonetické prepisy (`say`), len čistý `text` (Gemini číta angličtinu a skratky sám);
-   v `vo.mjs` je `say` použité pre všetky engine, treba pridať výnimku pre `gemini` (čaká na súhlas Samuela).
+   hotové v kole 32 (`vo.mjs` pre `gemini` posiela `text`, `say` ostáva pre Piper/edge/espeak).
 5. Model `gemini-3.8-flash-tts` je z exportu AI Studia; hlas "Velvet 1", temperature 0,85, štýl v
    `speech_metadata` (`vo.json` -> `_style`).
 6. `node scripts/vo.mjs --engine gemini`, potom prepočítať `at` podľa nameraných dĺžok (skript hlási prekryvy),

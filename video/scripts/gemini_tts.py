@@ -9,7 +9,8 @@ Hlas sa zadava nazvom (prebuilt / display_name). Ak API hlasi, ze hlas neexistuj
 prompted hlasy uctu (client.voices.list(type_=["prompted"])) a pouzije id toho, ktoreho display_name
 sedi s --voice. Styl ide do speech_metadata (Part), nie do textu. --header prida "## Transcript:"
 pred text (len na prvu kontrolu, ci ho model necita nahlas; predvolene sa neposiela).
-Kluc: GEMINI_API_KEY v prostredi.
+Kluc: GEMINI_API_KEY v prostredi. V cloud session ho vklada proxy prostredia (generativelanguage.googleapis.com),
+vtedy staci lubovolna hodnota premennej; bez nej skript posle zastupnu hodnotu.
 """
 import argparse
 import os
@@ -105,12 +106,14 @@ def main():
     ap.add_argument("--header", action="store_true")
     ap.add_argument("--list-voices", action="store_true")
     a = ap.parse_args()
-    key = os.environ.get("GEMINI_API_KEY")
-    if not key:
-        raise SystemExit("Chyba GEMINI_API_KEY v prostredi.")
+    key = os.environ.get("GEMINI_API_KEY") or "proxy-injected"
     client = genai.Client(api_key=key)
     if a.list_voices:
-        for v in list_prompted(client):
+        try:
+            voices = list_prompted(client)
+        except Exception as e:
+            raise SystemExit(f"Zoznam hlasov zlyhal: {str(e)[:200]}")
+        for v in voices:
             print(f"{getattr(v, 'id', '?')}\t{getattr(v, 'display_name', '')}\t{getattr(v, 'language_code', '')}")
         return
     if not a.text or not a.out:
@@ -119,6 +122,8 @@ def main():
         audio, mime = synth(client, a.text, resolve_voice(client, a.voice), a.style, a.header)
     except Exception as e:  # hlas nazvom neexistuje -> id prompted hlasu
         msg = str(e)
+        if "API_KEY_INVALID" in msg:
+            raise SystemExit("Gemini odmietol kluc (API_KEY_INVALID): skontroluj GEMINI_API_KEY alebo kluc v API credentials prostredia.")
         if "voice" in msg.lower() or "not found" in msg.lower() or "invalid" in msg.lower():
             print(f"Hlas '{a.voice}' nazvom nepresiel ({msg[:120]}), skusam id prompted hlasu.", file=sys.stderr)
             audio, mime = synth(client, a.text, voice_by_id(client, a.voice), a.style, a.header)
