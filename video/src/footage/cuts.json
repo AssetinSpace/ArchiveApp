@@ -131,7 +131,7 @@
     ]
   },
   "f1-sken": {
-    "src": "src/sken-1.mov",
+    "src": "src/sken-1.mp4",
     "vf": "scale=884:1920",
     "segs": [
       {
@@ -159,6 +159,7 @@
         "after": 2.2,
         "note": "Skontrolovat jednotku (druha cast zaznamu s Vytvorit a nahravanim chyba)"
       }
-    ]
+    ],
+    "note": "zdroj: sken-1.mp4 = H.264 prevod povodneho ScreenRecording .mov (1206x2622, 60 fps)"
   }
 }
