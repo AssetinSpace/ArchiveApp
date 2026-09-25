@@ -12,6 +12,7 @@ import { BRAND, CM, FONT, INK, SAFE } from '../theme';
  * C8 - Pilot: jedna zatvorena krabica, QR doskoci, ikony 1-2-3 v mierke A4
  * s popiskami. Kolo 28: ilustracia posunuta dolava (OX), vpravo nadpis v rovnakom
  * jazyku ako kroky riesenia. Kolo 29: ikony 2,4 / 3,6 / 4,8 s, 8 s.
+ * Kolo 33: nadpis "Začnime postupne." od 0,6 s (prívetivejšie namiesto "Nezačíname celým archívom").
  */
 const OX = -230;
 const BOX = 660;
@@ -21,7 +22,7 @@ const SHEET = { w: CM.sheet.w * PX, h: CM.sheet.h * PX };
 export const C8_Pilot: React.FC = () => {
   const frame = useCurrentFrame();
   const showCap = useCaptions(true); // popisky pod ikonami ostavaju (su sucast ilustracie)
-  const title = settle(frame, 1300);
+  const title = settle(frame, 600); // kolo 33: nadpis so slovami "Začnime postupne."
   const box = settle(frame, 300);
   const qr = pop(frame, 1000);
   const steps = [pop(frame, 2400), pop(frame, 3600), pop(frame, 4800)]; // kolo 29: kazda ikona s popiskom ma 1,2 s
@@ -58,7 +59,7 @@ export const C8_Pilot: React.FC = () => {
           <Sheet w={SHEET.w} h={SHEET.h} lines={6} stamp />
         </div>
       </Step>
-      {showCap ? <StepsPanel frame={frame} steps={[{ from: 1300, title: pilot.title }]} phase={phases.pilot} left={1380} width={480} opacity={title} /> : null}
+      {showCap ? <StepsPanel frame={frame} steps={[{ from: 600, title: pilot.title }]} phase={phases.pilot} left={1380} width={480} opacity={title} /> : null}
     </Scene>
   );
 };

@@ -4,7 +4,8 @@ import { FOOTAGE_PHONE, PHONE_BEZEL, PhoneFrame } from '../components/Device';
 import { settle, tween } from '../lib/anim';
 import { loadFonts } from '../lib/fonts';
 import { phases } from '../copy/sk';
-import { cutDuration, cutTime, segStart } from '../lib/cuts';
+import { cutDuration, cutTime } from '../lib/cuts';
+import { voAt } from '../components/Subtitles';
 import { BRAND, FONT, INK } from '../theme';
 
 /**
@@ -22,23 +23,34 @@ const SRC_W = 884,
 
 export type Tap = { t: number; x: number; y: number }; // s, podiel sirky/vysky celeho zaznamu
 export type Step = { from: number; title: string; line?: string }; // s
+/** Zvyraznenie ako fixkou (kolo 33): s, podiely celeho zaznamu, sweep = s kreslenia zlava. */
+export type PhoneMark = { from: number; to: number; x: number; y: number; w: number; h: number; sweep?: number };
 
+/** Kolo 33: kliky premerane na zazname 1206 x 2622 (podiely), casy zdroja. */
 const F1_TAPS: Tap[] = [
-  { t: cutTime('f1-sken', 1.7), x: 0.94, y: 0.79 }, // Dalej
-  { t: cutTime('f1-sken', 8.9), x: 0.5, y: 0.85 }, // spust
-  { t: cutTime('f1-sken', 9.9), x: 0.9, y: 0.92 }, // Use Photo
+  { t: cutTime('f1-sken', 0.22), x: 0.5, y: 0.385 }, // Pridat do tejto jednotky (KR_01)
+  { t: cutTime('f1-sken', 1.7), x: 0.887, y: 0.791 }, // Dalej
+  { t: cutTime('f1-sken', 8.9), x: 0.5, y: 0.824 }, // spust
+  { t: cutTime('f1-sken', 9.9), x: 0.86, y: 0.916 }, // Use Photo
 ];
+/** Kroky podla hlasu (casti vety vo vo.json): typ, zaradenie do hierarchie, fotka, zaznam. */
+const voS = (k: number) => voAt('F1-Sken', 0, k) / 1000;
 const F1_STEPS: Step[] = [
   { from: 0, title: 'Vybrať typ položky' },
-  { from: segStart('f1-sken', 1), title: 'Odfotiť identifikačnú stranu' },
-  { from: segStart('f1-sken', 3), title: 'Digitálny záznam' },
+  { from: voS(2), title: 'Zaradiť do hierarchie' },
+  { from: voS(3), title: 'Odfotiť identifikačnú stranu' },
+  { from: voS(4), title: 'Digitálny záznam' },
+];
+const F1_MARKS: PhoneMark[] = [
+  { from: voS(1) + 0.2, to: voS(2), x: 0.09, y: 0.299, w: 0.25, h: 0.027, sweep: 0.5 }, // Zlozka (ZL): "ako napriklad zlozka alebo dokument"
+  { from: voS(2) + 0.2, to: voS(3) - 0.3, x: 0.058, y: 0.101, w: 0.675, h: 0.031, sweep: 0.7 }, // Pridava sa jednotka pod KR_01: "zaradime ju do hierarchie"
 ];
 
 const PHONE = FOOTAGE_PHONE;
 /** Orez zaznamu (namerane na f1-sken.mp4): stavova lista iOS 0-115 px, lista Safari od 1743 px z 1920. */
 const CROP = { top: 115 / 1920, bottom: 177 / 1920 };
 
-export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[]; steps?: Step[]; crop?: { top: number; bottom: number }; panelOnly?: boolean }> = ({ src, seconds, taps = [], steps = [], crop = CROP, panelOnly = false }) => {
+export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[]; steps?: Step[]; marks?: PhoneMark[]; crop?: { top: number; bottom: number }; panelOnly?: boolean }> = ({ src, seconds, taps = [], steps = [], marks = [], crop = CROP, panelOnly = false }) => {
   const frame = useCurrentFrame();
   const ms = (frame / 30) * 1000;
   const tw = (s: number, d: number) => tween(frame, s, d);
@@ -68,6 +80,12 @@ export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[];
           {/* footage orezane o systemove listy: video sirsie o crop, posunute hore */}
           <div style={{ position: 'absolute', left: videoLeft, top: -crop.top * videoH, width: videoW, height: videoH }}>
             <OffthreadVideo src={file} muted style={{ width: '100%', height: '100%', objectFit: 'fill' }} />
+            {marks.map((m, i) => {
+              const a = tw(m.from * 1000, 200) * (1 - tw(m.to * 1000 - 250, 250));
+              if (a <= 0) return null;
+              const sweep = m.sweep ? tw(m.from * 1000, m.sweep * 1000) : 1;
+              return <div key={`m${i}`} style={{ position: 'absolute', left: m.x * videoW - 4, top: m.y * videoH, width: (m.w * videoW + 8) * sweep, height: m.h * videoH, borderRadius: 4, background: 'rgba(79,168,90,0.28)', opacity: a, mixBlendMode: 'multiply' }} />;
+            })}
             {/* tapy: jemny zeleny kruh, ktory sa rozsiri a zmizne */}
             {taps.map((tp, i) => {
               const t = tw(tp.t * 1000, 550);
@@ -111,7 +129,7 @@ export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[];
   );
 };
 
-export const F1_Sken: React.FC = () => <FootageClip src={F1_SRC} seconds={F1_SECONDS} taps={F1_TAPS} steps={F1_STEPS} />;
+export const F1_Sken: React.FC = () => <FootageClip src={F1_SRC} seconds={F1_SECONDS} taps={F1_TAPS} steps={F1_STEPS} marks={F1_MARKS} />;
 
 /**
  * Nahradna verzia bez zdrojoveho footage (public/footage/f1-sken.mp4 nie je k dispozicii):

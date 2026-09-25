@@ -10,6 +10,7 @@ import { Carton, ShelfFrame, iso } from '../lib/iso';
 import { PriceTag, QuestionMark, Sheet } from '../components/Illustrations';
 import { drawProps, pop, settle, tween } from '../lib/anim';
 import { captions } from '../copy/sk';
+import { useOutputFrame } from '../components/Paced';
 import { BRAND, CM, FONT, INK, NAVY, SAFE } from '../theme';
 import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
 
@@ -29,6 +30,7 @@ import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
  * 6900 znacka, 7050 lockup (drzi 1 s) · 7900 znacka a lockup odchadzaju ·
  * 8100 krabica C5 sa usadi vlavo · 8200 paticka. 9 s.
  * Kolo 31: uvod (najazd kamery) sa preskakuje o 0,8 s (skip v scenesList), znacka bez domceka drzi H = 5,2 s + 0,8 s na vetu nahovoru; scena 16,9 s.
+ * Kolo 33: rucicka hodin sa toci podla skutocneho casu (useOutputFrame), pauzy v scenesList su plynule; scena 15,6 s.
  * Kolo 28: texty v obraze (2500 "Hladanie trva...", 4700 "Zaplatene dvakrat..."),
  * predel posunuty o D, znacka drzi o H dlhsie a pod lockupom je popis. 11,1 s.
  */
@@ -41,7 +43,7 @@ export const C4_Cena: React.FC = () => {
   const tw = (s: number, d: number) => tween(frame, s, d);
   const bigQ = pop(frame, 1100);
   const clock = settle(frame, 2600);
-  const hand = tw(2600, 1000) * 720;
+  const hand = (useOutputFrame() / 30) * 300; // kolo 33: rucicka tika plynulo podla skutocneho casu klipu, aj pocas pauz
   const arrow = tw(3000, 500);
   const sheet = settle(frame, 3200);
   const tagB = pop(frame, 3600);

@@ -12,7 +12,7 @@ export const captions = {
   C5: 'Nalepiť QR, odfotiť. Celá práca v teréne.',
   C6: 'Text z fotky rozpozná a navrhne údaje.',
   C7: 'Každá položka má svoje miesto.',
-  C8: 'Začneme jednou krabicou.',
+  C8: 'Začnime postupne.',
 };
 
 /** Kolo 28: nazvy faz namiesto "Krok i / n" (kroky vpravo). */
@@ -25,8 +25,8 @@ export const phases = {
 
 /** C8: nadpis vpravo a popisky pod ikonami 1-2-3. */
 export const pilot = {
-  title: 'Začneme jednou krabicou.',
-  line: 'Nie celým archívom. Výsledok uvidíte na vlastnej dokumentácii.',
+  title: 'Začnime postupne.',
+  line: 'Výsledok uvidíte na vlastnej dokumentácii.',
   labels: ['Obhliadka skladu', 'Pilot na jednej krabici', 'Rozsah a ponuka'],
 };
 
