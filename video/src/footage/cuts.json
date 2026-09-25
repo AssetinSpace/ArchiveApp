@@ -37,89 +37,96 @@
     ]
   },
   "f3-search": {
-    "src": "src/vyhladavanie.mp4",
+    "src": "src/search2.mp4",
+    "vf": "crop=1520:882:300:150",
     "segs": [
       {
-        "from": 0.5,
-        "to": 2.5,
+        "from": 2.3,
+        "to": 4.2,
         "before": 0.8,
         "note": "pisanie slova vodovod"
       },
       {
-        "from": 2.5,
-        "to": 4.1,
-        "before": 0.6,
-        "note": "vysledok ZL_01, klik"
-      },
-      {
-        "from": 4.1,
-        "to": 7.5,
-        "speed": 4,
-        "note": "prechod na detail"
-      },
-      {
-        "from": 7.5,
-        "to": 10.8,
+        "from": 4.2,
+        "to": 6.0,
         "speed": 3,
-        "before": 0.6,
-        "note": "detail zlozky, scroll k zhode"
+        "note": "cakanie na vysledok"
       },
       {
-        "from": 10.8,
-        "to": 14.0,
+        "from": 6.0,
+        "to": 8.3,
+        "after": 3.6,
+        "note": "vysledok ZL_03 a detail, drobcek PL_01 / KR_01 / ZL_03 (zmrazene, zvyraznenie)"
+      },
+      {
+        "from": 8.3,
+        "to": 12.8,
         "speed": 3,
+        "note": "scroll k zhode"
+      },
+      {
+        "from": 12.8,
+        "to": 13.2,
         "before": 1.5,
-        "note": "zvyraznena zhoda, scroll dole"
+        "note": "automaticky zvyraznena zhoda (zmrazene)"
       },
       {
-        "from": 14.0,
-        "to": 16.1,
+        "from": 13.2,
+        "to": 16.9,
+        "speed": 3,
+        "note": "scroll dole"
+      },
+      {
+        "from": 16.9,
+        "to": 19.3,
         "speed": 1.5,
-        "after": 4.0,
-        "note": "QR kod"
+        "after": 2.6,
+        "note": "QR kod zlozky"
       }
     ]
   },
   "f4-review": {
-    "src": "src/review.mp4",
+    "src": "src/review2.mp4",
+    "vf": "crop=1520:882:300:150",
     "segs": [
       {
         "from": 0.5,
         "to": 2.5,
         "before": 0.8,
-        "note": "fotka stitku zblizka"
+        "note": "fotka stitku a prvy navrh (Nazov projektu)"
       },
       {
-        "from": 19.8,
-        "to": 21.0,
-        "before": 0.8,
-        "note": "prvy navrh"
+        "from": 6.3,
+        "to": 9.5,
+        "speed": 1.3,
+        "note": "priblizenie fotky: overenie podla fotky"
       },
       {
-        "from": 21.0,
-        "to": 22.3,
-        "before": 1.2,
-        "note": "spravna hodnota (fixka), prijatie"
+        "from": 11.3,
+        "to": 12.9,
+        "before": 0.6,
+        "note": "spravna hodnota (fixka), prijatie 12,45 s"
       },
       {
-        "from": 22.3,
-        "to": 56.0,
+        "from": 12.9,
+        "to": 42.5,
         "speed": 12,
-        "after": 0.5,
+        "after": 0.4,
         "note": "montaz dalsich prijati"
       },
       {
-        "from": 93.0,
-        "to": 99.6,
-        "speed": 1.3,
-        "before": 0.8,
-        "note": "rucna oprava hodnoty (ceruzka 93,1 s, Prijat upravu 99,0 s)"
+        "from": 42.5,
+        "to": 50.0,
+        "speed": 1.6,
+        "before": 0.6,
+        "note": "rucna oprava Cislo zmeny (ceruzka 43,6 s, Prijat upravu 49,2 s)"
       },
       {
-        "from": 122.8,
-        "to": 124.2,
-        "after": 2.6,
-        "note": "Odoslat"
+        "from": 64.8,
+        "to": 67.5,
+        "speed": 1.2,
+        "after": 2.1,
+        "note": "Odoslat 66,6 s, Odosielanie kontroly"
       }
     ]
   },

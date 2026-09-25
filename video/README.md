@@ -101,7 +101,7 @@ Väčšia firma potrebuje Company License – pozri LICENSE v balíku `remotion`
 `public/footage/` nie je v gite. Potrebné súbory: `f1-sken.mp4` (mobil, 884 × 1920), `f2-metadata.mp4`, `f4-review.mp4` a `f3-search.mp4` (desktop, 1520 × 882, zostrihy z `Extrakce_metadat_-_v1.mp4`, `Review_metadat_-_v2.mp4` a `Vyhladavanie_-_v3.mp4`, orez 1520:882:400:150). Postup zostrihu je vo FEEDBACK.md.
 
 Zostrih desktop klipov (F2, F3, F4) je v `src/footage/cuts.json` a robí sa z originálov
-`public/footage/src/{extrakce,review,vyhladavanie}.mp4` (mimo gitu): `node scripts/cut-footage.mjs`.
+`public/footage/src/{extrakce,review2,search2}.mp4` (mimo gitu; review2 a search2 sú nové záznamy z kola 31 s orezom 300:150 cez `vf`): `node scripts/cut-footage.mjs`.
 Mobilné footage F1 sa strihá rovnako z originálu `public/footage/src/sken-1.mov` (HEVC 1206 x 2622, 60 fps,
 prvá časť záznamu po obrazovku Skontrolovať jednotku; druhá časť s Vytvoriť a nahrávaním zatiaľ chýba),
 segment `f1-sken` v `cuts.json` má vlastný filter `scale=884:1920`. `F1_SkenPatched` v `F1_Sken.tsx` je

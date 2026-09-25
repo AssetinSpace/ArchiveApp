@@ -103,17 +103,17 @@
       "dur": 2410
     },
     {
-      "at": 3400,
+      "at": 3200,
       "text": "Človek každú hodnotu overí a potvrdí. Fotka je dôkaz a ostáva pri zázname.",
       "dur": 4750
     },
     {
-      "at": 11500,
+      "at": 10600,
       "text": "Prípadné opravy a doplnenia prebiehajú priamo v návrhu.",
       "dur": 3440
     },
     {
-      "at": 16000,
+      "at": 15900,
       "text": "Tým vznikne overený a dohľadateľný záznam fyzického dokumentu.",
       "dur": 3870
     }
@@ -125,18 +125,18 @@
       "dur": 1790
     },
     {
-      "at": 3600,
+      "at": 3500,
       "text": "Aplikácia záznam nájde a zobrazí jeho podrobnosti.",
       "dur": 3360
     },
     {
       "at": 7200,
-      "text": "Označenie PL_01, KR_01, ZL_01 vás dovedie na policu.",
-      "say": "Označenie pé el nula jedna, ká er nula jedna, zet el nula jedna vás dovedie na policu.",
-      "dur": 5460
+      "text": "Označenie PL_01, KR_01, ZL_03 vás dovedie na policu.",
+      "say": "Označenie pé el jedna, ká er jedna, zet el tri vás dovedie na policu.",
+      "dur": 4580
     },
     {
-      "at": 13000,
+      "at": 14000,
       "text": "QR kód overí obsah bez otvárania.",
       "say": "Kjúár kód overí obsah bez otvárania.",
       "dur": 2420
