@@ -94,11 +94,11 @@
     <ol class="steps">
       <li><div><b>Pozri si klip</b>Celý film je hneď nižšie, každý klip aj samostatne. Zvuk si zapni.</div></li>
       <li><div><b>Napíš pripomienku pod klip</b>Čo konkrétne zmeniť a kde (čas v klipe, veta, farba). Jedna pripomienka = jedna vec.</div></li>
-      <li><div><b>Pridaj ju</b>Claude si komentár vyzdvihne sám (najneskôr do hodiny), zmenu zapracuje a nový klip nahrá sem. Dátum hore sa zmení.</div></li>
+      <li><div><b>Odošli ju na spracovanie</b>Claude si komentár vyzdvihne sám (najneskôr do hodiny), zmenu zapracuje a nový klip nahrá sem. Dátum hore sa zmení.</div></li>
     </ol>
     <dl class="rules">
       <div><dt>Kedy sa to prerenderuje</dt><dd>Claude kontroluje nové komentáre každú hodinu a hneď ich spracuje. Samotná zmena trvá zvyčajne 20 až 40 minút. Stav vidíš hore pri dátume.</dd></div>
-      <div><dt>Rýchlejšie cez Poslať Claudovi</dt><dd>Ak sa ti ukáže tlačidlo Poslať Claudovi (len s právom úprav a nie v každom zobrazení), spracovanie sa spustí hneď, bez čakania na hodinovú kontrolu.</dd></div>
+      <div><dt>Niekedy aj hneď</dt><dd>Kde to zobrazenie dovolí (právo úprav, prehliadač), tlačidlo pošle pripomienku Claudovi rovno a spracovanie začne hneď, bez čakania na hodinovú kontrolu.</dd></div>
       <div><dt>Kde sú komentáre</dt><dd>Všetky vlákna aj odpovede Clauda sú v paneli komentárov v claude.ai (ikona komentárov nad stránkou).</dd></div>
       <div><dt>Keď sa pripomienky bijú</dt><dd>Claude nevyberá sám medzi protichodnými návrhmi, opýta sa Samuela. Zmeny textu náhovoru má hlas limit na počet za deň.</dd></div>
     </dl>
@@ -111,7 +111,7 @@
     <div class="composer" data-target="Celý film">
       <label for="note-full">Pripomienka k celku (tempo, hudba, štýl...)</label>
       <textarea id="note-full" maxlength="3500" placeholder="Napríklad: v 1:10 je pauza príliš dlhá."></textarea>
-      <div class="row"><button type="button" class="send" data-role="send">Poslať Claudovi</button><button type="button" class="plain" data-role="plain">Len komentár</button><span class="result" aria-live="polite"></span></div>
+      <div class="row"><button type="button" class="send" data-role="send">Odoslať na spracovanie</button><span class="result" aria-live="polite"></span></div>
     </div>
   </section>
 
@@ -274,7 +274,7 @@
         <div class="composer" data-target="${c.id}">
           <label for="note-${c.id}">Pripomienka ku klipu</label>
           <textarea id="note-${c.id}" maxlength="3500" placeholder="Čo zmeniť a kde..."></textarea>
-          <div class="row"><button type="button" class="send" data-role="send">Poslať Claudovi</button><button type="button" class="plain" data-role="plain">Len komentár</button><span class="result" aria-live="polite"></span></div>
+          <div class="row"><button type="button" class="send" data-role="send">Odoslať na spracovanie</button><span class="result" aria-live="polite"></span></div>
         </div>
       </div>`;
     el.querySelector('h3').textContent = c.name;
@@ -296,51 +296,42 @@
   let comments = null;
   let canSend = 'off';
   const composers = [...document.querySelectorAll('.composer')];
-  const paintButtons = () => {
-    for (const box of composers) {
-      const send = box.querySelector('[data-role=send]');
-      const plain = box.querySelector('[data-role=plain]');
-      send.hidden = canSend !== 'available';
-      plain.textContent = canSend === 'available' ? 'Len komentár' : 'Pridať komentár';
-      plain.classList.toggle('send', canSend !== 'available');
-      plain.classList.toggle('plain', canSend === 'available');
-      if (canSend !== 'available') box.querySelector('.result').textContent = '';
-    }
-  };
+  const paintButtons = () => {};
 
-  async function submit(box, toClaude) {
+  async function submit(box) {
     const ta = box.querySelector('textarea');
     const out = box.querySelector('.result');
     const text = ta.value.trim();
     if (!text) { out.className = 'result err'; out.textContent = 'Najprv napíš pripomienku.'; ta.focus(); return; }
-    const target = box.dataset.target;
-    const body = `[${target}] ${text}`;
-    const buttons = box.querySelectorAll('button');
-    buttons.forEach((b) => (b.disabled = true));
+    const body = `[${box.dataset.target}] ${text}`;
+    const btn = box.querySelector('[data-role=send]');
+    btn.disabled = true;
     out.className = 'result'; out.textContent = 'Odosielam...';
     try {
       const anchor = await comments.anchorFor(box.closest('.clip, .hero'));
-      if (toClaude) await comments.sendToClaude({ anchor, text: body });
-      else await comments.create({ anchor, text: body });
+      let now = false;
+      if (canSend === 'available') {
+        try { await comments.sendToClaude({ anchor, text: body }); now = true; }
+        catch (e) { if (e && (e.code === 'consent_required' || e.code === 'rate_limited')) throw e; }
+      }
+      if (!now) await comments.create({ anchor, text: body });
       ta.value = '';
       out.className = 'result ok';
-      out.textContent = toClaude ? 'Odoslané Claudovi. Odpoveď príde do komentára.' : 'Komentár pridaný. Claude ho spracuje pri najbližšej kontrole (do hodiny).';
+      out.textContent = now ? 'Odoslané. Claude začína spracovanie, odpoveď príde do komentára.' : 'Odoslané. Claude to spracuje pri najbližšej kontrole (do hodiny), stav uvidíš hore.';
     } catch (e) {
       const code = e && e.code;
       out.className = 'result err';
-      if (code === 'consent_required') out.textContent = 'Komentár sa neodoslal, stránka nemá tvoj súhlas písať komentáre. Skús znova a povoľ to.';
-      else if (code === 'forbidden') { out.textContent = 'Z tejto stránky nemôžeš pridávať komentáre. Napíš pripomienku Samuelovi.'; }
-      else if (code === 'claude_unavailable') { out.textContent = 'Claudovi sa to teraz poslať nedá. Použi Pridať komentár.'; canSend = 'writers_only'; paintButtons(); }
+      if (code === 'consent_required') out.textContent = 'Neodoslalo sa, stránka nemá tvoj súhlas písať komentáre. Skús znova a povoľ to.';
+      else if (code === 'forbidden') out.textContent = 'Z tejto stránky nemôžeš pridávať komentáre. Napíš pripomienku Samuelovi.';
       else if (code === 'rate_limited') out.textContent = 'Priveľa odoslaní naraz, skús o chvíľu.';
       else out.textContent = 'Neodoslalo sa. Text ostal v poli, skús znova.';
     } finally {
-      buttons.forEach((b) => (b.disabled = false));
+      btn.disabled = false;
     }
   }
 
   for (const box of composers) {
-    box.querySelector('[data-role=send]').addEventListener('click', () => comments && submit(box, true));
-    box.querySelector('[data-role=plain]').addEventListener('click', () => comments && submit(box, false));
+    box.querySelector('[data-role=send]').addEventListener('click', () => comments && submit(box));
   }
   composers.forEach((b) => b.querySelectorAll('button').forEach((x) => (x.disabled = true)));
 
