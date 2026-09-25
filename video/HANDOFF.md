@@ -6,10 +6,15 @@ okrem zdrojových záznamov a vygenerovaného hlasu (tie sú mimo gitu, postup o
 ## Kde čo je
 
 - Review stránka klipov (videá, pripomienky): https://claude.ai/artifact/R2aK5Ms7zxVvtKM4SjHCJa
-  Pripomienky sa ukladajú do jej databázy (`ArtifactData`, kolekcia `feedback`); po zapracovaní sa mažú.
-  Stránka sa publikuje zo súboru `review.html` v scratchpade session; ak chýba, stiahnuť cez
-  `Artifact read` (url vyššie) a upraviť. Nové videá sa nahrávajú ako assety (`publish` s `asset: true`)
-  a ich `/_blob/<id>` sa dopĺňajú do poľa `CLIPS` v HTML (`cap`, `poster`, `len`, `desc`).
+  Zdroj stránky je v `review/index.html` (údaje v `BUILD`, `FULL`, `NEWS`, `CLIPS`; pri novom kole upraviť a publikovať
+  cez `Artifact publish` s `url` stránky, capabilities `assets`, `db`, `comments`). Nové videá sa nahrávajú ako assety
+  (`publish` s `asset: true`), ich id idú do `cap` / `poster`.
+  Kolo 33: pripomienky chodia ako komentáre stránky. Kto má právo úprav, pošle ich tlačidlom priamo Claudovi (session
+  sledujúca stránku sa zobudí), ostatní pridajú bežný komentár a Claudovi ho pošle Samuel. Postup po prijatí: odpovedať
+  vo vlákne, nastaviť stav v databáze (`ArtifactData` set `status/current`: `state` idle / working / rendering, `title`,
+  `note`, `updatedAt`), zapracovať, prerenderovať, nahrať, zmeniť `BUILD.renderedAt` a `NEWS`, publikovať, vlákno
+  vyriešiť (resolve), stav vrátiť na idle, zapísať kolo do FEEDBACK.md. Protichodné pripomienky nerozhodovať, pýtať sa Samuela.
+  Staršie pripomienky (kolo 31 až 33) boli v kolekcii `feedback`; formulár na ňu už stránka nemá.
 - Dokument so scenárom náhovoru (tabuľka viet, pravidlá): https://claude.ai/code/artifact/4dda9745-5ee0-442b-8175-ff309c835dbc
 - História kôl a rozhodnutí: `FEEDBACK.md` (kolo 1 až 33), storyboard `STORYBOARD.md`, návod `README.md`.
 - Scenár náhovoru (jediný zdroj pravdy pre zvuk aj titulky): `src/copy/vo.json` (záznam = jedno generovanie hlasu, `at` v ms, `parts` = titulky po častiach, `partAt` a `dur` dopĺňa skript, `say` = fonetický prepis len pre Piper/edge/espeak, `_style`).
