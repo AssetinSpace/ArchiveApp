@@ -15,6 +15,9 @@ okrem zdrojových záznamov a vygenerovaného hlasu (tie sú mimo gitu, postup o
   `note`, `updatedAt`), zapracovať, prerenderovať, nahrať, zmeniť `BUILD.renderedAt` a `NEWS`, publikovať, vlákno
   vyriešiť (resolve), stav vrátiť na idle, zapísať kolo do FEEDBACK.md. Protichodné pripomienky nerozhodovať, pýtať sa Samuela.
   Staršie pripomienky (kolo 31 až 33) boli v kolekcii `feedback`; formulár na ňu už stránka nemá.
+  Kolo 34: "Poslať Claudovi" sa v niektorých zobrazeniach (napr. mobilná appka) neponúka, preto beží hodinová Routine
+  "Review video: nove komentare" (trig_01Mzmtn7iXgoggmkm6SN2wXu), ktorá číta komentáre a spracuje nové; spracované
+  vlákna sú v kolekcii `processed` (doc_id = thread id). V novej session Routine zmazať alebo presmerovať (viaže sa na túto session).
 - Dokument so scenárom náhovoru (tabuľka viet, pravidlá): https://claude.ai/code/artifact/4dda9745-5ee0-442b-8175-ff309c835dbc
 - História kôl a rozhodnutí: `FEEDBACK.md` (kolo 1 až 33), storyboard `STORYBOARD.md`, návod `README.md`.
 - Scenár náhovoru (jediný zdroj pravdy pre zvuk aj titulky): `src/copy/vo.json` (záznam = jedno generovanie hlasu, `at` v ms, `parts` = titulky po častiach, `partAt` a `dur` dopĺňa skript, `say` = fonetický prepis len pre Piper/edge/espeak, `_style`).

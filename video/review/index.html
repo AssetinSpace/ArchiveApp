@@ -94,11 +94,11 @@
     <ol class="steps">
       <li><div><b>Pozri si klip</b>Celý film je hneď nižšie, každý klip aj samostatne. Zvuk si zapni.</div></li>
       <li><div><b>Napíš pripomienku pod klip</b>Čo konkrétne zmeniť a kde (čas v klipe, veta, farba). Jedna pripomienka = jedna vec.</div></li>
-      <li><div><b>Pošli ju Claudovi</b>Claude odpovie priamo v komentári, zmenu zapracuje a nový klip nahrá sem. Dátum hore sa zmení.</div></li>
+      <li><div><b>Pridaj ju</b>Claude si komentár vyzdvihne sám (najneskôr do hodiny), zmenu zapracuje a nový klip nahrá sem. Dátum hore sa zmení.</div></li>
     </ol>
     <dl class="rules">
-      <div><dt>Kedy sa to prerenderuje</dt><dd>Hneď, ako pripomienka príde. Jedna zmena trvá zvyčajne 20 až 40 minút, kým je tu nová verzia. Stav vidíš hore pri dátume.</dd></div>
-      <div><dt>Kto môže poslať priamo Claudovi</dt><dd>Kto má k stránke právo úprav. Ostatní pridajú bežný komentár a Claudovi ho pošle Samuel.</dd></div>
+      <div><dt>Kedy sa to prerenderuje</dt><dd>Claude kontroluje nové komentáre každú hodinu a hneď ich spracuje. Samotná zmena trvá zvyčajne 20 až 40 minút. Stav vidíš hore pri dátume.</dd></div>
+      <div><dt>Rýchlejšie cez Poslať Claudovi</dt><dd>Ak sa ti ukáže tlačidlo Poslať Claudovi (len s právom úprav a nie v každom zobrazení), spracovanie sa spustí hneď, bez čakania na hodinovú kontrolu.</dd></div>
       <div><dt>Kde sú komentáre</dt><dd>Všetky vlákna aj odpovede Clauda sú v paneli komentárov v claude.ai (ikona komentárov nad stránkou).</dd></div>
       <div><dt>Keď sa pripomienky bijú</dt><dd>Claude nevyberá sám medzi protichodnými návrhmi, opýta sa Samuela. Zmeny textu náhovoru má hlas limit na počet za deň.</dd></div>
     </dl>
@@ -304,7 +304,7 @@
       plain.textContent = canSend === 'available' ? 'Len komentár' : 'Pridať komentár';
       plain.classList.toggle('send', canSend !== 'available');
       plain.classList.toggle('plain', canSend === 'available');
-      if (canSend !== 'available') box.querySelector('.result').textContent = canSend === 'no_session' ? 'Claude práve nie je pripojený, komentár mu pošle Samuel.' : '';
+      if (canSend !== 'available') box.querySelector('.result').textContent = '';
     }
   };
 
@@ -324,7 +324,7 @@
       else await comments.create({ anchor, text: body });
       ta.value = '';
       out.className = 'result ok';
-      out.textContent = toClaude ? 'Odoslané Claudovi. Odpoveď príde do komentára.' : 'Komentár pridaný. Claudovi ho pošle Samuel.';
+      out.textContent = toClaude ? 'Odoslané Claudovi. Odpoveď príde do komentára.' : 'Komentár pridaný. Claude ho spracuje pri najbližšej kontrole (do hodiny).';
     } catch (e) {
       const code = e && e.code;
       out.className = 'result err';
