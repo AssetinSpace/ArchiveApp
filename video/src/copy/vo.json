@@ -1,5 +1,6 @@
 {
   "_": "Scenar nahovoru (kolo 30, podla dokumentu Scenar nahovoru). at = start vety v ms od zaciatku klipu (vo vystupnom case, po vlozenych pauzach). dur dopise scripts/vo.mjs. `say` = text pre hlas, ak sa lisi od titulku (foneticky prepis). Z tohto suboru sa robi zvuk (public/vo/<klip>.wav) aj titulky (components/Subtitles.tsx).",
+  "_style": "pokojný, vecný firemný rozprávač; stredné tempo; zreteľná výslovnosť; bez emócií navyše",
   "C2-Hladanie": [
     {
       "at": 600,

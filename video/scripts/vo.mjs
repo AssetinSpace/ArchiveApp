@@ -9,7 +9,9 @@
 // z huggingface.co/rhasspy/piper-voices), --rate ako length_scale (1.0 = normal, 1.1 = pomalsie).
 // Veta moze mat `say` = text pre hlas (foneticky prepis: "Archives" -> "Arkajvs", "PL_01" -> "pe el nula jedna"),
 // titulok ukazuje `text`.
-// Pouzitie: node scripts/vo.mjs [--reuse] [--engine espeak|edge|piper] [--speed 150] [--voice ...] [--rate -5%]
+// --engine gemini: Gemini TTS cez scripts/gemini_tts.py (GEMINI_API_KEY v prostredi), hlas --voice "Velvet 1",
+// styl z vo.json `_style` (speech_metadata), --header posle "## Transcript:" pred text (len na kontrolu).
+// Pouzitie: node scripts/vo.mjs [--reuse] [--engine espeak|edge|piper|gemini] [--speed 150] [--voice ...] [--rate -5%]
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
@@ -41,7 +43,13 @@ for (const [clip, lines] of Object.entries(vo)) {
     const file = `public/vo/lines/${clip}-${i}.wav`;
     if (!reuse || !existsSync(file)) {
       const say = l.say ?? l.text;
-      if (engine === 'piper') {
+      if (engine === 'gemini') {
+        const gv = args.includes('--voice') ? voice : 'Velvet 1';
+        const style = vo._style ? ['--style', vo._style] : [];
+        const header = args.includes('--header') ? ['--header'] : [];
+        execFileSync('python3', ['scripts/gemini_tts.py', '--text', say, '--out', file + '.raw.wav', '--voice', gv, ...style, ...header], { stdio: ['ignore', 'inherit', 'inherit'] });
+        execFileSync(FF, ['-v', 'error', '-y', '-i', file + '.raw.wav', '-af', 'loudnorm=I=-18:TP=-2', '-ar', '48000', '-ac', '1', file]);
+      } else if (engine === 'piper') {
         const model = process.env.PIPER_MODEL ?? '/root/piper/sk_SK-lili-medium.onnx';
         const ls = args.includes('--rate') ? rate : '1.05';
         execFileSync('piper', ['-m', model, '-f', file + '.raw.wav', '--length_scale', ls, '--sentence_silence', '0.15'], { input: say });
