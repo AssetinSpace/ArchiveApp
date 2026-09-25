@@ -355,3 +355,17 @@ Review stránka: nové klipy C2-C9, F1-F4 a Full (hlas Gemini, 155,5 s).
 
 Technika: `scripts/vo_check.py` (kontrola hlasu prepisom, `--regen N` pregeneruje zlé vety), `scripts/vo_words.py` (časy slov cez faster-whisper pre časti titulkov), `voAt()` v `Subtitles.tsx` (kroky a zvýraznenia podľa hlasu), `srcFrac` / `tapAt` / `markAt` (súradnice v px záznamu). Denná kvóta Gemini TTS je 100 generovaní na model; po jej vyčerpaní ostal C9 z kola 32 (rovnaký text, staršie pomalšie tempo), pregenerovať po obnovení. Full 144,7 s (kolo 32: 155,5 s).
 
+
+## Kolo 34 (25. 9. 2026): komentáre z review stránky ku kolu 33
+
+Prvé pripomienky cez komentáre stránky (Samuel, "Pridať komentár", Claudovi neposlané, spracované na požiadanie v chate).
+
+| Klip | Pripomienka (skrátene) | Riešenie |
+|---|---|---|
+| C2 | Otázniky inak veľké ako v predošlej scénke a zbytočne veľa; len nad panáčikom ako v kancelárii, v sklade jeden, keď dôjde k polici, potom už nie. Koniec scény a prestrih sekavý, snímky navyše. | Otázniky nad paletami, pri krabiciach aj záverečný nad regálom vypadli; v sklade jeden nad panáčikom od 6,1 s scény, rovnaká veľkosť na obrazovke ako v kancelárii (s 1,04 pri SV 1,7). Scéna končí na 10,0 s (bez statického konca), C4 bez `skip` začína presne záberom, kde C2 končí, a kamera plynulo pokračuje. |
+| C4 | „2×“ a „€€€“ rovnako veľké; doplniť do hovoreného slova „otázne je, v akej kondícii dokumentáciu nájdete“. | Obe 170 px. Veta čaká na obnovenie dennej kvóty Gemini TTS (naplánované na 26. 9. 0:30 UTC). |
+| C4 | Po „2×“ sa zbytočne vraciame na policu, má byť hneď prestrih na „Kľúčom...“. | Nájazd kamery na krabicu vypadol, po „2×“ rovno prelínačka do bielej (0,6 s) a značka. Pauzy prepočítané (3000/2250, 4390/2200, 8400/1750 ms). |
+| C5 | Mobil sa zasekne, prekrýva text, pohyb sekaný. | Pauza počas približovania mobilu vypadla; pauza je až v pokoji po nájazde kamery (6,7 s scény, 0,9 s), presun mobilu do rámika F1 začína po dohovorenej vete, takže neprekryje titulky. |
+| F1 | Zbytočne začíname detailom KR_01, prvý klik netreba, začať výberom položky. | Zostrih začína na obrazovke Vybrať typ jednotky (0,45 s zdroja), klik Pridať do tejto jednotky vypadol. |
+
+Review stránka: sledovanie komentárov obnovené (po reštarte session nebolo overené, preto stránka ponúkla len „Pridať komentár“). Full 145,0 s.

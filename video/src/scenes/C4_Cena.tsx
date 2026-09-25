@@ -31,6 +31,8 @@ import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
  * 8100 krabica C5 sa usadi vlavo · 8200 paticka. 9 s.
  * Kolo 31: uvod (najazd kamery) sa preskakuje o 0,8 s (skip v scenesList), znacka bez domceka drzi H = 5,2 s + 0,8 s na vetu nahovoru; scena 16,9 s.
  * Kolo 33: rucicka hodin sa toci podla skutocneho casu (useOutputFrame), pauzy v scenesList su plynule; scena 15,6 s.
+ * Kolo 34: bez skipu (kamera nadvazuje na koniec C2), bez otaznika nad policou, "2x" a "EUR" rovnako velke,
+ * po "2x" hned prelinacka do bielej a znacka (kamera sa uz nevracia na policu).
  * Kolo 28: texty v obraze (2500 "Hladanie trva...", 4700 "Zaplatene dvakrat..."),
  * predel posunuty o D, znacka drzi o H dlhsie a pod lockupom je popis. 11,1 s.
  */
@@ -52,9 +54,9 @@ export const C4_Cena: React.FC = () => {
   const s = TARGET_SHELF;
   // predel problem -> riesenie
   const out = 1 - tw(5600 + D, 500); // cenovky, hodiny, vykres, "?" vyblednu
-  const light = tw(6300 + D, 700); // cista prelinacka do bielej
-  const mark = settle(frame, 6900 + D); // znacka sa objavi (bez kreslenia) a drzi ~1 s
-  const lockup = settle(frame, 7050 + D);
+  const light = tw(5600 + D, 600); // kolo 34: po "2x" rovno prelinacka do bielej (bez navratu kamery na policu)
+  const mark = settle(frame, 6300 + D); // znacka sa objavi (bez kreslenia)
+  const lockup = settle(frame, 6450 + D);
   const brandOut = tw(7900 + D + H, 300);
   const box = settle(frame, 8100 + D + H);
   const footer = tw(8200 + D + H, 400);
@@ -63,14 +65,14 @@ export const C4_Cena: React.FC = () => {
   const boxTop = SAFE.illoTop - 40;
   return (
     <Scene mode="dark" footer footerMode="light" footerOpacity={footer}>
-      <Camera keys={[{ ms: 0, ...CAM_END }, { ms: 1700, ...CAM_MID }, { ms: 5600 + D, ...CAM_MID }, { ms: 6700 + D, x: CAM_END.x, y: CAM_END.y, scale: 2.4 }]}>
+      <Camera keys={[{ ms: 0, ...CAM_END }, { ms: 1700, ...CAM_MID }]}>
         <svg width={1920} height={1080} viewBox={`${VB.x} ${VB.y} ${1920 / SV} ${1080 / SV}`} style={{ position: 'absolute', left: 0, top: 0 }}>
           <ShelfFrame x={s.x} y={s.y} w={CM.shelf.w} d={CM.shelf.d} levels={2} levelH={CM.shelf.level} topBoard={false}>
             {(lvl) => [0, 1].map((k) => <Carton key={`${lvl}${k}`} x={s.x + 8 + k * 60} y={s.y + 12} z={lvl * CM.shelf.level + 4} />)}
           </ShelfFrame>
           {(() => {
             const [qx, qy] = iso(s.x + 65, s.y + 30, 2 * CM.shelf.level + 14);
-            return <QuestionMark x={qx} y={qy} s={0.7 * (1 - tw(800, 500))} />;
+            return <QuestionMark x={qx} y={qy} s={0} />; // kolo 34: bez otaznika nad policou (C2 konci bez neho, strih nadvazuje)
           })()}
         </svg>
       </Camera>
@@ -109,8 +111,8 @@ export const C4_Cena: React.FC = () => {
       </div>
       {/* 2x €€€ dole v strede, medzi cenovkami */}
       <div style={{ position: 'absolute', left: 0, right: 0, top: 640, textAlign: 'center', opacity: big * out, transform: `scale(${0.6 + 0.4 * big})`, whiteSpace: 'nowrap' }}>
-        <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 200, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.04em' }}>2×</span>
-        <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 130, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.02em', marginLeft: 28 }}>€€€</span>
+        <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 170, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.03em' }}>2×</span>
+        <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 170, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.03em', marginLeft: 28 }}>€€€</span>
       </div>
       {showCap ? (
         <>

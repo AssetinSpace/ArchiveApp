@@ -137,13 +137,21 @@
 
 <script>
   // Stav stranky: BUILD sa meni pri kazdom publikovani (kolo, cas renderu), zivy stav cita db dokument status/current.
-  const BUILD = {"round": 33, "renderedAt": "2026-09-25T13:51:00Z"};
-  const FULL = {"len": 144.7, "cap": "0c9c156ab047c56be225a07a9893ac1e", "poster": "7ed206c53b726ea864793fefdee08a5d", "desc": "Tvrdé strihy medzi klipmi, hlas Gemini TTS (Velvet 1), titulky, zatiaľ bez hudby. Outro (C9) má ešte hlas z kola 32, pregeneruje sa."};
+  const BUILD = {
+ "round": 34,
+ "renderedAt": "2026-09-25T21:02:35Z"
+};
+  const FULL = {
+ "len": 145.0,
+ "cap": "7e869b3aed545e9fcc68d8a937139ff0",
+ "poster": "7ed206c53b726ea864793fefdee08a5d",
+ "desc": "Tvrdé strihy medzi klipmi, hlas Gemini TTS (Velvet 1), titulky, zatiaľ bez hudby. Outro (C9) má ešte hlas z kola 32, pregeneruje sa."
+};
   const NEWS = [
- "Plynulejší priebeh: pauzy len v pokoji a s plynulým dobehom, vo footage bez zastavených prechodových snímok, medzi strihmi krátke prelínačky.",
- "Hlas po celých vetách v plynulejšom tempe, dlhé vety majú titulky po častiach.",
- "Nové texty v C4, C7, C8, F1 a F3.",
- "F2 kratšie (načítavanie ~2,7 s), F3 a F4 ukazujú celý obsah aplikácie v širšom okne, oprava v F4 zvýraznená jantárovou farbou."
+ "C2: otázniky rovnako veľké ako v kancelárii, v sklade len jeden (keď panáčik dôjde k polici), koniec scény bez navyše snímok a strih do C4 nadväzuje.",
+ "C4: „2×“ a „€€€“ rovnako veľké, po nich rovno prechod na „Kľúčom k vyriešeniu...“ bez návratu na policu. Nová veta o kondícii dokumentácie príde po obnovení dennej kvóty hlasu (v noci).",
+ "C5: mobil sa už nezasekne, na F1 sa presunie až po dohovorenej vete, neprekrýva titulky.",
+ "F1: začína rovno výberom typu položky (bez KR_01 a prvého kliku)."
 ];
   const CLIPS = [
  {
@@ -157,34 +165,34 @@
  {
   "id": "C2-Hladanie",
   "name": "Hľadanie (kancelária → sklad)",
-  "len": 13.5,
-  "desc": "Kolo 33: pauzy bez tvrdého zastavenia (pohyb pred pauzou spomalí a po nej sa rozbehne), veci letia so slovami „Či už správu, výkres alebo protokol?“, prestrih do skladu po otázke, titulky po vetách.",
-  "cap": "d6c33672a92f682143f7e5fb4391868d",
-  "poster": "fddb249a0acbee0c17ab6af842d17ce7"
+  "len": 13.0,
+  "desc": "Kolo 34: jeden otáznik nad panáčikom v kancelárii aj v sklade (rovnaká veľkosť), bez otáznikov nad paletami a krabicami, koniec bez navyše snímok a plynulý strih do C4.",
+  "cap": "40d57e62632ac7b7a0e6a6143a299544",
+  "poster": "8445fcae3c8a73e0fde0ee750f4fac99"
  },
  {
   "id": "C4-Cena",
   "name": "Cena → predel",
   "len": 21.9,
-  "desc": "Kolo 33: nový text „Kľúčom k vyriešeniu tohto problému je digitálna katalogizácia archivovanej dokumentácie pomocou softvérového riešenia Assetin Archives.“ Hodiny tikajú plynulo aj počas pauzy, šípka a výkres s „vyhotoviť nanovo“, „2×“ so slovami „zaplatíte dvakrát“, prvé tri vety jedným súvislým hlasom.",
-  "cap": "adc7a0b8f056cfb6835d3ef0d13c3846",
-  "poster": "9dbeaec369cc0e3b576210b8bf7c8dc3"
+  "desc": "Kolo 34: začína presne záberom, kde končí C2 (kamera pokračuje), „2×“ a „€€€“ rovnako veľké, po nich rovno biela a „Kľúčom k vyriešeniu tohto problému...“. Veta „Otázne je, v akej kondícii dokumentáciu nájdete.“ sa doplní po obnovení kvóty hlasu.",
+  "cap": "a10ce3a1c1837bfc2a73997c22be4dac",
+  "poster": "b03c13e48507062be3f460f74d4189af"
  },
  {
   "id": "C5-Teren",
   "name": "V sklade",
-  "len": 11.6,
-  "desc": "Kolo 33: celá veta jedným súvislým hlasom (predtým rozdelená na dva kúsky), nálepky so slovami „na každú položku“, blesk na „odfotí“, pauzy bez zastavenia uprostred pohybu.",
-  "cap": "0e458ff422f17dd78ecf3561a1464aed",
-  "poster": "92caa0578cc92db1183673c9a663e6bf"
+  "len": 12.3,
+  "desc": "Kolo 34: mobil bez zaseknutia pri priblížení; do rámika F1 sa presunie až po vete, takže neprekrýva titulky.",
+  "cap": "424d65de451816f52b88ef81d8a9f12a",
+  "poster": "3b9a8be250b1e8c92b7e9502e2710186"
  },
  {
   "id": "F1-Sken",
   "name": "Footage: sken štítku",
   "len": 14.8,
-  "desc": "Kolo 33: nový text „V mobile vyberieme typ položky, ako napríklad zložka alebo dokument, a zaradíme ju do hierarchie podľa skutočnosti. Potom odfotíme jej identifikačnú stranu.“ Zostrih bez vystrihnutej obrazovky Priradiť QR a bez prechodových snímok, bez zastaveného živého náhľadu kamery, prelínačky; zvýraznené Zložka (ZL) a „Pridáva sa jednotka pod KR_01“; nový krok Zaradiť do hierarchie.",
-  "cap": "bc0f04edf44210c84aa21c17a50474d4",
-  "poster": "55b81096a5bf670ca969b3a62879105f"
+  "desc": "Kolo 34: začína rovno obrazovkou Vybrať typ jednotky (bez detailu KR_01 a prvého kliku). Hlavička „Pridáva sa jednotka pod KR_01“ ukazuje zaradenie do hierarchie.",
+  "cap": "413f9a724b8c2550d1f3c5cba8ca7566",
+  "poster": "2df8519b6ceb6cf4657fadfc43fefa57"
  },
  {
   "id": "C7-Hierarchia",

@@ -149,14 +149,12 @@ const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
   const px = PATH[seg][0] + (PATH[seg + 1][0] - PATH[seg][0]) * lt;
   const py = PATH[seg][1] + (PATH[seg + 1][1] - PATH[seg][1]) * lt;
   const [sx, sy] = iso(px, py, 0);
-  const qm: [number, number, number, number][] = [
-    [140, 60, 4800, 0],
-    [420, 60, 5400, 80],
-  ];
+  // kolo 33/34: jediny otaznik nad panacikom, ked dojde k polici; rovnaka velkost na obrazovke ako v kancelarii
+  // (kancelaria: s 0,9 vo viewBoxe 980 px -> 1,76; sklad: SV = 1,7 -> s 1,04)
+  const qMan = pop(frame, 6100) * (1 - tw(6600, 400));
   const others = 1 - tw(6600, 500);
   const A = fastSearch(tw, 7000, 300); // obe krabice naraz
   const B = fastSearch(tw, 7100, 300);
-  const qEnd = pop(frame, 9700);
 
   const Stack: React.FC<{ x: number; y: number }> = ({ x, y }) => (
     <g>
@@ -193,22 +191,6 @@ const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
                   })
                 }
               </ShelfFrame>
-              {isTarget
-                ? [7500, 7650].map((ms, k) => {
-                    // bublinka "?" pri vytiahnuti prvej zlozky z kazdej krabice
-                    const q = SEARCH_QMS[k];
-                    const life = tw(ms, 2000);
-                    const fade = 1 - tw(ms + 1600, 400);
-                    const [qx, qy] = iso(q[0] + Math.sin(life * Math.PI * 2 + k) * 6, q[1], q[2] + life * 26);
-                    return <QuestionMark key={`q${k}`} x={qx} y={qy} s={pop(frame, ms) * 0.55 * fade} />;
-                  })
-                : null}
-              {isTarget
-                ? (() => {
-                    const [qx, qy] = iso(s.x + 65 + Math.sin(frame / 9) * 2, s.y + 30, 2 * CM.shelf.level + 14 + Math.sin(frame / 12) * 3);
-                    return <QuestionMark x={qx} y={qy} s={qEnd * 0.7} />;
-                  })()
-                : null}
             </g>
           );
         })}
@@ -216,13 +198,14 @@ const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
           {PALLETS.map((p, i) => (
             <Stack key={i} x={p.x} y={p.y} />
           ))}
-          {qm.map(([x, y, s0, z], i) => {
-            const s = pop(frame, s0) * (1 - tw(6300, 500));
-            const [qx, qy] = iso(x, y, 140 + z);
-            return <QuestionMark key={i} x={qx} y={qy} s={s * 1.8} />;
-          })}
         </g>
         <Person x={sx} y={sy} scale={1.4} color={BRAND[400]} opacity={tw(4300, 200) * (1 - tw(6600, 600))} />
+        {qMan > 0
+          ? (() => {
+              const [qx, qy] = iso(px - 30 + Math.sin(frame / 14) * 1.5, py - 4, 158 + Math.sin(frame / 10) * 3);
+              return <QuestionMark x={qx} y={qy} s={qMan * 1.04} />;
+            })()
+          : null}
       </svg>
     </Camera>
   );

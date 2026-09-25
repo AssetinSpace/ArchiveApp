@@ -28,7 +28,6 @@ export type PhoneMark = { from: number; to: number; x: number; y: number; w: num
 
 /** Kolo 33: kliky premerane na zazname 1206 x 2622 (podiely), casy zdroja. */
 const F1_TAPS: Tap[] = [
-  { t: cutTime('f1-sken', 0.22), x: 0.5, y: 0.385 }, // Pridat do tejto jednotky (KR_01)
   { t: cutTime('f1-sken', 1.7), x: 0.887, y: 0.791 }, // Dalej
   { t: cutTime('f1-sken', 8.9), x: 0.5, y: 0.824 }, // spust
   { t: cutTime('f1-sken', 9.9), x: 0.86, y: 0.916 }, // Use Photo

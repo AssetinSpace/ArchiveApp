@@ -136,11 +136,10 @@
     "vf": "scale=884:1920",
     "segs": [
       {
-        "from": 0.0,
+        "from": 0.45,
         "to": 1.0,
-        "before": 0.6,
-        "after": 5.6,
-        "note": "KR_01 (pokoj), klik Pridat do tejto jednotky 0,22 s, Vybrat typ jednotky od 0,30 s; drzi pokojnu obrazovku typu pocas vety o type a hierarchii"
+        "after": 6.65,
+        "note": "kolo 34: rovno obrazovka Vybrat typ jednotky (KR_01 a klik Pridat do tejto jednotky vypadli), drzi pokojnu obrazovku typu pocas vety o type a hierarchii"
       },
       {
         "from": 1.0,
