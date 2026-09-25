@@ -5,7 +5,11 @@
 // Kvalitny hlas zadarmo: --engine edge (Microsoft neural sk-SK-LukasNeural cez pip edge-tts; potrebuje
 // v sieti prostredia povoleny host speech.platform.bing.com a CA proxy pridanu do certifi), --voice sk-SK-ViktoriaNeural pre zensky hlas,
 // --rate -10% pre pomalsie tempo.
-// Pouzitie: node scripts/vo.mjs [--reuse] [--engine espeak|edge] [--speed 150] [--voice ...] [--rate -5%]
+// --engine piper: Piper sk_SK-lili-medium (offline, model v PIPER_MODEL alebo /root/piper/sk_SK-lili-medium.onnx,
+// z huggingface.co/rhasspy/piper-voices), --rate ako length_scale (1.0 = normal, 1.1 = pomalsie).
+// Veta moze mat `say` = text pre hlas (foneticky prepis: "Archives" -> "Arkajvs", "PL_01" -> "pe el nula jedna"),
+// titulok ukazuje `text`.
+// Pouzitie: node scripts/vo.mjs [--reuse] [--engine espeak|edge|piper] [--speed 150] [--voice ...] [--rate -5%]
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
@@ -36,13 +40,19 @@ for (const [clip, lines] of Object.entries(vo)) {
   lines.forEach((l, i) => {
     const file = `public/vo/lines/${clip}-${i}.wav`;
     if (!reuse || !existsSync(file)) {
-      if (engine === 'edge') {
+      const say = l.say ?? l.text;
+      if (engine === 'piper') {
+        const model = process.env.PIPER_MODEL ?? '/root/piper/sk_SK-lili-medium.onnx';
+        const ls = args.includes('--rate') ? rate : '1.05';
+        execFileSync('piper', ['-m', model, '-f', file + '.raw.wav', '--length_scale', ls, '--sentence_silence', '0.15'], { input: say });
+        execFileSync(FF, ['-v', 'error', '-y', '-i', file + '.raw.wav', '-af', 'loudnorm=I=-18:TP=-2', '-ar', '48000', '-ac', '1', file]);
+      } else if (engine === 'edge') {
         // edge-tts pise mp3; prevod na wav, aby mal mix rovnaky format. CA proxy: SSL_CERT_FILE.
         const proxy = process.env.HTTPS_PROXY ? ['--proxy', process.env.HTTPS_PROXY] : []; // websocket cez proxy prostredia (trust_env nestaci)
-        execFileSync('edge-tts', [...proxy, '--voice', voice, `--rate=${rate}`, '--text', l.text, '--write-media', file + '.mp3']);
+        execFileSync('edge-tts', [...proxy, '--voice', voice, `--rate=${rate}`, '--text', say, '--write-media', file + '.mp3']);
         execFileSync(FF, ['-v', 'error', '-y', '-i', file + '.mp3', '-ar', '48000', '-ac', '1', file]);
       } else {
-        execFileSync('espeak-ng', ['-v', 'sk', '-s', speed, '-p', '40', '-a', '170', '-w', file, l.text]);
+        execFileSync('espeak-ng', ['-v', 'sk', '-s', speed, '-p', '40', '-a', '170', '-w', file, say]);
       }
     }
     l.dur = duration(file);

@@ -281,3 +281,22 @@ Rozhodnutie: **hovorené slovo + titulky náhovoru**, text v obraze len názov k
 | C9 | 6 s (veta "Assetin Archives. Zistíte, čo máte v archíve a kde presne to leží."). |
 
 Full 96,8 s → **~125 s** (dočasný hlas je pomalší než reálny speaker, ~1,9 slova/s; pri 2,3 slova/s sa dá stiahnuť o ~10 s skrátením páuz).
+
+## Kolo 30 (25. 9. 2026): scenár náhovoru podľa dokumentu, hlas Piper Lili
+
+Zadanie: dohodnúť presný text náhovoru (dokument "Scenár náhovoru Assetin Archives"), hlas zadarmo a kvalitný. Pravidlá: zmiešané oslovenie, rozprávač uvedie problém a naše riešenie, musí zaznieť "fotka je dôkaz" a "každý záznam je schválený človekom"; hlas Piper Lili (Microsoft hlasy sú rozpoznateľné ako AI).
+
+| Klip | Veta (kolo 30) |
+|---|---|
+| C2 | Kedy ste naposledy nevedeli nájsť nejaký dokument? Správu, výkres, protokol. Viete, že tam je. / V skrini, na polici alebo v archíve. Len neviete kde. |
+| C4 | Bez jasného systému trvá hľadanie hodiny. / Niekedy je rýchlejšie dať dokumentáciu vyhotoviť nanovo. / A tak sa môže stať, že zaplatíte dvakrát za to isté. / Naše softvérové riešenie Assetin Archives. |
+| C5 | Riešenie začína v teréne s fyzickými dokumentmi. / Jedinečný QR kód sa prilepí na každú položku / a mobilom sa odfotí jej identifikačná strana. |
+| F1 | Odfotením identifikačnej strany dostane položka svoj digitálny záznam. |
+| C7 | Každá položka má presné miesto v hierarchii: polica, krabica, zložka, dokument. |
+| C6 | Fotku ďalej spracuje aplikácia. |
+| F2 | Najprv aplikácia rozpozná text na identifikačnej strane, / potom navrhne metadáta: autora, názov projektu, rok. |
+| F4 | Návrh ale nie je finálny záznam. / Človek každú hodnotu overí a potvrdí. Fotka je dôkaz a ostáva pri zázname. / Prípadné opravy a doplnenia prebiehajú priamo v návrhu. / Tým vznikne overený a dohľadateľný záznam fyzického dokumentu. |
+| F3 | Stačí zadať kľúčové slovo. / Aplikácia záznam nájde a zobrazí jeho podrobnosti. / Označenie PL_01, KR_01, ZL_01 vás dovedie na policu. / QR kód overí obsah bez otvárania. |
+| C8, C9 | bez zmeny |
+
+Technika: `scripts/vo.mjs --engine piper` (model sk_SK-lili-medium z huggingface.co, offline), fonetický prepis cez pole `say` ("Archives" -> "Árkajvs", "QR" -> "kjú er", "PL_01" -> "pé el nula jedna"), hlasitosť loudnorm -18 LUFS. Pauzy prepočítané podľa nameraných dĺžok viet: C2 pauza 3,6 s (otázka na úvod dobehne pred prestrihom do skladu), C4 "2×" až so slovami "zaplatíte dvakrát" (pauza 4,6 s), C7 kratšie. Zostrih F2/F3/F4 predĺžený na konci o držanie, aby dobehla posledná veta. Edge-tts (Microsoft) je v skripte tiež (`--engine edge`, host speech.platform.bing.com povolený, ide cez proxy prostredia).

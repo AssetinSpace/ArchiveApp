@@ -36,11 +36,11 @@ const paced = (id: string, d: PacedDef): [string, SceneDef] => {
  */
 export const SCENE_LIST: [string, SceneDef][] = [
   ['C1-Intro', { component: C1_Intro, seconds: 4, stills: [45, 65, 100] }],
-  paced('C2-Hladanie', { scene: C2_Hladanie, seconds: 10.5, vo: true, dark: true, holds: [{ at: 3600, hold: 1500 }], stills: [80, 200, 300] }),
-  paced('C4-Cena', { scene: C4_Cena, seconds: 11.1, vo: true, darkUntil: 12200, holds: [{ at: 4300, hold: 3200 }, { at: 6800, hold: 1000 }], stills: [100, 230, 380, 440] }),
+  paced('C2-Hladanie', { scene: C2_Hladanie, seconds: 10.5, vo: true, dark: true, holds: [{ at: 3600, hold: 3600 }], stills: [80, 250, 380] }),
+  paced('C4-Cena', { scene: C4_Cena, seconds: 11.1, vo: true, darkUntil: 13800, holds: [{ at: 4300, hold: 4600 }, { at: 6800, hold: 1400 }], stills: [100, 280, 440, 495] }),
   paced('C5-Teren', { scene: C5_Teren, seconds: 9, vo: true, holds: [{ at: 1400, hold: 800 }, { at: 4600, hold: 800 }, { at: 6300, hold: 800 }], stills: [70, 190, 280] }),
   paced('F1-Sken', { scene: F1_Sken, seconds: F1_SECONDS, vo: true, subtitleLeft: 900, stills: [20, 170, 330] }),
-  paced('C7-Hierarchia', { scene: C7_Hierarchia, seconds: 5, vo: true, holds: [{ at: 3300, hold: 1200 }, { at: 4300, hold: 2600 }], stills: [15, 120, 230] }),
+  paced('C7-Hierarchia', { scene: C7_Hierarchia, seconds: 5, vo: true, holds: [{ at: 3300, hold: 1200 }, { at: 4300, hold: 1400 }], stills: [15, 110, 200] }),
   paced('C6-Spracovanie', { scene: C6_Spracovanie, seconds: 3, vo: true, stills: [20, 45, 85] }),
   paced('F2-Metadata', { scene: F2_Metadata, seconds: F2_SECONDS, vo: true, stills: [10, 100, 240] }),
   paced('F4-Kontrola', { scene: F4_Kontrola, seconds: F4_SECONDS, vo: true, stills: [10, 150, 400] }),

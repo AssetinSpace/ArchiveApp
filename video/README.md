@@ -109,12 +109,14 @@ záložná verzia bez footage (starší render + nový panel).
 
 ## Náhovor a titulky
 
-Video je s hovoreným slovom (kolo 29). Scenár je v `src/copy/vo.json`: pre každý klip vety s časom
-`at` (ms od začiatku klipu, vo výstupnom čase aj s pauzami). `node scripts/vo.mjs` vyrobí dočasný
-hlas (espeak-ng, slovenčina, len na tempo) do `public/vo/<klip>.wav` (mimo gitu), zmeria dĺžky viet
-a dopíše ich do `vo.json` (`dur`); z toho istého súboru bežia titulky. Kvalitný hlas: vety sa
-vygenerujú inde (Google Cloud TTS sk-SK, ElevenLabs, alebo reálny speaker podľa `VOICEOVER.md`) do
-`public/vo/lines/<klip>-<i>.wav` a spustí sa `node scripts/vo.mjs --reuse`. Render bez zvuku:
+Video je s hovoreným slovom (od kola 29). Scenár je v `src/copy/vo.json`: pre každý klip vety s časom
+`at` (ms od začiatku klipu, vo výstupnom čase aj s pauzami), voliteľne `say` = fonetický prepis pre hlas
+("Archives" -> "Árkajvs"). `node scripts/vo.mjs --engine piper` vyrobí hlas Piper Lili (offline, model
+`sk_SK-lili-medium.onnx` z huggingface.co/rhasspy/piper-voices, cesta v `PIPER_MODEL`) do `public/vo/<klip>.wav`
+(mimo gitu), zmeria dĺžky viet a dopíše ich do `vo.json` (`dur`); z toho istého súboru bežia titulky.
+Ďalšie hlasy: `--engine edge` (Microsoft neural sk-SK, pip `edge-tts`, host speech.platform.bing.com),
+`--engine espeak` (robot na rýchly test). Reálny speaker: nahrať vety do `public/vo/lines/<klip>-<i>.wav`
+a spustiť `node scripts/vo.mjs --reuse`. Render bez zvuku:
 `--props='{"voice":false}'`, bez titulkov: `--props='{"subtitles":false}'` (prezentácia so živým komentárom).
 
 Tempo: každý klip má v `scenesList.ts` pauzy (`holds`, zmrazený obraz hneď po nástupe textu kroku), vety
@@ -122,5 +124,5 @@ sa nesmú prekrývať (`vo.mjs` to hlási) a text v obraze je len názov kroku (
 
 ## Verzie
 
-- **Verzia 2 (aktuálna, kolo 29, ~125 s)**: C2-Hladanie nahrádza C2-Kancelaria + C3-Sklad; od kola 29 hovorené slovo + titulky, pauzy pred dejom.
+- **Verzia 2 (aktuálna, kolo 30, ~140 s)**: C2-Hladanie nahrádza C2-Kancelaria + C3-Sklad; od kola 29 hovorené slovo + titulky, pauzy pred dejom.
 - **Verzia 1 (88,5 s)**: rendre v `out/mp4/v1/` a `out/stills/v1/`; scény ostávajú v `src/scenes/` (`V1_LIST` v `scenesList.ts`, `npm run stills`/`render` ich preskakujú).
