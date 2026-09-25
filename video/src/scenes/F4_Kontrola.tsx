@@ -10,14 +10,14 @@ import { cutDuration, cutTime, segPlay, segStart } from '../lib/cuts';
  */
 export const F4_SECONDS = cutDuration('f4-review');
 const F4_STEPS: Step[] = [
-  { from: 0, title: 'Overiť voči fotke' },
-  { from: segStart('f4-review', 1) * 1000, title: 'Potvrdiť návrhy' },
+  { from: 0, title: 'Návrh metadát' },
+  { from: segStart('f4-review', 1) * 1000, title: 'Overiť a potvrdiť' },
   { from: segStart('f4-review', 4) * 1000, title: 'Opraviť a odoslať' },
 ];
 const F4_TAPS: Tap[] = [
-  { t: cutTime('f4-review', 22.0), x: 0.81, y: 0.875 }, // prijat prvy navrh
-  { t: cutTime('f4-review', 93.3), x: 0.85, y: 0.865 }, // ceruzka - upravit
-  { t: cutTime('f4-review', 98.7), x: 0.795, y: 0.865 }, // Prijat upravu
+  { t: cutTime('f4-review', 22.05), x: 0.81, y: 0.875 }, // prijat prvy navrh
+  { t: cutTime('f4-review', 93.1), x: 0.85, y: 0.865 }, // ceruzka - upravit
+  { t: cutTime('f4-review', 99.0), x: 0.795, y: 0.865 }, // Prijat upravu
   { t: cutTime('f4-review', 123.1), x: 0.46, y: 0.5 }, // Odoslat
 ];
 const F4_MARKS: Mark[] = [

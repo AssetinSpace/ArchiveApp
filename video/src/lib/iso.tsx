@@ -99,6 +99,29 @@ export const Plinth: React.FC<{ x: number; y: number; z?: number; w: number; d: 
   d,
 }) => <IsoBox x={x} y={y} z={z} w={w} d={d} h={10} faces={{ top: ISO.left, left: ISO.right, right: ISO.edge }} />;
 
+/** QR plocho na hornej ploche (z = const), napr. na liste dokumentu. */
+export const QrOnTopFace: React.FC<{ x: number; y: number; z: number; size: number; s?: number; opacity?: number }> = ({ x, y, z, size, s = 1, opacity = 1 }) => {
+  const [cx, cy] = iso(x + size / 2, y + size / 2, z);
+  const m = size / 9;
+  const sq = (mx: number, my: number, k = 1) =>
+    pts([iso(x + mx * m, y + my * m, z), iso(x + (mx + k) * m, y + my * m, z), iso(x + (mx + k) * m, y + (my + k) * m, z), iso(x + mx * m, y + (my + k) * m, z)]);
+  return (
+    <g opacity={opacity} transform={`translate(${cx} ${cy}) scale(${s}) translate(${-cx} ${-cy})`}>
+      <polygon points={sq(0, 0, 9)} fill="#fff" stroke={ISO.edge} strokeWidth={0.8} />
+      {QR_FINDERS.map(([fx, fz], i) => (
+        <g key={i}>
+          <polygon points={sq(fx, fz, 3)} fill={ISO.ink} />
+          <polygon points={sq(fx + 0.6, fz + 0.6, 1.8)} fill="#fff" />
+          <polygon points={sq(fx + 1, fz + 1, 1)} fill={ISO.ink} />
+        </g>
+      ))}
+      {[[4, 1], [6, 2], [4, 4], [5, 5], [7, 5], [1, 5], [2, 7], [5, 7], [7, 7]].map(([mx, my], i) => (
+        <polygon key={`d${i}`} points={sq(mx, my)} fill={ISO.ink} />
+      ))}
+    </g>
+  );
+};
+
 /**
  * QR nalepka na lavej ploche (y = const) kvadra: stvorec so 5 modulmi,
  * rovnaka kresba ako na dlazdici. `s` = mierka 0..1 (pop), `t` = opacity.

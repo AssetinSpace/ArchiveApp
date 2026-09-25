@@ -119,10 +119,10 @@ Video je s hovoreným slovom (od kola 29). Scenár je v `src/copy/vo.json`: pre 
 a spustiť `node scripts/vo.mjs --reuse`. Render bez zvuku:
 `--props='{"voice":false}'`, bez titulkov: `--props='{"subtitles":false}'` (prezentácia so živým komentárom).
 
-Tempo: každý klip má v `scenesList.ts` pauzy (`holds`, zmrazený obraz hneď po nástupe textu kroku), vety
+Tempo: každý klip má v `scenesList.ts` pauzy (`holds`, zmrazený obraz hneď po nástupe textu kroku) a prípadne `skip` (preskočenie úvodu scény, C4), vety
 sa nesmú prekrývať (`vo.mjs` to hlási) a text v obraze je len názov kroku (2-3 slová); vetu hovorí náhovor.
 
 ## Verzie
 
-- **Verzia 2 (aktuálna, kolo 30, ~140 s)**: C2-Hladanie nahrádza C2-Kancelaria + C3-Sklad; od kola 29 hovorené slovo + titulky, pauzy pred dejom.
+- **Verzia 2 (aktuálna, kolo 31, ~140 s)**: C2-Hladanie nahrádza C2-Kancelaria + C3-Sklad; od kola 29 hovorené slovo + titulky, pauzy pred dejom.
 - **Verzia 1 (88,5 s)**: rendre v `out/mp4/v1/` a `out/stills/v1/`; scény ostávajú v `src/scenes/` (`V1_LIST` v `scenesList.ts`, `npm run stills`/`render` ich preskakujú).

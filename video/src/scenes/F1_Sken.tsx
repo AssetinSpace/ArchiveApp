@@ -24,18 +24,14 @@ export type Tap = { t: number; x: number; y: number }; // s, podiel sirky/vysky 
 export type Step = { from: number; title: string; line?: string }; // s
 
 const F1_TAPS: Tap[] = [
-  { t: cutTime('f1-sken', 1.2), x: 0.94, y: 0.79 }, // Dalej
-  { t: cutTime('f1-sken', 4.2), x: 0.5, y: 0.36 }, // Skenovat QR z prilohy
-  { t: cutTime('f1-sken', 4.4), x: 0.94, y: 0.79 }, // Dalej
-  { t: cutTime('f1-sken', 6.2), x: 0.5, y: 0.32 }, // Odfotit/nahrat fotografiu
-  { t: cutTime('f1-sken', 8.7), x: 0.5, y: 0.85 }, // spust
-  { t: cutTime('f1-sken', 9.7), x: 0.9, y: 0.92 }, // Use Photo
+  { t: cutTime('f1-sken', 1.7), x: 0.94, y: 0.79 }, // Dalej
+  { t: cutTime('f1-sken', 8.9), x: 0.5, y: 0.85 }, // spust
+  { t: cutTime('f1-sken', 9.9), x: 0.9, y: 0.92 }, // Use Photo
 ];
 const F1_STEPS: Step[] = [
-  { from: 0, title: 'Pridať zložku' },
-  { from: segStart('f1-sken', 1), title: 'Naskenovať QR' },
-  { from: segStart('f1-sken', 2), title: 'Odfotiť štítok' },
-  { from: segStart('f1-sken', 5), title: 'Uložiť' },
+  { from: 0, title: 'Vybrať typ položky' },
+  { from: segStart('f1-sken', 1), title: 'Odfotiť identifikačnú stranu' },
+  { from: segStart('f1-sken', 3), title: 'Digitálny záznam' },
 ];
 
 const PHONE = FOOTAGE_PHONE;

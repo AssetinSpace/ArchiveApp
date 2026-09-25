@@ -69,12 +69,12 @@ export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps:
 export const F2_SECONDS = cutDuration('f2-metadata');
 const F2_STEPS: Step[] = [
   { from: 0, title: 'Príloha čaká' },
-  { from: segStart('f2-metadata', 1) * 1000, title: 'Extrahovať metadáta' },
+  { from: segStart('f2-metadata', 1) * 1000, title: 'Rozpoznať text' },
+  { from: segStart('f2-metadata', 4) * 1000, title: 'Navrhnúť metadáta' },
 ];
 const F2_TAPS: Tap[] = [
-  { t: cutTime('f2-metadata', 14.3), x: 0.099, y: 0.93 }, // vyber prilohy (checkbox)
-  { t: cutTime('f2-metadata', 14.8), x: 0.75, y: 0.94 }, // Extrahovat metadata
-  { t: cutTime('f2-metadata', 15.8), x: 0.81, y: 0.93 }, // potvrdit sablonu
-  { t: cutTime('f2-metadata', 16.8), x: 0.842, y: 0.937 }, // spustit
+  { t: cutTime('f2-metadata', 13.4), x: 0.099, y: 0.93 }, // vyber prilohy (checkbox)
+  { t: cutTime('f2-metadata', 14.0), x: 0.81, y: 0.93 }, // potvrdit sablonu
+  { t: cutTime('f2-metadata', 16.5), x: 0.842, y: 0.937 }, // spustit
 ];
 export const F2_Metadata: React.FC = () => <DesktopFootageClip src="footage/f2-metadata.mp4" seconds={F2_SECONDS} steps={F2_STEPS} taps={F2_TAPS} />;

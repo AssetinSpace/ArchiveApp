@@ -22,12 +22,12 @@ import { F4_SECONDS } from './scenes/F4_Kontrola';
 
 export type SceneDef = { component: React.FC; seconds: number; stills: number[] };
 /** Klip s pauzami (holds, ms v case sceny), nahovorom (vo) a titulkami; seconds = dlzka sceny bez pauz. */
-type PacedDef = { scene: React.FC; seconds: number; stills: number[]; holds?: Hold[]; vo?: boolean; dark?: boolean; darkUntil?: number; subtitleLeft?: number };
+type PacedDef = { scene: React.FC; seconds: number; stills: number[]; holds?: Hold[]; skip?: number; vo?: boolean; dark?: boolean; darkUntil?: number; subtitleLeft?: number };
 const paced = (id: string, d: PacedDef): [string, SceneDef] => {
   const Scene = d.scene;
   const component: React.FC = () =>
-    React.createElement(Paced, { id, holds: d.holds, vo: d.vo, dark: d.dark, darkUntil: d.darkUntil, subtitleLeft: d.subtitleLeft, children: React.createElement(Scene) });
-  return [id, { component, seconds: d.seconds + holdsSeconds(d.holds), stills: d.stills }];
+    React.createElement(Paced, { id, holds: d.holds, skip: d.skip, vo: d.vo, dark: d.dark, darkUntil: d.darkUntil, subtitleLeft: d.subtitleLeft, children: React.createElement(Scene) });
+  return [id, { component, seconds: d.seconds + holdsSeconds(d.holds) - (d.skip ?? 0) / 1000, stills: d.stills }];
 };
 
 /**
@@ -36,8 +36,8 @@ const paced = (id: string, d: PacedDef): [string, SceneDef] => {
  */
 export const SCENE_LIST: [string, SceneDef][] = [
   ['C1-Intro', { component: C1_Intro, seconds: 4, stills: [45, 65, 100] }],
-  paced('C2-Hladanie', { scene: C2_Hladanie, seconds: 10.5, vo: true, dark: true, holds: [{ at: 3600, hold: 3600 }], stills: [80, 250, 380] }),
-  paced('C4-Cena', { scene: C4_Cena, seconds: 11.1, vo: true, darkUntil: 13800, holds: [{ at: 4300, hold: 4600 }, { at: 6800, hold: 1400 }], stills: [100, 280, 440, 495] }),
+  paced('C2-Hladanie', { scene: C2_Hladanie, seconds: 10.5, vo: true, dark: true, holds: [{ at: 3600, hold: 2800 }], stills: [80, 240, 370] }),
+  paced('C4-Cena', { scene: C4_Cena, seconds: 16.9, skip: 800, vo: true, darkUntil: 11600, holds: [{ at: 4300, hold: 3400 }, { at: 6800, hold: 1000 }], stills: [60, 220, 400, 560] }),
   paced('C5-Teren', { scene: C5_Teren, seconds: 9, vo: true, holds: [{ at: 1400, hold: 800 }, { at: 4600, hold: 800 }, { at: 6300, hold: 800 }], stills: [70, 190, 280] }),
   paced('F1-Sken', { scene: F1_Sken, seconds: F1_SECONDS, vo: true, subtitleLeft: 900, stills: [20, 170, 330] }),
   paced('C7-Hierarchia', { scene: C7_Hierarchia, seconds: 5, vo: true, holds: [{ at: 3300, hold: 1200 }, { at: 4300, hold: 1400 }], stills: [15, 110, 200] }),

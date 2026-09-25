@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCurrentFrame } from 'remotion';
-import { LogoMark, Scene, useCaptions } from '../components/Scene';
+import { Scene, useCaptions } from '../components/Scene';
 import { BrandMod, BrandSep, BrandStack, LOCKUP, LOCKUP_W } from '../components/Brand';
 import { ArchiveBox, archiveBoxClosed } from '../components/ArchiveBox';
 import { C5_BOX_LEFT } from './C5_Teren';
@@ -28,11 +28,12 @@ import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
  * 5600-6100 vsetko vybledne, kamera na krabicu · 6300-7000 rozsvietenie ·
  * 6900 znacka, 7050 lockup (drzi 1 s) · 7900 znacka a lockup odchadzaju ·
  * 8100 krabica C5 sa usadi vlavo · 8200 paticka. 9 s.
+ * Kolo 31: uvod (najazd kamery) sa preskakuje o 0,8 s (skip v scenesList), znacka bez domceka drzi H = 5,2 s + 0,8 s na vetu nahovoru; scena 16,9 s.
  * Kolo 28: texty v obraze (2500 "Hladanie trva...", 4700 "Zaplatene dvakrat..."),
  * predel posunuty o D, znacka drzi o H dlhsie a pod lockupom je popis. 11,1 s.
  */
 const D = 1300; // posun predelu, aby sa dal precitat text pod "2x"
-const H = 800; // dlhsie drzanie znacky s popisom
+const H = 5200; // drzanie znacky: nahovor "Riesenim je nase softverove riesenie..." (kolo 31); bez domceka
 const BOX = 860;
 export const C4_Cena: React.FC = () => {
   const frame = useCurrentFrame();
@@ -52,7 +53,6 @@ export const C4_Cena: React.FC = () => {
   const light = tw(6300 + D, 700); // cista prelinacka do bielej
   const mark = settle(frame, 6900 + D); // znacka sa objavi (bez kreslenia) a drzi ~1 s
   const lockup = settle(frame, 7050 + D);
-  const desc = settle(frame, 7400 + D); // tichy popis pod lockupom
   const brandOut = tw(7900 + D + H, 300);
   const box = settle(frame, 8100 + D + H);
   const footer = tw(8200 + D + H, 400);
@@ -123,13 +123,10 @@ export const C4_Cena: React.FC = () => {
       {/* znacka Assetin + lockup z design kitu (assetin / .space | Archives), svetla verzia */}
       {mark > 0 ? (
         <div style={{ position: 'absolute', inset: 0, opacity: (1 - brandOut) * Math.min(1, mark * 1.2), transform: `scale(${(1 - 0.06 * brandOut) * (0.97 + 0.03 * mark)})`, transformOrigin: '50% 50%' }}>
-          <div style={{ position: 'absolute', left: 960 - 60, top: 310 }}>
-            <LogoMark size={120} color={BRAND[700]} />
-          </div>
           {(() => {
             const k = 0.6;
             const left = 960 - (LOCKUP_W * k) / 2;
-            const top = 470;
+            const top = 420;
             const stackLeft = 0,
               sepLeft = LOCKUP.stackW + LOCKUP.gap,
               modLeft = sepLeft + LOCKUP.sepW + LOCKUP.gap;
@@ -149,10 +146,7 @@ export const C4_Cena: React.FC = () => {
               </div>
             );
           })()}
-          {/* tichy popis pod lockupom (nie slogan) */}
-          <div style={{ position: 'absolute', left: 0, right: 0, top: 470 + LOCKUP.sepH * 0.6 + 56, textAlign: 'center', fontFamily: FONT.body, fontWeight: 500, fontSize: 30, letterSpacing: '0.01em', color: INK[500], opacity: desc, transform: `translateY(${(1 - desc) * 8}px)` }}>
-            {captions.C4brand}
-          </div>
+          {/* kolo 31: popis pod lockupom vypadol, vetu hovori nahovor (titulok dole) */}
         </div>
       ) : null}
 

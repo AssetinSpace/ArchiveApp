@@ -1,5 +1,5 @@
 import React from 'react';
-import { Audio, Freeze, getInputProps, staticFile, useCurrentFrame } from 'remotion';
+import { Audio, Freeze, Sequence, getInputProps, staticFile, useCurrentFrame } from 'remotion';
 import { Subtitles } from './Subtitles';
 import { FPS } from '../theme';
 
@@ -29,10 +29,12 @@ export const sceneFrame = (outFrame: number, holds: Hold[] = []) => {
  * Obal klipu: pauzy (Freeze), nahovor (public/vo/<id>.wav) a titulky.
  * Prop voice: false vypne zvuk, subtitles: false titulky.
  */
-export const Paced: React.FC<{ id: string; holds?: Hold[]; vo?: boolean; dark?: boolean; darkUntil?: number; subtitleLeft?: number; children: React.ReactNode }> = ({ id, holds = [], vo = false, dark, darkUntil, subtitleLeft, children }) => {
+export const Paced: React.FC<{ id: string; holds?: Hold[]; skip?: number; vo?: boolean; dark?: boolean; darkUntil?: number; subtitleLeft?: number; children: React.ReactNode }> = ({ id, holds = [], skip = 0, vo = false, dark, darkUntil, subtitleLeft, children }) => {
   const frame = useCurrentFrame();
   const p = getInputProps() as { voice?: boolean; subtitles?: boolean };
-  const inner = holds.length ? <Freeze frame={sceneFrame(frame, holds)}>{children}</Freeze> : <>{children}</>;
+  // skip: scena zacne o `skip` ms neskor vo svojom case (preskoci sa jej uvod, napr. najazd kamery v C4)
+  const skipped = skip ? <Sequence from={-Math.round((skip / 1000) * FPS)} layout="none">{children}</Sequence> : <>{children}</>;
+  const inner = holds.length ? <Freeze frame={sceneFrame(frame, holds)}>{skipped}</Freeze> : skipped;
   return (
     <>
       {inner}

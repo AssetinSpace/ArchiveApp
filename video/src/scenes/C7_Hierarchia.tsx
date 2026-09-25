@@ -6,7 +6,7 @@ import { PhoneFrame } from '../components/Device';
 import { StepsPanel } from '../components/Steps';
 import { ArchiveBox } from '../components/ArchiveBox';
 import { Camera } from '../lib/camera';
-import { Binder, Carton, IsoBox, QrOnLeftFace, ShelfFrame, iso, pts } from '../lib/iso';
+import { Binder, Carton, IsoBox, QrOnLeftFace, QrOnTopFace, ShelfFrame, iso, pts } from '../lib/iso';
 import { drawProps, pop, settle, tween } from '../lib/anim';
 import { Check } from '../components/Illustrations';
 import { captions, phases } from '../copy/sk';
@@ -121,7 +121,7 @@ export const C7_Hierarchia: React.FC = () => {
           ) : (
             <g>
               <IsoBox x={-10} y={-15} z={0} w={21} d={30} h={1} faces={{ top: '#fff', left: ISO.right, right: ISO.edge }} />
-              <QrOnLeftFace x={-4} y={15} z={-3} size={8} s={q} />
+              <QrOnTopFace x={-2} y={5} z={1.2} size={8} s={q} /> {/* kolo 31: QR plocho na liste, nie z boku */}
               {/* oznacenie dokumentu */}
               <text x={0} y={46} textAnchor="middle" fontFamily="ui-monospace, Menlo, monospace" fontSize={18} fill={INK[500]} opacity={q}>
                 {docId}

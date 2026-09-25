@@ -10,13 +10,11 @@ import { cutDuration, cutTime, segStart } from '../lib/cuts';
  */
 export const F3_SECONDS = cutDuration('f3-search');
 const F3_STEPS: Step[] = [
-  { from: 0, title: 'Hľadať slovo' },
-  { from: segStart('f3-search', 1) * 1000, title: 'Zložka nájdená' },
-  { from: segStart('f3-search', 5) * 1000, title: 'QR k polici' },
+  { from: 0, title: 'Kľúčové slovo' },
+  { from: segStart('f3-search', 1) * 1000, title: 'Záznam a podrobnosti' },
+  { from: segStart('f3-search', 5) * 1000, title: 'QR kód overí obsah' },
 ];
-const F3_TAPS: Tap[] = [
-  { t: cutTime('f3-search', 4.0), x: 0.16, y: 0.25 }, // klik na vysledok ZL_01
-];
+const F3_TAPS: Tap[] = []; // detail zlozky sa otvara sam s vysledkom, klik v zazname nie je
 const F3_MARKS: Mark[] = [
   { from: cutTime('f3-search', 1.0), to: cutTime('f3-search', 2.5), x: 0.108, y: 0.462, w: 0.075, h: 0.05, sweep: 1.3 }, // pisane slovo "vodovod" - jemna fixka zlava
 ];
