@@ -3,7 +3,7 @@
 // Hlas: espeak-ng (sk) = docasny robot na doladenie tempa. Kvalitny hlas sa dosadi tak,
 // ze sa vety vygeneruju inde do public/vo/lines/<klip>-<i>.wav a spusti sa `--reuse`.
 // Kvalitny hlas zadarmo: --engine edge (Microsoft neural sk-SK-LukasNeural cez pip edge-tts; potrebuje
-// v sieti prostredia povoleny host speech.platform.bing.com), --voice sk-SK-ViktoriaNeural pre zensky hlas,
+// v sieti prostredia povoleny host speech.platform.bing.com a CA proxy pridanu do certifi), --voice sk-SK-ViktoriaNeural pre zensky hlas,
 // --rate -10% pre pomalsie tempo.
 // Pouzitie: node scripts/vo.mjs [--reuse] [--engine espeak|edge] [--speed 150] [--voice ...] [--rate -5%]
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -38,7 +38,8 @@ for (const [clip, lines] of Object.entries(vo)) {
     if (!reuse || !existsSync(file)) {
       if (engine === 'edge') {
         // edge-tts pise mp3; prevod na wav, aby mal mix rovnaky format. CA proxy: SSL_CERT_FILE.
-        execFileSync('edge-tts', ['--voice', voice, '--rate', rate, '--text', l.text, '--write-media', file + '.mp3'], { env: { ...process.env, SSL_CERT_FILE: process.env.SSL_CERT_FILE ?? '/root/.ccr/ca-bundle.crt' } });
+        const proxy = process.env.HTTPS_PROXY ? ['--proxy', process.env.HTTPS_PROXY] : []; // websocket cez proxy prostredia (trust_env nestaci)
+        execFileSync('edge-tts', [...proxy, '--voice', voice, `--rate=${rate}`, '--text', l.text, '--write-media', file + '.mp3']);
         execFileSync(FF, ['-v', 'error', '-y', '-i', file + '.mp3', '-ar', '48000', '-ac', '1', file]);
       } else {
         execFileSync('espeak-ng', ['-v', 'sk', '-s', speed, '-p', '40', '-a', '170', '-w', file, l.text]);
