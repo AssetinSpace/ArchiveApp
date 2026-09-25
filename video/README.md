@@ -9,8 +9,9 @@ Obsahová predloha: brožúra *Assetin Archives – Predstavenie služby* (12 st
 Vizuálna predloha: animované dlaždice „Quick start“ na assetin.sk
 (izometrický štýl, 5 sivých + brand zelená `#1F7A33`, Manrope + Inter).
 
-Táto vetva je **samostatná (orphan)** – neobsahuje kód aplikácie ArchiveApp,
-slúži len ako úložisko video projektu.
+Projekt žije v priečinku `video/` v hlavnom repe ArchiveApp, ale je od aplikácie nezávislý
+(vlastný `package.json`). **Aktuálny stav a ďalšie kroky: [HANDOFF.md](HANDOFF.md)**, história kôl
+a rozhodnutí: [FEEDBACK.md](FEEDBACK.md), review stránka klipov: odkaz v HANDOFF.md.
 
 ## Spustenie
 
