@@ -138,27 +138,31 @@
 <script>
   // Stav stranky: BUILD sa meni pri kazdom publikovani (kolo, cas renderu), zivy stav cita db dokument status/current.
   const BUILD = {
- "round": 35,
- "renderedAt": "2026-09-26T11:33:00Z"
+ "round": 37,
+ "renderedAt": "2026-09-26T12:45:00Z"
 };
   const FULL = {
- "len": 156.0,
- "cap": "8a958650d05a6a4439c114a1d4232d4c",
+ "len": 152.1,
+ "cap": "16a4d5844070e8f00b1605c9733a8015",
  "poster": "7ed206c53b726ea864793fefdee08a5d",
- "desc": "Tvrdé strihy medzi klipmi, hlas Gemini TTS (Velvet 1), titulky, zatiaľ bez hudby."
+ "desc": "Tvrdé strihy medzi klipmi, hlas Gemini TTS (Velvet 1), titulky a od kola 37 hudba (Lyria, pod hlasom stíšená)."
 };
   const NEWS = [
- "F3: nový úvod „S databázou sa dá pracovať rôzne: vyhľadávať, zoskupovať aj exportovať. Najjednoduchšie je vyhľadávanie.“ s krokom „Práca s databázou“; rámik postupne na záložkách, na „Hľadať“ a na poli vyhľadávania.",
- "F3: zvýraznenia sú teraz zelený rámik a stmavené okolie (namiesto slabej zelenej fixky): záložky, pole vyhľadávania, cesta v hierarchii a odznaky Nájdené v: Metadáta | OCR."
+ "Hudba: optimistický corporate podmaz (Lyria), naplno sa ozve pri logu po 0:31, pod hlasom sa sama stíši; celý film -16 LUFS. Hudba je len v celom filme, jednotlivé klipy sú bez nej.",
+ "C1: assetin a .space vyplávajú naraz, intro kratšie (3,6 s).",
+ "C4: otáznik ako v C2 (rovnaký a rovnako veľký), „2×€“ na stred, veta pri logu bez hlasu, pod logom text „Digitálna katalogizácia archivovanej dokumentácie“; klip o 5 s kratší.",
+ "C5: hárok s QR kódmi leží naplocho na zemi v rovnakej perspektíve ako krabica.",
+ "Nová scéna C10 Práca s databázou (pred F3): vyhľadávanie, zoskupovanie, export ako karty v okne aplikácie; F3 už nezvýrazňuje menu.",
+ "Zvýraznenia všade ako pri vyhľadávaní: rámik a stmavené okolie aj v F1 a F4 (oprava jantárovým rámikom)."
 ];
   const CLIPS = [
  {
   "id": "C1-Intro",
   "name": "Intro",
-  "len": 4.0,
-  "desc": "Lockup z design kitu: assetin / .space vypláva, oddeľovač, Archives vyjde spoza neho; na konci sa zasunie späť a logotyp vybledne do navy.",
-  "cap": "0472c8f818aa52104e4512db15a0bb0e",
-  "poster": "11222580c127581049b9809510aab372"
+  "len": 3.6,
+  "desc": "Kolo 36: assetin a .space vyplávajú naraz (bez oddeleného nástupu .space), celé intro o 0,4 s kratšie.",
+  "cap": "a18ffd15ef1f542f48f247c899b25b1d",
+  "poster": "3e7390d59b19ef05e6fcab19c5bbcd2b"
  },
  {
   "id": "C2-Hladanie",
@@ -171,26 +175,26 @@
  {
   "id": "C4-Cena",
   "name": "Cena → predel",
-  "len": 25.0,
-  "desc": "Kolo 34: nová veta „Otázne je, v akej kondícii dokumentáciu nájdete.“ (pri hodinách), začína presne záberom, kde končí C2, „2×“ a „€€€“ rovnako veľké, po nich rovno biela a „Kľúčom k vyriešeniu tohto problému...“.",
-  "cap": "0de2e2815b7813131ced10a2de624bc8",
-  "poster": "7600af7b3b92cac43c46f8fbcb9af081"
+  "len": 20.1,
+  "desc": "Kolo 36: nad regálom rovnaký otáznik ako v C2 (aj rovnako veľký), „2×€“ jedným textom na stred, veta „Kľúčom k vyriešeniu...“ už nie je v hlase, pod logom je text „Digitálna katalogizácia archivovanej dokumentácie“. Klip 20,1 s namiesto 25,0 s.",
+  "cap": "aaee7c95e4d91ee1198abfae158ca801",
+  "poster": "0c5002e3c21e3872b227848899f44251"
  },
  {
   "id": "C5-Teren",
   "name": "V sklade",
   "len": 12.3,
-  "desc": "Kolo 34: mobil bez zaseknutia pri priblížení; do rámika F1 sa presunie až po vete, takže neprekrýva titulky.",
-  "cap": "424d65de451816f52b88ef81d8a9f12a",
-  "poster": "3b9a8be250b1e8c92b7e9502e2710186"
+  "desc": "Kolo 36: hárok s QR kódmi leží naplocho na zemi v izometrii krabice, nálepka sa z neho odlepí a doletí na krabicu.",
+  "cap": "874184d6062be79c0679580da0600c58",
+  "poster": "dbfd3bfd1eb72329ab16bfc05b52b07c"
  },
  {
   "id": "F1-Sken",
   "name": "Footage: sken štítku",
   "len": 14.8,
-  "desc": "Kolo 34: začína rovno obrazovkou Vybrať typ jednotky (bez detailu KR_01 a prvého kliku). Hlavička „Pridáva sa jednotka pod KR_01“ ukazuje zaradenie do hierarchie.",
-  "cap": "413f9a724b8c2550d1f3c5cba8ca7566",
-  "poster": "2df8519b6ceb6cf4657fadfc43fefa57"
+  "desc": "Kolo 36: zvýraznenia Zložka (ZL) a „Pridáva sa jednotka pod KR_01“ ako rámik so stmaveným okolím displeja.",
+  "cap": "88619ba8150709c3ab97c4420b3f189b",
+  "poster": "c1a5c41b8660f0e2e15c62a533c05187"
  },
  {
   "id": "C7-Hierarchia",
@@ -220,17 +224,25 @@
   "id": "F4-Kontrola",
   "name": "Footage: kontrola metadát",
   "len": 18.6,
-  "desc": "Kolo 33: nový orez podľa nového záznamu, celý obsah aplikácie (fotka vľavo aj tlačidlá vpravo) v širšom okne. Oprava Číslo zmeny 1 -> 2 zvýraznená jantárovou farbou priamo na poli Hodnota; rámik okolo fotky pri „Fotka je dôkaz“; kroky podľa hlasu.",
-  "cap": "be9bade2ae842b73e0d28c24bc1adbb7",
-  "poster": "2faeb0756c641b7d20cc770f8aad6ae6"
+  "desc": "Kolo 36: zvýraznenia ako rámik so stmaveným okolím: správna hodnota, fotka pri „Fotka je dôkaz“, oprava Číslo zmeny jantárovým rámikom.",
+  "cap": "b44f8209d929d38a8eccb2ea3a8d728f",
+  "poster": "edb0e841249a83d40e0dbb0aea6db86e"
+ },
+ {
+  "id": "C10-Databaza",
+  "name": "Práca s databázou",
+  "len": 9.2,
+  "desc": "Kolo 36, nová scéna pred F3 (ako C6): „S databázou sa dá pracovať rôzne: vyhľadávať, zoskupovať aj exportovať. Najjednoduchšie je vyhľadávanie.“ Karty Vyhľadávanie, Zoskupovanie, Export nastupujú so slovami, potom ostane Vyhľadávanie a okno prejde do F3.",
+  "cap": "cc647a42f9701abbeb4a874b89ef629c",
+  "poster": "e1a2b12afe852313efc53846fddcb29f"
  },
  {
   "id": "F3-Vyhladavanie",
   "name": "Footage: vyhľadávanie",
-  "len": 31.8,
-  "desc": "Kolo 35: úvod o práci s databázou (vyhľadávanie, zoskupovanie, exporty; najjednoduchšie je vyhľadávanie) nad úvodnou obrazovkou so záložkami, krok „Práca s databázou“. Zvýraznenia sú rámik so stmaveným okolím: záložky, Hľadať, pole vyhľadávania, cesta v hierarchii, odznaky Nájdené v: Metadáta | OCR.",
-  "cap": "d7426692a33a96e455aaeed2f39d24ec",
-  "poster": "ccba6bad400089b74ee7b94d183da8cd"
+  "len": 24.0,
+  "desc": "Kolo 36: úvod o databáze je samostatná scéna C10, F3 začína „Stačí zadať kľúčové slovo.“ bez zvýrazňovania menu; rámik so stmavením na poli vyhľadávania, ceste v hierarchii a odznakoch.",
+  "cap": "e45879b23d8ca3a270b8db5c40584769",
+  "poster": "de0404ecada14a5fe8813d799c25df10"
  },
  {
   "id": "C8-Pilot",

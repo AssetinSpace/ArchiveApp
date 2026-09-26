@@ -52,15 +52,10 @@ po `cut-footage` (kolo 33) majú zostrihy F1 14,7 s, F2 8,2 s, F3 24,0 s (kolo 3
 
 Potom: `node scripts/cut-footage.mjs` (vyrobí `public/footage/f1-sken.mp4`, `f2-metadata.mp4`, `f3-search.mp4`, `f4-review.mp4`),
 `node scripts/vo.mjs --engine gemini --reuse` (hlas, dĺžky, časti titulkov; `--reuse` vezme vety z `public/vo/lines`, bez neho sa generujú znova; nahrávky sú mimo gitu, v novej session ich treba vygenerovať, ~20 generovaní), `npm run stills`, `bash scripts/render.sh`.
-Full sa lepí z klipov (C1 potrebuje tichú stopu, inak concat zahodí zvuk):
+Full sa od kola 37 lepí skriptom `node scripts/mix-music.mjs`: poradie klipov zo `SCENE_LIST`, C1 dostane tichú stopu (inak concat zahodí zvuk), vypíše časy predelov, podmaže hudbu `public/music/bed.wav` a vyrobí `out/mp4/Full_1080p.mp4` + `Full_preview_540p.mp4` (-16 LUFS, true peak -1,5 dB). `--no-music` = Full len s hlasom.
 
-```bash
-FF=$(python3 -c "import imageio_ffmpeg as f; print(f.get_ffmpeg_exe())")
-$FF -y -i out/mp4/C1-Intro.mp4 -f lavfi -i anullsrc=r=48000:cl=mono -shortest -c:v copy -c:a aac /tmp/C1-silent.mp4  # po kazdej zmene C1 znova
-# list.txt: /tmp/C1-silent.mp4, potom C2-Hladanie C4-Cena C5-Teren F1-Sken C7-Hierarchia C6-Spracovanie F2-Metadata F4-Kontrola C10-Databaza F3-Vyhladavanie C8-Pilot C9-Outro (out/mp4/<ID>.mp4)
-$FF -y -f concat -safe 0 -i list.txt -c:v libx264 -crf 18 -pix_fmt yuv420p -c:a aac -b:a 160k -ar 48000 out/mp4/Full_1080p.mp4
-$FF -y -i out/mp4/Full_1080p.mp4 -vf scale=960:540 -c:v libx264 -crf 24 -pix_fmt yuv420p -c:a aac -b:a 96k out/mp4/Full_preview_540p.mp4
-```
+Hudba (kolo 37): `python3 scripts/music.py` generuje cez Lyria (`lyria-3-pro-preview`, prompt a model v `src/copy/music.json`), výsledok `public/music/bed.wav` (mimo gitu) sa cachuje podľa promptu (`--force` = znova). Volanie musí ísť cez stream (`generate_content_stream`), inak brána po ~30 s vráti 502. Lyria občas odmietne prompt (`PROHIBITED_CONTENT`), stačí zopakovať. Kvóta Lyria nie je známa, Samuel: šetriť (jeden štýl, jedno generovanie). Výstup Lyria nesie SynthID vodoznak; pred verejným / komerčným použitím overiť podmienky Google pre generovanú hudbu.
+Mix: hudba `atempo 0,983` (skladba končí ~2,5 s pred koncom filmu, takto sedí záverečný akord na koniec C9; pri inej dĺžke filmu upraviť `--tempo`), zárez 1-3 kHz (-3 dB), `--gain -6` dB, stíšenie pod hlasom `sidechaincompress` (prah 0,02, pomer 3): pod hlasom ~14 dB pod rečou, v pauzách ~7 dB. Kontrola zrozumiteľnosti prepisom (gemini-3.8-flash) na úsekoch C4, F3, C9: 5/5.
 
 Sieť: povolené sú `huggingface.co` (Piper), `speech.platform.bing.com` (edge-tts; websocket ide cez `--proxy $HTTPS_PROXY`,
 CA proxy treba pridať do certifi: `cat /root/.ccr/ca-bundle.crt >> $(python3 -c "import certifi;print(certifi.where())")`),

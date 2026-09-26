@@ -5,3 +5,5 @@ out/preview/
 .DS_Store
 public/footage/
 public/vo/
+public/music/
+out/tmp/

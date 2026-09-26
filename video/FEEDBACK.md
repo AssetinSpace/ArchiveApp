@@ -393,3 +393,12 @@ Full 156,0 s.
 | C5 | Hárok s QR kódmi vľavo zavadzia, dať ho naplocho ako leží krabica. | Hárok leží na podlahe v rovnakej izometrii 2:1 ako krabica (vpredu vľavo, 300/815 px); nálepka sa z neho odlepí (z roviny podlahy sa narovná), preletí a dosadne sklopená do steny. |
 | F3 | Na začiatku nezvýrazňovať menu, úvod o práci s databázou podať ako ostatné funkcie (napr. spracovanie v aplikácii). | Nová scéna **C10 Práca s databázou** (pred F3, ako C6): okno aplikácie z bielej, karty Vyhľadávanie / Zoskupovanie / Export nastupujú so slovami náhovoru, pri „Najjednoduchšie je vyhľadávanie“ ostane Vyhľadávanie (ostatné stlmené), okno prejde do okna F3. Vpravo „V aplikácii · Práca s databázou · Vyhľadávanie, zoskupovanie aj exporty.“ Hlas rozdelený z nahrávky kola 35 (bez nového generovania). F3 zas začína „Stačí zadať kľúčové slovo.“, bez spotov na menu (spot len na poli vyhľadávania), 24,0 s; C10 9,1 s. |
 | Celok | Zvýraznenia všade ako pri vyhľadávaní (stmavenie okolia), kontrast je výraznejší. | Spot (rámik + stmavené okolie) aj v F1 (Zložka (ZL), „Pridáva sa jednotka pod KR_01“) a F4 (správna hodnota, fotka, oprava s jantárovým rámikom). F2 zvýraznenia nemá (len kliky). |
+
+
+## Kolo 37 (26. 9. 2026): hudba (Lyria) a zverejnenie kola 36
+
+Analýza kola 36 (Samuel: "nič nemeň, len analyzuj"): najväčší prínos je hudba, film je bez nej a pauzy v hlase pôsobia prázdno (0:30-0:37 logo v C4, 0:46-0:50 C5 -> F1, 2:23-2:25, tiché intro). Samuel: "vyťahovka" vhodná na prezentovanie, cez Lyria, jeden štýl (šetriť kvótu).
+
+- Hudba: `lyria-3-pro-preview`, jeden prompt s časovou osou filmu (`src/copy/music.json`), 151,8 s, bez spevu, optimistický corporate electronic (~120 BPM podľa rozboru): tiché intro, zdržanlivý úsek problému, plný groove od 0:31 (logo), stíšenie od 2:11 a záver. Jeden pokus zablokovala Lyria (`PROHIBITED_CONTENT`), druhý prešiel; prvý bez streamu padol na 502.
+- Mix `scripts/mix-music.mjs`: tempo 0,983 (záverečný akord na koniec C9), zárez 1-3 kHz, stíšenie pod hlasom (~14 dB pod rečou, v pauzách ~7 dB), -16 LUFS. Prepis hlasu cez hudbu (C4, F3, C9) sedí slovo po slove, zrozumiteľnosť 5/5.
+- Review stránka: kolo 36 aj 37 naraz (C1, C4, C5, F1, F4, nová C10, F3 a Full s hudbou). Hudba je len vo Full, klipy sú bez nej. Full 152,1 s.
