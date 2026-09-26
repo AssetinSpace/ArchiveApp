@@ -8,6 +8,7 @@ import { Camera } from '../lib/camera';
 import { pop, settle, tween } from '../lib/anim';
 import { captions } from '../copy/sk';
 import { BRAND, CM, FONT, INK, ISO, SAFE } from '../theme';
+import { C5_STEPS as STEPS } from '../copy/steps';
 
 /**
  * C5 - V sklade. Dlazdica z webu ako hrdina; harok nalepiek (A4) a mobil
@@ -39,13 +40,7 @@ const PHONE_END = {
   w: FOOTAGE_PHONE.w / CAM_END.scale,
   h: FOOTAGE_PHONE.h / CAM_END.scale,
 };
-/** Nas pristup v troch krokoch (text vpravo, rovnaky jazyk ako pri footage). */
-const STEPS = [
-  { from: 900, title: 'Označiť', line: 'Každá položka dostane nálepku s QR kódom.' },
-  { from: 4100, title: 'Odfotiť', line: 'Štítok sa odfotí mobilom priamo v sklade.' },
-  { from: 5300, title: 'Zaevidovať', line: 'Fotka ide do aplikácie, položka dostane ID.' },
-];
-
+// Nas pristup v troch krokoch (text vpravo): src/copy/steps.ts
 export const C5_Teren: React.FC = () => {
   const frame = useCurrentFrame();
   const showCap = useCaptions();

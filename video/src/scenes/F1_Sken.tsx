@@ -4,6 +4,7 @@ import { FOOTAGE_PHONE, PHONE_BEZEL, PhoneFrame } from '../components/Device';
 import { settle, tween } from '../lib/anim';
 import { loadFonts } from '../lib/fonts';
 import { BRAND, FONT, INK } from '../theme';
+import { F1_STEPS } from '../copy/steps';
 
 /**
  * F1 - Footage: sken prveho stitku v appke (screen recording z mobilu).
@@ -29,13 +30,6 @@ const F1_TAPS: Tap[] = [
   { t: 7.37, x: 0.5, y: 0.85 }, // spust
   { t: 7.79, x: 0.9, y: 0.92 }, // Use Photo
   { t: 9.39, x: 0.9, y: 0.79 }, // Vytvorit
-];
-const F1_STEPS: Step[] = [
-  { from: 0, title: 'Krabica KR_01', line: 'Naskenovaná krabica. Pridáva sa do nej zložka.' },
-  { from: 1.5, title: 'Typ jednotky', line: 'Zložka pod krabicou KR_01.' },
-  { from: 3.45, title: 'Priradiť QR', line: 'Kód sa prečíta z fotky štítku.' },
-  { from: 5.57, title: 'Odfotiť štítok', line: 'Fotka je dôkaz. Appka z nej číta údaje.' },
-  { from: 7.79, title: 'Skontrolovať a vytvoriť', line: 'Jednotka má ID a svoje miesto.' },
 ];
 
 const PHONE = FOOTAGE_PHONE;

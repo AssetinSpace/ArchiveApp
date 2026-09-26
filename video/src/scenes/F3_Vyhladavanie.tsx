@@ -1,6 +1,6 @@
 import React from 'react';
-import { Step } from '../components/Steps';
 import { DesktopFootageClip, Mark, Tap } from './F2_Metadata';
+import { F3_STEPS } from '../copy/steps';
 
 /**
  * F3 - Vyhladavanie (16 s zaznam zostrihany na 10,3 s): rovnake zastavky
@@ -9,12 +9,6 @@ import { DesktopFootageClip, Mark, Tap } from './F2_Metadata';
  * 1,5 s), QR kod (14-16,1 s 1,5x + freeze 0,8 s).
  */
 export const F3_SECONDS = 10.3;
-const F3_STEPS: Step[] = [
-  { from: 0, title: 'Hľadať', line: 'Stačí slovo. Napríklad „vodovod“.' },
-  { from: 1600, title: 'Zhoda', line: 'Nájde zložku, v ktorej sa slovo vyskytuje: v názve, poznámke aj v texte prílohy.' },
-  { from: 4300, title: 'Metadáta', line: 'Kľúče a hodnoty z fotky štítku, zhoda je zvýraznená.' },
-  { from: 8100, title: 'QR kód', line: 'Z výsledku rovno k fyzickej zložke na polici.' },
-];
 const F3_TAPS: Tap[] = [
   { t: 3.1, x: 0.16, y: 0.25 }, // klik na vysledok ZL_01
 ];

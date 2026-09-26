@@ -5,6 +5,7 @@ import { Step, StepsPanel } from '../components/Steps';
 import { settle, tween } from '../lib/anim';
 import { loadFonts } from '../lib/fonts';
 import { BRAND } from '../theme';
+import { F2_STEPS } from '../copy/steps';
 
 /**
  * Desktop footage (screen recording z prehliadaca) v okne aplikacie vlavo
@@ -65,11 +66,6 @@ export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps:
  * (14-17 s), zaciatok spracovania (18-20 s). Kliky zvyraznene.
  */
 export const F2_SECONDS = 7;
-const F2_STEPS: Step[] = [
-  { from: 0, title: 'Príloha čaká', line: 'Fotka štítku je pri zložke ZL_01, pripravená na extrakciu.' },
-  { from: 2200, title: 'Extrahovať metadáta', line: 'Jeden klik. Údaje sa čítajú z fotky.' },
-  { from: 5000, title: 'Spracúva sa', line: 'Aplikácia číta text z fotky a pripravuje návrh metadát na kontrolu.' },
-];
 const F2_TAPS: Tap[] = [
   { t: 2.3, x: 0.099, y: 0.93 }, // vyber prilohy (checkbox)
   { t: 2.8, x: 0.75, y: 0.94 }, // Extrahovat metadata
