@@ -17,6 +17,7 @@ import { BRAND } from '../theme';
  * Kolo 33: `win` = ine okno (FOOTAGE_WINDOW_WIDE pre nove zaznamy F3/F4 s pomerom 2:1, bez orezania obsahu),
  * zvyraznenia maju farbu (zelena = potvrdenie, jantarova = oprava) alebo rámik (`outline`).
  * Kolo 35: `spot` = ramik a stmavene okolie (zelena fixka v F3 nebola dost vidiet), spoty sa v case neprekryvaju.
+ * Kolo 36: spot vsade (F1, F3, F4), ramik spotu ma farbu podla `color` (jantarova = oprava).
  * Zdroj: public/footage/ (priecinok nie je v gite).
  */
 export type Tap = { t: number; x: number; y: number }; // s, podiel sirky/vysky obsahu okna
@@ -47,7 +48,7 @@ export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps:
               const a = tw(m.from * 1000, 200) * (1 - tw(m.to * 1000 - 250, 250));
               if (a <= 0) return null;
               if (m.spot) {
-                return <div key={`m${i}`} style={{ position: 'absolute', left: m.x * cw - 8, top: m.y * ch - 8, width: m.w * cw + 16, height: m.h * ch + 16, borderRadius: 10, border: `4px solid ${BRAND[400]}`, boxShadow: `0 0 0 4000px rgba(15,23,42,${0.38 * a})`, opacity: Math.min(1, a * 1.5), transform: `scale(${1.02 - 0.02 * a})`, pointerEvents: 'none' }} />;
+                return <div key={`m${i}`} style={{ position: 'absolute', left: m.x * cw - 8, top: m.y * ch - 8, width: m.w * cw + 16, height: m.h * ch + 16, borderRadius: 10, border: `4px solid ${m.color === 'amber' ? '#F59E0B' : BRAND[400]}`, boxShadow: `0 0 0 4000px rgba(15,23,42,${0.38 * a})`, opacity: Math.min(1, a * 1.5), transform: `scale(${1.02 - 0.02 * a})`, pointerEvents: 'none' }} />;
               }
               if (m.outline) {
                 return <div key={`m${i}`} style={{ position: 'absolute', left: m.x * cw - 6, top: m.y * ch - 6, width: m.w * cw + 12, height: m.h * ch + 12, borderRadius: 8, border: `4px solid ${BRAND[400]}`, boxShadow: '0 0 0 6px rgba(79,168,90,0.18)', opacity: a, transform: `scale(${1.03 - 0.03 * a})`, pointerEvents: 'none' }} />;

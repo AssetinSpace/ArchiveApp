@@ -33,11 +33,14 @@ import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
  * Kolo 33: rucicka hodin sa toci podla skutocneho casu (useOutputFrame), pauzy v scenesList su plynule; scena 15,6 s.
  * Kolo 34: bez skipu (kamera nadvazuje na koniec C2), bez otaznika nad policou, "2x" a "EUR" rovnako velke,
  * po "2x" hned prelinacka do bielej a znacka (kamera sa uz nevracia na policu).
+ * Kolo 36: prvy otaznik je rovnaky ako v C2 (QuestionMark nad regalom, na obrazovke rovnako velky, ~62 px),
+ * "2x EUR" jednym textom na stred, veta "Klucom k vyrieseniu..." bez hlasu: pod lockupom text
+ * "Digitalna katalogizacia archivovanej dokumentacie", znacka drzi H = 2,05 s; scena 12,45 s.
  * Kolo 28: texty v obraze (2500 "Hladanie trva...", 4700 "Zaplatene dvakrat..."),
  * predel posunuty o D, znacka drzi o H dlhsie a pod lockupom je popis. 11,1 s.
  */
 const D = 1300; // posun predelu, aby sa dal precitat text pod "2x"
-const H = 5200; // drzanie znacky: nahovor "Riesenim je nase softverove riesenie..." (kolo 31); bez domceka
+const H = 2050; // drzanie znacky s textom pod lockupom (kolo 36: bez nahovoru, ~3,5 s na citanie)
 const BOX = 860;
 export const C4_Cena: React.FC = () => {
   const frame = useCurrentFrame();
@@ -72,18 +75,11 @@ export const C4_Cena: React.FC = () => {
           </ShelfFrame>
           {(() => {
             const [qx, qy] = iso(s.x + 65, s.y + 30, 2 * CM.shelf.level + 14);
-            return <QuestionMark x={qx} y={qy} s={0} />; // kolo 34: bez otaznika nad policou (C2 konci bez neho, strih nadvazuje)
+            return <QuestionMark x={qx} y={qy} s={bigQ * 0.67 * out} />; // kolo 36: rovnaky otaznik ako v C2, rovnako velky na obrazovke (kamera je tu priblizena 1,5x; namiesto velkeho kruhu vedla regalu)
           })()}
         </svg>
       </Camera>
 
-      {/* velky otaznik vedla regalu (rovnaka velkost ako hodiny) */}
-      <svg width={240} height={240} viewBox="-120 -120 240 240" style={{ position: 'absolute', left: 715, top: 380, opacity: Math.min(1, bigQ * 1.4) * out, transform: `scale(${0.6 + 0.4 * bigQ})` }}>
-        <circle r={100} fill={BRAND[300]} />
-        <text x={0} y={48} textAnchor="middle" fontFamily="Manrope" fontWeight={800} fontSize={150} fill={NAVY[900]}>
-          ?
-        </text>
-      </svg>
       {/* hodiny v strede medzery medzi regalom a vykresom */}
       <svg width={240} height={240} viewBox="-120 -120 240 240" style={{ position: 'absolute', left: 955, top: 380, opacity: clock * out, transform: `scale(${0.6 + 0.4 * clock})` }}>
         <circle r={95} fill="#1B2A44" stroke="#fff" strokeWidth={10} />
@@ -109,10 +105,9 @@ export const C4_Cena: React.FC = () => {
       <div style={{ position: 'absolute', left: 1395, top: 720, opacity: out }}>
         <PriceTag text="nové vyhotovenie" s={tagB} color={BRAND[700]} size={36} />
       </div>
-      {/* 2x €€€ dole v strede, medzi cenovkami */}
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 640, textAlign: 'center', opacity: big * out, transform: `scale(${0.6 + 0.4 * big})`, whiteSpace: 'nowrap' }}>
-        <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 170, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.03em' }}>2×</span>
-        <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 170, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.03em', marginLeft: 28 }}>€€€</span>
+      {/* 2x EUR dole v strede, medzi cenovkami (kolo 36: jeden text, jedno EUR, na stred) */}
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 640, textAlign: 'center', opacity: big * out, transform: `scale(${0.6 + 0.4 * big})`, whiteSpace: 'nowrap', fontFamily: FONT.display, fontWeight: 800, fontSize: 170, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.03em' }}>
+        2×€
       </div>
       {showCap ? (
         <>
@@ -150,7 +145,10 @@ export const C4_Cena: React.FC = () => {
               </div>
             );
           })()}
-          {/* kolo 31: popis pod lockupom vypadol, vetu hovori nahovor (titulok dole) */}
+          {/* kolo 36: popis pod lockupom (vetu uz nehovori nahovor) */}
+          <div style={{ position: 'absolute', left: 0, right: 0, top: 590, textAlign: 'center', fontFamily: FONT.display, fontWeight: 600, fontSize: 46, color: NAVY[800], letterSpacing: '-0.01em', opacity: settle(frame, 6750 + D), transform: `translateY(${(1 - settle(frame, 6750 + D)) * 12}px)` }}>
+            {captions.C4brand}
+          </div>
         </div>
       ) : null}
 

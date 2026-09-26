@@ -381,3 +381,15 @@ Dve pripomienky z review stránky (kolo 34, „navrhni“), návrh schválil Sam
 | F3 | Zelené zvýraznenie nie je dosť vidieť, navrhnúť iné. | Nový typ zvýraznenia `spot` v `DesktopFootageClip`: zelený rámik 4 px a stmavené okolie (38 %), jemne dosadne; spoty sa v čase neprekrývajú. V F3 všetky zvýraznenia (záložky, Hľadať, pole, drobček PL_01 / KR_01 / ZL_03, odznaky Nájdené v: Metadáta / OCR). F2 a F4 ostávajú s fixkou (F4 potrebuje zelenú/jantárovú). |
 
 Full 156,0 s.
+
+
+## Kolo 36 (26. 9. 2026): šesť komentárov z review stránky ku kolu 35
+
+| Klip | Pripomienka (skrátene) | Riešenie |
+|---|---|---|
+| C1 | Skrátiť: assetin a .space ako text spolu, nie oddelene. | .space vypláva spolu s assetin (300 ms), celý časový plán o 0,4 s skôr; klip 3,6 s (predtým 4,0 s). |
+| C4 | Prvý otáznik nie je rovnaký ako v predošlej scéne; „2×€€€“ zmeniť na „2×€“ a vycentrovať. | Veľký zelený kruh s „?“ vedľa regálu vypadol; nad regálom vyskočí rovnaký otáznik ako v C2 (`QuestionMark`), na obrazovke rovnako veľký (~62 px, pri priblížení kamery 1,5× s 0,67). „2×€“ jedným textom (170 px) na stred. |
+| C4 | „Digitálna katalogizácia archivovanej dokumentácie“ hovoríme priveľmi dlho, radšej bez hlasu, len text pod logom. | Veta „Kľúčom k vyriešeniu...“ vypadla z náhovoru; pod lockupom text „Digitálna katalogizácia archivovanej dokumentácie“ (46 px), značka s textom drží ~3,5 s. Pauza 8400/1680 vypadla, scéna 12,45 s, klip ~20,1 s (predtým 25,0 s). |
+| C5 | Hárok s QR kódmi vľavo zavadzia, dať ho naplocho ako leží krabica. | Hárok leží na podlahe v rovnakej izometrii 2:1 ako krabica (vpredu vľavo, 300/815 px); nálepka sa z neho odlepí (z roviny podlahy sa narovná), preletí a dosadne sklopená do steny. |
+| F3 | Na začiatku nezvýrazňovať menu, úvod o práci s databázou podať ako ostatné funkcie (napr. spracovanie v aplikácii). | Nová scéna **C10 Práca s databázou** (pred F3, ako C6): okno aplikácie z bielej, karty Vyhľadávanie / Zoskupovanie / Export nastupujú so slovami náhovoru, pri „Najjednoduchšie je vyhľadávanie“ ostane Vyhľadávanie (ostatné stlmené), okno prejde do okna F3. Vpravo „V aplikácii · Práca s databázou · Vyhľadávanie, zoskupovanie aj exporty.“ Hlas rozdelený z nahrávky kola 35 (bez nového generovania). F3 zas začína „Stačí zadať kľúčové slovo.“, bez spotov na menu (spot len na poli vyhľadávania), 24,0 s; C10 9,1 s. |
+| Celok | Zvýraznenia všade ako pri vyhľadávaní (stmavenie okolia), kontrast je výraznejší. | Spot (rámik + stmavené okolie) aj v F1 (Zložka (ZL), „Pridáva sa jednotka pod KR_01“) a F4 (správna hodnota, fotka, oprava s jantárovým rámikom). F2 zvýraznenia nemá (len kliky). |

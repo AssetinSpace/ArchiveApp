@@ -28,9 +28,9 @@ const F4_TAPS: Tap[] = [
   tapAt(ID, 66.6, 855, 442), // Odoslat
 ];
 const F4_MARKS: Mark[] = [
-  markAt(ID, segStart(ID, 2) + 0.15, cutTime(ID, 12.1), 824, 654, 428, 32, { sweep: 0.6 }), // spravna hodnota "Novostavba bytoveho domu SLNECNA 12, BRATISLAVA"
-  markAt(ID, vo(1, 1) / 1000, vo(1, 1) / 1000 + 2.4, 286, 523, 331, 443, { outline: true }), // "Fotka je dokaz": ramik okolo fotky
-  markAt(ID, cutTime(ID, 44.0), cutTime(ID, 49.1), 828, 668, 967, 40, { sweep: 0.6, color: 'amber' }), // oprava: pole Hodnota pri Cislo zmeny (1 -> 2)
+  markAt(ID, segStart(ID, 2) + 0.15, cutTime(ID, 12.1), 824, 654, 428, 32, { spot: true }), // spravna hodnota "Novostavba bytoveho domu SLNECNA 12, BRATISLAVA"
+  markAt(ID, vo(1, 1) / 1000, vo(1, 1) / 1000 + 2.4, 286, 523, 331, 443, { spot: true }), // "Fotka je dokaz": ramik okolo fotky
+  markAt(ID, cutTime(ID, 44.0), cutTime(ID, 49.1), 828, 668, 967, 40, { spot: true, color: 'amber' }), // oprava: pole Hodnota pri Cislo zmeny (1 -> 2)
 ];
 /** F4 zacina z bielej (F2 konci fade-om), sirsie okno sa objavi. */
 export const F4_Kontrola: React.FC = () => <DesktopFootageClip src="footage/f4-review.mp4" seconds={F4_SECONDS} steps={F4_STEPS} taps={F4_TAPS} marks={F4_MARKS} win={FOOTAGE_WINDOW_WIDE} panelLeft={1460} panelWidth={430} enter />;

@@ -8,22 +8,23 @@ import { settle, tween } from '../lib/anim';
  * C1 - Intro. Lockup podla assetin-design-kitu: stohovany logotyp
  * (assetin / .space), zvisly oddelovac, modul "Archives". Lockup je pocas
  * drzania centrovany; na konci sa Archives zasunie za oddelovac, oddelovac
- * sa stiahne, logotyp sa priblizi a vybledne do navy = prvy frame C2. 5 s.
+ * sa stiahne, logotyp sa priblizi a vybledne do navy = prvy frame C2.
+ * Kolo 36: assetin a .space vyplavaju spolu (kratsie o 0,4 s), klip 3,6 s.
  *
- * ms: 300 assetin · 700 .space · 1100-1500 oddelovac · 1300-1900 Archives
- * vychadza · 3200-3700 Archives sa zasuva (skupina ide do stredu) ·
- * 3700-4000 oddelovac sa stiahne · 4000-4700 priblizenie + navy.
+ * ms: 300 assetin.space · 700-1100 oddelovac · 900-1500 Archives vychadza ·
+ * 2000-2500 Archives sa zasuva (skupina ide do stredu) · 2500-2800 oddelovac
+ * sa stiahne · 2800-3500 priblizenie + navy.
  */
 export const C1_Intro: React.FC = () => {
   const frame = useCurrentFrame();
   const tw = (s: number, d: number) => tween(frame, s, d);
   const stackIn = settle(frame, 300);
-  const domain = settle(frame, 700);
-  const sep = tw(1100, 400) * (1 - tw(2900, 300));
-  const mod = tw(1300, 600) * (1 - tw(2400, 500));
-  const back = tw(2400, 500);
-  const zoom = tw(3200, 700);
-  const navy = tw(3600, 300);
+  const domain = stackIn; // kolo 36: spolu s assetin
+  const sep = tw(700, 400) * (1 - tw(2500, 300));
+  const mod = tw(900, 600) * (1 - tw(2000, 500));
+  const back = tw(2000, 500);
+  const zoom = tw(2800, 700);
+  const navy = tw(3200, 300);
 
   // pocas drzania je centrovany cely lockup; pri zasunuti Archives sa skupina
   // (stack + sep) posunie tak, aby bol logotyp v strede

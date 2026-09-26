@@ -48,7 +48,7 @@ stiahnuť cez `Artifact read` s `url` stránky a `path` = id:
 | `src/search2.mp4` | `2c36ba26831c4f1d86ba1b899d94c988` | desktop F3, nový záznam z 25. 9. (19 s) |
 
 Overené v kole 32: assety sa sťahujú cez `Artifact read` s `path` = id (jeden súbor na volanie, nie `paths`),
-po `cut-footage` (kolo 33) majú zostrihy F1 14,7 s, F2 8,2 s, F3 31,8 s (kolo 35), F4 18,6 s; skript hlási, ak nameraná dĺžka nesedí s tabuľkou.
+po `cut-footage` (kolo 33) majú zostrihy F1 14,7 s, F2 8,2 s, F3 24,0 s (kolo 36), F4 18,6 s; skript hlási, ak nameraná dĺžka nesedí s tabuľkou.
 
 Potom: `node scripts/cut-footage.mjs` (vyrobí `public/footage/f1-sken.mp4`, `f2-metadata.mp4`, `f3-search.mp4`, `f4-review.mp4`),
 `node scripts/vo.mjs --engine gemini --reuse` (hlas, dĺžky, časti titulkov; `--reuse` vezme vety z `public/vo/lines`, bez neho sa generujú znova; nahrávky sú mimo gitu, v novej session ich treba vygenerovať, ~20 generovaní), `npm run stills`, `bash scripts/render.sh`.
@@ -56,8 +56,8 @@ Full sa lepí z klipov (C1 potrebuje tichú stopu, inak concat zahodí zvuk):
 
 ```bash
 FF=$(python3 -c "import imageio_ffmpeg as f; print(f.get_ffmpeg_exe())")
-$FF -y -i out/mp4/C1-Intro.mp4 -f lavfi -i anullsrc=r=48000:cl=mono -shortest -c:v copy -c:a aac /tmp/C1-silent.mp4
-# list.txt: /tmp/C1-silent.mp4, potom C2-Hladanie C4-Cena C5-Teren F1-Sken C7-Hierarchia C6-Spracovanie F2-Metadata F4-Kontrola F3-Vyhladavanie C8-Pilot C9-Outro (out/mp4/<ID>.mp4)
+$FF -y -i out/mp4/C1-Intro.mp4 -f lavfi -i anullsrc=r=48000:cl=mono -shortest -c:v copy -c:a aac /tmp/C1-silent.mp4  # po kazdej zmene C1 znova
+# list.txt: /tmp/C1-silent.mp4, potom C2-Hladanie C4-Cena C5-Teren F1-Sken C7-Hierarchia C6-Spracovanie F2-Metadata F4-Kontrola C10-Databaza F3-Vyhladavanie C8-Pilot C9-Outro (out/mp4/<ID>.mp4)
 $FF -y -f concat -safe 0 -i list.txt -c:v libx264 -crf 18 -pix_fmt yuv420p -c:a aac -b:a 160k -ar 48000 out/mp4/Full_1080p.mp4
 $FF -y -i out/mp4/Full_1080p.mp4 -vf scale=960:540 -c:v libx264 -crf 24 -pix_fmt yuv420p -c:a aac -b:a 96k out/mp4/Full_preview_540p.mp4
 ```
@@ -78,7 +78,7 @@ CA proxy treba pridať do certifi: `cat /root/.ccr/ca-bundle.crt >> $(python3 -c
 - F3 a F4 (nové záznamy, iný zoom) majú orez 1764 × 882 a širšie okno `FOOTAGE_WINDOW_WIDE`; F2 (starý záznam) ostáva v pôvodnom okne.
 - C4: bez domčeka na bielom slide, bez popisu pod lockupom (vetu hovorí náhovor).
 - F3: musí byť vidieť drobček PL_01 / KR_01 / ZL_03, automatické zvýraznenie zhody a QR dole.
-- Poradie klipov: C1 · C2 · C4 · C5 · F1 · C7 · C6 · F2 · F4 · F3 · C8 · C9. Full má 156,0 s (kolo 35).
+- Poradie klipov: C1 · C2 · C4 · C5 · F1 · C7 · C6 · F2 · F4 · C10 · F3 · C8 · C9 (C10 Práca s databázou od kola 36). Full má 156,0 s (kolo 35).
 
 ## Hlas cez Gemini TTS (kolo 32, 33)
 

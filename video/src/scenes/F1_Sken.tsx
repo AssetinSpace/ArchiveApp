@@ -23,7 +23,7 @@ const SRC_W = 884,
 
 export type Tap = { t: number; x: number; y: number }; // s, podiel sirky/vysky celeho zaznamu
 export type Step = { from: number; title: string; line?: string }; // s
-/** Zvyraznenie ako fixkou (kolo 33): s, podiely celeho zaznamu, sweep = s kreslenia zlava. */
+/** Zvyraznenie (kolo 33 fixka, kolo 36 spot: ramik + stmavene okolie): s, podiely celeho zaznamu; sweep sa uz nepouziva. */
 export type PhoneMark = { from: number; to: number; x: number; y: number; w: number; h: number; sweep?: number };
 
 /** Kolo 33: kliky premerane na zazname 1206 x 2622 (podiely), casy zdroja. */
@@ -82,8 +82,8 @@ export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[];
             {marks.map((m, i) => {
               const a = tw(m.from * 1000, 200) * (1 - tw(m.to * 1000 - 250, 250));
               if (a <= 0) return null;
-              const sweep = m.sweep ? tw(m.from * 1000, m.sweep * 1000) : 1;
-              return <div key={`m${i}`} style={{ position: 'absolute', left: m.x * videoW - 4, top: m.y * videoH, width: (m.w * videoW + 8) * sweep, height: m.h * videoH, borderRadius: 4, background: 'rgba(79,168,90,0.28)', opacity: a, mixBlendMode: 'multiply' }} />;
+              // kolo 36: spot ako v F3/F4 (zeleny ramik, stmavene okolie displeja) namiesto fixky
+              return <div key={`m${i}`} style={{ position: 'absolute', left: m.x * videoW - 6, top: m.y * videoH - 5, width: m.w * videoW + 12, height: m.h * videoH + 10, borderRadius: 8, border: `3px solid ${BRAND[400]}`, boxShadow: `0 0 0 4000px rgba(15,23,42,${0.38 * a})`, opacity: Math.min(1, a * 1.5), transform: `scale(${1.02 - 0.02 * a})` }} />;
             })}
             {/* tapy: jemny zeleny kruh, ktory sa rozsiri a zmizne */}
             {taps.map((tp, i) => {
