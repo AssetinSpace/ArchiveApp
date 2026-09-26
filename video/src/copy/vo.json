@@ -32,21 +32,23 @@
   "C4-Cena": [
     {
       "at": 400,
-      "text": "Bez jasného systému trvá hľadanie hodiny. Niekedy je rýchlejšie dať dokumentáciu vyhotoviť nanovo. A tak sa môže stať, že zaplatíte dvakrát za to isté.",
+      "text": "Bez jasného systému trvá hľadanie hodiny. Otázne je, v akej kondícii dokumentáciu nájdete. Niekedy je rýchlejšie dať dokumentáciu vyhotoviť nanovo. A tak sa môže stať, že zaplatíte dvakrát za to isté.",
       "parts": [
         "Bez jasného systému trvá hľadanie hodiny.",
+        "Otázne je, v akej kondícii dokumentáciu nájdete.",
         "Niekedy je rýchlejšie dať dokumentáciu vyhotoviť nanovo.",
         "A tak sa môže stať, že zaplatíte dvakrát za to isté."
       ],
-      "dur": 10000,
+      "dur": 13080,
       "partAt": [
         0,
-        3140,
-        6360
+        3100,
+        6580,
+        9760
       ]
     },
     {
-      "at": 12400,
+      "at": 15500,
       "text": "Kľúčom k vyriešeniu tohto problému je digitálna katalogizácia archivovanej dokumentácie pomocou softvérového riešenia Assetin Archives.",
       "parts": [
         "Kľúčom k vyriešeniu tohto problému",
@@ -226,7 +228,7 @@
       "at": 700,
       "text": "Assetin Archives. Zistíte, čo máte v archíve a kde presne to leží.",
       "say": "Asetyn Árkajvs. Zistíte, čo máte v archíve a kde presne to leží.",
-      "dur": 6080
+      "dur": 5680
     }
   ]
 }
