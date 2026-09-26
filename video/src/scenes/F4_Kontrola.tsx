@@ -1,6 +1,6 @@
 import React from 'react';
-import { Step } from '../components/Steps';
 import { DesktopFootageClip, Mark, Tap } from './F2_Metadata';
+import { F4_STEPS } from '../copy/steps';
 
 /**
  * F4 - Kontrola metadat (127 s zaznam "Review metadat - v2" zostrihany na 15,4 s):
@@ -10,13 +10,6 @@ import { DesktopFootageClip, Mark, Tap } from './F2_Metadata';
  * (93-99 s, 1,2x, ceruzka + pole zvyraznene), Odoslat (122,8-124,2 s, bez prazdneho zoznamu).
  */
 export const F4_SECONDS = 15.4;
-const F4_STEPS: Step[] = [
-  { from: 0, title: 'Fotka je dôkaz', line: 'Každý návrh sa dá kedykoľvek overiť voči fotke štítku.' },
-  { from: 2000, title: 'Správny návrh', line: 'Názov projektu prečítaný z fotky. Sedí, stačí potvrdiť.' },
-  { from: 5700, title: 'Návrhy metadát', line: 'Aplikácia navrhla 25 hodnôt. Každú potvrdíte jedným klikom.' },
-  { from: 9000, title: 'Oprava', line: 'Číslo zmeny nesedí. Hodnota sa opraví priamo v návrhu a potvrdí.' },
-  { from: 14000, title: 'Odoslať', line: 'Až po kontrole človekom sú metadáta platné.' },
-];
 const F4_TAPS: Tap[] = [
   { t: 5.4, x: 0.81, y: 0.875 }, // prijat prvy navrh
   { t: 9.25, x: 0.85, y: 0.865 }, // ceruzka - upravit

@@ -11,6 +11,7 @@ import { drawProps, pop, settle, tween } from '../lib/anim';
 import { Check } from '../components/Illustrations';
 import { captions } from '../copy/sk';
 import { BRAND, FONT, INK, ISO, SAFE } from '../theme';
+import { C7_STEPS } from '../copy/steps';
 
 /**
  * C7 - Hierarchia + sken. Zacina tou istou krabicou ako C5 (zatvorena, s QR,
@@ -35,12 +36,7 @@ const SIB = 230;
 const SVG_AT = { x: 260, y: SAFE.illoTop };
 // stred police (v px stranky) pre priblizenie
 const SHELF_C = { x: SVG_AT.x + NODE_X - 3, y: SVG_AT.y + NODES_Y[0] + 20 - 47 };
-/** Kroky vpravo (rovnaky jazyk ako v C5 a pri footage). */
-const C7_STEPS = [
-  { from: 600, title: 'Miesto v hierarchii', line: 'Polica, krabica, zložka, dokument. Presne podľa reality.' },
-  { from: 3300, title: 'Hotovo v teréne', line: 'QR kódy, fotky a hierarchia. Zvyšok je práca v aplikácii.' },
-];
-
+// Kroky vpravo (rovnaky jazyk ako v C5 a pri footage): src/copy/steps.ts
 export const C7_Hierarchia: React.FC = () => {
   const frame = useCurrentFrame();
   const showCap = useCaptions();

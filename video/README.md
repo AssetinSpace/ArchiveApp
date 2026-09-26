@@ -28,6 +28,7 @@ node scripts/contact-sheet.mjs   # kontaktný hárok z posledných stills
 npm run render -- C4-Teren C5-Spracovanie
 PREVIEW=1 npm run render -- Full        # celé video v polovičnom rozlíšení do out/preview/
 npm run typecheck
+npm run export:web      # manifest pre web assetin.sk (out/web/manifest.json), pozri „Web“ nižšie
 ```
 
 Na PC si Remotion pri prvom renderi stiahne vlastný headless Chrome. V prostredí
@@ -42,6 +43,7 @@ src/
   scenesList.ts       zoznam klipov, dĺžky (s) a frame-y pre schvaľovacie stills
   theme.ts            paleta, fonty, rozmery, ms→frames
   copy/sk.ts          všetky texty v obraze (SK)
+  copy/steps.ts       texty krokov vpravo (Krok i / n) – čítajú ich scény aj export pre web
   lib/anim.ts         tween/pop/settle/stagger – prevod CSS transitions z webu na frame-y
   lib/camera.tsx      Camera – nájazd/posun kamery podľa keyframov (ms, x, y, scale)
   lib/iso.tsx         2:1 dimetrická projekcia + primitívy (IsoBox, Carton, Pallet, ShelfFrame, Binder, QR)
@@ -79,6 +81,35 @@ out/mp4/              finálne MP4 scén (commitované po schválení)
 3. Zápis do `src/scenesList.ts` (ID iba `A-Za-z0-9-`, dĺžka v sekundách, frame-y pre stills).
    Jediný text v obraze cez `<Caption>` a `captions` v `src/copy/sk.ts` (≤ 7 slov); predvolene vypnuté, zapne ich prop `captions: true`.
 4. `npm run stills -- <ID>` a skontrolovať PNG.
+
+## Web (produktová stránka na assetin.sk)
+
+Stránka `/sk/produkty/assetin-archives` (repo Assetin.sk) berie z tohto projektu
+video, klipy, stills, texty krokov a prepis náhovoru. Nič z toho sa na webe
+neprepisuje ručne – zdrojom je tento priečinok.
+
+Po každej zmene videa:
+
+```bash
+npm run render            # MP4 do out/mp4/
+npm run stills            # PNG do out/stills/
+npm run export:web        # out/web/manifest.json (cesty, veľkosti, SHA-256, kroky, prepis)
+git add out src VOICEOVER.md && git commit
+```
+
+Potom na webe stačí `npm run sync:archives` (alebo povedať Claudovi „video je
+aktualizované“). Web si stiahne len súbory, ktoré potrebuje, a overí ich podľa
+SHA-256 v manifeste – ak manifest nesedí s renderom, synchronizácia skončí chybou.
+
+Čo ide do manifestu:
+- `full` – celé video (1080p, voliteľne 540p), dĺžka zo `SCENE_LIST`
+- `clips[]` – ID, poradie, dĺžka, MP4, stills a kroky z `src/copy/steps.ts`
+- `transcript[]` – citáty „…“ z `VOICEOVER.md` po sekciách (`## C5 · …`);
+  citát hneď za „(“ je poznámka, nie náhovor, a preskočí sa
+
+Premenovanie alebo zmazanie klipu, ktorý web používa, zastaví synchronizáciu
+webu chybou – treba upraviť mapovanie v `src/data/archives-video.config.json`
+v repe Assetin.sk.
 
 ## Review a feedback
 
