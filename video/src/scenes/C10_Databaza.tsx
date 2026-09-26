@@ -10,7 +10,9 @@ import { BRAND, FONT, INK } from '../theme';
  * C10 - Praca s databazou (kolo 36): uvod k F3 podany ako ostatne funkcie (ako C6), nie zvyraznenim menu v zazname.
  * Okno aplikacie z bielej (F4 konci do bielej), v nom tri funkcie ako karty so slovami nahovoru
  * (vyhladavat, zoskupovat, exportovat), pri "Najjednoduchsie je vyhladavanie" ostane vyhladavanie, ostatne stlmia;
- * potom okno prejde presne do okna footage F3 (FOOTAGE_WINDOW_WIDE) = strih na F3. Vpravo nadpis ako pri footage. 8,6 s.
+ * potom okno prejde presne do okna footage F3 (FOOTAGE_WINDOW_WIDE) = strih na F3. Vpravo nadpis ako pri footage. 9,0 s.
+ * Kolo 40: text Samuela "Vytvorenu databazu katalogu archivu vieme exportovat, analyzovat alebo prehladavat." + "Najjednoduchsie je vyhladavanie.";
+ * karty Export / Analyza / Vyhladavanie v poradi slov, zostane Vyhladavanie (vpravo); okno do F3 8,0-8,8 s, obsah zmizne 8,7-8,95 s.
  * Kolo 37: karty su v okne od zaciatku stlmene (okno nie je 3 s prazdne), so slovom sa rozsvietia; karty ostanu
  * pocas presunu okna a zmiznu az tesne pred strihom (bez prazdneho okna na konci).
  *
@@ -20,19 +22,17 @@ import { BRAND, FONT, INK } from '../theme';
 const WIN = { x: 380, y: 150, w: 900, h: 640 };
 const CARD = { w: 230, h: 250, gap: 36 };
 
-const Icon: React.FC<{ kind: 'search' | 'group' | 'export' }> = ({ kind }) => (
+const Icon: React.FC<{ kind: 'search' | 'chart' | 'export' }> = ({ kind }) => (
   <svg width={104} height={104} viewBox="0 0 100 100" fill="none" stroke={BRAND[600]} strokeWidth={8} strokeLinecap="round" strokeLinejoin="round">
     {kind === 'search' ? (
       <>
         <circle cx={42} cy={42} r={25} />
         <path d="M61 61 L84 84" strokeWidth={10} />
       </>
-    ) : kind === 'group' ? (
+    ) : kind === 'chart' ? (
       <>
-        <rect x={34} y={10} width={32} height={22} rx={5} />
-        <path d="M50 32 V44 M24 44 H76 M24 44 V56 M76 44 V56" strokeWidth={6} />
-        <rect x={8} y={56} width={32} height={22} rx={5} />
-        <rect x={60} y={56} width={32} height={22} rx={5} />
+        <path d="M14 14 V86 H88" />
+        <path d="M32 70 V52 M52 70 V34 M72 70 V46" strokeWidth={10} />
       </>
     ) : (
       <>
@@ -43,20 +43,22 @@ const Icon: React.FC<{ kind: 'search' | 'group' | 'export' }> = ({ kind }) => (
   </svg>
 );
 
+// kolo 40: poradie a slova podla vety "...vieme exportovat, analyzovat alebo prehladavat" (casy slov + 300 ms)
 const CARDS = [
-  { kind: 'search', label: 'Vyhľadávanie', at: 2800 },
-  { kind: 'group', label: 'Zoskupovanie', at: 3850 },
-  { kind: 'export', label: 'Export', at: 4600 },
+  { kind: 'export', label: 'Export', at: 3000 },
+  { kind: 'chart', label: 'Analýza', at: 4100 },
+  { kind: 'search', label: 'Vyhľadávanie', at: 5200 },
 ] as const;
+const MAIN = 2; // zostane vyhladavanie
 
 export const C10_Databaza: React.FC = () => {
   const frame = useCurrentFrame();
   const tw = (s: number, d: number) => tween(frame, s, d);
   const chrome = tw(0, 400);
-  const focus = tw(6800, 400); // zostane vyhladavanie
-  const content = 1 - tw(8300, 250);
-  const fill = tw(7600, 800); // okno prejde do okna F3
-  const note = settle(frame, 700) * (1 - tw(7500, 300));
+  const focus = tw(7100, 400); // zostane vyhladavanie (slovo "vyhladavanie" 7,2 s)
+  const content = 1 - tw(8700, 250);
+  const fill = tw(8000, 800); // okno prejde do okna F3 (hlas konci 8,3 s)
+  const note = settle(frame, 700) * (1 - tw(7900, 300));
   const dim = settle(frame, 300); // karty su v okne od zaciatku, stlmene
   const at = {
     x: WIN.x + (FOOTAGE_WINDOW_WIDE.x - WIN.x) * fill,
@@ -71,7 +73,7 @@ export const C10_Databaza: React.FC = () => {
         <div style={{ position: 'absolute', left: (at.w - rowW) / 2, top: (at.h - 44 - CARD.h) / 2, display: 'flex', gap: CARD.gap, opacity: content }}>
           {CARDS.map((c, i) => {
             const t = pop(frame, c.at); // rozsvietenie so slovom
-            const main = i === 0;
+            const main = i === MAIN;
             return (
               <div
                 key={c.kind}
@@ -102,7 +104,7 @@ export const C10_Databaza: React.FC = () => {
       <div style={{ position: 'absolute', left: 1460, top: 0, width: 430, height: 1080, display: 'flex', flexDirection: 'column', justifyContent: 'center', opacity: note, transform: `translateX(${(1 - note) * 24}px)` }}>
         <div style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: 22, letterSpacing: '0.14em', textTransform: 'uppercase', color: BRAND[600], marginBottom: 14 }}>{phases.app}</div>
         <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 56, lineHeight: 1.05, color: INK[900], letterSpacing: '-0.02em', marginBottom: 14 }}>Práca s databázou</div>
-        <div style={{ fontFamily: FONT.body, fontWeight: 400, fontSize: 30, lineHeight: 1.35, color: INK[500] }}>Vyhľadávanie, zoskupovanie aj exporty.</div>
+        <div style={{ fontFamily: FONT.body, fontWeight: 400, fontSize: 30, lineHeight: 1.35, color: INK[500] }}>Export, analýza aj vyhľadávanie.</div>
       </div>
     </Scene>
   );

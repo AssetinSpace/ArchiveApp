@@ -40,7 +40,7 @@ import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
  * predel posunuty o D, znacka drzi o H dlhsie a pod lockupom je popis. 11,1 s.
  */
 const D = 1300; // posun predelu, aby sa dal precitat text pod "2x"
-const H = 2050; // drzanie znacky s textom pod lockupom (kolo 36: bez nahovoru, ~3,5 s na citanie)
+const H = 3780; // drzanie znacky: kolo 40 znova veta "Predstavujeme vam softverove riesenie katalogizacie Assetin Archives." (15,5-20,1 s vystupu) + text pod lockupom
 const BOX = 860;
 export const C4_Cena: React.FC = () => {
   const frame = useCurrentFrame();

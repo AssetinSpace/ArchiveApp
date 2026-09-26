@@ -420,3 +420,14 @@ Samuel (screenshot C4): "nejako sa to porozbíjalo, napríklad tu nie je otázni
 | Klip | Pripomienka | Riešenie |
 |---|---|---|
 | Celok | Hudba je na začiatku, keď začne hlas, strašne tichá, skoro ju nie je počuť; možno typom hudby, ak áno, upraviť. | Príčina: Lyria urobila úvod (problém, 0:04-0:31) o 20-40 dB tichší ako groove, pod hlasom bola hudba na začiatku ~36 dB pod rečou (inde ~12 dB). Bez nového generovania: `scripts/music_level.py` vyrovná hlasitosť skladby (okno 1,5 s, zosilnenie tichých častí až na úroveň plnej, vyhladené, bez prelievania do hlasného nástupu), v mixe `alimiter`. Úvod +15 dB, 0:16-0:31 +10 dB, pod hlasom teraz -36 / -31 / -30 dB (reč -18,5 dB). Prepis C2, C4, F3: hudba počuť, zrozumiteľnosť 5/5. Full -16 LUFS, true peak -1,3 dB. |
+
+
+## Kolo 40 (26. 9. 2026): tri komentáre (C4, C10, F4)
+
+| Klip | Pripomienka | Riešenie |
+|---|---|---|
+| C4 | Úplne zmizol hlas pri predstavení riešenia, mal ostať, napr. „Predstavujeme vám softvérové riešenie katalogizácie Assetin Archives“. | Nová veta náhovoru (Gemini, 4,6 s) od 15,5 s výstupu, súčasne s lockupom; text pod logom ostáva; značka drží H = 3,78 s (scéna 14,18 s, klip 21,8 s). Kontrola prepisom: názov produktu zaznie po anglicky („eset in árchajvs“), ako v C9; ponechané. |
+| C10 | Text: „Vytvorenú databázu katalógu archívu vieme exportovať, analyzovať alebo prehľadávať“. | Veta + „Najjednoduchšie je vyhľadávanie.“ (jedno generovanie, prepis OK). Karty v poradí slov: Export (3,0 s), Analýza (4,1 s, ikona grafu), Vyhľadávanie (5,2 s), ostane Vyhľadávanie (7,1 s); popis vpravo „Export, analýza aj vyhľadávanie.“; okno do F3 8,0-8,8 s, scéna 9,0 s. |
+| F4 | Žltý rámik ostane aj po preklike ďalej. | Klik „Prijať úpravu“ je v zázname v 48,15 s (rozloženie sa mení v 48,23 s), nie v 49,2 s: jantárový spot končí v 48,2 s, kruh kliknutia v 48,15 s. |
+
+`mix-music.mjs`: tempo hudby v rozsahu ±3 % (film 153,1 s, tempo 0,976). Full -16 LUFS.

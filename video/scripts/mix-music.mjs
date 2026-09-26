@@ -3,7 +3,7 @@
 //
 // Použitie: node scripts/mix-music.mjs [--music public/music/bed.wav] [--tempo auto|0.983] [--gain -6] [--range 0] [--no-music]
 //   --range  vyrovnanie skladby (scripts/music_level.py): tiché časti najviac o toľko dB pod plnou (kolo 39: 0)
-//   --tempo  atempo hudby; auto (predvolene) = koniec skladby ("end" v src/copy/music.json) padne 0,4 s pred koniec filmu (±2 % tempo nepočuť)
+//   --tempo  atempo hudby; auto (predvolene) = koniec skladby ("end" v src/copy/music.json) padne 0,4 s pred koniec filmu (±3 % tempo nepočuť)
 //   --gain   hlasitosť hudby v dB pred stíšením; -6 dB + stíšenie (prah 0,02, pomer 3): pod hlasom ~14 dB pod rečou, v pauzách ~7 dB
 // Výstup: out/mp4/Full_1080p.mp4, out/mp4/Full_preview_540p.mp4; vypíše dĺžky, časy predelov a hlasitosť.
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -57,7 +57,7 @@ if (!withMusic) {
   const LEVEL = MUSIC.replace(/\.wav$/, '_level.wav');
   execFileSync('python3', ['scripts/music_level.py', MUSIC, LEVEL, '--range', opt('--range', '0')], { stdio: 'inherit' });
   const musicEnd = JSON.parse(readFileSync('src/copy/music.json', 'utf8')).end ?? probe(MUSIC);
-  const TEMPO = TEMPO_ARG === 'auto' ? Math.min(1.02, Math.max(0.98, musicEnd / (total - 0.4))) : Number(TEMPO_ARG);
+  const TEMPO = TEMPO_ARG === 'auto' ? Math.min(1.03, Math.max(0.97, musicEnd / (total - 0.4))) : Number(TEMPO_ARG);
   console.log(`hudba: tempo ${TEMPO.toFixed(4)} (koniec skladby ${musicEnd} s -> ${(musicEnd / TEMPO).toFixed(2)} s)`);
   const fc = [
     // hlas: stereo, jedna vetva do mixu, druha ako kluc stisenia

@@ -138,18 +138,20 @@
 <script>
   // Stav stranky: BUILD sa meni pri kazdom publikovani (kolo, cas renderu), zivy stav cita db dokument status/current.
   const BUILD = {
- "round": 39,
- "renderedAt": "2026-09-26T15:55:00Z"
+ "round": 40,
+ "renderedAt": "2026-09-26T16:40:00Z"
 };
   const FULL = {
- "len": 151.0,
- "cap": "586c38075ef8e0bee13e6c4e667a5f26",
+ "len": 153.1,
+ "cap": "098e09aada8bc364c7cac21dcae3981d",
  "poster": "7ed206c53b726ea864793fefdee08a5d",
  "desc": "Tvrdé strihy medzi klipmi, hlas Gemini TTS (Velvet 1), titulky a od kola 37 hudba (Lyria, pod hlasom stíšená)."
 };
   const NEWS = [
- "Hudba na začiatku: Lyria urobila úvod skladby (0:04-0:31) o 20-40 dB tichší ako zvyšok, pod hlasom ho takmer nebolo počuť. Tiché časti skladby sú teraz vyrovnané (úvod +15 dB), hudba je pod hlasom počuť od začiatku, hlas ostáva jasne zrozumiteľný.",
- "Kolo 38 (bez zmeny): otáznik v C4, koniec C5 a hárok, C10 bez prázdneho okna."
+ "C4: pri logu je znova hlas: „Predstavujeme vám softvérové riešenie katalogizácie Assetin Archives.“ (text pod logom ostáva), logo drží, kým veta dozneje.",
+ "C10: nový text „Vytvorenú databázu katalógu archívu vieme exportovať, analyzovať alebo prehľadávať. Najjednoduchšie je vyhľadávanie.“; karty Export, Analýza, Vyhľadávanie v poradí slov, potom ostane Vyhľadávanie.",
+ "F4: žltý rámik opravy už neostane po kliknutí na „Prijať úpravu“ (klik bol v zázname o sekundu skôr, ako som mal zmerané; opravený aj kruh kliknutia).",
+ "Hudba (kolo 39): na začiatku je pod hlasom počuť. Celý film 153,1 s."
 ];
   const CLIPS = [
  {
@@ -171,9 +173,9 @@
  {
   "id": "C4-Cena",
   "name": "Cena → predel",
-  "len": 20.1,
-  "desc": "Kolo 37: veľký otáznik vedľa regálu je späť (tvar ako v C2, veľkosť ako hodiny). Kolo 36: „2×€“ na stred, veta pri logu bez hlasu, pod logom text „Digitálna katalogizácia archivovanej dokumentácie“.",
-  "cap": "676de1747d79e9acfcccd3f4b852c521",
+  "len": 21.8,
+  "desc": "Kolo 40: pri logu znova hlas „Predstavujeme vám softvérové riešenie katalogizácie Assetin Archives.“, pod logom text „Digitálna katalogizácia archivovanej dokumentácie“. Kolo 38: veľký otáznik vedľa regálu (tvar ako v C2), „2×€“ na stred.",
+  "cap": "4c5743972916ca5f11031ae568f2faba",
   "poster": "ba867db677c0d4df04f32166c5817318"
  },
  {
@@ -220,17 +222,17 @@
   "id": "F4-Kontrola",
   "name": "Footage: kontrola metadát",
   "len": 18.6,
-  "desc": "Kolo 36: zvýraznenia ako rámik so stmaveným okolím: správna hodnota, fotka pri „Fotka je dôkaz“, oprava Číslo zmeny jantárovým rámikom.",
-  "cap": "b44f8209d929d38a8eccb2ea3a8d728f",
+  "desc": "Kolo 40: jantárový rámik opravy končí pred kliknutím na „Prijať úpravu“ (48,2 s záznamu), kruh kliknutia na správnom mieste. Kolo 36: zvýraznenia ako rámik so stmaveným okolím.",
+  "cap": "3de11dc0fd96d58d3ec765ec8ce7f6e8",
   "poster": "edb0e841249a83d40e0dbb0aea6db86e"
  },
  {
   "id": "C10-Databaza",
   "name": "Práca s databázou",
-  "len": 8.7,
-  "desc": "Kolo 37: karty sú v okne od začiatku stlmené a so slovami náhovoru sa rozsvietia (vyhľadávať, zoskupovať, exportovať), potom ostane Vyhľadávanie a okno prejde do F3 bez prázdneho okna.",
-  "cap": "388985fd9d2c46fb05d211ab94e0dacb",
-  "poster": "9edf35a0984942489b70a3e463c915a2"
+  "len": 9.1,
+  "desc": "Kolo 40: „Vytvorenú databázu katalógu archívu vieme exportovať, analyzovať alebo prehľadávať. Najjednoduchšie je vyhľadávanie.“ Karty Export, Analýza, Vyhľadávanie sa rozsvietia so slovami, ostane Vyhľadávanie a okno prejde do F3.",
+  "cap": "6afbf22dbcc9fd70a5aa0f651eaf0289",
+  "poster": "2bc41407ab19baf40e29071707a65151"
  },
  {
   "id": "F3-Vyhladavanie",

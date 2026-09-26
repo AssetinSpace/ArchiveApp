@@ -46,6 +46,11 @@
         6580,
         9760
       ]
+    },
+    {
+      "at": 15500,
+      "text": "Predstavujeme vám softvérové riešenie katalogizácie Assetin Archives.",
+      "dur": 4640
     }
   ],
   "C5-Teren": [
@@ -157,15 +162,15 @@
   "C10-Databaza": [
     {
       "at": 300,
-      "text": "S databázou sa dá pracovať rôzne: vyhľadávať, zoskupovať aj exportovať. Najjednoduchšie je vyhľadávanie.",
+      "text": "Vytvorenú databázu katalógu archívu vieme exportovať, analyzovať alebo prehľadávať. Najjednoduchšie je vyhľadávanie.",
       "parts": [
-        "S databázou sa dá pracovať rôzne: vyhľadávať, zoskupovať aj exportovať.",
+        "Vytvorenú databázu katalógu archívu vieme exportovať, analyzovať alebo prehľadávať.",
         "Najjednoduchšie je vyhľadávanie."
       ],
-      "dur": 7600,
+      "dur": 8000,
       "partAt": [
         0,
-        5720
+        5960
       ]
     }
   ],
