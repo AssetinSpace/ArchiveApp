@@ -1,7 +1,8 @@
 // Full s hudbou (kolo 37): poskladá Full z klipov out/mp4/<ID>.mp4 v poradí SCENE_LIST a podmaže hudbu
 // public/music/bed.wav (Lyria, scripts/music.py) so stíšením pod hlasom (sidechain), -16 LUFS.
 //
-// Použitie: node scripts/mix-music.mjs [--music public/music/bed.wav] [--tempo auto|0.983] [--gain -6] [--no-music]
+// Použitie: node scripts/mix-music.mjs [--music public/music/bed.wav] [--tempo auto|0.983] [--gain -6] [--range 0] [--no-music]
+//   --range  vyrovnanie skladby (scripts/music_level.py): tiché časti najviac o toľko dB pod plnou (kolo 39: 0)
 //   --tempo  atempo hudby; auto (predvolene) = koniec skladby ("end" v src/copy/music.json) padne 0,4 s pred koniec filmu (±2 % tempo nepočuť)
 //   --gain   hlasitosť hudby v dB pred stíšením; -6 dB + stíšenie (prah 0,02, pomer 3): pod hlasom ~14 dB pod rečou, v pauzách ~7 dB
 // Výstup: out/mp4/Full_1080p.mp4, out/mp4/Full_preview_540p.mp4; vypíše dĺžky, časy predelov a hlasitosť.
@@ -52,6 +53,9 @@ if (!withMusic) {
   execFileSync(FF, ['-v', 'error', '-y', '-i', voice, '-c:v', 'copy', '-af', 'loudnorm=I=-16:TP=-1.5:LRA=11', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', out]);
 } else {
   const T = total.toFixed(3);
+  // kolo 39: vyrovnanie hlasitosti skladby (tichy uvod Lyria bol pod hlasom nepocut), vysledok float WAV
+  const LEVEL = MUSIC.replace(/\.wav$/, '_level.wav');
+  execFileSync('python3', ['scripts/music_level.py', MUSIC, LEVEL, '--range', opt('--range', '0')], { stdio: 'inherit' });
   const musicEnd = JSON.parse(readFileSync('src/copy/music.json', 'utf8')).end ?? probe(MUSIC);
   const TEMPO = TEMPO_ARG === 'auto' ? Math.min(1.02, Math.max(0.98, musicEnd / (total - 0.4))) : Number(TEMPO_ARG);
   console.log(`hudba: tempo ${TEMPO.toFixed(4)} (koniec skladby ${musicEnd} s -> ${(musicEnd / TEMPO).toFixed(2)} s)`);
@@ -59,12 +63,12 @@ if (!withMusic) {
     // hlas: stereo, jedna vetva do mixu, druha ako kluc stisenia
     `[0:a]aformat=sample_rates=48000:channel_layouts=stereo,asplit=2[v][key]`,
     // hudba: tempo na dlzku filmu, jemny zarez 1-3 kHz (plucky vs. rec), zaciatok a koniec
-    `[1:a]aformat=sample_rates=48000:channel_layouts=stereo,atempo=${TEMPO},atrim=0:${T},asetpts=PTS-STARTPTS,equalizer=f=2000:t=q:w=1.2:g=-3,volume=${GAIN}dB,afade=t=in:st=0:d=0.4,afade=t=out:st=${(total - 1.2).toFixed(3)}:d=1.2[m]`,
+    `[1:a]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,atempo=${TEMPO},atrim=0:${T},asetpts=PTS-STARTPTS,equalizer=f=2000:t=q:w=1.2:g=-3,volume=${GAIN}dB,alimiter=limit=0.9:level=disabled,afade=t=in:st=0:d=0.4,afade=t=out:st=${(total - 1.2).toFixed(3)}:d=1.2[m]`,
     // stisenie pod hlasom
     `[m][key]sidechaincompress=threshold=0.02:ratio=3:attack=40:release=600:knee=4[md]`,
     `[v][md]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000[a]`,
   ].join(';');
-  execFileSync(FF, ['-v', 'error', '-y', '-i', voice, '-i', MUSIC, '-filter_complex', fc, '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', out]);
+  execFileSync(FF, ['-v', 'error', '-y', '-i', voice, '-i', LEVEL, '-filter_complex', fc, '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', out]);
 }
 execFileSync(FF, ['-v', 'error', '-y', '-i', out, '-vf', 'scale=960:540', '-c:v', 'libx264', '-crf', '24', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '128k', 'out/mp4/Full_preview_540p.mp4']);
 const meter = stderr(['-nostats', '-i', out, '-af', 'ebur128=peak=true', '-f', 'null', '-']);

@@ -413,3 +413,10 @@ Samuel (screenshot C4): "nejako sa to porozbíjalo, napríklad tu nie je otázni
 - C10: okno bolo 3 s prázdne, kým prišla prvá karta, a ~1 s prázdne pred F3: karty sú v okne od 0,3 s stlmené a so slovom sa rozsvietia, okno sa presúva 7,6-8,4 s, obsah zmizne až 8,3-8,55 s, scéna 8,6 s.
 - Hudba: `mix-music.mjs` nastaví tempo samo (`end` v `music.json` = 149 s, akord skončí 0,4 s pred koncom filmu), teraz 0,9896.
 - Kontrola celého Full (151,0 s): žiadne jednosnímkové preblesky, prázdne (jednofarebné) úseky len pri prechodoch do 0,6 s, v zvuku žiadne ticho dlhšie ako 0,5 s okrem úplného začiatku a konca; všetky stills bez zásahu do pásma titulkov. Ostávajú dva tvrdé strihy z pôvodného návrhu: C1 (navy) -> C2 a C8 (biela) -> C9 (zelená).
+
+
+## Kolo 39 (26. 9. 2026): hudba na začiatku pod hlasom nepočuť
+
+| Klip | Pripomienka | Riešenie |
+|---|---|---|
+| Celok | Hudba je na začiatku, keď začne hlas, strašne tichá, skoro ju nie je počuť; možno typom hudby, ak áno, upraviť. | Príčina: Lyria urobila úvod (problém, 0:04-0:31) o 20-40 dB tichší ako groove, pod hlasom bola hudba na začiatku ~36 dB pod rečou (inde ~12 dB). Bez nového generovania: `scripts/music_level.py` vyrovná hlasitosť skladby (okno 1,5 s, zosilnenie tichých častí až na úroveň plnej, vyhladené, bez prelievania do hlasného nástupu), v mixe `alimiter`. Úvod +15 dB, 0:16-0:31 +10 dB, pod hlasom teraz -36 / -31 / -30 dB (reč -18,5 dB). Prepis C2, C4, F3: hudba počuť, zrozumiteľnosť 5/5. Full -16 LUFS, true peak -1,3 dB. |
