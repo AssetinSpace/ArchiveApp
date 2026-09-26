@@ -21,6 +21,7 @@ import { BRAND, CM, FONT, INK, ISO, SAFE } from '../theme';
  * sa priblizi · 5500 blesk · 6000 ID zlozky ako stitok pri ramiku ·
  * 5800-7400 kamera najde na zlozku + mobil · 7600-9100 ostatne vybledne a
  * mobil v skutocnej velkosti prejde do ramika footage (F1) = strih do reality.
+ * Kolo 37: scena konci hned po dosadnuti mobilu (8,4 s namiesto 9 s), bez 1,5 s prazdneho displeja pred F1.
  * Krabica vlavo, vpravo kroky (Oznacit / Odfotit / Zaevidovat).
  * Kolo 36: harok nalepiek lezi naplocho na podlahe v rovnakej izometrii ako krabica (predtym stal sikmo vlavo
  * a zavadzal); nalepka sa z neho odlepi (z roviny podlahy sa narovna), preleti a dosadne sklopena do steny.
@@ -33,6 +34,8 @@ const SHEET = { w: CM.sheet.w * PX, h: CM.sheet.h * PX };
 const PHONE = { w: CM.phone.w * PX * 1.4, h: CM.phone.h * PX * 1.4 };
 /** Izometria podlahy 2:1 (rovnaka ako krabica): jednotka osi x harku -> (0,894; 0,447) px, osi y -> (-0,894; 0,447). */
 const FLOOR = [Math.cos(Math.atan(0.5)), Math.sin(Math.atan(0.5))] as const;
+/** Harok na podlahe je zmenseny (kolo 37), aby sa vosiel nad pasmo titulkov. */
+const SHEET_K = 0.8;
 const PHONE_AT = { x: C5_BOX_LEFT + 1090, y: 400, w: PHONE.w, h: PHONE.h };
 /** Kamera na konci: najazd na vytiahnutu zlozku s mobilom. */
 const CAM_END = { x: C5_BOX_LEFT + 870 - 960, y: 0, scale: 1.4 };
@@ -96,15 +99,15 @@ export const C5_Teren: React.FC = () => {
   const stepIdx = Math.max(0, STEPS.findIndex((s, i) => frame * 1000 / 30 >= s.from && (i === STEPS.length - 1 || frame * 1000 / 30 < STEPS[i + 1].from)));
 
   // pozicia bunky harku v px: harok lezi naplocho (izometria 2:1 ako krabica), os x harku ide vpravo dole, os y vlavo dole
-  const sheetCx = 300,
-    sheetCy = 815,
+  const sheetCx = 250,
+    sheetCy = 735, // kolo 37: vyssie a mensi (0,8), aby nezasahoval do pasma titulkov (spodok 820 px)
     sheetLeft = sheetCx - SHEET.w / 2,
     sheetTop = sheetCy - SHEET.h / 2,
     sc = SHEET.w / 210;
   const cellPx = (r: number, c: number): [number, number] => {
     const lx = (16 + c * 46 + 18) * sc - SHEET.w / 2,
       ly = (24 + r * 52 + 18) * sc - SHEET.h / 2;
-    return [sheetCx + (lx - ly) * FLOOR[0], sheetCy + (lx + ly) * FLOOR[1]];
+    return [sheetCx + (lx - ly) * FLOOR[0] * SHEET_K, sheetCy + (lx + ly) * FLOOR[1] * SHEET_K];
   };
   const used = (r: number, c: number) => FLIGHTS.some((f) => f.cell[0] === r && f.cell[1] === c && frame >= (f.start / 1000) * 30);
 
@@ -113,7 +116,7 @@ export const C5_Teren: React.FC = () => {
       <Camera keys={[{ ms: 5200, x: 0, y: 0, scale: 1 }, { ms: 6600, ...CAM_END }]}>
       <div style={{ position: 'absolute', inset: 0, opacity: others }}>
         {/* harok nalepiek A4: 4 x 5 bielych QR */}
-        <div style={{ position: 'absolute', left: sheetLeft + (1 - sheet) * -260, top: sheetTop, width: SHEET.w, height: SHEET.h, opacity: sheet, transform: `matrix(${FLOOR[0]}, ${FLOOR[1]}, ${-FLOOR[0]}, ${FLOOR[1]}, 0, 0)` }}>
+        <div style={{ position: 'absolute', left: sheetLeft + (1 - sheet) * -260, top: sheetTop, width: SHEET.w, height: SHEET.h, opacity: sheet, transform: `matrix(${FLOOR[0] * SHEET_K}, ${FLOOR[1] * SHEET_K}, ${-FLOOR[0] * SHEET_K}, ${FLOOR[1] * SHEET_K}, 0, 0)` }}>
           <svg width={SHEET.w} height={SHEET.h} viewBox="0 0 210 300">
             <rect x={1} y={1} width={208} height={298} rx={4} fill="#fff" stroke={ISO.edge} strokeWidth={2} />
             {Array.from({ length: 5 }).map((_, r) =>
@@ -170,7 +173,7 @@ export const C5_Teren: React.FC = () => {
             cy = Math.min(ay, by) - 220;
           const x = (1 - t) * (1 - t) * ax + 2 * (1 - t) * t * cx + t * t * bx;
           const y = (1 - t) * (1 - t) * ay + 2 * (1 - t) * t * cy + t * t * by;
-          const size0 = 36 * sc,
+          const size0 = 36 * sc * SHEET_K,
             size1 = (f.size / 240) * BOX * QR_SCALE;
           const size = size0 + (size1 - size0) * t;
           // odlepenie: v prvej tretine sa nalepka z roviny podlahy narovna; dosadnutie: v poslednej tretine sa sklopi do roviny plochy a tien zmizne

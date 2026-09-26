@@ -138,22 +138,20 @@
 <script>
   // Stav stranky: BUILD sa meni pri kazdom publikovani (kolo, cas renderu), zivy stav cita db dokument status/current.
   const BUILD = {
- "round": 37,
- "renderedAt": "2026-09-26T12:45:00Z"
+ "round": 38,
+ "renderedAt": "2026-09-26T13:25:00Z"
 };
   const FULL = {
- "len": 152.1,
- "cap": "16a4d5844070e8f00b1605c9733a8015",
+ "len": 151.0,
+ "cap": "b83f54e58083de0e4efe5ce5cf89e5b6",
  "poster": "7ed206c53b726ea864793fefdee08a5d",
  "desc": "Tvrdé strihy medzi klipmi, hlas Gemini TTS (Velvet 1), titulky a od kola 37 hudba (Lyria, pod hlasom stíšená)."
 };
   const NEWS = [
- "Hudba: optimistický corporate podmaz (Lyria), naplno sa ozve pri logu po 0:31, pod hlasom sa sama stíši; celý film -16 LUFS. Hudba je len v celom filme, jednotlivé klipy sú bez nej.",
- "C1: assetin a .space vyplávajú naraz, intro kratšie (3,6 s).",
- "C4: otáznik ako v C2 (rovnaký a rovnako veľký), „2×€“ na stred, veta pri logu bez hlasu, pod logom text „Digitálna katalogizácia archivovanej dokumentácie“; klip o 5 s kratší.",
- "C5: hárok s QR kódmi leží naplocho na zemi v rovnakej perspektíve ako krabica.",
- "Nová scéna C10 Práca s databázou (pred F3): vyhľadávanie, zoskupovanie, export ako karty v okne aplikácie; F3 už nezvýrazňuje menu.",
- "Zvýraznenia všade ako pri vyhľadávaní: rámik a stmavené okolie aj v F1 a F4 (oprava jantárovým rámikom)."
+ "C4: veľký otáznik medzi regálom a hodinami je späť (v kole 36 chýbal a ostala tam diera); kreslený rovnako ako otáznik v C2.",
+ "C5: koniec bez 1,5 s prázdneho displeja mobilu pred F1; hárok s QR kódmi menší a vyššie, nezasahuje do titulkov.",
+ "C10: karty Vyhľadávanie, Zoskupovanie, Export sú v okne od začiatku (stlmené) a so slovom sa rozsvietia, na konci bez prázdneho okna.",
+ "Hudba (kolo 37) ostáva, jej tempo sa samo prispôsobí dĺžke filmu. Celý film 151,0 s, bez dlhších tichých miest."
 ];
   const CLIPS = [
  {
@@ -176,17 +174,17 @@
   "id": "C4-Cena",
   "name": "Cena → predel",
   "len": 20.1,
-  "desc": "Kolo 36: nad regálom rovnaký otáznik ako v C2 (aj rovnako veľký), „2×€“ jedným textom na stred, veta „Kľúčom k vyriešeniu...“ už nie je v hlase, pod logom je text „Digitálna katalogizácia archivovanej dokumentácie“. Klip 20,1 s namiesto 25,0 s.",
-  "cap": "aaee7c95e4d91ee1198abfae158ca801",
-  "poster": "0c5002e3c21e3872b227848899f44251"
+  "desc": "Kolo 37: veľký otáznik vedľa regálu je späť (tvar ako v C2, veľkosť ako hodiny). Kolo 36: „2×€“ na stred, veta pri logu bez hlasu, pod logom text „Digitálna katalogizácia archivovanej dokumentácie“.",
+  "cap": "676de1747d79e9acfcccd3f4b852c521",
+  "poster": "ba867db677c0d4df04f32166c5817318"
  },
  {
   "id": "C5-Teren",
   "name": "V sklade",
-  "len": 12.3,
-  "desc": "Kolo 36: hárok s QR kódmi leží naplocho na zemi v izometrii krabice, nálepka sa z neho odlepí a doletí na krabicu.",
-  "cap": "874184d6062be79c0679580da0600c58",
-  "poster": "dbfd3bfd1eb72329ab16bfc05b52b07c"
+  "len": 11.8,
+  "desc": "Kolo 37: končí hneď po dosadnutí mobilu do rámika F1 (bez prázdneho displeja), hárok s QR kódmi naplocho na zemi, menší a nad titulkami.",
+  "cap": "fcca2eb36cfb52061f8e4ae0c70de576",
+  "poster": "ed613d6ec4b22f234c9182d5c6ce6f26"
  },
  {
   "id": "F1-Sken",
@@ -231,10 +229,10 @@
  {
   "id": "C10-Databaza",
   "name": "Práca s databázou",
-  "len": 9.2,
-  "desc": "Kolo 36, nová scéna pred F3 (ako C6): „S databázou sa dá pracovať rôzne: vyhľadávať, zoskupovať aj exportovať. Najjednoduchšie je vyhľadávanie.“ Karty Vyhľadávanie, Zoskupovanie, Export nastupujú so slovami, potom ostane Vyhľadávanie a okno prejde do F3.",
-  "cap": "cc647a42f9701abbeb4a874b89ef629c",
-  "poster": "e1a2b12afe852313efc53846fddcb29f"
+  "len": 8.7,
+  "desc": "Kolo 37: karty sú v okne od začiatku stlmené a so slovami náhovoru sa rozsvietia (vyhľadávať, zoskupovať, exportovať), potom ostane Vyhľadávanie a okno prejde do F3 bez prázdneho okna.",
+  "cap": "388985fd9d2c46fb05d211ab94e0dacb",
+  "poster": "9edf35a0984942489b70a3e463c915a2"
  },
  {
   "id": "F3-Vyhladavanie",

@@ -33,7 +33,7 @@ import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
  * Kolo 33: rucicka hodin sa toci podla skutocneho casu (useOutputFrame), pauzy v scenesList su plynule; scena 15,6 s.
  * Kolo 34: bez skipu (kamera nadvazuje na koniec C2), bez otaznika nad policou, "2x" a "EUR" rovnako velke,
  * po "2x" hned prelinacka do bielej a znacka (kamera sa uz nevracia na policu).
- * Kolo 36: prvy otaznik je rovnaky ako v C2 (QuestionMark nad regalom, na obrazovke rovnako velky, ~62 px),
+ * Kolo 36: prvy otaznik je rovnaky ako v C2 (QuestionMark), kolo 37: znova velky vedla regalu (velkost ako hodiny), nie maly nad regalom,
  * "2x EUR" jednym textom na stred, veta "Klucom k vyrieseniu..." bez hlasu: pod lockupom text
  * "Digitalna katalogizacia archivovanej dokumentacie", znacka drzi H = 2,05 s; scena 12,45 s.
  * Kolo 28: texty v obraze (2500 "Hladanie trva...", 4700 "Zaplatene dvakrat..."),
@@ -75,11 +75,16 @@ export const C4_Cena: React.FC = () => {
           </ShelfFrame>
           {(() => {
             const [qx, qy] = iso(s.x + 65, s.y + 30, 2 * CM.shelf.level + 14);
-            return <QuestionMark x={qx} y={qy} s={bigQ * 0.67 * out} />; // kolo 36: rovnaky otaznik ako v C2, rovnako velky na obrazovke (kamera je tu priblizena 1,5x; namiesto velkeho kruhu vedla regalu)
+            return <QuestionMark x={qx} y={qy} s={0} />; // bez otaznika nad policou; otaznik je vedla regalu (kolo 37)
           })()}
         </svg>
       </Camera>
 
+      {/* kolo 37: velky otaznik vedla regalu je spat (v kole 36 chybal, medzi regalom a hodinami ostala diera);
+          kreslenie ako QuestionMark z C2 (rovnaky kruh a znak), velkost ako hodiny */}
+      <svg width={240} height={240} viewBox="-120 -120 240 240" style={{ position: 'absolute', left: 715, top: 380, opacity: out, transform: `scale(${0.6 + 0.4 * bigQ})` }}>
+        <QuestionMark x={0} y={0} s={bigQ * (100 / 18)} />
+      </svg>
       {/* hodiny v strede medzery medzi regalom a vykresom */}
       <svg width={240} height={240} viewBox="-120 -120 240 240" style={{ position: 'absolute', left: 955, top: 380, opacity: clock * out, transform: `scale(${0.6 + 0.4 * clock})` }}>
         <circle r={95} fill="#1B2A44" stroke="#fff" strokeWidth={10} />

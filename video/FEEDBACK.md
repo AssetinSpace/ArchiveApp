@@ -402,3 +402,14 @@ Analýza kola 36 (Samuel: "nič nemeň, len analyzuj"): najväčší prínos je 
 - Hudba: `lyria-3-pro-preview`, jeden prompt s časovou osou filmu (`src/copy/music.json`), 151,8 s, bez spevu, optimistický corporate electronic (~120 BPM podľa rozboru): tiché intro, zdržanlivý úsek problému, plný groove od 0:31 (logo), stíšenie od 2:11 a záver. Jeden pokus zablokovala Lyria (`PROHIBITED_CONTENT`), druhý prešiel; prvý bez streamu padol na 502.
 - Mix `scripts/mix-music.mjs`: tempo 0,983 (záverečný akord na koniec C9), zárez 1-3 kHz, stíšenie pod hlasom (~14 dB pod rečou, v pauzách ~7 dB), -16 LUFS. Prepis hlasu cez hudbu (C4, F3, C9) sedí slovo po slove, zrozumiteľnosť 5/5.
 - Review stránka: kolo 36 aj 37 naraz (C1, C4, C5, F1, F4, nová C10, F3 a Full s hudbou). Hudba je len vo Full, klipy sú bez nej. Full 152,1 s.
+
+
+## Kolo 38 (26. 9. 2026): kontrola úplnosti po kolách 36 a 37
+
+Samuel (screenshot C4): "nejako sa to porozbíjalo, napríklad tu nie je otáznik, over to celé", hudba zatiaľ v poriadku.
+
+- C4: v kole 36 som veľký otáznik vedľa regálu nahradil malým nad regálom, medzi regálom a hodinami ostala diera. Veľký otáznik je späť (tvar a farby `QuestionMark` ako v C2, veľkosť ako hodiny), malý nad regálom vypadol.
+- C5: po presune mobilu do rámika F1 ostal ~1,5 s prázdny displej; scéna končí hneď po dosadnutí (8,4 s namiesto 9 s). Hárok s QR kódmi zasahoval do pásma titulkov (kontrola stills): zmenšený na 0,8 a posunutý hore (stred 250/735).
+- C10: okno bolo 3 s prázdne, kým prišla prvá karta, a ~1 s prázdne pred F3: karty sú v okne od 0,3 s stlmené a so slovom sa rozsvietia, okno sa presúva 7,6-8,4 s, obsah zmizne až 8,3-8,55 s, scéna 8,6 s.
+- Hudba: `mix-music.mjs` nastaví tempo samo (`end` v `music.json` = 149 s, akord skončí 0,4 s pred koncom filmu), teraz 0,9896.
+- Kontrola celého Full (151,0 s): žiadne jednosnímkové preblesky, prázdne (jednofarebné) úseky len pri prechodoch do 0,6 s, v zvuku žiadne ticho dlhšie ako 0,5 s okrem úplného začiatku a konca; všetky stills bez zásahu do pásma titulkov. Ostávajú dva tvrdé strihy z pôvodného návrhu: C1 (navy) -> C2 a C8 (biela) -> C9 (zelená).

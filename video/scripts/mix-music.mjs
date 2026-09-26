@@ -1,8 +1,8 @@
 // Full s hudbou (kolo 37): poskladá Full z klipov out/mp4/<ID>.mp4 v poradí SCENE_LIST a podmaže hudbu
 // public/music/bed.wav (Lyria, scripts/music.py) so stíšením pod hlasom (sidechain), -16 LUFS.
 //
-// Použitie: node scripts/mix-music.mjs [--music public/music/bed.wav] [--tempo 0.983] [--gain -6] [--no-music]
-//   --tempo  atempo hudby: skladba konči ~2,5 s pred koncom filmu, 0,983 ju natiahne (±2 % tempo nepočuť)
+// Použitie: node scripts/mix-music.mjs [--music public/music/bed.wav] [--tempo auto|0.983] [--gain -6] [--no-music]
+//   --tempo  atempo hudby; auto (predvolene) = koniec skladby ("end" v src/copy/music.json) padne 0,4 s pred koniec filmu (±2 % tempo nepočuť)
 //   --gain   hlasitosť hudby v dB pred stíšením; -6 dB + stíšenie (prah 0,02, pomer 3): pod hlasom ~14 dB pod rečou, v pauzách ~7 dB
 // Výstup: out/mp4/Full_1080p.mp4, out/mp4/Full_preview_540p.mp4; vypíše dĺžky, časy predelov a hlasitosť.
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -11,7 +11,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 const args = process.argv.slice(2);
 const opt = (k, d) => (args.includes(k) ? args[args.indexOf(k) + 1] : d);
 const MUSIC = opt('--music', 'public/music/bed.wav');
-const TEMPO = Number(opt('--tempo', '0.983'));
+const TEMPO_ARG = opt('--tempo', 'auto');
 const GAIN = Number(opt('--gain', '-6'));
 const withMusic = !args.includes('--no-music');
 const FF = process.env.FFMPEG ?? execFileSync('python3', ['-c', 'import imageio_ffmpeg as f; print(f.get_ffmpeg_exe())']).toString().trim();
@@ -52,6 +52,9 @@ if (!withMusic) {
   execFileSync(FF, ['-v', 'error', '-y', '-i', voice, '-c:v', 'copy', '-af', 'loudnorm=I=-16:TP=-1.5:LRA=11', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', out]);
 } else {
   const T = total.toFixed(3);
+  const musicEnd = JSON.parse(readFileSync('src/copy/music.json', 'utf8')).end ?? probe(MUSIC);
+  const TEMPO = TEMPO_ARG === 'auto' ? Math.min(1.02, Math.max(0.98, musicEnd / (total - 0.4))) : Number(TEMPO_ARG);
+  console.log(`hudba: tempo ${TEMPO.toFixed(4)} (koniec skladby ${musicEnd} s -> ${(musicEnd / TEMPO).toFixed(2)} s)`);
   const fc = [
     // hlas: stereo, jedna vetva do mixu, druha ako kluc stisenia
     `[0:a]aformat=sample_rates=48000:channel_layouts=stereo,asplit=2[v][key]`,

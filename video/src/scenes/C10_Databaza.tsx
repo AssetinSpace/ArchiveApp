@@ -10,10 +10,12 @@ import { BRAND, FONT, INK } from '../theme';
  * C10 - Praca s databazou (kolo 36): uvod k F3 podany ako ostatne funkcie (ako C6), nie zvyraznenim menu v zazname.
  * Okno aplikacie z bielej (F4 konci do bielej), v nom tri funkcie ako karty so slovami nahovoru
  * (vyhladavat, zoskupovat, exportovat), pri "Najjednoduchsie je vyhladavanie" ostane vyhladavanie, ostatne stlmia;
- * potom okno prejde presne do okna footage F3 (FOOTAGE_WINDOW_WIDE) = strih na F3. Vpravo nadpis ako pri footage. 9,1 s.
+ * potom okno prejde presne do okna footage F3 (FOOTAGE_WINDOW_WIDE) = strih na F3. Vpravo nadpis ako pri footage. 8,6 s.
+ * Kolo 37: karty su v okne od zaciatku stlmene (okno nie je 3 s prazdne), so slovom sa rozsvietia; karty ostanu
+ * pocas presunu okna a zmiznu az tesne pred strihom (bez prazdneho okna na konci).
  *
- * ms (nahovor od 300, casy slov + 300): 0 okno · 700 text vpravo · 2800 Vyhladavanie · 3850 Zoskupovanie ·
- * 4600 Export · 6800 zostane Vyhladavanie · 7900 obsah zmizne · 8000-8900 okno do okna F3.
+ * ms (nahovor od 300, casy slov + 300): 0 okno · 300 karty stlmene · 700 text vpravo · 2800 Vyhladavanie ·
+ * 3850 Zoskupovanie · 4600 Export · 6800 zostane Vyhladavanie · 7600-8400 okno do okna F3 · 8300-8550 obsah zmizne.
  */
 const WIN = { x: 380, y: 150, w: 900, h: 640 };
 const CARD = { w: 230, h: 250, gap: 36 };
@@ -52,9 +54,10 @@ export const C10_Databaza: React.FC = () => {
   const tw = (s: number, d: number) => tween(frame, s, d);
   const chrome = tw(0, 400);
   const focus = tw(6800, 400); // zostane vyhladavanie
-  const content = 1 - tw(7900, 300);
-  const fill = tw(8000, 900); // okno prejde do okna F3
-  const note = settle(frame, 700) * (1 - tw(7700, 300));
+  const content = 1 - tw(8300, 250);
+  const fill = tw(7600, 800); // okno prejde do okna F3
+  const note = settle(frame, 700) * (1 - tw(7500, 300));
+  const dim = settle(frame, 300); // karty su v okne od zaciatku, stlmene
   const at = {
     x: WIN.x + (FOOTAGE_WINDOW_WIDE.x - WIN.x) * fill,
     y: WIN.y + (FOOTAGE_WINDOW_WIDE.y - WIN.y) * fill,
@@ -67,7 +70,7 @@ export const C10_Databaza: React.FC = () => {
       <WindowFrame at={at} chrome={chrome}>
         <div style={{ position: 'absolute', left: (at.w - rowW) / 2, top: (at.h - 44 - CARD.h) / 2, display: 'flex', gap: CARD.gap, opacity: content }}>
           {CARDS.map((c, i) => {
-            const t = pop(frame, c.at);
+            const t = pop(frame, c.at); // rozsvietenie so slovom
             const main = i === 0;
             return (
               <div
@@ -84,8 +87,8 @@ export const C10_Databaza: React.FC = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: 22,
-                  opacity: Math.min(1, t * 1.4) * (main ? 1 : 1 - 0.65 * focus),
-                  transform: `translateY(${(1 - t) * 24}px) scale(${(0.9 + 0.1 * t) * (main ? 1 + 0.06 * focus : 1)})`,
+                  opacity: dim * (0.3 + 0.7 * Math.min(1, t)) * (main ? 1 : 1 - 0.65 * focus),
+                  transform: `scale(${(0.96 + 0.04 * Math.min(1, t)) * (main ? 1 + 0.06 * focus : 1)})`,
                 }}
               >
                 <Icon kind={c.kind} />
