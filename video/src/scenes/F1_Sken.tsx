@@ -3,6 +3,9 @@ import { AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame } from 'remot
 import { FOOTAGE_PHONE, PHONE_BEZEL, PhoneFrame } from '../components/Device';
 import { settle, tween } from '../lib/anim';
 import { loadFonts } from '../lib/fonts';
+import { phases } from '../copy/sk';
+import { cutDuration, cutTime } from '../lib/cuts';
+import { voAt } from '../components/Subtitles';
 import { BRAND, FONT, INK } from '../theme';
 
 /**
@@ -14,35 +17,39 @@ import { BRAND, FONT, INK } from '../theme';
  * Zdroj: public/footage/f1-sken.mp4 (priecinok nie je v gite).
  */
 export const F1_SRC = 'footage/f1-sken.mp4';
-export const F1_SECONDS = 10.5; // drz v sulade so scenesList.ts (kazdy krok ~2 s: KR_01 1,5 s, typ 2 s, QR 2,1 s, foto 2,2 s, kontrola 2 s, nahravanie 0,7 s)
+export const F1_SECONDS = cutDuration('f1-sken'); // zostrih podla src/footage/cuts.json (kolo 29: pauza pred kazdym krokom, fotenie ~1x)
 const SRC_W = 884,
   SRC_H = 1920;
 
 export type Tap = { t: number; x: number; y: number }; // s, podiel sirky/vysky celeho zaznamu
-export type Step = { from: number; title: string; line: string }; // s
+export type Step = { from: number; title: string; line?: string }; // s
+/** Zvyraznenie (kolo 33 fixka, kolo 36 spot: ramik + stmavene okolie): s, podiely celeho zaznamu; sweep sa uz nepouziva. */
+export type PhoneMark = { from: number; to: number; x: number; y: number; w: number; h: number; sweep?: number };
 
+/** Kolo 33: kliky premerane na zazname 1206 x 2622 (podiely), casy zdroja. */
 const F1_TAPS: Tap[] = [
-  { t: 3.4, x: 0.94, y: 0.79 }, // Dalej
-  { t: 5.2, x: 0.5, y: 0.36 }, // Skenovat QR z prilohy
-  { t: 5.55, x: 0.94, y: 0.79 }, // Dalej
-  { t: 6.27, x: 0.5, y: 0.32 }, // Odfotit/nahrat fotografiu
-  { t: 7.37, x: 0.5, y: 0.85 }, // spust
-  { t: 7.79, x: 0.9, y: 0.92 }, // Use Photo
-  { t: 9.39, x: 0.9, y: 0.79 }, // Vytvorit
+  { t: cutTime('f1-sken', 1.7), x: 0.887, y: 0.791 }, // Dalej
+  { t: cutTime('f1-sken', 8.9), x: 0.5, y: 0.824 }, // spust
+  { t: cutTime('f1-sken', 9.9), x: 0.86, y: 0.916 }, // Use Photo
 ];
+/** Kroky podla hlasu (casti vety vo vo.json): typ, zaradenie do hierarchie, fotka, zaznam. */
+const voS = (k: number) => voAt('F1-Sken', 0, k) / 1000;
 const F1_STEPS: Step[] = [
-  { from: 0, title: 'Krabica KR_01', line: 'Naskenovaná krabica. Pridáva sa do nej zložka.' },
-  { from: 1.5, title: 'Typ jednotky', line: 'Zložka pod krabicou KR_01.' },
-  { from: 3.45, title: 'Priradiť QR', line: 'Kód sa prečíta z fotky štítku.' },
-  { from: 5.57, title: 'Odfotiť štítok', line: 'Fotka je dôkaz. Appka z nej číta údaje.' },
-  { from: 7.79, title: 'Skontrolovať a vytvoriť', line: 'Jednotka má ID a svoje miesto.' },
+  { from: 0, title: 'Vybrať typ položky' },
+  { from: voS(2), title: 'Zaradiť do hierarchie' },
+  { from: voS(3), title: 'Odfotiť identifikačnú stranu' },
+  { from: voS(4), title: 'Digitálny záznam' },
+];
+const F1_MARKS: PhoneMark[] = [
+  { from: voS(1) + 0.2, to: voS(2), x: 0.09, y: 0.299, w: 0.25, h: 0.027, sweep: 0.5 }, // Zlozka (ZL): "ako napriklad zlozka alebo dokument"
+  { from: voS(2) + 0.2, to: voS(3) - 0.3, x: 0.058, y: 0.101, w: 0.675, h: 0.031, sweep: 0.7 }, // Pridava sa jednotka pod KR_01: "zaradime ju do hierarchie"
 ];
 
 const PHONE = FOOTAGE_PHONE;
 /** Orez zaznamu (namerane na f1-sken.mp4): stavova lista iOS 0-115 px, lista Safari od 1743 px z 1920. */
 const CROP = { top: 115 / 1920, bottom: 177 / 1920 };
 
-export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[]; steps?: Step[]; crop?: { top: number; bottom: number } }> = ({ src, seconds, taps = [], steps = [], crop = CROP }) => {
+export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[]; steps?: Step[]; marks?: PhoneMark[]; crop?: { top: number; bottom: number }; panelOnly?: boolean }> = ({ src, seconds, taps = [], steps = [], marks = [], crop = CROP, panelOnly = false }) => {
   const frame = useCurrentFrame();
   const ms = (frame / 30) * 1000;
   const tw = (s: number, d: number) => tween(frame, s, d);
@@ -66,11 +73,18 @@ export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[];
 
   return (
     <AbsoluteFill style={{ background: '#fff' }}>
+      {panelOnly ? null : (
       <PhoneFrame at={PHONE}>
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#fff' }}>
           {/* footage orezane o systemove listy: video sirsie o crop, posunute hore */}
           <div style={{ position: 'absolute', left: videoLeft, top: -crop.top * videoH, width: videoW, height: videoH }}>
             <OffthreadVideo src={file} muted style={{ width: '100%', height: '100%', objectFit: 'fill' }} />
+            {marks.map((m, i) => {
+              const a = tw(m.from * 1000, 200) * (1 - tw(m.to * 1000 - 250, 250));
+              if (a <= 0) return null;
+              // kolo 36: spot ako v F3/F4 (zeleny ramik, stmavene okolie displeja) namiesto fixky
+              return <div key={`m${i}`} style={{ position: 'absolute', left: m.x * videoW - 6, top: m.y * videoH - 5, width: m.w * videoW + 12, height: m.h * videoH + 10, borderRadius: 8, border: `3px solid ${BRAND[400]}`, boxShadow: `0 0 0 4000px rgba(15,23,42,${0.38 * a})`, opacity: Math.min(1, a * 1.5), transform: `scale(${1.02 - 0.02 * a})` }} />;
+            })}
             {/* tapy: jemny zeleny kruh, ktory sa rozsiri a zmizne */}
             {taps.map((tp, i) => {
               const t = tw(tp.t * 1000, 550);
@@ -84,6 +98,7 @@ export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[];
           <div style={{ position: 'absolute', inset: 0, background: '#fff', opacity: 1 - screenIn, pointerEvents: 'none' }} />
         </div>
       </PhoneFrame>
+      )}
 
       {/* sprievodny text vpravo */}
       <div style={{ position: 'absolute', left: 960, top: 0, width: 800, height: 1080, display: 'flex', flexDirection: 'column', justifyContent: 'center', opacity: textIn, transform: `translateX(${(1 - textIn) * 40}px)` }}>
@@ -93,10 +108,10 @@ export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[];
           return (
             <div key={i} style={{ position: 'absolute', left: 0, right: 0, opacity: on * inT, transform: `translateY(${(1 - inT) * 16}px)` }}>
               <div style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: 24, letterSpacing: '0.14em', textTransform: 'uppercase', color: BRAND[600], marginBottom: 18 }}>
-                Krok {i + 1} / {steps.length}
+                {phases.teren}
               </div>
               <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 64, lineHeight: 1.05, color: INK[900], letterSpacing: '-0.02em', marginBottom: 18 }}>{s.title}</div>
-              <div style={{ fontFamily: FONT.body, fontWeight: 400, fontSize: 34, lineHeight: 1.35, color: INK[500], maxWidth: 640 }}>{s.line}</div>
+              {s.line ? <div style={{ fontFamily: FONT.body, fontWeight: 400, fontSize: 34, lineHeight: 1.35, color: INK[500], maxWidth: 640 }}>{s.line}</div> : null}
               {/* body krokov */}
               <div style={{ display: 'flex', gap: 10, marginTop: 36 }}>
                 {steps.map((_, k) => (
@@ -113,4 +128,18 @@ export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[];
   );
 };
 
-export const F1_Sken: React.FC = () => <FootageClip src={F1_SRC} seconds={F1_SECONDS} taps={F1_TAPS} steps={F1_STEPS} />;
+export const F1_Sken: React.FC = () => <FootageClip src={F1_SRC} seconds={F1_SECONDS} taps={F1_TAPS} steps={F1_STEPS} marks={F1_MARKS} />;
+
+/**
+ * Nahradna verzia bez zdrojoveho footage (public/footage/f1-sken.mp4 nie je k dispozicii):
+ * pod spodom je starsi render klipu (public/footage/f1-old.mp4 = out/mp4/F1-Sken.mp4 z kola 27/28),
+ * nanovo sa kresli len panel s krokmi vpravo (od x 880). Po nahrati footage prepnut v scenesList na F1_Sken.
+ */
+export const F1_SkenPatched: React.FC = () => (
+  <AbsoluteFill style={{ background: '#fff' }}>
+    <OffthreadVideo src={staticFile('footage/f1-old.mp4')} muted />
+    <AbsoluteFill style={{ clipPath: 'inset(0 0 0 880px)' }}>
+      <FootageClip src={F1_SRC} seconds={F1_SECONDS} steps={F1_STEPS} panelOnly />
+    </AbsoluteFill>
+  </AbsoluteFill>
+);

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCurrentFrame } from 'remotion';
-import { LogoMark, Scene, useCaptions } from '../components/Scene';
+import { Scene, useCaptions } from '../components/Scene';
 import { BrandMod, BrandSep, BrandStack, LOCKUP, LOCKUP_W } from '../components/Brand';
 import { ArchiveBox, archiveBoxClosed } from '../components/ArchiveBox';
 import { C5_BOX_LEFT } from './C5_Teren';
@@ -10,6 +10,7 @@ import { Carton, ShelfFrame, iso } from '../lib/iso';
 import { PriceTag, QuestionMark, Sheet } from '../components/Illustrations';
 import { drawProps, pop, settle, tween } from '../lib/anim';
 import { captions } from '../copy/sk';
+import { useOutputFrame } from '../components/Paced';
 import { BRAND, CM, FONT, INK, NAVY, SAFE } from '../theme';
 import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
 
@@ -28,15 +29,26 @@ import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
  * 5600-6100 vsetko vybledne, kamera na krabicu · 6300-7000 rozsvietenie ·
  * 6900 znacka, 7050 lockup (drzi 1 s) · 7900 znacka a lockup odchadzaju ·
  * 8100 krabica C5 sa usadi vlavo · 8200 paticka. 9 s.
+ * Kolo 31: uvod (najazd kamery) sa preskakuje o 0,8 s (skip v scenesList), znacka bez domceka drzi H = 5,2 s + 0,8 s na vetu nahovoru; scena 16,9 s.
+ * Kolo 33: rucicka hodin sa toci podla skutocneho casu (useOutputFrame), pauzy v scenesList su plynule; scena 15,6 s.
+ * Kolo 34: bez skipu (kamera nadvazuje na koniec C2), bez otaznika nad policou, "2x" a "EUR" rovnako velke,
+ * po "2x" hned prelinacka do bielej a znacka (kamera sa uz nevracia na policu).
+ * Kolo 36: prvy otaznik je rovnaky ako v C2 (QuestionMark nad regalom, na obrazovke rovnako velky, ~62 px),
+ * "2x EUR" jednym textom na stred, veta "Klucom k vyrieseniu..." bez hlasu: pod lockupom text
+ * "Digitalna katalogizacia archivovanej dokumentacie", znacka drzi H = 2,05 s; scena 12,45 s.
+ * Kolo 28: texty v obraze (2500 "Hladanie trva...", 4700 "Zaplatene dvakrat..."),
+ * predel posunuty o D, znacka drzi o H dlhsie a pod lockupom je popis. 11,1 s.
  */
+const D = 1300; // posun predelu, aby sa dal precitat text pod "2x"
+const H = 2050; // drzanie znacky s textom pod lockupom (kolo 36: bez nahovoru, ~3,5 s na citanie)
 const BOX = 860;
 export const C4_Cena: React.FC = () => {
   const frame = useCurrentFrame();
-  const showCap = useCaptions();
+  const showCap = useCaptions(); // kolo 29: vety nesie nahovor + titulky (Paced)
   const tw = (s: number, d: number) => tween(frame, s, d);
   const bigQ = pop(frame, 1100);
   const clock = settle(frame, 2600);
-  const hand = tw(2600, 1000) * 720;
+  const hand = (useOutputFrame() / 30) * 300; // kolo 33: rucicka tika plynulo podla skutocneho casu klipu, aj pocas pauz
   const arrow = tw(3000, 500);
   const sheet = settle(frame, 3200);
   const tagB = pop(frame, 3600);
@@ -44,37 +56,30 @@ export const C4_Cena: React.FC = () => {
   const big = pop(frame, 4400, { damping: 12 });
   const s = TARGET_SHELF;
   // predel problem -> riesenie
-  const out = 1 - tw(5600, 500); // cenovky, hodiny, vykres, "?" vyblednu
-  const light = tw(6300, 700); // cista prelinacka do bielej
-  const mark = settle(frame, 6900); // znacka sa objavi (bez kreslenia) a drzi ~1 s
-  const lockup = settle(frame, 7050);
-  const brandOut = tw(7900, 300);
-  const box = settle(frame, 8100);
-  const footer = tw(8200, 400);
+  const out = 1 - tw(5600 + D, 500); // cenovky, hodiny, vykres, "?" vyblednu
+  const light = tw(5600 + D, 600); // kolo 34: po "2x" rovno prelinacka do bielej (bez navratu kamery na policu)
+  const mark = settle(frame, 6300 + D); // znacka sa objavi (bez kreslenia)
+  const lockup = settle(frame, 6450 + D);
+  const brandOut = tw(7900 + D + H, 300);
+  const box = settle(frame, 8100 + D + H);
+  const footer = tw(8200 + D + H, 400);
   const CAM_MID = { x: CAM_END.x + 590 / CAM_END.scale, y: CAM_END.y + 70 / CAM_END.scale, scale: 1.5 };
   const boxLeft = C5_BOX_LEFT; // rovnaka poloha ako v C5 (krabica vlavo, vpravo kroky)
   const boxTop = SAFE.illoTop - 40;
   return (
     <Scene mode="dark" footer footerMode="light" footerOpacity={footer}>
-      <Camera keys={[{ ms: 0, ...CAM_END }, { ms: 1700, ...CAM_MID }, { ms: 5600, ...CAM_MID }, { ms: 6700, x: CAM_END.x, y: CAM_END.y, scale: 2.4 }]}>
+      <Camera keys={[{ ms: 0, ...CAM_END }, { ms: 1700, ...CAM_MID }]}>
         <svg width={1920} height={1080} viewBox={`${VB.x} ${VB.y} ${1920 / SV} ${1080 / SV}`} style={{ position: 'absolute', left: 0, top: 0 }}>
           <ShelfFrame x={s.x} y={s.y} w={CM.shelf.w} d={CM.shelf.d} levels={2} levelH={CM.shelf.level} topBoard={false}>
             {(lvl) => [0, 1].map((k) => <Carton key={`${lvl}${k}`} x={s.x + 8 + k * 60} y={s.y + 12} z={lvl * CM.shelf.level + 4} />)}
           </ShelfFrame>
           {(() => {
             const [qx, qy] = iso(s.x + 65, s.y + 30, 2 * CM.shelf.level + 14);
-            return <QuestionMark x={qx} y={qy} s={0.7 * (1 - tw(800, 500))} />;
+            return <QuestionMark x={qx} y={qy} s={bigQ * 0.67 * out} />; // kolo 36: rovnaky otaznik ako v C2, rovnako velky na obrazovke (kamera je tu priblizena 1,5x; namiesto velkeho kruhu vedla regalu)
           })()}
         </svg>
       </Camera>
 
-      {/* velky otaznik vedla regalu (rovnaka velkost ako hodiny) */}
-      <svg width={240} height={240} viewBox="-120 -120 240 240" style={{ position: 'absolute', left: 715, top: 380, opacity: Math.min(1, bigQ * 1.4) * out, transform: `scale(${0.6 + 0.4 * bigQ})` }}>
-        <circle r={100} fill={BRAND[300]} />
-        <text x={0} y={48} textAnchor="middle" fontFamily="Manrope" fontWeight={800} fontSize={150} fill={NAVY[900]}>
-          ?
-        </text>
-      </svg>
       {/* hodiny v strede medzery medzi regalom a vykresom */}
       <svg width={240} height={240} viewBox="-120 -120 240 240" style={{ position: 'absolute', left: 955, top: 380, opacity: clock * out, transform: `scale(${0.6 + 0.4 * clock})` }}>
         <circle r={95} fill="#1B2A44" stroke="#fff" strokeWidth={10} />
@@ -100,12 +105,16 @@ export const C4_Cena: React.FC = () => {
       <div style={{ position: 'absolute', left: 1395, top: 720, opacity: out }}>
         <PriceTag text="nové vyhotovenie" s={tagB} color={BRAND[700]} size={36} />
       </div>
-      {/* 2x €€€ dole v strede, medzi cenovkami */}
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 640, textAlign: 'center', opacity: big * out, transform: `scale(${0.6 + 0.4 * big})`, whiteSpace: 'nowrap' }}>
-        <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 200, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.04em' }}>2×</span>
-        <span style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 130, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.02em', marginLeft: 28 }}>€€€</span>
+      {/* 2x EUR dole v strede, medzi cenovkami (kolo 36: jeden text, jedno EUR, na stred) */}
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 640, textAlign: 'center', opacity: big * out, transform: `scale(${0.6 + 0.4 * big})`, whiteSpace: 'nowrap', fontFamily: FONT.display, fontWeight: 800, fontSize: 170, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.03em' }}>
+        2×€
       </div>
-      {showCap ? <Caption text={captions.C4} mode="dark" t={settle(frame, 4800)} out={tw(5400, 300)} y={SAFE.captionY} /> : null}
+      {showCap ? (
+        <>
+          <Caption text={captions.C4a} mode="dark" t={settle(frame, 2500)} out={tw(4300, 300)} y={SAFE.captionY} />
+          <Caption text={captions.C4} mode="dark" t={settle(frame, 4700)} out={tw(5500 + D, 300)} y={SAFE.captionY} />
+        </>
+      ) : null}
 
       {/* prechod do bielej: cista prelinacka (bez svetelneho efektu) */}
       {light > 0 ? <div style={{ position: 'absolute', inset: 0, background: '#fff', opacity: light, pointerEvents: 'none' }} /> : null}
@@ -113,13 +122,10 @@ export const C4_Cena: React.FC = () => {
       {/* znacka Assetin + lockup z design kitu (assetin / .space | Archives), svetla verzia */}
       {mark > 0 ? (
         <div style={{ position: 'absolute', inset: 0, opacity: (1 - brandOut) * Math.min(1, mark * 1.2), transform: `scale(${(1 - 0.06 * brandOut) * (0.97 + 0.03 * mark)})`, transformOrigin: '50% 50%' }}>
-          <div style={{ position: 'absolute', left: 960 - 60, top: 310 }}>
-            <LogoMark size={120} color={BRAND[700]} />
-          </div>
           {(() => {
             const k = 0.6;
             const left = 960 - (LOCKUP_W * k) / 2;
-            const top = 470;
+            const top = 420;
             const stackLeft = 0,
               sepLeft = LOCKUP.stackW + LOCKUP.gap,
               modLeft = sepLeft + LOCKUP.sepW + LOCKUP.gap;
@@ -139,6 +145,10 @@ export const C4_Cena: React.FC = () => {
               </div>
             );
           })()}
+          {/* kolo 36: popis pod lockupom (vetu uz nehovori nahovor) */}
+          <div style={{ position: 'absolute', left: 0, right: 0, top: 590, textAlign: 'center', fontFamily: FONT.display, fontWeight: 600, fontSize: 46, color: NAVY[800], letterSpacing: '-0.01em', opacity: settle(frame, 6750 + D), transform: `translateY(${(1 - settle(frame, 6750 + D)) * 12}px)` }}>
+            {captions.C4brand}
+          </div>
         </div>
       ) : null}
 

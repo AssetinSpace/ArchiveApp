@@ -4,3 +4,4 @@ out/preview/
 *.log
 .DS_Store
 public/footage/
+public/vo/

@@ -1,0 +1,233 @@
+{
+  "_": "Scenar nahovoru (kolo 33). Kazdy zaznam = jedno generovanie hlasu (souvisla veta alebo niekolko viet), at = zaciatok v ms od zaciatku klipu (vystupny cas, po pauzach). parts = titulky po castiach (jedna cast = jeden riadok); ich casy (partAt, ms od at) dopise scripts/vo.mjs podla pauz v nahravke, rovnako dur. `say` = foneticky prepis len pre Piper/edge/espeak, Gemini cita `text` (vyslovnost riesi _style). Z tohto suboru sa robi zvuk (public/vo/<klip>.wav) aj titulky (components/Subtitles.tsx).",
+  "_style": "pokojný, vecný firemný rozprávač; plynulý, súvislý prejav, o niečo svižnejšie tempo; pri čiarkach len krátky nádych, dlhšia pauza iba na konci vety; zreteľná výslovnosť; bez emócií navyše. Pace: fluent and connected, a bit brisker than a documentary narrator, no long pauses inside a sentence. Pronunciation: say the abbreviation QR in English, like 'cue are'. Codes like PL_01, KR_01, ZL_03 are read as Slovak letter names plus the plain number, without the underscore and without the leading zero (never say 'nula' or 'pomlčka'): 'pé el jedna, ká er jedna, zet el tri'.",
+  "C2-Hladanie": [
+    {
+      "at": 400,
+      "text": "Kedy ste naposledy nevedeli nájsť nejaký dokument? Či už správu, výkres alebo protokol?",
+      "parts": [
+        "Kedy ste naposledy nevedeli nájsť nejaký dokument?",
+        "Či už správu, výkres alebo protokol?"
+      ],
+      "dur": 6320,
+      "partAt": [
+        0,
+        3320
+      ]
+    },
+    {
+      "at": 7000,
+      "text": "Vy viete, že tam niekde je. V sklade, na polici, v krabici alebo zložke.",
+      "parts": [
+        "Vy viete, že tam niekde je.",
+        "V sklade, na polici, v krabici alebo zložke."
+      ],
+      "dur": 5600,
+      "partAt": [
+        0,
+        1900
+      ]
+    }
+  ],
+  "C4-Cena": [
+    {
+      "at": 400,
+      "text": "Bez jasného systému trvá hľadanie hodiny. Otázne je, v akej kondícii dokumentáciu nájdete. Niekedy je rýchlejšie dať dokumentáciu vyhotoviť nanovo. A tak sa môže stať, že zaplatíte dvakrát za to isté.",
+      "parts": [
+        "Bez jasného systému trvá hľadanie hodiny.",
+        "Otázne je, v akej kondícii dokumentáciu nájdete.",
+        "Niekedy je rýchlejšie dať dokumentáciu vyhotoviť nanovo.",
+        "A tak sa môže stať, že zaplatíte dvakrát za to isté."
+      ],
+      "dur": 13080,
+      "partAt": [
+        0,
+        3100,
+        6580,
+        9760
+      ]
+    }
+  ],
+  "C5-Teren": [
+    {
+      "at": 300,
+      "text": "Riešenie začína fyzickými dokumentmi. Jedinečný QR kód sa prilepí na každú položku a mobilom sa odfotí jej identifikačná strana.",
+      "parts": [
+        "Riešenie začína fyzickými dokumentmi.",
+        "Jedinečný QR kód sa prilepí na každú položku",
+        "a mobilom sa odfotí jej identifikačná strana."
+      ],
+      "say": "Riešenie začína fyzickými dokumentmi. Jedinečný kjúár kód sa prilepí na každú položku a mobilom sa odfotí jej identifikačná strana.",
+      "dur": 9440,
+      "partAt": [
+        0,
+        2920,
+        5980
+      ]
+    }
+  ],
+  "F1-Sken": [
+    {
+      "at": 400,
+      "text": "V mobile vyberieme typ položky, ako napríklad zložka alebo dokument, a zaradíme ju do hierarchie podľa skutočnosti. Potom odfotíme jej identifikačnú stranu. Položka tým dostane svoj digitálny záznam.",
+      "parts": [
+        "V mobile vyberieme typ položky,",
+        "ako napríklad zložka alebo dokument,",
+        "a zaradíme ju do hierarchie podľa skutočnosti.",
+        "Potom odfotíme jej identifikačnú stranu.",
+        "Položka tým dostane svoj digitálny záznam."
+      ],
+      "dur": 13760,
+      "partAt": [
+        0,
+        2120,
+        4700,
+        8080,
+        10940
+      ]
+    }
+  ],
+  "C7-Hierarchia": [
+    {
+      "at": 500,
+      "text": "Každá položka má presné miesto v hierarchii, ako napríklad polica, krabica, zložka alebo dokument.",
+      "parts": [
+        "Každá položka má presné miesto v hierarchii,",
+        "ako napríklad polica, krabica, zložka alebo dokument."
+      ],
+      "dur": 7120,
+      "partAt": [
+        0,
+        2900
+      ]
+    }
+  ],
+  "C6-Spracovanie": [
+    {
+      "at": 300,
+      "text": "Fotku ďalej spracuje aplikácia.",
+      "dur": 2440
+    }
+  ],
+  "F2-Metadata": [
+    {
+      "at": 400,
+      "text": "Najprv aplikácia rozpozná text na identifikačnej strane, potom navrhne metadáta: autora, názov projektu, rok.",
+      "parts": [
+        "Najprv aplikácia rozpozná text na identifikačnej strane,",
+        "potom navrhne metadáta: autora, názov projektu, rok."
+      ],
+      "dur": 7480,
+      "partAt": [
+        0,
+        3520
+      ]
+    }
+  ],
+  "F4-Kontrola": [
+    {
+      "at": 500,
+      "text": "Návrh ale nie je finálny záznam.",
+      "dur": 2680
+    },
+    {
+      "at": 3350,
+      "text": "Človek každú hodnotu overí a potvrdí. Fotka je dôkaz a ostáva pri zázname.",
+      "parts": [
+        "Človek každú hodnotu overí a potvrdí.",
+        "Fotka je dôkaz a ostáva pri zázname."
+      ],
+      "dur": 5440,
+      "partAt": [
+        0,
+        2840
+      ]
+    },
+    {
+      "at": 8950,
+      "text": "Prípadné opravy a doplnenia prebiehajú priamo v návrhu.",
+      "dur": 4000
+    },
+    {
+      "at": 13300,
+      "text": "Tým vznikne overený a dohľadateľný záznam fyzického dokumentu.",
+      "dur": 4840
+    }
+  ],
+  "C10-Databaza": [
+    {
+      "at": 300,
+      "text": "S databázou sa dá pracovať rôzne: vyhľadávať, zoskupovať aj exportovať. Najjednoduchšie je vyhľadávanie.",
+      "parts": [
+        "S databázou sa dá pracovať rôzne: vyhľadávať, zoskupovať aj exportovať.",
+        "Najjednoduchšie je vyhľadávanie."
+      ],
+      "dur": 7600,
+      "partAt": [
+        0,
+        5720
+      ]
+    }
+  ],
+  "F3-Vyhladavanie": [
+    {
+      "at": 400,
+      "text": "Stačí zadať kľúčové slovo.",
+      "dur": 2040
+    },
+    {
+      "at": 2700,
+      "text": "Aplikácia záznam nájde a zobrazí jeho podrobnosti.",
+      "dur": 3600
+    },
+    {
+      "at": 6450,
+      "text": "Ľudsky čitateľná cesta v hierarchii vás dovedie na správnu policu.",
+      "dur": 4080
+    },
+    {
+      "at": 10700,
+      "text": "Kľúčové slovo sa zvýrazní všade, kde sa našlo, v metadátach aj v pôvodnom texte pred spracovaním. Ten sa uchováva, takže sa nič nestratí.",
+      "parts": [
+        "Kľúčové slovo sa zvýrazní všade, kde sa našlo,",
+        "v metadátach aj v pôvodnom texte pred spracovaním.",
+        "Ten sa uchováva, takže sa nič nestratí."
+      ],
+      "dur": 9240,
+      "partAt": [
+        0,
+        3020,
+        6480
+      ]
+    },
+    {
+      "at": 20100,
+      "text": "QR kód na zložke overí obsah bez otvárania.",
+      "say": "Kjúár kód na zložke overí obsah bez otvárania.",
+      "dur": 3440
+    }
+  ],
+  "C8-Pilot": [
+    {
+      "at": 400,
+      "text": "Začnime postupne. Obhliadka skladu, pilot na jednej krabici a až potom rozsah a ponuka.",
+      "parts": [
+        "Začnime postupne.",
+        "Obhliadka skladu, pilot na jednej krabici a až potom rozsah a ponuka."
+      ],
+      "dur": 7160,
+      "partAt": [
+        0,
+        1680
+      ]
+    }
+  ],
+  "C9-Outro": [
+    {
+      "at": 700,
+      "text": "Assetin Archives. Zistíte, čo máte v archíve a kde presne to leží.",
+      "say": "Asetyn Árkajvs. Zistíte, čo máte v archíve a kde presne to leží.",
+      "dur": 5680
+    }
+  ]
+}

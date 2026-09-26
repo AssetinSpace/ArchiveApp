@@ -6,7 +6,7 @@ import { ArchiveBox, archiveBoxPxPerCm, QR_SCALE } from '../components/ArchiveBo
 import { FOOTAGE_PHONE, PhoneFrame } from '../components/Device';
 import { Camera } from '../lib/camera';
 import { pop, settle, tween } from '../lib/anim';
-import { captions } from '../copy/sk';
+import { captions, phases } from '../copy/sk';
 import { BRAND, CM, FONT, INK, ISO, SAFE } from '../theme';
 
 /**
@@ -22,6 +22,8 @@ import { BRAND, CM, FONT, INK, ISO, SAFE } from '../theme';
  * 5800-7400 kamera najde na zlozku + mobil · 7600-9100 ostatne vybledne a
  * mobil v skutocnej velkosti prejde do ramika footage (F1) = strih do reality.
  * Krabica vlavo, vpravo kroky (Oznacit / Odfotit / Zaevidovat).
+ * Kolo 36: harok nalepiek lezi naplocho na podlahe v rovnakej izometrii ako krabica (predtym stal sikmo vlavo
+ * a zavadzal); nalepka sa z neho odlepi (z roviny podlahy sa narovna), preleti a dosadne sklopena do steny.
  */
 const BOX = 860;
 /** Krabica vlavo (vpravo je priestor na kroky), rovnaka poloha na konci C4. */
@@ -29,6 +31,8 @@ export const C5_BOX_LEFT = 200;
 const PX = archiveBoxPxPerCm(BOX); // ~9.4 px/cm
 const SHEET = { w: CM.sheet.w * PX, h: CM.sheet.h * PX };
 const PHONE = { w: CM.phone.w * PX * 1.4, h: CM.phone.h * PX * 1.4 };
+/** Izometria podlahy 2:1 (rovnaka ako krabica): jednotka osi x harku -> (0,894; 0,447) px, osi y -> (-0,894; 0,447). */
+const FLOOR = [Math.cos(Math.atan(0.5)), Math.sin(Math.atan(0.5))] as const;
 const PHONE_AT = { x: C5_BOX_LEFT + 1090, y: 400, w: PHONE.w, h: PHONE.h };
 /** Kamera na konci: najazd na vytiahnutu zlozku s mobilom. */
 const CAM_END = { x: C5_BOX_LEFT + 870 - 960, y: 0, scale: 1.4 };
@@ -40,10 +44,10 @@ const PHONE_END = {
   h: FOOTAGE_PHONE.h / CAM_END.scale,
 };
 /** Nas pristup v troch krokoch (text vpravo, rovnaky jazyk ako pri footage). */
-const STEPS = [
-  { from: 900, title: 'Označiť', line: 'Každá položka dostane nálepku s QR kódom.' },
-  { from: 4100, title: 'Odfotiť', line: 'Štítok sa odfotí mobilom priamo v sklade.' },
-  { from: 5300, title: 'Zaevidovať', line: 'Fotka ide do aplikácie, položka dostane ID.' },
+const STEPS: { from: number; title: string; line?: string }[] = [
+  { from: 900, title: 'Fyzické dokumenty' },
+  { from: 1450, title: 'Prilepiť QR kód' }, // kolo 32: po pauze na prvu vetu (hold 1400)
+  { from: 4350, title: 'Odfotiť identifikačnú stranu' }, // kolo 32: pred pauzou (hold 4750, po dopade poslednej nalepky), aby bol na zmrazenom obraze cely
 ];
 
 export const C5_Teren: React.FC = () => {
@@ -91,15 +95,16 @@ export const C5_Teren: React.FC = () => {
   };
   const stepIdx = Math.max(0, STEPS.findIndex((s, i) => frame * 1000 / 30 >= s.from && (i === STEPS.length - 1 || frame * 1000 / 30 < STEPS[i + 1].from)));
 
-  // pozicia bunky harku v px (harok je otoceny o -8 stupnov okolo stredu)
-  const sheetLeft = 40,
-    sheetTop = SAFE.illoBottom - SHEET.h - 20,
-    sc = SHEET.w / 210,
-    ang = (-8 * Math.PI) / 180;
+  // pozicia bunky harku v px: harok lezi naplocho (izometria 2:1 ako krabica), os x harku ide vpravo dole, os y vlavo dole
+  const sheetCx = 300,
+    sheetCy = 815,
+    sheetLeft = sheetCx - SHEET.w / 2,
+    sheetTop = sheetCy - SHEET.h / 2,
+    sc = SHEET.w / 210;
   const cellPx = (r: number, c: number): [number, number] => {
     const lx = (16 + c * 46 + 18) * sc - SHEET.w / 2,
       ly = (24 + r * 52 + 18) * sc - SHEET.h / 2;
-    return [sheetLeft + SHEET.w / 2 + lx * Math.cos(ang) - ly * Math.sin(ang), sheetTop + SHEET.h / 2 + lx * Math.sin(ang) + ly * Math.cos(ang)];
+    return [sheetCx + (lx - ly) * FLOOR[0], sheetCy + (lx + ly) * FLOOR[1]];
   };
   const used = (r: number, c: number) => FLIGHTS.some((f) => f.cell[0] === r && f.cell[1] === c && frame >= (f.start / 1000) * 30);
 
@@ -108,7 +113,7 @@ export const C5_Teren: React.FC = () => {
       <Camera keys={[{ ms: 5200, x: 0, y: 0, scale: 1 }, { ms: 6600, ...CAM_END }]}>
       <div style={{ position: 'absolute', inset: 0, opacity: others }}>
         {/* harok nalepiek A4: 4 x 5 bielych QR */}
-        <div style={{ position: 'absolute', left: sheetLeft + (1 - sheet) * -260, top: sheetTop, opacity: sheet, transform: 'rotate(-8deg)' }}>
+        <div style={{ position: 'absolute', left: sheetLeft + (1 - sheet) * -260, top: sheetTop, width: SHEET.w, height: SHEET.h, opacity: sheet, transform: `matrix(${FLOOR[0]}, ${FLOOR[1]}, ${-FLOOR[0]}, ${FLOOR[1]}, 0, 0)` }}>
           <svg width={SHEET.w} height={SHEET.h} viewBox="0 0 210 300">
             <rect x={1} y={1} width={208} height={298} rx={4} fill="#fff" stroke={ISO.edge} strokeWidth={2} />
             {Array.from({ length: 5 }).map((_, r) =>
@@ -168,10 +173,13 @@ export const C5_Teren: React.FC = () => {
           const size0 = 36 * sc,
             size1 = (f.size / 240) * BOX * QR_SCALE;
           const size = size0 + (size1 - size0) * t;
-          // dosadnutie: v poslednej tretine letu sa nalepka sklopi do roviny plochy a tien zmizne
+          // odlepenie: v prvej tretine sa nalepka z roviny podlahy narovna; dosadnutie: v poslednej tretine sa sklopi do roviny plochy a tien zmizne
           const land = Math.max(0, (t - 0.65) / 0.35);
+          const peel = Math.min(1, t / 0.3);
+          const tan = Math.tan((f.skew * land * Math.PI) / 180);
+          const m = [FLOOR[0] + (1 - FLOOR[0]) * peel, FLOOR[1] * (1 - peel) + tan * peel, -FLOOR[0] * (1 - peel), FLOOR[1] + (1 - FLOOR[1]) * peel];
           return (
-            <svg key={i} width={size} height={size} viewBox="0 0 36 36" style={{ position: 'absolute', left: x - size / 2, top: y - size / 2, transform: `rotate(${-8 * (1 - t)}deg) skewY(${f.skew * land}deg)`, filter: `drop-shadow(0 ${4 * (1 - land)}px ${6 * (1 - land)}px rgba(0,0,0,${0.18 * (1 - land)}))` }}>
+            <svg key={i} width={size} height={size} viewBox="0 0 36 36" style={{ position: 'absolute', left: x - size / 2, top: y - size / 2, transform: `matrix(${m[0]}, ${m[1]}, ${m[2]}, ${m[3]}, 0, 0)`, filter: `drop-shadow(0 ${4 * (1 - land)}px ${6 * (1 - land)}px rgba(0,0,0,${0.18 * (1 - land)}))` }}>
               <rect x={0.5} y={0.5} width={35} height={35} fill="#fff" stroke={ISO.edge} strokeWidth={0.8} />
               {[
                 [4, 4],
@@ -276,10 +284,10 @@ export const C5_Teren: React.FC = () => {
           return (
             <div key={i} style={{ position: 'absolute', left: 0, right: 0, top: 320, opacity: on * inT, transform: `translateY(${(1 - inT) * 16}px)` }}>
               <div style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: 22, letterSpacing: '0.14em', textTransform: 'uppercase', color: BRAND[600], marginBottom: 14 }}>
-                Krok {i + 1} / {STEPS.length}
+                {phases.teren}
               </div>
               <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 56, lineHeight: 1.05, color: INK[900], letterSpacing: '-0.02em', marginBottom: 14 }}>{s.title}</div>
-              <div style={{ fontFamily: FONT.body, fontWeight: 400, fontSize: 30, lineHeight: 1.35, color: INK[500] }}>{s.line}</div>
+              {s.line ? <div style={{ fontFamily: FONT.body, fontWeight: 400, fontSize: 30, lineHeight: 1.35, color: INK[500] }}>{s.line}</div> : null}
               <div style={{ display: 'flex', gap: 10, marginTop: 28 }}>
                 {STEPS.map((_, k) => (
                   <div key={k} style={{ width: k <= i ? 34 : 12, height: 12, borderRadius: 6, background: k <= i ? BRAND[500] : INK[200] }} />
@@ -291,7 +299,6 @@ export const C5_Teren: React.FC = () => {
       </div>
 
 
-      {showCap ? <Caption text={captions.C5} t={settle(frame, 5500)} out={tw(6600, 300)} y={SAFE.captionY} /> : null}
     </Scene>
   );
 };

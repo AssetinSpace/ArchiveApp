@@ -242,3 +242,154 @@ Full 99 s → **95 s**.
 | F3 Vyhľadávanie | Niekde príliš pomalé; zastavovať na rovnaký čas tam, kde to má zmysel. | Rovnaké zastávky ~1,5 s: písanie slova, zoznam výsledkov, detail zložky (freeze 0,8 s), zvýraznená zhoda (freeze 1,5 s), QR kód (1,5 s + freeze 0,8 s); prechody medzi nimi 3×. Klip 10,3 s. |
 
 Full 95 s → **92,8 s**.
+
+## Kolo 28 (24. 9. 2026): texty v obraze
+
+Zadanie: doplniť texty na niektoré klipy. Rozhodnutia: bez hovoreného slova (len hudobný podmaz), kroky vpravo zjednotiť na názvy fáz, C9 len web, na predel niečo nenápadné.
+
+| Klip | Riešenie |
+|---|---|
+| C2 Hľadanie | Titulky zapnuté: „Dokumentáciu k objektom máte.“ (1,1-3,8 s, kancelária), „Len ju nikto nevie nájsť.“ (7,4 s do konca, pri veľkom „?“). Dĺžka bez zmeny. |
+| C4 Cena → predel | „Hľadanie trvá dlhšie než nové vyhotovenie.“ (2,5-4,6 s, pri hodinách a výkrese), „Zaplatené dvakrát za tú istú dokumentáciu.“ pod „2× €€€“ (4,7-7,1 s). Predel posunutý o 1,3 s, značka drží o 0,8 s dlhšie a pod lockupom je tichý popis „Digitálna katalogizácia archívnej dokumentácie“ (sivý, 30 px, bez sloganu). Klip 11,1 s. |
+| C5, F1, C7 | „Krok i / n“ nahradený názvom fázy **V teréne** (body postupu ostávajú). |
+| F2, F4 | Názov fázy **V aplikácii**. C6 si nechal „Z terénu do kancelárie“ (je to prechod medzi fázami). |
+| F3 | Názov fázy **Vyhľadávanie**. |
+| C8 Pilot | Krabica a ikony posunuté doľava, vpravo „Prvý krok / Začneme jednou krabicou. / Nie celým archívom. Výsledok uvidíte na vlastnej dokumentácii.“; pod ikonami popisky Obhliadka skladu · Pilot na jednej krabici · Rozsah a ponuka. Klip 7 s. |
+| C9 Outro | Bez zmeny (len web). |
+
+Full 92,8 s → **96,8 s**. F1-F4 vyrenderované cez `src/patch/` (footage nie je v tomto prostredí): záznam je z renderu kola 27, nový je len panel s krokmi.
+
+## Kolo 29 (24. 9. 2026): spomaliť a prestavať, hovorené slovo
+
+Zadanie: pre diváka je to príliš náročné (kroky vpravo, veta pod nimi, animácia alebo obrazovka aplikácie naraz). Zanalyzovať, spomaliť, prestavať; zvážiť hovorené slovo s titulkami alebo len text s hudbou.
+
+Diagnóza (kolo 28): 21 z 22 textov krokov držalo kratšie, než trvá ich prečítanie (0,5 s + 0,4 s/slovo), nový text každých 2,6 s, ~215 slov v riešení, a to bez textu v samotnej aplikácii. Príčiny: dva textové prúdy naraz (nadpis + veta), text nastupoval presne s dejom, priveľa krokov (F1 5, F4 5, F3 4), oko cestuje z okna vľavo na text vpravo.
+
+Rozhodnutie: **hovorené slovo + titulky náhovoru**, text v obraze len názov kroku. "Len text + hudba" by znamenalo ~125 s čítania namiesto pozerania na aplikáciu.
+
+| Oblasť | Riešenie |
+|---|---|
+| Náhovor | Scenár `src/copy/vo.json` (28 viet, ~150 slov). Dočasný hlas espeak-ng (sk, 165 wpm) cez `scripts/vo.mjs`: jedna stopa na klip (`public/vo/`), dĺžky viet sa merajú a zapisujú do `vo.json`, skript hlási prekryvy. Reálny speaker alebo Google/ElevenLabs TTS sa dosadí po vetách (`--reuse`). |
+| Titulky | `components/Subtitles.tsx`: jedna veta dole (y 926), biela na tmavých, ink na svetlých klipoch, drží presne pokým znie veta. Vypnuteľné (`subtitles:false`), zvuk vypnuteľný (`voice:false`). |
+| Pauzy | `components/Paced.tsx`: zmrazený obraz (Freeze) vložený do hotovej animácie hneď po nástupe textu kroku, dej sa rozbehne až potom. Pauzy sú v `scenesList.ts` (`holds`), animácie sa neprepisovali. |
+| Kroky | Len názov (2-3 slová), veta vypadla (hovorí ju náhovor). F1 4 kroky (Pridať zložku · Naskenovať QR · Odfotiť štítok · Uložiť), F2 2 (Príloha čaká · Extrahovať metadáta), F4 3 (Overiť voči fotke · Potvrdiť návrhy · Opraviť a odoslať), F3 3 (Hľadať slovo · Zložka nájdená · QR k polici), C7 1 (Miesto v hierarchii), C5 3 bez zmeny. |
+| Desktop footage | Nový zostrih z originálov podľa `src/footage/cuts.json` (`scripts/cut-footage.mjs`): pred každým krokom zmrazený obraz 0,6-0,8 s, kliky 1x, zrýchlené len prechody a čakanie; správna hodnota v F4 drží 1,2 s, zhoda v F3 1,5 s, QR kód 2,6 s. Časy krokov, klikov a zvýraznení sa počítajú z časov zdroja (`lib/cuts.ts`), nie ručne. |
+| F1 | Nový zostrih z originálu (prvá časť záznamu, 10,5 s): pauza pred každým krokom, mierenie fotoaparátom 1,3x, Use Photo 1x, na konci zmrazená obrazovka Skontrolovať jednotku 1,8 s (druhá časť záznamu s Vytvoriť a nahrávaním zatiaľ chýba). 4 kroky: Pridať zložku · Naskenovať QR · Odfotiť štítok · Uložiť. Titulok v pravom stĺpci (mobil siaha až dole). 12,8 s. |
+| C2 | Bez textu v obraze; vety nesie náhovor. Pauza 1,5 s v kancelárii (panáčik stojí), aby dobehla prvá veta. 12 s. |
+| C4 | Bez textu v obraze. "2×" príde až so slovami "platíte dvakrát" (pauza 3,2 s pred ním), po ňom pauza 1 s, predel, "Assetin Archives." pod lockupom. 15,3 s. |
+| C8 | Ikony 1-2-3 po 1,2 s s popiskami, nadpis vpravo bez vety, pauza 1 s po nadpise. 9 s. |
+| C9 | 6 s (veta "Assetin Archives. Zistíte, čo máte v archíve a kde presne to leží."). |
+
+Full 96,8 s → **~125 s** (dočasný hlas je pomalší než reálny speaker, ~1,9 slova/s; pri 2,3 slova/s sa dá stiahnuť o ~10 s skrátením páuz).
+
+## Kolo 30 (25. 9. 2026): scenár náhovoru podľa dokumentu, hlas Piper Lili
+
+Zadanie: dohodnúť presný text náhovoru (dokument "Scenár náhovoru Assetin Archives"), hlas zadarmo a kvalitný. Pravidlá: zmiešané oslovenie, rozprávač uvedie problém a naše riešenie, musí zaznieť "fotka je dôkaz" a "každý záznam je schválený človekom"; hlas Piper Lili (Microsoft hlasy sú rozpoznateľné ako AI).
+
+| Klip | Veta (kolo 30) |
+|---|---|
+| C2 | Kedy ste naposledy nevedeli nájsť nejaký dokument? Správu, výkres, protokol. Viete, že tam je. / V skrini, na polici alebo v archíve. Len neviete kde. |
+| C4 | Bez jasného systému trvá hľadanie hodiny. / Niekedy je rýchlejšie dať dokumentáciu vyhotoviť nanovo. / A tak sa môže stať, že zaplatíte dvakrát za to isté. / Naše softvérové riešenie Assetin Archives. |
+| C5 | Riešenie začína v teréne s fyzickými dokumentmi. / Jedinečný QR kód sa prilepí na každú položku / a mobilom sa odfotí jej identifikačná strana. |
+| F1 | Odfotením identifikačnej strany dostane položka svoj digitálny záznam. |
+| C7 | Každá položka má presné miesto v hierarchii: polica, krabica, zložka, dokument. |
+| C6 | Fotku ďalej spracuje aplikácia. |
+| F2 | Najprv aplikácia rozpozná text na identifikačnej strane, / potom navrhne metadáta: autora, názov projektu, rok. |
+| F4 | Návrh ale nie je finálny záznam. / Človek každú hodnotu overí a potvrdí. Fotka je dôkaz a ostáva pri zázname. / Prípadné opravy a doplnenia prebiehajú priamo v návrhu. / Tým vznikne overený a dohľadateľný záznam fyzického dokumentu. |
+| F3 | Stačí zadať kľúčové slovo. / Aplikácia záznam nájde a zobrazí jeho podrobnosti. / Označenie PL_01, KR_01, ZL_01 vás dovedie na policu. / QR kód overí obsah bez otvárania. |
+| C8, C9 | bez zmeny |
+
+Technika: `scripts/vo.mjs --engine piper` (model sk_SK-lili-medium z huggingface.co, offline), fonetický prepis cez pole `say` ("Archives" -> "Árkajvs", "QR" -> "kjú er", "PL_01" -> "pé el nula jedna"), hlasitosť loudnorm -18 LUFS. Pauzy prepočítané podľa nameraných dĺžok viet: C2 pauza 3,6 s (otázka na úvod dobehne pred prestrihom do skladu), C4 "2×" až so slovami "zaplatíte dvakrát" (pauza 4,6 s), C7 kratšie. Zostrih F2/F3/F4 predĺžený na konci o držanie, aby dobehla posledná veta. Edge-tts (Microsoft) je v skripte tiež (`--engine edge`, host speech.platform.bing.com povolený, ide cez proxy prostredia).
+
+## Kolo 31 (25. 9. 2026): pripomienky z review stránky ku kolu 30
+
+| Klip | Zadanie | Riešenie |
+|---|---|---|
+| C2 | Súvislejší text, otázka len v kancelárii, v sklade "Vy viete, že tam niekde je..."; zbytočne dlhé. | „Kedy ste naposledy nevedeli nájsť nejaký dokument? Či už správu, výkres alebo protokol?“ v kancelárii, „Vy viete, že tam niekde je. V sklade, na polici, v krabici alebo zložke.“ v sklade. Pauza v kancelárii skrátená z 3,6 na 2,8 s. Klip 13,3 s. |
+| C4 | Prvý frame zbytočne dlhý, hlas začína neskoro a nesedí s ikonami; na produktovom slide veta „Riešením je naše softvérové riešenie Assetin (tvrdé y) Archives pre digitálnu katalogizáciu fyzicky archivovanej dokumentácie“; bez domčeka; slide príliš krátky. | Úvodný nájazd kamery preskočený o 0,8 s (`skip` v Paced), hlas od 0,5 s, hodiny s vetou „Bez jasného systému trvá hľadanie hodiny.“ (1,8 s), „2×“ so slovami „zaplatíte dvakrát“. Domček odstránený, lockup vyššie, popis pod lockupom vypadol (vetu hovorí náhovor). Značka drží 6,6 s, celá veta sa stihne. Výslovnosť „Asetyn Árkajvs“ (fonetický prepis `say`). Klip 20,5 s. |
+| C5 | „začína fyzickými dokumentmi“; QR čítať „kjúár“; text na slide bližšie k hlasu. | Veta „Riešenie začína fyzickými dokumentmi.“; `say` „kjúár“ všade (C5, F3). Kroky vpravo podľa hlasu: Fyzické dokumenty · Prilepiť QR kód · Odfotiť identifikačnú stranu. Rovnaké pravidlo pre F1-F4: názov kroku je kľúčové slovné spojenie z vety, ktorá práve znie. |
+| C7 | QR na dokumentoch plocho, nie z boku. | Nový `QrOnTopFace` v `lib/iso.tsx`, dokument (najnižšia úroveň) má QR plocho na liste. |
+| F1 | Prvý krok rýchlo, hlas neskoro; text „vybrať typ položky“; obrazovku Skenovať QR vypustiť, po šípke rovno fotoaparát; bublinky nesedia. | Kliky premerané po 0,2 s: Ďalej 1,7 s, spúšť 8,9 s, Use Photo 9,9 s (predtým odhad, o 0,5 s vedľa). Obrazovky Priradiť QR a Pridať prílohu vystrihnuté (po Ďalej rovno fotoaparát). Kroky: Vybrať typ položky · Odfotiť identifikačnú stranu · Digitálny záznam. Hlas od 0,4 s: „V mobile stačí vybrať typ položky / a odfotiť identifikačnú stranu. / Položka tým dostane svoj digitálny záznam.“ Klip 9,8 s. |
+| F2 | Text na slide nesúvisí s hlasom, bublinky mimo; nahrávanie inak osekané ako predtým, staré footage? | Footage je nový zostrih z originálu (nie starý súbor). Kliky premerané: výber prílohy 13,4 s, potvrdenie šablóny 14,0 s, spustenie 16,5 s; žiadny dialóg šablóny v zázname nie je (predtým bol klik „Extrahovať metadáta“ na nesprávnom mieste). Spracovanie 10 -> 100 % zrýchlené 6× (3,1 s) namiesto strihu pri 10 %. Kroky: Príloha čaká · Rozpoznať text · Navrhnúť metadáta. Klip 11 s. |
+| F3 | Nový footage (search2.mp4, 19 s): drobček ľudsky čitateľnej cesty, automatické zvýraznenie kľúčového slova, dole QR kód. | Nový zostrih (orez 300:150, iný layout): písanie 1x, výsledok ZL_03 s detailom, zmrazený obraz 3,6 s na drobčeku PL_01 / KR_01 / ZL_03 so zvýraznením fixkou, scroll 3x, automaticky zvýraznená zhoda drží 1,5 s, QR kód 1,6 s + 2,6 s. Veta „Označenie PL_01, KR_01, ZL_03 vás dovedie na policu.“ (hlas „pé el jedna, ká er jedna, zet el tri“). Kroky: Kľúčové slovo · Záznam a podrobnosti · QR kód overí obsah. 18 s. |
+| F4 | Nový prehľadnejší footage (review2.mp4, 70 s). | Nový zostrih (orez 300:150): fotka a prvý návrh, priblíženie fotky (6,3-9,5 s, „overí podľa fotky“), fixka na správnej hodnote a prijatie (12,45 s), montáž 12x, oprava Číslo zmeny 1 -> 2 (ceruzka 43,6 s, Prijať úpravu 49,2 s, 1,6x), Odoslať (66,6 s) a „Odosielanie kontroly“. Kliky premerané po 0,1 s. Kroky: Návrh metadát · Overiť a potvrdiť · Opraviť a odoslať. 20 s. |
+
+## Kolo 32 (25. 9. 2026): hlas cez Gemini TTS
+
+Zadanie: nahradiť Piper Lili hlasom Gemini TTS "Velvet 1" (model `gemini-3.8-flash-tts`, temperature 0,85, štýl v `speech_metadata`), Gemini dostáva čistý text bez fonetických prepisov, prečasovať klipy podľa nameraných dĺžok.
+
+| Téma | Riešenie |
+|---|---|
+| Kľúč | V env nie je, vkladá ho proxy prostredia. Prvý pokus: `API_KEY_INVALID`, po oprave kľúča v nastaveniach prostredia funguje. `gemini_tts.py` bez premennej pošle zástupnú hodnotu, pri zlom kľúči skončí jednou vetou, pri kvóte (10 požiadaviek/min na model, 429) počká podľa `retryDelay`. |
+| Hlas | "Velvet 1" názvom neprejde (nie je prebuilt) a v účte je päťkrát ako prompted hlas. Použitý najnovší `voice_7ws1j8pd39cu` (11:10, popis "velvety mid-low female register, seasoned documentary narrator, Slovak accent"); `gemini_tts.py` berie aj priamo id `voice_...`. |
+| Hlavička | S "## Transcript:" a bez: rovnaká dĺžka vety (3,20 / 3,24 s), ale pri plnom behu model v jednej vete (C5) prečítal "Transkript." nahlas. Hlavička ostáva vypnutá (`--header` len ručne). |
+| Čistý text | `vo.mjs` pre `gemini` posiela `text`, `say` ostáva pre Piper/edge/espeak. Pri čistom texte Gemini čítal QR ako "kvé er" a PL_01 ako "pé el pomlčka nula jedna". Oprava bez zásahu do textu: pokyn pre výslovnosť po anglicky v `_style` (QR "cue are", kódy ako písmená + číslo bez núl a podčiarkovníka). Slovenský pokyn nezabral. |
+| Kontrola | Každú vetu prepísal `gemini-3.8-flash` foneticky a skript skontroloval: žiadny "Transkript", QR ako kjúár, PL_01 bez "nula"/"pomlčka", zhoda slov s textom. Chybné vety (F3 veta 3 a 4) sa generovali znova, kým neprešli (3 pokusy). Výsledok: "Asetin Archajvs", "kjú ár kód", "pé el jedna, ká er jedna, zet el tri". |
+| Tempo | Gemini je o 30-40 % pomalší ako Piper (spolu +21 s reči). Full 134 -> 155,5 s. |
+| C2 15,1 s | Pauza 2,7 s pred vyhadzovaním vecí (veci letia s "Či už správu, výkres alebo protokol?"), 1,9 s pri "?"; otázka dobehne pred prestrihom (8,3 s), druhá veta od 8,4 s. |
+| C4 25,3 s | Pauzy: 1,2 s pred hodinami (hodiny so slovom "hodiny"), 2,6 s pred šípkou (výkres s "vyhotoviť nanovo"), 2,5 s pred "2×" (teraz naozaj so slovami "zaplatíte dvakrát"; v kole 31 nastupovalo už pri druhej vete), 2,9 s na značke (veta Riešením... 14,0-22,7 s). Stará pauza pri rozsvietení vypadla. |
+| C5 13,3 s | Pauza 2,6 s na "Fyzické dokumenty" (krok Prilepiť QR kód od 1450 ms scény), krok Odfotiť od 4350 ms, pauza 1,7 s po dopade poslednej nálepky (4750), blesk na slove "odfotí". Krok nesmie začínať presne na snímke pauzy, inak je počas nej panel prázdny (opravené). |
+| C7 8,7 s | Pauza 1,9 s pred policou (polica so slovom "polica"), 1,2 s na zvýraznenej vetve, 0,5 s pred vyblednutím. |
+| C8 10,3 s | Ikony so slovami: obhliadka skladu 3,7 s, pilot 5,2 s, rozsah a ponuka 7,0 s. |
+| C9 7,3 s | Predĺžený, aby dobehla veta. |
+| F1 10,8 s | Úvod 1,5 s, na konci drží 2,7 s. |
+| F2 13,6 s | Pauza pri výbere prílohy 1,3 s, spracovanie zrýchlené 4× (predtým 6×), drží 1,6 s. |
+| F3 21,9 s | Drobček PL_01 / KR_01 / ZL_03 drží 7 s (hlas číta kódy 7,9-12,8 s), QR kód od 17,4 s, drží 2,9 s. |
+| F4 21,8 s | Úvod 1,2 + 0,9 s na "Návrh ale nie je finálny záznam", Odoslať počas "Tým vznikne overený..." (18,4 s), drží 2,6 s. |
+| Chyba zostrihu | `cut-footage.mjs`: `tpad` za `setpts` pri ffmpeg 7 zmrazené obrazy (`before`/`after`) ticho vynechal, zostrihy boli kratšie (F1 5,2 s namiesto 10,8 s; týkalo sa to zrejme aj kola 31). Oprava: `fps=30` pred `tpad`, skript meria skutočnú dĺžku a hlási odchýlku nad 0,3 s. |
+
+Review stránka: nové klipy C2-C9, F1-F4 a Full (hlas Gemini, 155,5 s).
+
+## Kolo 33 (25. 9. 2026): pripomienky z review stránky ku kolu 32
+
+| Klip | Pripomienka (skrátene) | Riešenie |
+|---|---|---|
+| Celok | Celé je to dosekané, nejde to plynulo ako predtým; zistiť príčinu. | Tri príčiny. (1) Footage: po oprave `tpad` v kole 32 začal každý segment zmrazenou prvou snímkou; v F1 to bola prechodová snímka (fotka zasunutá do formulára) a na 0,15 s preblikla vystrihnutá obrazovka Priradiť QR, pri fotoaparáte stál živý náhľad. Teraz sa zmrazuje len pokojná obrazovka a medzi strihmi sú prelínačky 0,2-0,3 s (`fade` v `cuts.json`). (2) Pauzy v animáciách padli do pohybu (ručička hodín, cenovka, prisúvanie mobilu, QR); pauzy sú teraz v pokoji a `Paced` pred pauzou pohyb plynulo spomalí a po nej rozbehne; hodiny v C4 tikajú podľa skutočného času. (3) Hlas: vety rozdelené na kúsky (C5, F1, F2) sa generovali zvlášť a každý kúsok znel ako samostatná veta; teraz je jedno generovanie = celá veta (alebo viac viet), titulky po častiach (`parts`, časy podľa slov z whisperu), štýl plynulejší a svižnejší (~134 slov/min namiesto ~109). Stojace úseky klesli (napr. C4 19,8 -> 15,7 s, F2 11,6 -> 6,3 s). |
+| C4 | Text: „Kľúčom k vyriešeniu tohto problému je digitálna katalogizácia archivovanej dokumentácie pomocou softwarového riešenia Assetin Archives.“ | Veta nahovorená (pravopis „softvérového“ ako doteraz v scenári), titulok v troch častiach. Prvé tri vety jedným hlasom; „2×“ so slovami „zaplatíte dvakrát“. Klip 21,9 s. |
+| C7 | „Presné miesto v hierarchii, ako napríklad...“ (úrovne nie sú jediné). | „Každá položka má presné miesto v hierarchii, ako napríklad polica, krabica, zložka alebo dokument.“ Polica so slovom „polica“, zložky so slovom „zložka“. |
+| C8 | Vypustiť „Nezačíname celým archívom“, niečo prívetivejšie („začnime postupne“). | „Začnime postupne. Obhliadka skladu, pilot na jednej krabici a až potom rozsah a ponuka.“ Nadpis vpravo „Začnime postupne.“ od 0,6 s, ikony so slovami. |
+| F1 | Footage rozsekaná a divná, ukáže sa nechcený frame; text: „V mobile vyberieme typ položky ako napríklad zložka alebo dokument a zaradíme ju do hierarchie podľa skutočnosti“. | Nový zostrih: KR_01 a klik Pridať do tejto jednotky (0,22 s), pokojná obrazovka Vybrať typ jednotky, Ďalej (1,70 s, koniec pred Priradiť QR na 1,72 s), prelínačka do fotoaparátu (od 6,4 s, bez zmrazenia), spúšť, Use Photo, prelínačka do čistého Skontrolovať jednotku (od 10,3 s, prechod 9,92-10,25 s vynechaný). Kliky premerané. Zvýraznené Zložka (ZL) a „Pridáva sa jednotka pod KR_01“, kroky Vybrať typ položky · Zaradiť do hierarchie · Odfotiť identifikačnú stranu · Digitálny záznam. 14,8 s. |
+| F2 | Hlas začína neskoro, načítavanie zbytočne dlhé (ukazuje pomalosť); zrýchliť a prispôsobiť hlas. | Hlas od 0,4 s (jedna veta, dve časti titulku). Kliky premerané (zaškrtnutie 11,3 s, Extrahovať metadáta 13,5 s, spustenie 16,6 s; kolo 31 malo klik na ✕), prelínačky; spracovanie 10 -> 60 % 6×, čakanie na 60 % (24,3-33,9 s) vystrihnuté, 60 -> 100 % 1,25×. Načítavanie ~2,7 s namiesto ~6 s, klip 8,3 s namiesto 13,7 s. |
+| F3 | Nečítať PL_01 atď., ale „ľudsky čitateľná hierarchia na navigáciu“ a QR; jasne povedať, že kľúčové slovo sa zvýrazní všade, kde sa našlo, v metadátach aj v pôvodnom surovom texte pred spracovaním, ktorý sa uchováva. | Vety: „Ľudsky čitateľná cesta v hierarchii vás dovedie na správnu policu.“, „Kľúčové slovo sa zvýrazní všade, kde sa našlo, v metadátach aj v pôvodnom texte pred spracovaním. Ten sa uchováva, takže sa nič nestratí.“, „QR kód na zložke overí obsah bez otvárania.“ Zastavenie na pokojnom detaile (predtým uprostred posunu stránky), zvýraznený drobček a odznaky Nájdené v: Metadáta / OCR, potom posun k zvýraznenej zhode a QR. Päť krokov podľa hlasu. 24 s. |
+| F4 | Úplne zle orezané (nový záznam má iné okraje a rozloženie); opravu zvýrazniť inou farbou, v riadku, kde sa mení číslo z 1 na 2. | Nový záznam má zbalený bočný panel a menší zoom (obsah 40-1920 px); orez 1764 × 882 od (98, 150) ukazuje celý obsah (fotka aj tlačidlá ✓ ✏ ✕) v širšom okne (`FOOTAGE_WINDOW_WIDE`, 1380 × 690), rovnako F3. Oprava jantárovou farbou na poli Hodnota pri Číslo zmeny (y 668-708 px záznamu; predtým o riadok nižšie). Rámik okolo fotky pri „Fotka je dôkaz“. Prijatie premerané na 12,15 s. Kroky Návrh metadát · Overiť a potvrdiť · Opraviť v návrhu · Overený záznam. 18,6 s. |
+
+Technika: `scripts/vo_check.py` (kontrola hlasu prepisom, `--regen N` pregeneruje zlé vety), `scripts/vo_words.py` (časy slov cez faster-whisper pre časti titulkov), `voAt()` v `Subtitles.tsx` (kroky a zvýraznenia podľa hlasu), `srcFrac` / `tapAt` / `markAt` (súradnice v px záznamu). Denná kvóta Gemini TTS je 100 generovaní na model; po jej vyčerpaní ostal C9 z kola 32 (rovnaký text, staršie pomalšie tempo), pregenerovať po obnovení. Full 144,7 s (kolo 32: 155,5 s).
+
+
+## Kolo 34 (25. 9. 2026): komentáre z review stránky ku kolu 33
+
+Prvé pripomienky cez komentáre stránky (Samuel, "Pridať komentár", Claudovi neposlané, spracované na požiadanie v chate).
+
+| Klip | Pripomienka (skrátene) | Riešenie |
+|---|---|---|
+| C2 | Otázniky inak veľké ako v predošlej scénke a zbytočne veľa; len nad panáčikom ako v kancelárii, v sklade jeden, keď dôjde k polici, potom už nie. Koniec scény a prestrih sekavý, snímky navyše. | Otázniky nad paletami, pri krabiciach aj záverečný nad regálom vypadli; v sklade jeden nad panáčikom od 6,1 s scény, rovnaká veľkosť na obrazovke ako v kancelárii (s 1,04 pri SV 1,7). Scéna končí na 10,0 s (bez statického konca), C4 bez `skip` začína presne záberom, kde C2 končí, a kamera plynulo pokračuje. |
+| C4 | „2×“ a „€€€“ rovnako veľké; doplniť do hovoreného slova „otázne je, v akej kondícii dokumentáciu nájdete“. | Obe 170 px. Veta „Otázne je, v akej kondícii dokumentáciu nájdete.“ doplnená 26. 9. po obnovení kvóty (za vetu o hodinách, druhá časť titulku); pauzy prepočítané (3000/5850, 4390/1770, 8400/1680 ms), „Kľúčom...“ od 15,5 s, klip 25,0 s. C9 pregenerované štýlom B. |
+| C4 | Po „2×“ sa zbytočne vraciame na policu, má byť hneď prestrih na „Kľúčom...“. | Nájazd kamery na krabicu vypadol, po „2×“ rovno prelínačka do bielej (0,6 s) a značka. Pauzy prepočítané (3000/2250, 4390/2200, 8400/1750 ms). |
+| C5 | Mobil sa zasekne, prekrýva text, pohyb sekaný. | Pauza počas približovania mobilu vypadla; pauza je až v pokoji po nájazde kamery (6,7 s scény, 0,9 s), presun mobilu do rámika F1 začína po dohovorenej vete, takže neprekryje titulky. |
+| F1 | Zbytočne začíname detailom KR_01, prvý klik netreba, začať výberom položky. | Zostrih začína na obrazovke Vybrať typ jednotky (0,45 s zdroja), klik Pridať do tejto jednotky vypadol. |
+
+Review stránka: sledovanie komentárov obnovené; „Poslať Claudovi“ sa v mobilnej appke neponúka, preto jedno tlačidlo „Odoslať na spracovanie“ (Claudovi hneď, ak to zobrazenie dovolí, inak komentár) a hodinová Routine, ktorá nové komentáre vyzdvihne. Full 148,2 s (26. 9.).
+
+
+## Kolo 35 (26. 9. 2026): F3 úvod o práci s databázou, výraznejšie zvýraznenie
+
+Dve pripomienky z review stránky (kolo 34, „navrhni“), návrh schválil Samuel v chate: úvodná veta áno, zvýraznenie možnosť 1 (rámik + stmavené okolie).
+
+| Klip | Pripomienka (skrátene) | Riešenie |
+|---|---|---|
+| F3 | Uviesť, že s databázou sa dá pracovať viacerými spôsobmi (vyhľadávanie, zoskupovanie, exporty) a najjednoduchšie je vyhľadávanie. | Prvá veta F3 je teraz jedno generovanie: „S databázou sa dá pracovať rôzne: vyhľadávať, zoskupovať aj exportovať. Najjednoduchšie je vyhľadávanie. Stačí zadať kľúčové slovo.“ (tri časti titulku). Pod ňou pokojná úvodná obrazovka (zmrazenie pred písaním 0,6 -> 8,4 s), spot postupne na záložkách (Hľadať, Kľúče metadát, QR kódy, Prílohy, Kontroly, Štatistiky, Graf), na záložke Hľadať a na poli vyhľadávania. Nový prvý krok „Práca s databázou“, „Kľúčové slovo“ od tretej časti. Ostatné vety a zostrih posunuté o 7,8 s. Klip 31,8 s. |
+| F3 | Zelené zvýraznenie nie je dosť vidieť, navrhnúť iné. | Nový typ zvýraznenia `spot` v `DesktopFootageClip`: zelený rámik 4 px a stmavené okolie (38 %), jemne dosadne; spoty sa v čase neprekrývajú. V F3 všetky zvýraznenia (záložky, Hľadať, pole, drobček PL_01 / KR_01 / ZL_03, odznaky Nájdené v: Metadáta / OCR). F2 a F4 ostávajú s fixkou (F4 potrebuje zelenú/jantárovú). |
+
+Full 156,0 s.
+
+
+## Kolo 36 (26. 9. 2026): šesť komentárov z review stránky ku kolu 35
+
+| Klip | Pripomienka (skrátene) | Riešenie |
+|---|---|---|
+| C1 | Skrátiť: assetin a .space ako text spolu, nie oddelene. | .space vypláva spolu s assetin (300 ms), celý časový plán o 0,4 s skôr; klip 3,6 s (predtým 4,0 s). |
+| C4 | Prvý otáznik nie je rovnaký ako v predošlej scéne; „2×€€€“ zmeniť na „2×€“ a vycentrovať. | Veľký zelený kruh s „?“ vedľa regálu vypadol; nad regálom vyskočí rovnaký otáznik ako v C2 (`QuestionMark`), na obrazovke rovnako veľký (~62 px, pri priblížení kamery 1,5× s 0,67). „2×€“ jedným textom (170 px) na stred. |
+| C4 | „Digitálna katalogizácia archivovanej dokumentácie“ hovoríme priveľmi dlho, radšej bez hlasu, len text pod logom. | Veta „Kľúčom k vyriešeniu...“ vypadla z náhovoru; pod lockupom text „Digitálna katalogizácia archivovanej dokumentácie“ (46 px), značka s textom drží ~3,5 s. Pauza 8400/1680 vypadla, scéna 12,45 s, klip ~20,1 s (predtým 25,0 s). |
+| C5 | Hárok s QR kódmi vľavo zavadzia, dať ho naplocho ako leží krabica. | Hárok leží na podlahe v rovnakej izometrii 2:1 ako krabica (vpredu vľavo, 300/815 px); nálepka sa z neho odlepí (z roviny podlahy sa narovná), preletí a dosadne sklopená do steny. |
+| F3 | Na začiatku nezvýrazňovať menu, úvod o práci s databázou podať ako ostatné funkcie (napr. spracovanie v aplikácii). | Nová scéna **C10 Práca s databázou** (pred F3, ako C6): okno aplikácie z bielej, karty Vyhľadávanie / Zoskupovanie / Export nastupujú so slovami náhovoru, pri „Najjednoduchšie je vyhľadávanie“ ostane Vyhľadávanie (ostatné stlmené), okno prejde do okna F3. Vpravo „V aplikácii · Práca s databázou · Vyhľadávanie, zoskupovanie aj exporty.“ Hlas rozdelený z nahrávky kola 35 (bez nového generovania). F3 zas začína „Stačí zadať kľúčové slovo.“, bez spotov na menu (spot len na poli vyhľadávania), 24,0 s; C10 9,1 s. |
+| Celok | Zvýraznenia všade ako pri vyhľadávaní (stmavenie okolia), kontrast je výraznejší. | Spot (rámik + stmavené okolie) aj v F1 (Zložka (ZL), „Pridáva sa jednotka pod KR_01“) a F4 (správna hodnota, fotka, oprava s jantárovým rámikom). F2 zvýraznenia nemá (len kliky). |

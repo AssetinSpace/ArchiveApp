@@ -8,10 +8,11 @@ import { loadFonts } from '../lib/fonts';
  * v brozure (na svetlych stranach), zeleny pas dole na tmavych.
  */
 /** Render bez textu: `npx remotion render <ID> --props='{"captions":false}'` */
-export const useCaptions = () => {
+export const useCaptions = (defaultOn = false) => {
   const p = getInputProps() as { captions?: boolean };
-  // titulky su predvolene vypnute (doriesia sa neskor); zapne ich prop captions: true
-  return p.captions === true;
+  // kolo 28: C2, C4 a C8 maju text predvolene zapnuty (defaultOn), ostatne klipy nesu text v krokoch vpravo;
+  // prop captions: true/false prepise predvolbu pre vsetky klipy
+  return p.captions ?? defaultOn;
 };
 
 export const Scene: React.FC<{ mode?: Mode; footer?: boolean; footerOpacity?: number; footerMode?: Mode; band?: boolean; children: React.ReactNode }> = ({

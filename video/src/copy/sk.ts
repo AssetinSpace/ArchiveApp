@@ -1,16 +1,33 @@
 /** Vsetky texty v obraze. Zdroj: brozura Assetin Archives (12 stran). */
 /** Kolo 2: jediny text v obraze per klip, max ~7 slov. */
 export const captions = {
-  C2: 'Dokumentáciu máte. V kancelárii, v sklade… niekde.',
+  C2: 'Dokumentáciu k objektom máte.',
   C2b: 'Len ju nikto nevie nájsť.',
   C2v1: 'Dokumentáciu máte. Nikto ju nevie nájsť.',
   C3a: 'V sklade to nie je lepšie.',
   C3b: 'Je to niekde tam.',
+  C4a: 'Hľadanie trvá dlhšie než nové vyhotovenie.',
   C4: 'Zaplatené dvakrát za tú istú dokumentáciu.',
+  C4brand: 'Digitálna katalogizácia archivovanej dokumentácie',
   C5: 'Nalepiť QR, odfotiť. Celá práca v teréne.',
   C6: 'Text z fotky rozpozná a navrhne údaje.',
   C7: 'Každá položka má svoje miesto.',
-  C8: 'Začneme jednou krabicou.',
+  C8: 'Začnime postupne.',
+};
+
+/** Kolo 28: nazvy faz namiesto "Krok i / n" (kroky vpravo). */
+export const phases = {
+  teren: 'V teréne',
+  app: 'V aplikácii',
+  search: 'Vyhľadávanie',
+  pilot: 'Prvý krok',
+};
+
+/** C8: nadpis vpravo a popisky pod ikonami 1-2-3. */
+export const pilot = {
+  title: 'Začnime postupne.',
+  line: 'Výsledok uvidíte na vlastnej dokumentácii.',
+  labels: ['Obhliadka skladu', 'Pilot na jednej krabici', 'Rozsah a ponuka'],
 };
 
 export const sk = {

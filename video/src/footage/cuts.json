@@ -1,0 +1,165 @@
+{
+  "_": "Zostrih footage z originalov (public/footage/src/*, nie su v gite). Segmenty v sekundach zdroja; speed = zrychlenie, before/after = zmrazeny prvy/posledny obraz (s, len na pokojnej obrazovke, nikdy na prechode), fade = prelinacka z predosleho segmentu (s); vf = vlastny filter / orez. scripts/cut-footage.mjs z toho vyrobi public/footage/<id>.mp4, src/lib/cuts.ts z toho pocita casy krokov, klikov a zvyrazneni.",
+  "crop": "1520:882:400:150",
+  "f2-metadata": {
+    "src": "src/extrakce.mp4",
+    "segs": [
+      {
+        "from": 10.6,
+        "to": 11.45,
+        "note": "kurzor na priloha, zaskrtnutie 11,3 s"
+      },
+      {
+        "from": 13.1,
+        "to": 13.75,
+        "fade": 0.2,
+        "note": "Extrahovat metadata 13,5 s"
+      },
+      {
+        "from": 16.2,
+        "to": 17.3,
+        "fade": 0.2,
+        "note": "spustenie sipkou pri sablone 16,6 s"
+      },
+      {
+        "from": 17.3,
+        "to": 24.3,
+        "speed": 6,
+        "note": "spracovanie 10 -> 60 % (prechod na Kontroly, fotka) zrychlene"
+      },
+      {
+        "from": 33.9,
+        "to": 35.8,
+        "speed": 1.25,
+        "after": 3.3,
+        "note": "60 -> 100 % Kontrola pripravena (cakanie na 60 % 24,3-33,9 s vystrihnute, obrazovka rovnaka)"
+      }
+    ]
+  },
+  "f3-search": {
+    "src": "src/search2.mp4",
+    "vf": "crop=1764:882:96:150",
+    "segs": [
+      {
+        "from": 3.5,
+        "to": 5.1,
+        "before": 0.6,
+        "note": "pisanie slova vodovod (3,9-5,0 s); kolo 36: uvod o praci s databazou je samostatna scena C10"
+      },
+      {
+        "from": 5.1,
+        "to": 6.2,
+        "speed": 2,
+        "note": "cakanie, vysledok 6,05 s"
+      },
+      {
+        "from": 6.2,
+        "to": 7.4,
+        "after": 9.45,
+        "note": "vysledok ZL_03 a detail v pokoji (pred posunom 7,5 s): drobcek PL_01 / KR_01 / ZL_03, odznaky Najdene v: Metadata | OCR"
+      },
+      {
+        "from": 7.4,
+        "to": 12.8,
+        "speed": 3,
+        "note": "posun k zhode"
+      },
+      {
+        "from": 12.8,
+        "to": 13.2,
+        "before": 1.9,
+        "note": "automaticky zvyraznena zhoda v metadatach"
+      },
+      {
+        "from": 13.2,
+        "to": 16.9,
+        "speed": 3,
+        "note": "posun dole"
+      },
+      {
+        "from": 16.9,
+        "to": 19.3,
+        "speed": 1.5,
+        "after": 3.67,
+        "note": "QR kod zlozky"
+      }
+    ]
+  },
+  "f4-review": {
+    "src": "src/review2.mp4",
+    "vf": "crop=1764:882:98:150",
+    "segs": [
+      {
+        "from": 0.5,
+        "to": 2.5,
+        "before": 0.4,
+        "after": 0.9,
+        "note": "fotka stitku a prvy navrh (Nazov projektu), pokoj"
+      },
+      {
+        "from": 6.4,
+        "to": 9.4,
+        "speed": 1.6,
+        "fade": 0.25,
+        "note": "lupa nad fotkou: overenie podla fotky"
+      },
+      {
+        "from": 11.3,
+        "to": 12.4,
+        "fade": 0.25,
+        "note": "spravna hodnota (fixka), prijatie 12,15 s"
+      },
+      {
+        "from": 12.4,
+        "to": 42.4,
+        "speed": 12,
+        "note": "montaz dalsich prijati"
+      },
+      {
+        "from": 42.4,
+        "to": 50.0,
+        "speed": 1.6,
+        "note": "oprava Cislo zmeny 1 -> 2 (ceruzka 43,6 s, pole Hodnota 44-49 s, Prijat upravu 49,2 s)"
+      },
+      {
+        "from": 64.8,
+        "to": 67.6,
+        "speed": 1.2,
+        "fade": 0.3,
+        "after": 3.54,
+        "note": "Odoslat 66,6 s, Odosielanie kontroly"
+      }
+    ]
+  },
+  "f1-sken": {
+    "src": "src/sken-1.mp4",
+    "vf": "scale=884:1920",
+    "segs": [
+      {
+        "from": 0.45,
+        "to": 1.0,
+        "after": 6.65,
+        "note": "kolo 34: rovno obrazovka Vybrat typ jednotky (KR_01 a klik Pridat do tejto jednotky vypadli), drzi pokojnu obrazovku typu pocas vety o type a hierarchii"
+      },
+      {
+        "from": 1.0,
+        "to": 1.71,
+        "note": "Dalej (1,70 s); koniec pred obrazovkou Priradit QR (1,72 s)"
+      },
+      {
+        "from": 6.4,
+        "to": 9.91,
+        "fade": 0.25,
+        "note": "fotoaparat (od 6,4 s, bez zmrazenia ziveho nahladu), spust 8,9 s, Use Photo 9,9 s"
+      },
+      {
+        "from": 10.3,
+        "to": 10.45,
+        "fade": 0.25,
+        "after": 3.63,
+        "note": "Skontrolovat jednotku, cisty obraz od 10,3 s (9,92-10,25 s prechodova animacia vynechana); druha cast zaznamu (Vytvorit, nahravanie) chyba"
+      }
+    ],
+    "note": "zdroj: sken-1.mp4 = H.264 prevod povodneho ScreenRecording .mov (1206x2622, 60 fps)"
+  }
+}

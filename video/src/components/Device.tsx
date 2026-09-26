@@ -15,6 +15,8 @@ export const FOOTAGE_PHONE: Rect = { x: 285, y: 60, w: 530, h: 960 };
 export const PHONE_BEZEL = 0.07;
 /** Okno aplikacie vlavo pre desktop footage (F2, F3): obsah 1300 x 754 = pomer orezaneho zaznamu (1520 x 882). */
 export const FOOTAGE_WINDOW: Rect = { x: 40, y: 100, w: 1300, h: 754 + 44 };
+/** Kolo 33: okno pre nove desktop zaznamy F3/F4 (obsah 1380 x 690 = pomer orezu 1764 x 882, cely obsah appky bez odrezania). */
+export const FOOTAGE_WINDOW_WIDE: Rect = { x: 30, y: 100, w: 1380, h: 690 + 44 };
 export const WINDOW_TITLE = 'archives.assetin.sk';
 
 const lerpRect = (a: Rect, b: Rect, t: number): Rect => ({

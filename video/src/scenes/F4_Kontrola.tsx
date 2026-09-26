@@ -1,30 +1,36 @@
 import React from 'react';
 import { Step } from '../components/Steps';
-import { DesktopFootageClip, Mark, Tap } from './F2_Metadata';
+import { FOOTAGE_WINDOW_WIDE } from '../components/Device';
+import { voAt } from '../components/Subtitles';
+import { DesktopFootageClip, Mark, Tap, markAt, tapAt } from './F2_Metadata';
+import { cutDuration, cutTime, segStart } from '../lib/cuts';
 
 /**
- * F4 - Kontrola metadat (127 s zaznam "Review metadat - v2" zostrihany na 15,4 s):
- * fotka stitku zblizka (0,5-2,5 s), prvy navrh (19,8-21 s) + zmrazeny obraz
- * 1,2 s so zvyraznenou spravnou hodnotou, prijatie (21-22,3 s), montaz
- * dalsich prijati 12x (22,3-56 s) + zmrazene pocitadlo 0,5 s, rucna oprava
- * (93-99 s, 1,2x, ceruzka + pole zvyraznene), Odoslat (122,8-124,2 s, bez prazdneho zoznamu).
+ * F4 - Kontrola metadat: zostrih noveho zaznamu (review2.mp4, 70 s) podla src/footage/cuts.json.
+ * Kolo 33: zaznam ma iny zoom a rozlozenie ako stary (bocny panel zbaleny, obsah 40-1920 px), preto
+ * orez 1764 x 882 od (98, 150) = cely obsah appky (fotka vlavo aj tlacidla vpravo) v sirsom okne
+ * FOOTAGE_WINDOW_WIDE. Kliky a zvyraznenia v px zaznamu. Oprava (Cislo zmeny 1 -> 2) jantarovou
+ * farbou na poli Hodnota, kde sa cislo meni. Kroky podla hlasu, prelinacky medzi strihmi.
  */
-export const F4_SECONDS = 15.4;
+const ID = 'f4-review';
+export const F4_SECONDS = cutDuration(ID);
+const vo = (i: number, k = 0) => voAt('F4-Kontrola', i, k);
 const F4_STEPS: Step[] = [
-  { from: 0, title: 'Fotka je dôkaz', line: 'Každý návrh sa dá kedykoľvek overiť voči fotke štítku.' },
-  { from: 2000, title: 'Správny návrh', line: 'Názov projektu prečítaný z fotky. Sedí, stačí potvrdiť.' },
-  { from: 5700, title: 'Návrhy metadát', line: 'Aplikácia navrhla 25 hodnôt. Každú potvrdíte jedným klikom.' },
-  { from: 9000, title: 'Oprava', line: 'Číslo zmeny nesedí. Hodnota sa opraví priamo v návrhu a potvrdí.' },
-  { from: 14000, title: 'Odoslať', line: 'Až po kontrole človekom sú metadáta platné.' },
+  { from: 0, title: 'Návrh metadát' },
+  { from: vo(1), title: 'Overiť a potvrdiť' },
+  { from: vo(2), title: 'Opraviť v návrhu' },
+  { from: vo(3), title: 'Overený záznam' },
 ];
 const F4_TAPS: Tap[] = [
-  { t: 5.4, x: 0.81, y: 0.875 }, // prijat prvy navrh
-  { t: 9.25, x: 0.85, y: 0.865 }, // ceruzka - upravit
-  { t: 13.75, x: 0.795, y: 0.865 }, // Prijat upravu
-  { t: 14.3, x: 0.46, y: 0.5 }, // Odoslat
+  tapAt(ID, 12.15, 1734, 764), // prijat prvy navrh (Nazov projektu)
+  tapAt(ID, 43.6, 1775, 745), // ceruzka - upravit navrh (Cislo zmeny)
+  tapAt(ID, 49.2, 1716, 789), // Prijat upravu
+  tapAt(ID, 66.6, 855, 442), // Odoslat
 ];
 const F4_MARKS: Mark[] = [
-  { from: 3.2, to: 4.5, x: 0.44, y: 0.775, w: 0.4, h: 0.05, sweep: 1.0 }, // hodnota "Novostavba bytoveho domu SLNECNA 12, BRATISLAVA"
-  { from: 11.0, to: 13.5, x: 0.44, y: 0.75, w: 0.42, h: 0.07, sweep: 0.8 }, // pole Hodnota pri oprave
+  markAt(ID, segStart(ID, 2) + 0.15, cutTime(ID, 12.1), 824, 654, 428, 32, { spot: true }), // spravna hodnota "Novostavba bytoveho domu SLNECNA 12, BRATISLAVA"
+  markAt(ID, vo(1, 1) / 1000, vo(1, 1) / 1000 + 2.4, 286, 523, 331, 443, { spot: true }), // "Fotka je dokaz": ramik okolo fotky
+  markAt(ID, cutTime(ID, 44.0), cutTime(ID, 49.1), 828, 668, 967, 40, { spot: true, color: 'amber' }), // oprava: pole Hodnota pri Cislo zmeny (1 -> 2)
 ];
-export const F4_Kontrola: React.FC = () => <DesktopFootageClip src="footage/f4-review.mp4" seconds={F4_SECONDS} steps={F4_STEPS} taps={F4_TAPS} marks={F4_MARKS} />;
+/** F4 zacina z bielej (F2 konci fade-om), sirsie okno sa objavi. */
+export const F4_Kontrola: React.FC = () => <DesktopFootageClip src="footage/f4-review.mp4" seconds={F4_SECONDS} steps={F4_STEPS} taps={F4_TAPS} marks={F4_MARKS} win={FOOTAGE_WINDOW_WIDE} panelLeft={1460} panelWidth={430} enter />;
