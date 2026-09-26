@@ -16,10 +16,11 @@ import { BRAND } from '../theme';
  * panel appky (1520 x 882), skaluje sa presne na obsah okna.
  * Kolo 33: `win` = ine okno (FOOTAGE_WINDOW_WIDE pre nove zaznamy F3/F4 s pomerom 2:1, bez orezania obsahu),
  * zvyraznenia maju farbu (zelena = potvrdenie, jantarova = oprava) alebo rámik (`outline`).
+ * Kolo 35: `spot` = ramik a stmavene okolie (zelena fixka v F3 nebola dost vidiet), spoty sa v case neprekryvaju.
  * Zdroj: public/footage/ (priecinok nie je v gite).
  */
 export type Tap = { t: number; x: number; y: number }; // s, podiel sirky/vysky obsahu okna
-export type Mark = { from: number; to: number; x: number; y: number; w: number; h: number; sweep?: number; color?: 'green' | 'amber'; outline?: boolean }; // s, podiely obsahu okna; sweep = s, za ktore sa zvyraznenie "nakresli" zlava (ako fixkou)
+export type Mark = { from: number; to: number; x: number; y: number; w: number; h: number; sweep?: number; color?: 'green' | 'amber'; outline?: boolean; spot?: boolean }; // s, podiely obsahu okna; sweep = s, za ktore sa zvyraznenie "nakresli" zlava (ako fixkou)
 
 const MARK_FILL = { green: 'rgba(79,168,90,0.28)', amber: 'rgba(245,158,11,0.34)' };
 
@@ -45,6 +46,9 @@ export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps:
             {marks.map((m, i) => {
               const a = tw(m.from * 1000, 200) * (1 - tw(m.to * 1000 - 250, 250));
               if (a <= 0) return null;
+              if (m.spot) {
+                return <div key={`m${i}`} style={{ position: 'absolute', left: m.x * cw - 8, top: m.y * ch - 8, width: m.w * cw + 16, height: m.h * ch + 16, borderRadius: 10, border: `4px solid ${BRAND[400]}`, boxShadow: `0 0 0 4000px rgba(15,23,42,${0.38 * a})`, opacity: Math.min(1, a * 1.5), transform: `scale(${1.02 - 0.02 * a})`, pointerEvents: 'none' }} />;
+              }
               if (m.outline) {
                 return <div key={`m${i}`} style={{ position: 'absolute', left: m.x * cw - 6, top: m.y * ch - 6, width: m.w * cw + 12, height: m.h * ch + 12, borderRadius: 8, border: `4px solid ${BRAND[400]}`, boxShadow: '0 0 0 6px rgba(79,168,90,0.18)', opacity: a, transform: `scale(${1.03 - 0.03 * a})`, pointerEvents: 'none' }} />;
               }

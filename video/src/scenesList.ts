@@ -44,7 +44,7 @@ export const SCENE_LIST: [string, SceneDef][] = [
   paced('C6-Spracovanie', { scene: C6_Spracovanie, seconds: 3, vo: true, stills: [20, 45, 85] }),
   paced('F2-Metadata', { scene: F2_Metadata, seconds: F2_SECONDS, vo: true, stills: [10, 100, 240] }),
   paced('F4-Kontrola', { scene: F4_Kontrola, seconds: F4_SECONDS, vo: true, stills: [10, 150, 400] }),
-  paced('F3-Vyhladavanie', { scene: F3_Vyhladavanie, seconds: F3_SECONDS, vo: true, stills: [10, 170, 340] }),
+  paced('F3-Vyhladavanie', { scene: F3_Vyhladavanie, seconds: F3_SECONDS, vo: true, stills: [60, 205, 265, 460, 590] }),
   paced('C8-Pilot', { scene: C8_Pilot, seconds: 8, vo: true, holds: [{ at: 4700, hold: 1240 }], stills: [50, 120, 220] }),
   paced('C9-Outro', { scene: C9_Outro, seconds: 7.3, vo: true, dark: true, stills: [40, 150] }),
 ];

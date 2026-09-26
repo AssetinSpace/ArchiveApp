@@ -173,21 +173,31 @@
   "F3-Vyhladavanie": [
     {
       "at": 400,
-      "text": "Stačí zadať kľúčové slovo.",
-      "dur": 2120
+      "text": "S databázou sa dá pracovať rôzne: vyhľadávať, zoskupovať aj exportovať. Najjednoduchšie je vyhľadávanie. Stačí zadať kľúčové slovo.",
+      "dur": 9720,
+      "parts": [
+        "S databázou sa dá pracovať rôzne: vyhľadávať, zoskupovať aj exportovať.",
+        "Najjednoduchšie je vyhľadávanie.",
+        "Stačí zadať kľúčové slovo."
+      ],
+      "partAt": [
+        0,
+        5686,
+        7810
+      ]
     },
     {
-      "at": 2700,
+      "at": 10500,
       "text": "Aplikácia záznam nájde a zobrazí jeho podrobnosti.",
       "dur": 3600
     },
     {
-      "at": 6450,
+      "at": 14250,
       "text": "Ľudsky čitateľná cesta v hierarchii vás dovedie na správnu policu.",
       "dur": 4080
     },
     {
-      "at": 10700,
+      "at": 18500,
       "text": "Kľúčové slovo sa zvýrazní všade, kde sa našlo, v metadátach aj v pôvodnom texte pred spracovaním. Ten sa uchováva, takže sa nič nestratí.",
       "parts": [
         "Kľúčové slovo sa zvýrazní všade, kde sa našlo,",
@@ -202,7 +212,7 @@
       ]
     },
     {
-      "at": 20100,
+      "at": 27900,
       "text": "QR kód na zložke overí obsah bez otvárania.",
       "say": "Kjúár kód na zložke overí obsah bez otvárania.",
       "dur": 3440

@@ -369,3 +369,15 @@ Prvé pripomienky cez komentáre stránky (Samuel, "Pridať komentár", Claudovi
 | F1 | Zbytočne začíname detailom KR_01, prvý klik netreba, začať výberom položky. | Zostrih začína na obrazovke Vybrať typ jednotky (0,45 s zdroja), klik Pridať do tejto jednotky vypadol. |
 
 Review stránka: sledovanie komentárov obnovené; „Poslať Claudovi“ sa v mobilnej appke neponúka, preto jedno tlačidlo „Odoslať na spracovanie“ (Claudovi hneď, ak to zobrazenie dovolí, inak komentár) a hodinová Routine, ktorá nové komentáre vyzdvihne. Full 148,2 s (26. 9.).
+
+
+## Kolo 35 (26. 9. 2026): F3 úvod o práci s databázou, výraznejšie zvýraznenie
+
+Dve pripomienky z review stránky (kolo 34, „navrhni“), návrh schválil Samuel v chate: úvodná veta áno, zvýraznenie možnosť 1 (rámik + stmavené okolie).
+
+| Klip | Pripomienka (skrátene) | Riešenie |
+|---|---|---|
+| F3 | Uviesť, že s databázou sa dá pracovať viacerými spôsobmi (vyhľadávanie, zoskupovanie, exporty) a najjednoduchšie je vyhľadávanie. | Prvá veta F3 je teraz jedno generovanie: „S databázou sa dá pracovať rôzne: vyhľadávať, zoskupovať aj exportovať. Najjednoduchšie je vyhľadávanie. Stačí zadať kľúčové slovo.“ (tri časti titulku). Pod ňou pokojná úvodná obrazovka (zmrazenie pred písaním 0,6 -> 8,4 s), spot postupne na záložkách (Hľadať, Kľúče metadát, QR kódy, Prílohy, Kontroly, Štatistiky, Graf), na záložke Hľadať a na poli vyhľadávania. Nový prvý krok „Práca s databázou“, „Kľúčové slovo“ od tretej časti. Ostatné vety a zostrih posunuté o 7,8 s. Klip 31,8 s. |
+| F3 | Zelené zvýraznenie nie je dosť vidieť, navrhnúť iné. | Nový typ zvýraznenia `spot` v `DesktopFootageClip`: zelený rámik 4 px a stmavené okolie (38 %), jemne dosadne; spoty sa v čase neprekrývajú. V F3 všetky zvýraznenia (záložky, Hľadať, pole, drobček PL_01 / KR_01 / ZL_03, odznaky Nájdené v: Metadáta / OCR). F2 a F4 ostávajú s fixkou (F4 potrebuje zelenú/jantárovú). |
+
+Full 156,0 s.
