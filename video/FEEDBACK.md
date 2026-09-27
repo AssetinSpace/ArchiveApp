@@ -466,3 +466,13 @@ Samuel: softvér na samostatné používanie budú ponúkať v blízkej dobe; do
 - Nový hlas (Gemini, 2 generovania, prepis OK): „Archív vám spracujeme na kľúč. Začneme obhliadkou skladu a pilotom na jednej krabici.“ (0,4 s) a „Alebo ho môžete katalogizovať sami v našej aplikácii. Stačí priradiť licenciu.“ (6,8 s).
 - Pozor pri zverejnení: ak video pôjde von skôr ako softvér, kartu Softvér a druhú vetu vynechať (otázka pre Samuela otvorená).
 - `check-stills.mjs` kontroluje znova aj C8 (karty nad pásmom titulkov). Full 137,2 s, hudba tempo 0,970 (na hranici ±3 %), -16,1 LUFS.
+
+
+## Kolo 43 (27. 9. 2026): C8 rozsah, C2, C9, hudba
+
+| Klip | Pripomienka | Riešenie |
+|---|---|---|
+| C8 | Graficky nezarovnané. „Katalogizovať vlastnými silami“. Nie „priradiť licenciu“, ale „na základe rozsahu zaobstaráme licenciu“. Niekde dať rozsah: len identifikačné strany, ale aj skenovanie kompletných dokumentov s fulltextovým vyhľadávaním. | Obsah oboch kariet zarovnaný vľavo na rovnakých výškach (obrázok, nadpis, popis, kroky), obrázky rovnako vysoké. Softvér: „Katalogizujete vlastnými silami.“, krok „Licencia podľa rozsahu“. Nový pás pod kartami „Rozsah - Podľa vás“: Identifikačné strany (štítok a obsah zložky) alebo Celé dokumenty (skenovanie a fulltextové vyhľadávanie). Hlas: 2. veta „Alebo ho katalogizujete vlastnými silami a licenciu zaobstaráme podľa rozsahu.“, nová 3. veta „Rozsah je na vás: len identifikačné strany, alebo celé dokumenty s fulltextovým vyhľadávaním.“ (Gemini, prepis OK). Počas vety o rozsahu sú karty stlmené. Klip 19,5 s. |
+| C2 | Doplniť „v“: „v krabici alebo v zložke“. | Veta „Vy viete, že tam niekde je. V sklade, na polici, v krabici alebo v zložke.“ vygenerovaná nanovo (prepis OK), dĺžka klipu bez zmeny. |
+| C9 | Assetin, s. r. o. lepšie zarovnať na výšku, v riadku splýva. | Značka, firma a web pod sebou (web svetlozelený a tučný). |
+| Celok | Veľmi jemne stíšiť hudbu. | Hudba o 1 dB tichšia (`--gain -7`). Film sa predĺžil na 143,6 s, preto sa vrátil úsek hudby vystrihnutý v kole 41 (73,26-84,81 s), tempo 1,008. |

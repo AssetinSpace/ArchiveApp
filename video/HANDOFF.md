@@ -56,7 +56,7 @@ Full sa od kola 37 lepí skriptom `node scripts/mix-music.mjs`: poradie klipov z
 
 Hudba (kolo 37): `python3 scripts/music.py` generuje cez Lyria (`lyria-3-pro-preview`, prompt a model v `src/copy/music.json`), výsledok `public/music/bed.wav` (mimo gitu) sa cachuje podľa promptu (`--force` = znova). Volanie musí ísť cez stream (`generate_content_stream`), inak brána po ~30 s vráti 502. Lyria občas odmietne prompt (`PROHIBITED_CONTENT`), stačí zopakovať. Kvóta Lyria nie je známa, Samuel: šetriť (jeden štýl, jedno generovanie). Výstup Lyria nesie SynthID vodoznak; pred verejným / komerčným použitím overiť podmienky Google pre generovanú hudbu.
 Vyrovnanie (kolo 39): `scripts/music_level.py` (volá ho `mix-music.mjs`, výstup `public/music/bed_level.wav`, float) zosilní tiché časti skladby najviac na úroveň plnej časti (`--range 0`; úvod Lyria bol o 20-40 dB tichší a pod hlasom nebol počuť), v mixe potom `alimiter`.
-Mix: hudba `atempo 0,983` (skladba končí ~2,5 s pred koncom filmu, takto sedí záverečný akord na koniec C9; pri inej dĺžke filmu upraviť `--tempo`), zárez 1-3 kHz (-3 dB), `--gain -6` dB, stíšenie pod hlasom `sidechaincompress` (prah 0,02, pomer 3): pod hlasom ~14 dB pod rečou, v pauzách ~7 dB. Kontrola zrozumiteľnosti prepisom (gemini-3.8-flash) na úsekoch C4, F3, C9: 5/5. Od kola 38 `--tempo auto` (±3 %, akord 0,4 s pred koncom filmu). Kolo 41: pri kratšom filme sa zo skladby vystrihnú úseky na dobu (`"cuts"` v `music.json`, takt 2,3077 s pri 104 BPM, prelínačka 60 ms), nie väčšie zrýchlenie.
+Mix: hudba `atempo 0,983` (skladba končí ~2,5 s pred koncom filmu, takto sedí záverečný akord na koniec C9; pri inej dĺžke filmu upraviť `--tempo`), zárez 1-3 kHz (-3 dB), `--gain -7` dB (kolo 43, predtým -6), stíšenie pod hlasom `sidechaincompress` (prah 0,02, pomer 3): pod hlasom ~14 dB pod rečou, v pauzách ~7 dB. Kontrola zrozumiteľnosti prepisom (gemini-3.8-flash) na úsekoch C4, F3, C9: 5/5. Od kola 38 `--tempo auto` (±3 %, akord 0,4 s pred koncom filmu). Kolo 41: pri kratšom filme sa zo skladby vystrihnú úseky na dobu (`"cuts"` v `music.json`, takt 2,3077 s pri 104 BPM, prelínačka 60 ms), nie väčšie zrýchlenie.
 
 Sieť: povolené sú `huggingface.co` (Piper), `speech.platform.bing.com` (edge-tts; websocket ide cez `--proxy $HTTPS_PROXY`,
 CA proxy treba pridať do certifi: `cat /root/.ccr/ca-bundle.crt >> $(python3 -c "import certifi;print(certifi.where())")`),
@@ -74,7 +74,7 @@ CA proxy treba pridať do certifi: `cat /root/.ccr/ca-bundle.crt >> $(python3 -c
 - F3 a F4 (nové záznamy, iný zoom) majú orez 1764 × 882 a širšie okno `FOOTAGE_WINDOW_WIDE`; F2 (starý záznam) ostáva v pôvodnom okne.
 - C4: bez domčeka na bielom slide, bez popisu pod lockupom (vetu hovorí náhovor).
 - F3: musí byť vidieť drobček PL_01 / KR_01 / ZL_03 a automatické zvýraznenie zhody v metadátach (QR od kola 41 nie).
-- Poradie klipov: C1 · C2 · C4 · C5 · F1 · C6 · F2 · F4 · C10 · F3 · C8 · C9 (C10 Práca s databázou od kola 36, C7 Hierarchia vypadlo v kole 41, súbor scény ostáva; C8 od kola 42 „Ako začať“ s dvomi ponukami). Full má 137,2 s (kolo 42).
+- Poradie klipov: C1 · C2 · C4 · C5 · F1 · C6 · F2 · F4 · C10 · F3 · C8 · C9 (C10 Práca s databázou od kola 36, C7 Hierarchia vypadlo v kole 41, súbor scény ostáva; C8 od kola 42 „Ako začať“ s dvomi ponukami). Full má 143,6 s (kolo 43).
 
 ## Hlas cez Gemini TTS (kolo 32, 33)
 

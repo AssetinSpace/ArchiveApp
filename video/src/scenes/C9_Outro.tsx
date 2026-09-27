@@ -9,7 +9,7 @@ import { BRAND, FONT } from '../theme';
 
 /**
  * C9 - Outro na zelenom pozadi. Kolo 42: hore lockup Assetin Archives (assetin/.space | Archives, ako v C4)
- * a slogan pod nim, pod ciarou mala znacka, firma a web. Bez kontaktov.
+ * a slogan pod nim, pod ciarou mala znacka, firma a web (kolo 43 pod sebou). Bez kontaktov.
  * ms: 200 lockup · 700 slogan · 1100 firma a web.
  */
 const T = sk.S12;
@@ -42,12 +42,12 @@ export const C9_Outro: React.FC = () => {
         </div>
       </div>
       <div style={{ marginTop: 44, fontFamily: FONT.display, fontWeight: 600, fontSize: 46, letterSpacing: '-0.01em', opacity: tag, transform: `translateY(${(1 - tag) * 14}px)` }}>{captions.C4brand}</div>
-      <div style={{ width: 60, height: 5, background: BRAND[300], borderRadius: 3, marginTop: 64, opacity: firm }} />
-      <div style={{ display: 'flex', alignItems: 'center', gap: 22, marginTop: 40, opacity: firm, transform: `translateY(${(1 - firm) * 14}px)` }}>
-        <LogoMark size={60} color="#fff" />
-        <span style={{ fontFamily: FONT.display, fontWeight: 600, fontSize: 34 }}>{T.company}</span>
-        <span style={{ width: 2, height: 34, background: 'rgba(255,255,255,0.45)' }} />
-        <span style={{ fontSize: 34, fontWeight: 600 }}>{T.web}</span>
+      <div style={{ width: 60, height: 5, background: BRAND[300], borderRadius: 3, marginTop: 56, opacity: firm }} />
+      {/* kolo 43: firma a web pod sebou (v jednom riadku splyvali) */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 40, opacity: firm, transform: `translateY(${(1 - firm) * 14}px)` }}>
+        <LogoMark size={64} color="#fff" />
+        <div style={{ marginTop: 18, fontFamily: FONT.display, fontWeight: 600, fontSize: 34, lineHeight: 1.1 }}>{T.company}</div>
+        <div style={{ marginTop: 8, fontSize: 38, fontWeight: 700, lineHeight: 1.1, color: BRAND[100] }}>{T.web}</div>
       </div>
     </AbsoluteFill>
   );

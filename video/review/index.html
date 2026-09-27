@@ -138,22 +138,20 @@
 <script>
   // Stav stranky: BUILD sa meni pri kazdom publikovani (kolo, cas renderu), zivy stav cita db dokument status/current.
   const BUILD = {
- "round": 42,
- "renderedAt": "2026-09-27T11:30:00Z"
+ "round": 43,
+ "renderedAt": "2026-09-27T12:10:00Z"
 };
   const FULL = {
- "len": 137.2,
- "cap": "f39346e247943fad4a7b4c440d24e287",
- "poster": "1fddcc30635f65d2c361e4838680b586",
+ "len": 143.6,
+ "cap": "ac123b253938ceb6324f4ab956a8bfa4",
+ "poster": "376d3b14a3dd06155b2f25d83d78c800",
  "desc": "Tvrdé strihy medzi klipmi, hlas Gemini TTS (Velvet 1), titulky a od kola 37 hudba (Lyria, pod hlasom stíšená)."
 };
   const NEWS = [
- "C2: vytiahnuté zložky už nepresvitajú, za nimi nie je vidieť okraj krabice; druhý otáznik v sklade je na obraze rovnako dlho ako prvý (~1,1 s).",
- "Celé video: jemnejšie obrysové čiary (tenšie a svetlejšie) na krabiciach, zložkách a regáloch, najviac vidieť v C5.",
- "C6: okno aplikácie hneď v plnej veľkosti (ako okno záznamu F2), bez zväčšovania.",
- "F3: rámik okolo kľúčového slova v metadátach tesne okolo zvýraznenia.",
- "C9: logo Assetin Archives a slogan pod ním, pod čiarou firma a web.",
- "C8 (Ako začať): dve ponuky - hlavná Služba na kľúč (obhliadka skladu, pilot na jednej krabici) a Softvér (katalogizujete vlastnými ľuďmi, priradenie licencie); nový hlas, klip 13,1 s, film 137,2 s."
+ "C8 (Ako začať): obsah kariet zarovnaný vľavo na rovnakých výškach, Softvér „Katalogizujete vlastnými silami.“ a „Licencia podľa rozsahu“, nový pás Rozsah: identifikačné strany alebo celé dokumenty so skenovaním a fulltextovým vyhľadávaním (nová veta hlasu). Klip 19,5 s.",
+ "C2: „V sklade, na polici, v krabici alebo v zložke.“",
+ "C9: značka, firma a web pod sebou namiesto jedného riadku.",
+ "Hudba o 1 dB tichšia; keďže je film dlhší (143,6 s), vrátený pokojný úsek hudby vystrihnutý v kole 41 (tempo ostáva prirodzené)."
 ];
   const CLIPS = [
  {
@@ -168,9 +166,9 @@
   "id": "C2-Hladanie",
   "name": "Hľadanie (kancelária → sklad)",
   "len": 13.0,
-  "desc": "Kolo 42: vytiahnuté zložky už nepresvitajú (okraj krabice sa kreslí za nimi), druhý otáznik v sklade je na obraze rovnako dlho ako prvý. Jemnejšie obrysy.",
-  "cap": "97eba1583abdd5ae983ad490507a5bf5",
-  "poster": "20c0d63f3dc712d82f26c3f999b09b14"
+  "desc": "Kolo 43: „V sklade, na polici, v krabici alebo v zložke.“ (doplnené „v“, veta nanovo). Kolo 42: zložky nepresvitajú, druhý otáznik rovnako dlho ako prvý.",
+  "cap": "10ca5703138fcb2778a48cb09206edef",
+  "poster": "4e43e6a7feaea38b3aa21e8b132c2e49"
  },
  {
   "id": "C4-Cena",
@@ -239,18 +237,18 @@
  {
   "id": "C8-Pilot",
   "name": "Ako začať (ponuka)",
-  "len": 13.1,
-  "desc": "Kolo 42: dve ponuky vedľa seba. Vľavo hlavná „Služba na kľúč“ (celý archív spracujeme za vás; 1 obhliadka skladu, 2 pilot na jednej krabici), vpravo „Softvér“ (katalogizujete vlastnými ľuďmi; priradenie licencie). Nový hlas: „Archív vám spracujeme na kľúč. Začneme obhliadkou skladu a pilotom na jednej krabici. Alebo ho môžete katalogizovať sami v našej aplikácii. Stačí priradiť licenciu.“",
-  "cap": "0f0dbe0517715299baaef04b0c577116",
-  "poster": "ecd6eed4e59603b77d89a6028a21941e"
+  "len": 19.5,
+  "desc": "Kolo 43: obsah kariet zarovnaný vľavo na rovnakých výškach; Softvér „Katalogizujete vlastnými silami.“, krok „Licencia podľa rozsahu“; pod kartami pás Rozsah: podľa vás - identifikačné strany alebo celé dokumenty (skenovanie a fulltextové vyhľadávanie). Hlas: „...Alebo ho katalogizujete vlastnými silami a licenciu zaobstaráme podľa rozsahu. Rozsah je na vás: len identifikačné strany, alebo celé dokumenty s fulltextovým vyhľadávaním.“",
+  "cap": "302bac7e85b34fb36c3d35bdb153bf49",
+  "poster": "2c3761ea3247d117abaf5ab31fabb2ee"
  },
  {
   "id": "C9-Outro",
   "name": "Outro",
   "len": 7.3,
-  "desc": "Kolo 42: lockup Assetin Archives a pod ním slogan „Digitálna katalogizácia archivovanej dokumentácie“, pod čiarou značka, firma a web.",
-  "cap": "cef9ac7004b196434ca27e31c895ac7f",
-  "poster": "30795f8ea82e3a194ca0ab1b5517f502"
+  "desc": "Kolo 43: značka, Assetin, s. r. o. a web pod sebou (v jednom riadku splývali). Kolo 42: lockup Assetin Archives a slogan.",
+  "cap": "7912f9aa847cc3463e563f12499f1673",
+  "poster": "424fa8c644f3ca84810ce5567362c341"
  }
 ];
 

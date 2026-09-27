@@ -34,7 +34,9 @@ export const pilot = {
 export const offer = {
   kicker: 'Ako začať',
   service: { title: 'Služba na kľúč', desc: 'Celý archív spracujeme za vás.', steps: ['Obhliadka skladu', 'Pilot na jednej krabici'] },
-  software: { title: 'Softvér', desc: 'Katalogizujete vlastnými ľuďmi.', steps: ['Priradenie licencie'] },
+  software: { title: 'Softvér', desc: 'Katalogizujete vlastnými silami.', steps: ['Licencia podľa rozsahu'] },
+  // kolo 43: rozsah spracovania (plati pre obe ponuky)
+  scope: { kicker: 'Rozsah', title: 'Podľa vás', options: [{ title: 'Identifikačné strany', desc: 'Štítok a obsah zložky' }, { title: 'Celé dokumenty', desc: 'Skenovanie a fulltextové vyhľadávanie' }] },
 };
 
 export const sk = {

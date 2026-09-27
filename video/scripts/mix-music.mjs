@@ -13,7 +13,7 @@ const args = process.argv.slice(2);
 const opt = (k, d) => (args.includes(k) ? args[args.indexOf(k) + 1] : d);
 const MUSIC = opt('--music', 'public/music/bed.wav');
 const TEMPO_ARG = opt('--tempo', 'auto');
-const GAIN = Number(opt('--gain', '-6'));
+const GAIN = Number(opt('--gain', '-7')); // kolo 43: o 1 dB tichsie (Samuel: velmi jemne stisit)
 const withMusic = !args.includes('--no-music');
 const FF = process.env.FFMPEG ?? execFileSync('python3', ['-c', 'import imageio_ffmpeg as f; print(f.get_ffmpeg_exe())']).toString().trim();
 const TMP = 'out/tmp';
