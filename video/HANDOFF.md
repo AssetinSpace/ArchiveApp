@@ -5,7 +5,7 @@ okrem zdrojových záznamov a vygenerovaného hlasu (tie sú mimo gitu, postup o
 
 ## Checkpoint
 
-- **Kolo 47 (27. 9. 2026)**: git tag `video-checkpoint-kolo47` (commit `068edd1`), film `out/checkpoints/Full_kolo47_1080p.mp4` (145,2 s). Ďalšie kolá pokračujú od neho; podrobnosti v FEEDBACK.md (sekcia CHECKPOINT kolo 47).
+- **Kolo 47 (27. 9. 2026)**: commit `068edd1` na `claude/progress-preview-vo1ocm`, film `out/checkpoints/Full_kolo47_1080p.mp4` (145,2 s). Ďalšie kolá pokračujú od neho; podrobnosti v FEEDBACK.md (sekcia CHECKPOINT kolo 47).
 
 ## Kde čo je
 

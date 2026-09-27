@@ -520,8 +520,8 @@ Full 145,2 s.
 
 Samuel: toto kolo zapísať ako checkpoint, ďalšie pripomienky pokračujú od neho klasicky.
 
-- Stav: commit `068edd1` na vetve `claude/progress-preview-vo1ocm`, git tag `video-checkpoint-kolo47`.
+- Stav: commit `068edd1` na vetve `claude/progress-preview-vo1ocm` (lokálny tag `video-checkpoint-kolo47`; tagy prostredie na GitHub nepushne, platí číslo commitu).
 - Film: `out/checkpoints/Full_kolo47_1080p.mp4` (kópia `out/mp4/Full_1080p.mp4` z kola 47), 145,2 s, -16 LUFS; na review stránke asset `3119340feb5c9ef0b7e9b0158e839bdb`.
 - Poradie klipov: C1 · C2 · C4 · C5 · F1 · C6 · F2 · F4 · C10 · F3 · C8 · C9.
 - Otvorené: C5 „fyzickými dokumentami“ vs. spisovné „dokumentmi“ (čaká na Samuela); vydanie videa pred spustením softvéru (karta Softvér v C8).
-- Návrat: `git checkout video-checkpoint-kolo47 -- video/` (zdroje, texty, hlas `vo.json`, hudba `music.json`); vygenerované vety hlasu a hudba sú mimo gitu (postup obnovy v HANDOFF.md).
+- Návrat: `git checkout 068edd1 -- video/` (zdroje, texty, hlas `vo.json`, hudba `music.json`); vygenerované vety hlasu a hudba sú mimo gitu (postup obnovy v HANDOFF.md).
