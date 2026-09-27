@@ -476,3 +476,12 @@ Samuel: softvér na samostatné používanie budú ponúkať v blízkej dobe; do
 | C2 | Doplniť „v“: „v krabici alebo v zložke“. | Veta „Vy viete, že tam niekde je. V sklade, na polici, v krabici alebo v zložke.“ vygenerovaná nanovo (prepis OK), dĺžka klipu bez zmeny. |
 | C9 | Assetin, s. r. o. lepšie zarovnať na výšku, v riadku splýva. | Značka, firma a web pod sebou (web svetlozelený a tučný). |
 | Celok | Veľmi jemne stíšiť hudbu. | Hudba o 1 dB tichšia (`--gain -7`). Film sa predĺžil na 143,6 s, preto sa vrátil úsek hudby vystrihnutý v kole 41 (73,26-84,81 s), tempo 1,008. |
+
+
+## Kolo 44 (27. 9. 2026): C8 zarovnanie a rozsah pre obe možnosti
+
+| Klip | Pripomienka | Riešenie |
+|---|---|---|
+| C8 | Karty viac zarovnať, teraz je to rozhádzané. Rozsah treba stanoviť aj pri službe, vhodne zapracovať. | Obe karty majú rovnakú stavbu na stred: ikona v kruhu (krabica / notebook, rovnaký štýl), názov, popis, jeden krok ako štítok („Obhliadka skladu a pilot na krabici“ / „Licencia podľa rozsahu“), všetko na rovnakých výškach (aj rovnaká hrúbka rámika, zelený okraj služby je tieň). Z oboch kariet ide čiara do pásu „V oboch prípadoch - Rozsah podľa vás“. Tretia veta hlasu nanovo: „V oboch prípadoch určíte rozsah: len identifikačné strany, alebo celé dokumenty s fulltextovým vyhľadávaním.“ (prepis OK). Klip 20,0 s. |
+
+Full 144,1 s, hudba tempo 1,004, -16 LUFS.

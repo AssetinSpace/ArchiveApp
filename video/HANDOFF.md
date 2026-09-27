@@ -74,7 +74,7 @@ CA proxy treba pridať do certifi: `cat /root/.ccr/ca-bundle.crt >> $(python3 -c
 - F3 a F4 (nové záznamy, iný zoom) majú orez 1764 × 882 a širšie okno `FOOTAGE_WINDOW_WIDE`; F2 (starý záznam) ostáva v pôvodnom okne.
 - C4: bez domčeka na bielom slide, bez popisu pod lockupom (vetu hovorí náhovor).
 - F3: musí byť vidieť drobček PL_01 / KR_01 / ZL_03 a automatické zvýraznenie zhody v metadátach (QR od kola 41 nie).
-- Poradie klipov: C1 · C2 · C4 · C5 · F1 · C6 · F2 · F4 · C10 · F3 · C8 · C9 (C10 Práca s databázou od kola 36, C7 Hierarchia vypadlo v kole 41, súbor scény ostáva; C8 od kola 42 „Ako začať“ s dvomi ponukami). Full má 143,6 s (kolo 43).
+- Poradie klipov: C1 · C2 · C4 · C5 · F1 · C6 · F2 · F4 · C10 · F3 · C8 · C9 (C10 Práca s databázou od kola 36, C7 Hierarchia vypadlo v kole 41, súbor scény ostáva; C8 od kola 42 „Ako začať“ s dvomi ponukami). Full má 144,1 s (kolo 44).
 
 ## Hlas cez Gemini TTS (kolo 32, 33)
 

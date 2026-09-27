@@ -33,10 +33,10 @@ export const pilot = {
 /** C8 (kolo 42): dve ponuky - sluzba na kluc (hlavna) a softver. */
 export const offer = {
   kicker: 'Ako začať',
-  service: { title: 'Služba na kľúč', desc: 'Celý archív spracujeme za vás.', steps: ['Obhliadka skladu', 'Pilot na jednej krabici'] },
-  software: { title: 'Softvér', desc: 'Katalogizujete vlastnými silami.', steps: ['Licencia podľa rozsahu'] },
-  // kolo 43: rozsah spracovania (plati pre obe ponuky)
-  scope: { kicker: 'Rozsah', title: 'Podľa vás', options: [{ title: 'Identifikačné strany', desc: 'Štítok a obsah zložky' }, { title: 'Celé dokumenty', desc: 'Skenovanie a fulltextové vyhľadávanie' }] },
+  // kolo 44: karty s rovnakou stavbou (ikona, nazov, popis, jeden krok), rozsah plati pre obe
+  service: { title: 'Služba na kľúč', desc: 'Celý archív spracujeme za vás.', step: 'Obhliadka skladu a pilot na krabici' },
+  software: { title: 'Softvér', desc: 'Katalogizujete vlastnými silami.', step: 'Licencia podľa rozsahu' },
+  scope: { kicker: 'V oboch prípadoch', title: 'Rozsah podľa vás', options: [{ title: 'Identifikačné strany', desc: 'Štítok a obsah zložky' }, { title: 'Celé dokumenty', desc: 'Skenovanie a fulltextové vyhľadávanie' }] },
 };
 
 export const sk = {
