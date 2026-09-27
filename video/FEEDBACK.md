@@ -532,3 +532,11 @@ Samuel: toto kolo zapísať ako checkpoint, ďalšie pripomienky pokračujú od 
 Samuel v chate: C5 „dokumentami“ zmeniť všade; otázku vydania pred spustením softvéru neriešiť (karta Softvér v C8 ostáva).
 
 - „Riešenie začína fyzickými dokumentami.“ (text, titulky aj `say` vo `vo.json`, inde sa tvar nevyskytuje). Prvá veta C5 vygenerovaná nanovo (prepis OK), časy slov sa líšia najviac o 0,1 s, klip C5 11,75 s bez zmeny. Full 145,2 s.
+
+
+## Stránka (27. 9. 2026): komentáre aj pre pozvaných (Marek)
+
+Samuel: Marek po pridaní nevie pridávať pripomienky („Pripomienky sa z tohto zobrazenia nedajú pridať“).
+
+- Príčina: plná verzia `comments` (vlastné pole a odoslanie zo stránky) sa hosťom pozvaným e-mailom a návštevníkom cez odkaz nedáva, `claude.use("comments")` im vráti `null`.
+- Oprava: `comments: {"composer_only": true}`; pri klipe aj pri celom filme je tlačidlo „Pridať pripomienku“, ktoré otvorí okno komentára claude.ai ukotvené na klip. Ak ani to nejde (hosť nemá prístup komentovať), stránka povie, že treba prístup s komentovaním v Share. Hodinová kontrola číta vlákna ako doteraz.

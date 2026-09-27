@@ -7,6 +7,12 @@ okrem zdrojových záznamov a vygenerovaného hlasu (tie sú mimo gitu, postup o
 
 - **Kolo 47 (27. 9. 2026)**: commit `068edd1` na `claude/progress-preview-vo1ocm`, film `out/checkpoints/Full_kolo47_1080p.mp4` (145,2 s). Ďalšie kolá pokračujú od neho; podrobnosti v FEEDBACK.md (sekcia CHECKPOINT kolo 47).
 
+## Komentáre na review stránke (od 27. 9. 2026, po kole 48)
+
+- Stránka deklaruje `comments: {"composer_only": true}` (+ `assets`, `db`). Tlačidlo „Pridať pripomienku“ pri klipe otvorí okno komentára claude.ai ukotvené na klip; text sa píše a odosiela v okne claude.ai (editor tam má aj „Send to Claude“).
+- Dôvod: plná verzia `comments: {}` (vlastné pole a odoslanie zo stránky) sa nedáva hosťom pozvaným e-mailom ani návštevníkom cez odkaz; Marek preto videl „Pripomienky sa z tohto zobrazenia nedajú pridať“. Hosť potrebuje v Share prístup s možnosťou komentovať.
+- Nové vlákna už nemajú predponu `[klip]` v texte; klip je v kotve vlákna (`[anchored at] #clip-...`).
+
 ## Kde čo je
 
 - Review stránka klipov (videá, pripomienky): https://claude.ai/artifact/R2aK5Ms7zxVvtKM4SjHCJa

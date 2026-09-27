@@ -109,9 +109,7 @@
     <p class="muted" id="full-desc"></p>
     <video controls preload="metadata" id="full-video"></video>
     <div class="composer" data-target="Celý film">
-      <label for="note-full">Pripomienka k celku (tempo, hudba, štýl...)</label>
-      <textarea id="note-full" maxlength="3500" placeholder="Napríklad: v 1:10 je pauza príliš dlhá."></textarea>
-      <div class="row"><button type="button" class="send" data-role="send">Odoslať na spracovanie</button><span class="result" aria-live="polite"></span></div>
+      <div class="row"><button type="button" class="send" data-role="compose" disabled>Pridať pripomienku k celku</button><span class="result" aria-live="polite"></span></div>
     </div>
   </section>
 
@@ -132,7 +130,7 @@
     </details>
   </section>
 
-  <div class="note" id="nocomments" hidden>Pripomienky sa z tohto zobrazenia nedajú pridať. Otvor stránku v claude.ai (prihlásený) alebo napíš pripomienku Samuelovi.</div>
+  <div class="note" id="nocomments" hidden>Pripomienky sa z tohto zobrazenia nedajú pridať. Otvor stránku v claude.ai (prihlásený). Ak ti ju niekto zdieľal, potrebuješ prístup s možnosťou komentovať (Samuel ho nastaví v Share), inak mu napíš pripomienku.</div>
 </div>
 
 <script>
@@ -270,9 +268,7 @@
         <div class="head"><h3></h3><span class="id">${c.id}</span><span class="len">${String(c.len).replace('.', ',')} s</span></div>
         <p class="desc"></p>
         <div class="composer" data-target="${c.id}">
-          <label for="note-${c.id}">Pripomienka ku klipu</label>
-          <textarea id="note-${c.id}" maxlength="3500" placeholder="Čo zmeniť a kde..."></textarea>
-          <div class="row"><button type="button" class="send" data-role="send">Odoslať na spracovanie</button><span class="result" aria-live="polite"></span></div>
+          <div class="row"><button type="button" class="send" data-role="compose" disabled>Pridať pripomienku ku klipu</button><span class="result" aria-live="polite"></span></div>
         </div>
       </div>`;
     el.querySelector('h3').textContent = c.name;
@@ -291,59 +287,44 @@
     note.hidden = !d.note;
   };
 
+  // Kolo 49: komentare cez okno claude.ai (composer_only) - funguje aj pre pozvanych hosti a verejny odkaz;
+  // plna verzia (vlastne pole + odoslanie) sa hostom nedava. Claude vlakna cita pri hodinovej kontrole.
   let comments = null;
-  let canSend = 'off';
   const composers = [...document.querySelectorAll('.composer')];
-  const paintButtons = () => {};
+  const deny = 'Z tohto zobrazenia komentovať nemôžeš. Potrebuješ prístup s možnosťou komentovať (Samuel ho nastaví v Share), inak mu napíš pripomienku.';
 
-  async function submit(box) {
-    const ta = box.querySelector('textarea');
+  async function compose(box) {
     const out = box.querySelector('.result');
-    const text = ta.value.trim();
-    if (!text) { out.className = 'result err'; out.textContent = 'Najprv napíš pripomienku.'; ta.focus(); return; }
-    const body = `[${box.dataset.target}] ${text}`;
-    const btn = box.querySelector('[data-role=send]');
-    btn.disabled = true;
-    out.className = 'result'; out.textContent = 'Odosielam...';
+    const btn = box.querySelector('[data-role=compose]');
+    const target = box.closest('.clip, .hero');
+    out.className = 'result'; out.textContent = '';
     try {
-      const anchor = await comments.anchorFor(box.closest('.clip, .hero'));
-      let now = false;
-      if (canSend === 'available') {
-        try { await comments.sendToClaude({ anchor, text: body }); now = true; }
-        catch (e) { if (e && (e.code === 'consent_required' || e.code === 'rate_limited')) throw e; }
-      }
-      if (!now) await comments.create({ anchor, text: body });
-      ta.value = '';
+      const r = await comments.openComposer({ element: target });
+      if (!r.opened) { out.textContent = 'Okno komentára sa neotvorilo, klikni do stránky a skús znova.'; return; }
       out.className = 'result ok';
-      out.textContent = now ? 'Odoslané. Claude začína spracovanie, odpoveď príde do komentára.' : 'Odoslané. Claude to spracuje pri najbližšej kontrole (do hodiny), stav uvidíš hore.';
+      out.textContent = 'Napíš pripomienku do okna komentára a odošli ju. Claude ju spracuje pri najbližšej kontrole (do hodiny).';
     } catch (e) {
       const code = e && e.code;
       out.className = 'result err';
-      if (code === 'consent_required') out.textContent = 'Neodoslalo sa, stránka nemá tvoj súhlas písať komentáre. Skús znova a povoľ to.';
-      else if (code === 'forbidden') out.textContent = 'Z tejto stránky nemôžeš pridávať komentáre. Napíš pripomienku Samuelovi.';
-      else if (code === 'rate_limited') out.textContent = 'Priveľa odoslaní naraz, skús o chvíľu.';
-      else out.textContent = 'Neodoslalo sa. Text ostal v poli, skús znova.';
-    } finally {
-      btn.disabled = false;
+      if (code === 'rate_limited') out.textContent = 'Priveľa pokusov naraz, skús o chvíľu.';
+      else if (code === 'unavailable' || code === 'not_granted' || code === 'forbidden') { out.textContent = deny; btn.disabled = true; }
+      else out.textContent = 'Okno komentára sa nepodarilo otvoriť, skús znova.';
     }
   }
 
   for (const box of composers) {
-    box.querySelector('[data-role=send]').addEventListener('click', () => comments && submit(box));
+    box.querySelector('[data-role=compose]').addEventListener('click', () => comments && compose(box));
   }
-  composers.forEach((b) => b.querySelectorAll('button').forEach((x) => (x.disabled = true)));
 
   (async () => {
     const use = window.claude && window.claude.use;
-    if (!use) { document.getElementById('nocomments').hidden = false; return; }
+    if (!use) { document.getElementById('nocomments').hidden = false; composers.forEach((b) => (b.hidden = true)); return; }
     const [db, cm] = await Promise.all([use('db').catch(() => null), use('comments').catch(() => null)]);
     if (db) {
       try { db.doc('status/current').onSnapshot((s) => { if (s.exists) setStatus(s.data()); }, () => {}); } catch (e) { /* stav ostane staticky */ }
     }
     if (!cm) { document.getElementById('nocomments').hidden = false; composers.forEach((b) => (b.hidden = true)); return; }
     comments = cm;
-    try { canSend = await cm.canSendToClaude(); } catch (e) { canSend = 'off'; }
     composers.forEach((b) => b.querySelectorAll('button').forEach((x) => (x.disabled = false)));
-    paintButtons();
   })();
 </script>
