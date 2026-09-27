@@ -52,8 +52,9 @@ export const useOutputFrame = () => {
  * Obal klipu: pauzy (Freeze), nahovor (public/vo/<id>.wav) a titulky.
  * Prop voice: false vypne zvuk, subtitles: false titulky.
  * `audio`: ina stopa hlasu (cesta v public/), experiment kratkej verzie ma vlastny priecinok vo-kratka/.
+ * `subtitles`: false vypne titulky len tomuto klipu (LinkedIn 4:5 ma vlastne velke titulky pod obrazom).
  */
-export const Paced: React.FC<{ id: string; holds?: Hold[]; skip?: number; vo?: boolean; dark?: boolean; darkUntil?: number; subtitleLeft?: number; audio?: string; children: React.ReactNode }> = ({ id, holds = [], skip = 0, vo = false, dark, darkUntil, subtitleLeft, audio, children }) => {
+export const Paced: React.FC<{ id: string; holds?: Hold[]; skip?: number; vo?: boolean; dark?: boolean; darkUntil?: number; subtitleLeft?: number; audio?: string; subtitles?: boolean; children: React.ReactNode }> = ({ id, holds = [], skip = 0, vo = false, dark, darkUntil, subtitleLeft, audio, subtitles = true, children }) => {
   const frame = useCurrentFrame();
   const p = getInputProps() as { voice?: boolean; subtitles?: boolean };
   // skip: scena zacne o `skip` ms neskor vo svojom case (preskoci sa jej uvod, napr. najazd kamery v C4)
@@ -63,7 +64,7 @@ export const Paced: React.FC<{ id: string; holds?: Hold[]; skip?: number; vo?: b
     <OutputFrameContext.Provider value={frame}>
       {inner}
       {vo && p.voice !== false ? <Audio src={staticFile(audio ?? `vo/${id}.wav`)} /> : null}
-      {vo && p.subtitles !== false ? <Subtitles clip={id} dark={dark} darkUntil={darkUntil} left={subtitleLeft} /> : null}
+      {vo && subtitles && p.subtitles !== false ? <Subtitles clip={id} dark={dark} darkUntil={darkUntil} left={subtitleLeft} /> : null}
     </OutputFrameContext.Provider>
   );
 };

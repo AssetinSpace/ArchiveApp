@@ -1,5 +1,5 @@
 {
-  "_": "Experiment kratkej verzie (K ~70 s, LinkedIn) a teasera (T ~30 s). Povodny scenar src/copy/vo.json sa nemeni. Rovnaky format ako vo.json (at, text, parts, styleExtra); navyse `src` = veta vyrezana z existujucej nahravky (file, start, end v s), vyrobi ju scripts/kratka_lines.py, Gemini ju negeneruje. Hlas: node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --dir public/vo-kratka.",
+  "_": "Experiment kratkej verzie (K ~74 s, LinkedIn 4:5; teaser v kole 2 vypadol). Povodny scenar src/copy/vo.json sa nemeni. Rovnaky format ako vo.json (at, text, parts, styleExtra); navyse `src` = veta vyrezana z existujucej nahravky (file, start, end v s), vyrobi ju scripts/kratka_lines.py, Gemini ju negeneruje. Hlas: node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --dir public/vo-kratka.",
   "_style": "pokojný, vecný firemný rozprávač; plynulý, súvislý prejav, o niečo svižnejšie tempo; pri čiarkach len krátky nádych, dlhšia pauza iba na konci vety; zreteľná výslovnosť; bez emócií navyše. Pace: fluent and connected, a bit brisker than a documentary narrator, no long pauses inside a sentence. Pronunciation: say the abbreviation QR in English, like 'cue are'. Codes like PL_01, KR_01, ZL_03 are read as Slovak letter names plus the plain number, without the underscore and without the leading zero (never say 'nula' or 'pomlčka'): 'pé el jedna, ká er jedna, zet el tri'.",
   "K-C2-Hladanie": [
     {
@@ -154,96 +154,6 @@
         "file": "public/vo/lines/C9-Outro-0.wav"
       },
       "dur": 5680
-    }
-  ],
-  "T-C2-Hladanie": [
-    {
-      "at": 400,
-      "text": "Kedy ste naposledy nevedeli nájsť nejaký dokument?",
-      "src": {
-        "file": "public/vo/lines/C2-Hladanie-0.wav",
-        "start": 0,
-        "end": 3.4
-      },
-      "dur": 3400
-    },
-    {
-      "at": 4100,
-      "text": "Vy viete, že tam niekde je.",
-      "src": {
-        "file": "public/vo/lines/C2-Hladanie-1.wav",
-        "start": 0,
-        "end": 1.96
-      },
-      "dur": 1960
-    }
-  ],
-  "T-C4-Znacka": [
-    {
-      "at": 200,
-      "text": "Predstavujeme vám Assetin Archives.",
-      "src": {
-        "file": "public/vo-kratka/lines/K-C4-Cena-1.wav",
-        "start": 0,
-        "end": 2.88
-      },
-      "dur": 2880
-    }
-  ],
-  "T-C5-Teren": [
-    {
-      "at": 300,
-      "text": "Na každú krabicu aj zložku nalepíme QR kód a mobilom odfotíme jej titulnú stranu.",
-      "parts": [
-        "Na každú krabicu aj zložku nalepíme QR kód",
-        "a mobilom odfotíme jej titulnú stranu."
-      ],
-      "src": {
-        "file": "public/vo-kratka/lines/K-C5-Teren-0.wav"
-      },
-      "dur": 6000,
-      "partAt": [
-        0,
-        2980
-      ]
-    }
-  ],
-  "T-F3-Vyhladavanie": [
-    {
-      "at": 400,
-      "text": "Potom stačí napísať slovo a aplikácia ukáže, na ktorej polici a v ktorej krabici dokument leží.",
-      "parts": [
-        "Potom stačí napísať slovo",
-        "a aplikácia ukáže, na ktorej polici",
-        "a v ktorej krabici dokument leží."
-      ],
-      "src": {
-        "file": "public/vo-kratka/lines/K-F3-Vyhladavanie-0.wav"
-      },
-      "dur": 6320,
-      "partAt": [
-        0,
-        1640,
-        4280
-      ]
-    }
-  ],
-  "T-C9-Outro": [
-    {
-      "at": 300,
-      "text": "Archív vám spracujeme na kľúč. Začneme obhliadkou skladu a pilotom na jednej krabici.",
-      "parts": [
-        "Archív vám spracujeme na kľúč.",
-        "Začneme obhliadkou skladu a pilotom na jednej krabici."
-      ],
-      "src": {
-        "file": "public/vo/lines/C8-Pilot-0.wav"
-      },
-      "dur": 6000,
-      "partAt": [
-        0,
-        2433
-      ]
     }
   ]
 }

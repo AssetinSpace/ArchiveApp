@@ -44,7 +44,7 @@
   .lede b { color: var(--ink); }
   .meta-row { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
 
-  /* tri dlzky: pôvodna -> kratka -> teaser */
+  /* dlzky: pôvodna -> LinkedIn verzia */
   .lengths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border: 1px solid var(--rule); border-radius: 12px; background: var(--surface); overflow: hidden; }
   .len-cell { padding: 16px 20px; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid var(--rule); }
   .len-cell:first-child { border-left: 0; }
@@ -53,7 +53,9 @@
   .len-cell .v small { font-size: 0.5em; font-weight: 700; color: var(--muted); margin-left: 2px; }
   .len-cell .d { font-size: 13px; color: var(--ink-2); }
   .len-cell.new .v { color: var(--accent); }
-  @media (max-width: 640px) { .lengths { grid-template-columns: 1fr; } .len-cell { border-left: 0; border-top: 1px solid var(--rule); } .len-cell:first-child { border-top: 0; } }
+  .lengths.two { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 720px; }
+  .film.tallfilm { grid-template-columns: minmax(0, 440px) minmax(0, 1fr); align-items: start; }
+  @media (max-width: 640px) { .lengths, .lengths.two { grid-template-columns: 1fr; } .len-cell { border-left: 0; border-top: 1px solid var(--rule); } .len-cell:first-child { border-top: 0; } }
 
   /* videa */
   video { width: 100%; max-width: 100%; display: block; background: var(--navy); border-radius: 10px; }
@@ -68,7 +70,7 @@
   .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
   .tall { display: flex; flex-direction: column; gap: 12px; padding: 20px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; }
   .tall video, .tall .pending { max-width: 420px; width: 100%; margin: 0 auto; }
-  @media (max-width: 760px) { .film, .pair { grid-template-columns: 1fr; } }
+  @media (max-width: 760px) { .film, .pair, .film.tallfilm { grid-template-columns: 1fr; } }
 
   .composer { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: auto; }
   button { font: inherit; font-weight: 600; font-size: 14px; padding: 8px 14px; border-radius: 8px; cursor: pointer; border: 0; background: var(--accent); color: #fff; }
@@ -134,73 +136,42 @@
 
 <div class="wrap">
   <header>
-    <div class="eyebrow">Assetin Archives · experiment kratšieho videa</div>
+    <div class="eyebrow">Assetin Archives · experiment kratšieho videa · kolo 2</div>
     <h1>Krátke video pre LinkedIn</h1>
-    <p class="lede">Pôvodný film je dobrý, ale dlhý: hlas v ňom znie 113 zo 145 sekúnd, takže skrátiť sa dá len tak, že povieme menej. Tu je <b>krátka verzia (74 s)</b> a <b>teaser (31 s)</b>, obe bez odborných slov a s háčikom hneď od prvého obrazu. Moje odporúčanie po troch kolách testu: <b>teaser do 30 s</b> na reklamu, <b>LinkedIn post okolo 45 až 60 s</b> a 74 s verzia na web a e-mail, kde chce človek pochopiť celé.</p>
+    <p class="lede">Jediná krátka verzia je teraz <b>na výšku pre LinkedIn (4:5), 74 s</b>. Aplikácia je v nej vidieť <b>celá, na celú šírku a bez stáleho priblíženia</b>, mobil je veľký na stred a pod oknom aplikácie je zväčšený detail skutočného záznamu, ktorý sa dá prečítať aj na mobile. Teaser vypadol.</p>
     <div class="meta-row"><span id="stamp"></span><span class="mono">vetva claude/video-assets-archives-exp-la1hts</span><span>Hlavná review stránka ostáva bez zmeny.</span></div>
-    <div class="lengths" aria-label="Dĺžky verzií">
-      <div class="len-cell"><span class="k">Pôvodná verzia</span><span class="v">145<small>s</small></span><span class="d">250 slov, 12 klipov</span></div>
-      <div class="len-cell new"><span class="k">Krátka verzia</span><span class="v">74<small>s</small></span><span class="d">136 slov, 8 klipov, -49 %</span></div>
-      <div class="len-cell new"><span class="k">Teaser</span><span class="v">31<small>s</small></span><span class="d">60 slov, 5 klipov</span></div>
+    <div class="lengths two" aria-label="Dĺžky verzií">
+      <div class="len-cell"><span class="k">Pôvodná verzia</span><span class="v">145<small>s</small></span><span class="d">250 slov, 16:9, 12 klipov</span></div>
+      <div class="len-cell new"><span class="k">LinkedIn verzia</span><span class="v">74<small>s</small></span><span class="d">136 slov, 4:5, 8 klipov, -49 %</span></div>
     </div>
   </header>
 
-  <section id="nove">
-    <div class="sec-head">
-      <h2>Nové verzie</h2>
-      <p>Rovnaký hlas (Velvet 1), rovnaká hudba, rovnaké scény. Nové je poradie, tempo a 6 jednoduchších viet. Zvuk si zapni.</p>
-    </div>
-    <article class="film" id="film-K">
-      <div data-video="K" data-shape="v169"></div>
-      <div class="info">
-        <div class="head"><h3>Krátka verzia</h3><span class="len" data-len="K"></span></div>
-        <ul>
-          <li>Začína otázkou, bez intra s logom.</li>
-          <li>Problém a cena, potom značka a jednou vetou, čo robíme.</li>
-          <li>Tri kroky: QR a fotka, aplikácia navrhne údaje, človek ich overí.</li>
-          <li>Hľadanie ukáže policu a krabicu, potom ponuka a výzva.</li>
-          <li>Obrazovky aplikácie sú priblížené na 1,5x, aby sa dali čítať.</li>
-        </ul>
-        <div class="composer"><button type="button" data-role="compose" disabled>Pridať pripomienku</button><span class="result" aria-live="polite"></span></div>
-      </div>
-    </article>
-    <article class="film" id="film-T">
-      <div data-video="T" data-shape="v169"></div>
-      <div class="info">
-        <div class="head"><h3>Teaser</h3><span class="len" data-len="T"></span></div>
-        <ul>
-          <li>Otázka, značka, QR a fotka, hľadanie.</li>
-          <li>Na konci "Archív vám spracujeme na kľúč" a výzva na obhliadku.</li>
-          <li>Na reklamu alebo ako upútavka na krátku verziu.</li>
-        </ul>
-        <div class="composer"><button type="button" data-role="compose" disabled>Pridať pripomienku</button><span class="result" aria-live="polite"></span></div>
-      </div>
-    </article>
-  </section>
-
   <section id="linkedin">
     <div class="sec-head">
-      <h2>Na LinkedIn na výšku (4:5)</h2>
-      <p>LinkedIn púšťa video v mobile bez zvuku a na šírku displeja. Titulky vo videu 16:9 by tam mali asi 9 px. Vo formáte 4:5 je nad videom stály nadpis a pod ním veľké titulky (asi 17 px na mobile).</p>
+      <h2>LinkedIn verzia</h2>
+      <p>Rovnaký hlas, hudba a scény ako v prvom kole, rozloženie je nové, nakreslené na výšku. Zvuk si zapni.</p>
     </div>
-    <div class="pair">
-      <article class="tall" id="film-KL">
-        <div class="head"><h3>Krátka verzia 4:5</h3><span class="len" data-len="KL"></span></div>
-        <div data-video="KL" data-shape="v45"></div>
+    <article class="film tallfilm" id="film-L">
+      <div data-video="L" data-shape="v45"></div>
+      <div class="info">
+        <div class="head"><h3>Kolo 2</h3><span class="len" data-len="L"></span></div>
+        <ul>
+          <li>Záznamy aplikácie sú celé, okno ide na celú šírku (1032 px namiesto 776 px) a bez priblíženia, ktoré orezávalo okraje.</li>
+          <li>Pod oknom je zväčšený detail skutočného záznamu: text na fotke, návrh "Názov projektu", hľadané slovo (píše sa naživo) a cesta PL_01 / KR_01 / ZL_03 s popiskami polica, krabica, zložka.</li>
+          <li>Mobil narastie z animácie na veľký mobil na stred, vidno skutočný fotoaparát.</li>
+          <li>Pozadie scén ide cez celú plochu, bez šedých pásov nad a pod videom. Krabica v C5 sa posunie na stred.</li>
+          <li>Animácie zo 16:9 nemajú na okraji ostrú hranu: prestrih kancelária -> sklad sa mäkko stratí do pozadia a veko krabice v C5 je vidieť celé.</li>
+          <li>Názov kroku je nad obrazom, veľké titulky pod ním (na mobile asi 20 px), ponuka má karty pod sebou a väčšie.</li>
+        </ul>
         <div class="composer"><button type="button" data-role="compose" disabled>Pridať pripomienku</button><span class="result" aria-live="polite"></span></div>
-      </article>
-      <article class="tall" id="film-TL">
-        <div class="head"><h3>Teaser 4:5</h3><span class="len" data-len="TL"></span></div>
-        <div data-video="TL" data-shape="v45"></div>
-        <div class="composer"><button type="button" data-role="compose" disabled>Pridať pripomienku</button><span class="result" aria-live="polite"></span></div>
-      </article>
-    </div>
+      </div>
+    </article>
   </section>
 
   <section id="cas">
     <div class="sec-head">
       <h2>Kam išiel čas</h2>
-      <p>Tri verzie v jednej mierke. Najviac ubudlo z vysvetľovania aplikácie (C6, F2, F4 a databáza C10) a z ponuky (riadok Rozsah nasadenia).</p>
+      <p>Obe verzie v jednej mierke. Najviac ubudlo z vysvetľovania aplikácie (C6, F2, F4 a databáza C10) a z ponuky (riadok Rozsah nasadenia).</p>
     </div>
     <div class="chart" id="chart">
       <div class="legend" id="legend"></div>
@@ -209,7 +180,7 @@
     </div>
     <div class="tablebox">
       <table>
-        <thead><tr><th>Časť filmu</th><th class="num">Pôvodná</th><th class="num">Krátka</th><th class="num">Teaser</th></tr></thead>
+        <thead><tr><th>Časť filmu</th><th class="num">Pôvodná</th><th class="num">LinkedIn</th></tr></thead>
         <tbody id="timetable"></tbody>
       </table>
     </div>
@@ -217,7 +188,7 @@
 
   <section id="scenar">
     <div class="sec-head">
-      <h2>Scenár krátkej verzie</h2>
+      <h2>Scenár</h2>
       <p>Päť viet je z existujúcich nahrávok (vystrihnutých v pauze), šesť je nových, tým istým hlasom a s rovnakou kontrolou výslovnosti ("Aset in árkajvs", "kjúár kód").</p>
     </div>
     <div class="tablebox">
@@ -234,11 +205,11 @@
           <li>identifikačná strana -&gt; titulná strana</li>
           <li>softvérové riešenie katalogizácie -&gt; z vášho archívu urobíme prehľadný digitálny katalóg</li>
           <li>cesta v hierarchii -&gt; na ktorej polici a v ktorej krabici</li>
-          <li>kroky vpravo "V teréne" -&gt; "V archíve"</li>
+          <li>kroky "V teréne" -&gt; "V archíve"</li>
         </ul>
       </div>
       <div class="panel">
-        <h3>Čo vypadlo</h3>
+        <h3>Čo vypadlo oproti pôvodnej verzii</h3>
         <ul>
           <li>Intro s logom (háčik je prvá veta).</li>
           <li>C6 prechod do aplikácie a F2 so spracovaním, návrh ukáže F4.</li>
@@ -254,11 +225,11 @@
   <section id="test">
     <div class="sec-head">
       <h2>Test divákov</h2>
-      <p>Každú verziu si pozreli dvaja simulovaní diváci (Gemini s celým videom a zvukom): laik, ktorému video prišlo e-mailom, a zaneprázdnený správca budov. Je to orientačný test, nie prieskum, ale na pôvodnom filme trafil presne to, čo hovorí tvoj feedback.</p>
+      <p>Simulovaní diváci (Gemini s celým videom a zvukom): laik a zaneprázdnený správca budov. LinkedIn verziu pozerali ako príspevok v mobile. Je to orientačný test, nie prieskum.</p>
     </div>
     <div class="tablebox">
       <table>
-        <thead><tr><th></th><th>Pôvodná, 145 s</th><th>Krátka, 74 s</th><th>Teaser, 31 s</th></tr></thead>
+        <thead><tr><th></th><th>Pôvodná, 145 s</th><th>LinkedIn, kolo 2</th></tr></thead>
         <tbody id="testtable"></tbody>
       </table>
     </div>
@@ -281,28 +252,25 @@
   </section>
 
   <footer>
-    <p>Zdroj: <span class="mono">video/src/kratkaList.ts</span>, scenár <span class="mono">video/src/copy/vo_kratka.json</span>, hudba <span class="mono">video/src/copy/music_kratka.json</span>, postup v <span class="mono">video/EXPERIMENT-KRATKA.md</span>.</p>
+    <p>Zdroj: <span class="mono">video/src/scenes/kratka/LinkedIn.tsx</span> (kompozícia K-LinkedIn), scenár <span class="mono">video/src/copy/vo_kratka.json</span>, hudba <span class="mono">video/src/copy/music_kratka.json</span>, postup v <span class="mono">video/EXPERIMENT-KRATKA.md</span>.</p>
+    <p>Kolo 1 (krátka verzia 16:9, teaser 31 s) je v gite v commite b8552d5.</p>
     <p>Pripomienky sa píšu cez okno komentára claude.ai (tlačidlo pri videu).</p>
   </footer>
 </div>
 <div class="tip" id="tip" hidden></div>
 
 <script>
-  const BUILD = { renderedAt: "2026-09-27T19:30:00Z" };
+  const BUILD = { renderedAt: "2026-09-27T20:14:00Z" };
   // id assetov (videa a plagaty); prazdne = este sa nahrava
   const VIDEOS = {
-    K: { cap: "77ad5057e4865dab4aa31ccd6c6c3651", poster: "5f4783d3b793e42527097292c36488e0", len: 73.9 },
-    T: { cap: "a86a44d1ab4081c697328aefbb8846d6", poster: "5f4783d3b793e42527097292c36488e0", len: 31.0 },
-    KL: { cap: "06d79486130a67950e440065bfdb86bc", poster: "333a88e0a7da2460d5acaab478ab09ab", len: 73.6 },
-    TL: { cap: "d7e7c09b343714602522c677b7baaa1b", poster: "333a88e0a7da2460d5acaab478ab09ab", len: 30.8 },
+    L: { cap: "bb7629eba8fbc113c7d0afe636c0bb06", poster: "83e88443fe5ab9dd51e173f7ff6579e1", len: 74.2 },
     FULL: { cap: "82122ce5cb36a031995136d89d2b36d1", poster: "b1dcf071776b4b4ea0079ec1cdb2ab89", len: 145.2 }
   };
   const PARTS = ["Úvod a problém", "Predstavenie", "Ako to funguje", "Hľadanie", "Ponuka a záver"];
   // sekundy casti (podla klipov a predelu v C4: prechod do bielej)
   const TIMES = {
     "Pôvodná": [28.4, 6.6, 56.5, 25.2, 28.5],
-    "Krátka": [18.5, 6.6, 24.5, 7.5, 16.8],
-    "Teaser": [6.4, 4.0, 6.4, 7.5, 6.7]
+    "LinkedIn": [18.5, 6.5, 25.0, 7.4, 16.7]
   };
   const SCRIPT = [
     ["C2", "Kedy ste naposledy nevedeli nájsť nejaký dokument?", "old", "C2, prvá veta"],
@@ -310,7 +278,7 @@
     ["C4", "Hľadanie trvá hodiny. Niekedy je rýchlejšie dať dokument vyhotoviť nanovo. Platíte dvakrát za to isté.", "new", "kratšia veta o cene"],
     ["C4", "Predstavujeme vám Assetin Archives. Z vášho archívu urobíme prehľadný digitálny katalóg.", "new", "pri logu"],
     ["C5", "Na každú krabicu aj zložku nalepíme QR kód a mobilom odfotíme jej titulnú stranu.", "new", "namiesto C5 a F1"],
-    ["F1", "(skutočný fotoaparát v aplikácii, 2,6 s bez hlasu)", "none", ""],
+    ["F1", "(skutočný fotoaparát v aplikácii, 3,2 s bez hlasu)", "none", ""],
     ["F24", "Aplikácia z fotky sama prečíta text a navrhne údaje: názov projektu, autora, rok.", "new", "namiesto C6 a F2"],
     ["F24", "Človek každú hodnotu overí a potvrdí. Fotka je dôkaz a ostáva pri zázname.", "old", "F4"],
     ["F3", "Potom stačí napísať slovo a aplikácia ukáže, na ktorej polici a v ktorej krabici dokument leží.", "new", "namiesto C10 a F3"],
@@ -319,20 +287,21 @@
     ["C9", "Assetin Archives. Zistíte, čo máte v archíve a kde presne to leží. Na obraze: Dohodnite si obhliadku.", "old", "C9"]
   ];
   const TEST = [
-    ["Pochopili podstatu", "Áno: QR, fotka, nájdem policu, spravia to za mňa. Že to urobíme my, však zaznie až v 1:57.", "Áno, celé: QR a titulná strana, aplikácia text prečíta sama, polica a krabica, služba na kľúč.", "Áno, aj službu na kľúč a pilot na jednej krabici."],
-    ["Nerozumeli", "metadáta, fulltextové vyhľadávanie, katalogizácia, zaradiť do hierarchie", "V hlase ničomu. Na priblíženej obrazovke \"Kľúče metadát\" a \"OCR text\", slovo pilot.", "slogan pod logom, slovo pilot, pojmy v aplikácii (OCR, PL_01)"],
-    ["Strácali pozornosť", "úvod 0:05-0:25, kontrola v aplikácii 1:05-1:28 (vyzerá to ako veľa ručnej práce)", "úvod do 0:15-0:18, kontrola v aplikácii 0:36-0:48", "statický zelený záver (7 s), úvod so skriňou pôsobí ako klišé"],
-    ["Odporúčaná dĺžka", "60-90 s (laik), 60-75 s (správca)", "do 45 s (laik), 40-45 s (správca)", "20-25 s (laik), 30 s ideálne (správca)"],
-    ["Chýbalo im", "cena, pre koho to je, kontakt, výzva", "cena, bezpečnosť dokumentov, telefón, koľko to trvá", "telefón, cena, bezpečnosť; laik stále nevedel, kto fyzicky lepí a fotí"]
+    ["Pochopili podstatu", "Áno: QR, fotka, nájdem policu, spravia to za mňa. Že to urobíme my, však zaznie až v 1:57.", "Áno, celé: QR a titulná strana, aplikácia text vyčíta sama, polica a krabica, služba na kľúč."],
+    ["Aplikácia v mobile", "netestované na mobile (16:9)", "Zväčšené detaily pod oknom prečítali (\"Novostavba bytového domu SLNEČNÁ 12\", \"vodovod\", PL_01 / KR_01 / ZL_03), podľa nich \"to zachránili\". Samotné okno aplikácie je na mobile drobné."],
+    ["Nerozumeli", "metadáta, fulltextové vyhľadávanie, katalogizácia, zaradiť do hierarchie", "Správca ničomu. Laik slovu pilot a skratke \"Archív PD\" v aplikácii."],
+    ["Rušilo v obraze", "", "prázdna biela pred kartami ponuky a prázdno pod oknom, kým nabehne detail <span class=\"fixed\">(opravené)</span>; veľa tmavej plochy okolo regálu; prudký prechod z tmavej do bielej"],
+    ["Strácali pozornosť", "úvod 0:05-0:25, kontrola v aplikácii 1:05-1:28", "úvod do 0:18 (na LinkedIn by odscrollovali okolo 0:08), overovanie a fotka ako dôkaz 0:43-0:49"],
+    ["Dĺžka podľa nich", "60-90 s (laik), 60-75 s (správca)", "30-45 s (laik), 35-45 s (správca); ty si určil okolo 70 s, tak som dĺžku nechal"],
+    ["Chýbalo im (všetky kolá)", "cena, pre koho to je, kontakt, výzva", "cena, bezpečnosť dokumentov, telefón"]
   ];
   const ASKS = [
-    ["Nechať časť o cene (hodiny, 2x €)?", "Všetci diváci krátkej verzie brali úvod (18 s) ako zdržanie. Bez časti o cene by mala krátka verzia asi 65 s a LinkedIn post by vyšiel okolo 50 s. Je to jediný ekonomický argument vo filme, preto to nechávam na teba."],
+    ["Skrátiť úvod?", "Problém (otázka, sklad, cena 2x €) trvá 18 s. Na LinkedIn v mobile je to podľa oboch divákov najslabšie miesto, odscrollovali by okolo 0:08. Bez časti o cene by mal úvod asi 10 s a video asi 66 s. Dĺžku si určil ty, preto som ho nechal."],
     ["Je obhliadka alebo pilot zadarmo a nezáväzný?", "Ak áno, jedna veta \"Obhliadka je zadarmo a nezáväzná\" je najsilnejšia výzva, akú si diváci pýtali. Bez tvojho potvrdenia ju do videa nedám."],
-    ["Pracujete u zákazníka na mieste?", "Na bezpečnosť dokumentov (zmluvy, výkresy) sa v poslednom kole pýtali obaja diváci krátkej verzie. Ak dokumenty neopustia budovu zákazníka, stačí to povedať jednou vetou."],
+    ["Pracujete u zákazníka na mieste?", "Na bezpečnosť dokumentov (zmluvy, výkresy) sa pýtali diváci vo viacerých kolách. Ak dokumenty neopustia budovu zákazníka, stačí to povedať jednou vetou."],
     ["Telefón na poslednej obrazovke?", "V kole 4 sme kontakty vyhodili. Firemné číslo by pre LinkedIn pomohlo, diváci ho vo všetkých kolách hľadali."],
-    ["Slogan pod logom", "\"Digitálna katalogizácia archivovanej dokumentácie\" laikom znie úradnícky (v každom kole). Pre LinkedIn by sa hodil jednoduchší riadok, napríklad \"Poriadok v papierovom archíve\". Je to slogan značky, preto som ho nemenil."],
-    ["Pilot, alebo skúška?", "Slovo pilot nepochopil v každom kole aspoň jeden divák. \"Skúška na jednej krabici\" by bola jasnejšia, stačí jedna nová veta."],
-    ["Ďalší krok", "Navrhujem LinkedIn post okolo 50 s vo formáte 4:5: otázka, tri kroky s kratšou kontrolou v aplikácii, služba na kľúč a výzva. Teaser 30 s je hotový na reklamu."]
+    ["Slogan pod logom", "\"Digitálna katalogizácia archivovanej dokumentácie\" laikom znie úradnícky. Pre LinkedIn by sa hodil jednoduchší riadok, napríklad \"Poriadok v papierovom archíve\". Je to slogan značky, preto som ho nemenil."],
+    ["Pilot, alebo skúška?", "Slovo pilot laik nepochopil aj v tomto kole. \"Skúška na jednej krabici\" by bola jasnejšia, stačí jedna nová veta."]
   ];
   const blob = (id) => '/_blob/' + id;
   const fmtS = (s) => String(Math.round(s * 10) / 10).replace('.', ',') + ' s';
@@ -403,7 +372,7 @@
   // test (texty su nase, nie od divakov stranky)
   const tb = document.getElementById('testtable');
   for (const [k, ...cells] of TEST) { const tr = document.createElement('tr'); tr.innerHTML = `<th></th>` + cells.map((c) => `<td>${c}</td>`).join(''); tr.firstChild.textContent = k; tb.append(tr); }
-  document.getElementById('test2').textContent = 'Tabuľka je z posledného kola. Po prvom kole som opravil: obrazovky aplikácie sú priblížené na 1,5x (všetci štyria ich mali za nečitateľné), z mobilu vypadla obrazovka s textom z vývoja (extract-text-metadata...), kroky vpravo majú "V archíve" namiesto "V teréne" a teaser končí vetou "Archív vám spracujeme na kľúč", lebo diváci nevedeli, kto prácu urobí. V druhom kole jeden divák počul skreslený zvuk: chyba bola v mojom strihu (tichý mono klip medzi stereo klipmi), je opravená a overená.';
+  document.getElementById('test2').textContent = 'LinkedIn verziu pozerali ako príspevok v mobile (video 432 x 540). Technická kontrola zvuku a obrazu bez chýb, zrozumiteľnosť hlasu 5/5. Po teste som opravil prázdnu bielu pred kartami ponuky, prázdno pod oknom na začiatku F24 a F3, ostrú hranu pásu 16:9 (prestrih v úvode, veko krabice, tenká čiara pod logom) a bliknutie nadpisu kroku na strihu. Všetko je už vo videu vyššie.';
   const asks = document.getElementById('asks');
   for (const [q, a] of ASKS) { const d = document.createElement('div'); d.className = 'ask'; d.innerHTML = '<b></b><p></p>'; d.children[0].textContent = q; d.children[1].textContent = a; asks.append(d); }
 

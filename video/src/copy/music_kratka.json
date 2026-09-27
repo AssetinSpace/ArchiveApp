@@ -1,12 +1,17 @@
 {
-  "_": "Experiment kratkej verzie: strihy hudby public/music/bed.wav (Lyria, bez noveho generovania) pre K (~76 s) a teaser T (~31 s). Strihy na takt (104 BPM, takt 2,3077 s, zaciatky taktov 2,108 + n x 2,3077 s), prelinacka 60 ms. Nastup plnej kapely (29,8 s skladby) padne na prechod do bielej a znacku; tichsi zaver skladby (takty 56-64) pod ponuku a zaver. Pouzitie: node scripts/mix-music.mjs --list src/kratkaList.ts:K_LIST --clips out/kratka --out out/kratka/K_1080p.mp4 --cfg src/copy/music_kratka.json --variant K",
+  "_": "Experiment kratkej verzie: strihy hudby public/music/bed.wav (Lyria, bez noveho generovania) pre kratku verziu K (~74 s, aj LinkedIn 4:5; teaser v kole 2 vypadol). Strihy na takt (104 BPM, takt 2,3077 s, zaciatky taktov 2,108 + n x 2,3077 s), prelinacka 60 ms. Nastup plnej kapely (29,8 s skladby) padne na prechod do bielej a znacku; tichsi zaver skladby (takty 56-64) pod ponuku a zaver. Pouzitie: node scripts/mix-music.mjs --list src/kratkaList.ts:K_LIST --clips out/kratka --out out/kratka/K_1080p.mp4 --cfg src/copy/music_kratka.json --variant K",
   "end": 149.0,
   "K": {
-    "cuts": [[13.65, 25.19], [66.72, 129.03]],
+    "cuts": [
+      [
+        13.65,
+        25.19
+      ],
+      [
+        66.72,
+        129.03
+      ]
+    ],
     "_cuts": "5 taktov z pulzujucej casti problemu (znacka ~18,3 s filmu), 27 taktov z plneho grooveu (od 55 s filmu prechodovy takt 56 a pokojny zaver pod C8 a C9)"
-  },
-  "T": {
-    "cuts": [[4.42, 27.49], [45.95, 140.57]],
-    "_cuts": "po uvodnom nabehu hned posledny takt napatia a nastup (znacka ~6,4 s filmu), 4 takty grooveu pod C5 a F3, posledne 4 takty skladby pod C9"
   }
 }

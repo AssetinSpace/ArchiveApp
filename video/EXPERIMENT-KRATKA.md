@@ -11,6 +11,41 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 2 (27. 9. 2026): jediná krátka verzia je LinkedIn 4:5
+
+Samuel: teaser je príliš krátky (zmazať), krátka verzia okolo 70 s je dĺžkou v poriadku. Na LinkedIn treba, aby bolo
+aplikáciu dostatočne vidieť a aby nemala stále orezané okraje. Ostáva iba LinkedIn verzia.
+
+Rozbor verzie 4:5 z kola 1: 16:9 film bol v 4:5 len pás 1080 x 608 pod stálym nadpisom, okno aplikácie malo 776 px
+(vedľa neho panel krokov) a priblíženie 1,5x v okne stále orezávalo okraje aplikácie (text useknutý na kraji okna).
+Na mobile má celé 4:5 video ~390 px, takže text aplikácie je aj pri celej šírke ~3 px: čitateľný môže byť len zväčšený detail.
+
+Riešenie (kompozícia `K-LinkedIn`, `src/scenes/kratka/LinkedIn.tsx`), nakreslené natívne na výšku:
+- Záznamy aplikácie celé, bez priblíženia: okno na celú šírku (obsah 1032 x 516 = celý záznam 1764 x 882), nad ním
+  názov kroku (fáza, krok, body postupu), pod ním zväčšený detail skutočného záznamu (živý obraz, zelený rámik ako spot):
+  F24 text na fotke -> návrh "Názov projektu: Novostavba bytového domu SLNEČNÁ 12, BRATISLAVA" (počas overenia
+  a potvrdenia) -> text na fotke pri vete o dôkaze; F3 hľadané slovo (píše sa naživo) -> cesta PL_01 / KR_01 / ZL_03
+  s popiskami polica, krabica, zložka.
+- F1: mobil narastie z pozície na konci C5 (v páse) na veľký mobil na stred (442 x 800), skutočný fotoaparát 3,2 s.
+- C2, C4, C5 v páse 16:9 na celú šírku, pozadie scény ide cez celú plochu (bez šedých pásov): `SceneFrameContext`
+  v `Scene.tsx` (jednofarebné pozadie, bez päty), tmavé -> biele pozadie C4 synchronne so scénou. C5 bez panelu
+  krokov (krok je nad obrazom) a pás sa na začiatku plynulo posunie tak, aby krabica bola na strede (a o 60 px nižšie).
+- Okraj pásu nie je ostrá hrana: okno pásu má hore a dole mäkký prechod 26 px do pozadia (prestrih kancelária -> sklad
+  v C2 a priblíženie skladu sa strácajú mäkko, zmizla aj sivá čiara na spodnej hrane počas bielej časti C4). C5 má väčšie
+  okno (od nadpisu kroku po titulky) a scéna smie presiahnuť rámec 16:9 (`overflowVisible`), veko krabice pri priblížení
+  kamery je celé. Kontrola: sken hrán pásu po snímkach (5 fps) bez orezaného obsahu.
+- C8 karty pod sebou 1,3x, C9 nakreslené na výšku (lockup, slogan, výzva, web väčšie).
+- Stály nadpis vypadol (miesto pre aplikáciu), hore malý riadok značky, dole veľké titulky 58 px a web.
+- Titulky kreslí rámec (`Paced` má nový prop `subtitles`, klipy ho majú vypnutý), render už nepotrebuje `--props`.
+
+Výsledok: `out/kratka/K-LinkedIn_1080p.mp4` (74,2 s, -16 LUFS), kontaktný hárok `out/kratka/K-LinkedIn-contact-sheet.png`.
+Test na mobile (Gemini ako laik a správca, video 432 x 540): obaja pochopili celý postup, zväčšené detaily prečítali
+("to zachránili"), samotné okno aplikácie je na mobile drobné; slová: správca ničomu, laik pilot a "Archív PD".
+Opravené po teste: prázdna biela pred kartami ponuky, prázdno pod oknom na začiatku F24/F3, ostrá hrana pásu
+(prestrih v C2, veko v C5, čiara v C4), bliknutie nadpisu kroku na strihu C5 -> F1. Ostáva (rozhodnutie Samuela):
+úvod 18 s je podľa oboch na LinkedIn dlhý (pre mobil by chceli 35-45 s), dĺžku okolo 70 s však určil Samuel.
+Teaser, krátka verzia 16:9 a verzie kola 1 sú v commite `b8552d5`.
+
 ## Rozbor pôvodnej verzie (kolo 48, 145,2 s)
 
 - Hlas znie 112,8 zo 145,2 s (250 slov, 133 slov/min). Dĺžku určuje scenár, nie pauzy (skrátením páuz najviac ~15 s).
@@ -18,7 +53,7 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - "Spravíme to za vás" zaznie až v 1:57; Wistia radí dať podstatu do prvej polovice.
 - Referencie k dĺžke: vysvetľujúce videá o produkte 60-90 s (~150 slov/min po anglicky), technický B2B produkt znesie 90-120 s.
 
-## Výsledok
+## Výsledok kola 1 (nahradený kolom 2)
 
 | Verzia | Dĺžka | Slov | Klipy |
 |---|---|---|---|
@@ -27,7 +62,7 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 | T, teaser | 31,0 s | 60 | T-C2 T-C4 T-C5 T-F3 T-C9 |
 | K a T na výšku 4:5 (LinkedIn) | 73,6 s / 30,8 s | | kompozície K-LinkedIn, T-LinkedIn |
 
-Filmy: `out/kratka/K_1080p.mp4`, `T_1080p.mp4`, `K-LinkedIn_1080p.mp4`, `T-LinkedIn_1080p.mp4` (+ `_preview_540p`), kontaktné hárky `out/kratka/K-contact-sheet.png`, `T-contact-sheet.png`.
+Filmy kola 1 sú v commite `b8552d5` (`out/kratka/K_1080p.mp4`, `T_1080p.mp4`, `K-LinkedIn_1080p.mp4`, `T-LinkedIn_1080p.mp4`).
 
 ### Čo sa zmenilo oproti pôvodnej verzii
 
@@ -56,7 +91,7 @@ V 2. kole bola chyba zvuku v K od 0:33: tichý klip K-F1 dostal mono stopu medzi
 
 ### Odporúčanie
 
-Teaser do 30 s na reklamu, LinkedIn post okolo 45-60 s (4:5), krátka verzia 74 s na web a e-mail. Otvorené otázky pre Samuela sú na review stránke (časť o cene, obhliadka zadarmo, práca na mieste, telefón, slogan, pilot/skúška, ďalší krok).
+Kolo 1: teaser do 30 s na reklamu, LinkedIn post okolo 45-60 s (4:5), krátka verzia 74 s na web a e-mail. Samuel v kole 2 rozhodol: iba LinkedIn verzia okolo 70 s. Otvorené otázky sú na review stránke (úvod, obhliadka zadarmo, práca na mieste, telefón, slogan, pilot/skúška).
 
 ## Ako to zopakovať
 
@@ -67,18 +102,16 @@ python3 scripts/kratka_lines.py                    # vety so `src` vyrezané z p
 node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --dir public/vo-kratka   # nové vety len ak chýbajú
 python3 scripts/vo_check.py --script src/copy/vo_kratka.json --dir public/vo-kratka K-C4-Cena-0 ...   # kontrola prepisom
 node scripts/cut-footage.mjs k-f1-sken k-f24-review k-f3-search   # VŽDY s id, bez nich sa prerobí aj pôvodné footage
-for id in K-C2-Hladanie K-C4-Cena K-C5-Teren K-F1-Sken K-F24-Aplikacia K-F3-Vyhladavanie K-C8-Ponuka K-C9-Outro \
-          T-C2-Hladanie T-C4-Znacka T-C5-Teren T-F3-Vyhladavanie T-C9-Outro; do npx remotion render $id out/kratka/$id.mp4; done
-node scripts/mix-music.mjs --list src/kratkaList.ts:K_LIST --clips out/kratka --out out/kratka/K_1080p.mp4 --cfg src/copy/music_kratka.json --variant K
-node scripts/mix-music.mjs --list src/kratkaList.ts:T_LIST --clips out/kratka --out out/kratka/T_1080p.mp4 --cfg src/copy/music_kratka.json --variant T
-npx remotion render K-LinkedIn out/kratka/K-LinkedIn_voice.mp4 --props='{"subtitles":false}'
+npx remotion render K-LinkedIn out/kratka/K-LinkedIn_voice.mp4     # LinkedIn 4:5 jedným renderom (hlas, titulky)
 node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K
-node scripts/kratka-stills.mjs                     # kontrolné stills do out/kratka/stills
 ```
+
+Klipy 16:9 (`K-C2-Hladanie` ... `K-C9-Outro`, `K-Full`) ostávajú v Remotion Studiu ako základ; kontrolné stills
+`node scripts/kratka-stills.mjs` (do `out/kratka/stills`, nie sú v gite).
 
 ## Súbory
 
-- Nové: `src/kratkaList.ts` (K_LIST, T_LIST), `src/scenes/kratka/Kratka.tsx` (scény a varianty), `src/scenes/kratka/KratkaFull.tsx`, `src/scenes/kratka/LinkedIn.tsx` (4:5), `src/copy/vo_kratka.json`, `src/copy/music_kratka.json`, `scripts/kratka_lines.py`, `scripts/kratka-stills.mjs`, `review-kratka/index.html`, `public/vo-kratka/`, `public/footage/k-*.mp4`, `out/kratka/`.
-- Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`), `Subtitles` (scenár K/T vedľa hlavného), `C4_Cena` (`d`, `h`), `C5_Teren` (`steps`, `phase`), `C8_Pilot` (export kariet), `C9_Outro` (`cta`), `F1_Sken` (`phase`), `F2_Metadata` (`zoom`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`).
+- Nové: `src/scenes/kratka/LinkedIn.tsx` (kompozícia K-LinkedIn 4:5, jediná krátka verzia), `src/kratkaList.ts` (K_LIST 16:9 ako základ, `paced`), `src/scenes/kratka/Kratka.tsx` (scény 16:9 a spoločné dáta: kroky, spoty, kliky), `src/scenes/kratka/KratkaFull.tsx`, `src/copy/vo_kratka.json`, `src/copy/music_kratka.json`, `scripts/kratka_lines.py`, `scripts/kratka-stills.mjs`, `review-kratka/index.html`, `public/vo-kratka/`, `public/footage/k-*.mp4`, `out/kratka/`.
+- Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`, `subtitles`), `Scene` (`SceneFrameContext`: jednofarebné pozadie, bez päty a bez orezania na rámec 16:9 len vnútri LinkedIn rámca), `Subtitles` (scenár K vedľa hlavného), `C4_Cena` (`d`, `h`), `C5_Teren` (`steps`, `phase`), `C8_Pilot` (export kariet), `C9_Outro` (`cta`), `F1_Sken` (`phase`), `F2_Metadata` (`zoom`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`).
 - Kontrola: 20 snímok pôvodných klipov (C2, C4, C5, C8, C9, F1, F4) z commitu `ea5550e` a z tejto vetvy je na pixel rovnakých; dĺžky kompozícií bez zmeny.
 - Jediná zmena správania pôvodnej cesty: `mix-music.mjs` dáva tichému klipu (C1) stopu v rozložení kanálov ostatných klipov (stereo namiesto mono). Zvuk je ticho, výsledok rovnaký.
