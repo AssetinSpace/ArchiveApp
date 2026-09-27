@@ -46,7 +46,7 @@ export const SCENE_LIST: [string, SceneDef][] = [
   paced('F4-Kontrola', { scene: F4_Kontrola, seconds: F4_SECONDS, vo: true, stills: [10, 150, 400] }),
   paced('C10-Databaza', { scene: C10_Databaza, seconds: 9.0, vo: true, stills: [60, 150, 200, 230] }),
   paced('F3-Vyhladavanie', { scene: F3_Vyhladavanie, seconds: F3_SECONDS, vo: true, stills: [30, 170, 330, 440] }),
-  paced('C8-Pilot', { scene: C8_Pilot, seconds: 19.9, vo: true, stills: [60, 170, 330, 470, 590] }), // kolo 42: dve ponuky (sluzba na kluc / softver), kolo 43-44: rozsah pre obe
+  paced('C8-Pilot', { scene: C8_Pilot, seconds: 21, vo: true, stills: [60, 170, 330, 500, 625] }), // kolo 42: dve ponuky (sluzba na kluc / softver), kolo 45: riadok rozsahu nasadenia
   paced('C9-Outro', { scene: C9_Outro, seconds: 7.3, vo: true, dark: true, stills: [40, 150] }),
 ];
 

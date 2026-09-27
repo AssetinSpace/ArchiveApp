@@ -485,3 +485,13 @@ Samuel: softvér na samostatné používanie budú ponúkať v blízkej dobe; do
 | C8 | Karty viac zarovnať, teraz je to rozhádzané. Rozsah treba stanoviť aj pri službe, vhodne zapracovať. | Obe karty majú rovnakú stavbu na stred: ikona v kruhu (krabica / notebook, rovnaký štýl), názov, popis, jeden krok ako štítok („Obhliadka skladu a pilot na krabici“ / „Licencia podľa rozsahu“), všetko na rovnakých výškach (aj rovnaká hrúbka rámika, zelený okraj služby je tieň). Z oboch kariet ide čiara do pásu „V oboch prípadoch - Rozsah podľa vás“. Tretia veta hlasu nanovo: „V oboch prípadoch určíte rozsah: len identifikačné strany, alebo celé dokumenty s fulltextovým vyhľadávaním.“ (prepis OK). Klip 20,0 s. |
 
 Full 144,1 s, hudba tempo 1,004, -16 LUFS.
+
+
+## Kolo 45 (27. 9. 2026): C8 dva riadky (Samuel v chate, so screenshotom)
+
+Samuel: hore „Ako začať“, pod tým určenie rozsahu - identifikačné strany alebo skenovanie celých dokumentov s fulltextovým vyhľadávaním, ako spôsob či rozsah nasadenia aplikácie; pekne zapracovať.
+
+- C8 má dva riadky rovnakých kariet v tých istých stĺpcoch: nadpis riadku vľavo s tenkou čiarou („Ako začať“, „Rozsah nasadenia - v oboch prípadoch“), karta = ikona v kruhu vľavo, vpravo názov, popis a jeden štítok. Hore Služba na kľúč (obhliadka a pilot na krabici) a Softvér (licencia podľa rozsahu), dole Identifikačné strany (štítok a obsah každej zložky; metadáta a poloha v archíve) a Celé dokumenty (skenovanie všetkých strán; fulltextové vyhľadávanie). Pás s čiarami z kola 44 vypadol.
+- Tretia veta hlasu nanovo: „V oboch prípadoch určíte rozsah nasadenia: len identifikačné strany, alebo skenovanie celých dokumentov s fulltextovým vyhľadávaním.“ (prepis OK). Počas nej je horný riadok stlmený, karty rozsahu nastupujú so slovami. Klip 21,1 s.
+
+Full 145,2 s, hudba tempo 0,997, -16 LUFS.

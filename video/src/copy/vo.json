@@ -223,15 +223,15 @@
     },
     {
       "at": 12100,
-      "text": "V oboch prípadoch určíte rozsah: len identifikačné strany, alebo celé dokumenty s fulltextovým vyhľadávaním.",
+      "text": "V oboch prípadoch určíte rozsah nasadenia: len identifikačné strany, alebo skenovanie celých dokumentov s fulltextovým vyhľadávaním.",
       "parts": [
-        "V oboch prípadoch určíte rozsah: len identifikačné strany,",
-        "alebo celé dokumenty s fulltextovým vyhľadávaním."
+        "V oboch prípadoch určíte rozsah nasadenia: len identifikačné strany,",
+        "alebo skenovanie celých dokumentov s fulltextovým vyhľadávaním."
       ],
-      "dur": 7200,
+      "dur": 8280,
       "partAt": [
         0,
-        4000
+        4380
       ]
     }
   ],
