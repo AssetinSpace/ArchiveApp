@@ -1,0 +1,8 @@
+lyria-3-pro-preview
+Instrumental background music for a corporate product explainer video, no vocals, no lyrics. Uplifting, optimistic, modern corporate tech style, confident and warm, catchy but unobtrusive so a voice-over stays clearly intelligible on top. Around 104 BPM, 4/4, major key. Instruments: bright felt piano motif, light plucked synths, warm pads, soft kick and claps, subtle shaker, gentle bass. Total length exactly 152 seconds with this structure:
+0:00-0:04 intro: short airy shimmer swell with a single piano note, sparse.
+0:04-0:31 problem section: subdued and slightly tense, minimal pulsing synth and low piano, no drums, restrained.
+0:31-0:37 lift: clear uplifting build and release, full band enters for the first time (this part has no voice-over, it can be more present).
+0:37-2:15 solution section: steady optimistic groove with piano and plucks, consistent energy, no big changes or breaks, leaves space in the mid frequencies for speech.
+2:15-2:25 gentle climax: slightly fuller, rising, hopeful.
+2:25-2:32 outro: resolve to a clean final chord that rings out and ends exactly at 2:32, no fade to silence before that.

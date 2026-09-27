@@ -3,7 +3,6 @@ out/preview/
 .remotion/
 *.log
 .DS_Store
-public/footage/
-public/vo/
-public/music/
+# podklady (hlas, hudba, zaznamy) su od 27. 9. 2026 v gite; odvodeny subor sa generuje skriptom music_level.py
+public/music/bed_level.wav
 out/tmp/

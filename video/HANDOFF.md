@@ -1,7 +1,11 @@
 # Odovzdanie práce na videu (stav k 25. 9. 2026, kolo 33)
 
 Tento súbor je pre novú session. Všetko dôležité je v gite na vetve `claude/progress-preview-vo1ocm`,
-okrem zdrojových záznamov a vygenerovaného hlasu (tie sú mimo gitu, postup obnovy nižšie).
+od 27. 9. 2026 (po kole 48) aj so všetkými podkladmi: zdrojové záznamy `public/footage/`, vygenerované vety hlasu `public/vo/` a hudba Lyria `public/music/bed.wav`. Hlavná verzia je zlúčená aj do `main`. Jediný odvodený súbor mimo gitu je `public/music/bed_level.wav` (vytvorí ho `mix-music.mjs` cez `scripts/music_level.py`).
+
+## Pokračovanie v novej session
+
+Stačí checkout vetvy (alebo `main`), `cd video && npm install`, potom hneď `bash scripts/render.sh <klip>` a `node scripts/mix-music.mjs` (Full s hudbou). Hlas netreba generovať (`vo.mjs --engine gemini --reuse` vezme vety z `public/vo/lines`), hudbu netreba generovať (`public/music/bed.wav` je v gite). Staršie poznámky nižšie o obnove podkladov „mimo gitu“ platia len pre stav pred 27. 9. 2026.
 
 ## Checkpoint
 
