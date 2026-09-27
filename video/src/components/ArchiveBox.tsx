@@ -102,7 +102,7 @@ export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accen
           <path fill="#9ca3af" d="M105 181.5L113 177.5L113 127.5L105 131.5Z" />
           <path fill="#e5e7eb" d="M73 165.5L105 181.5L105 131.5L73 115.5Z" />
           <path fill="#e5e7eb" d="M73 115.5L105 131.5L113 127.5L81 111.5Z" />
-          <path fill="none" stroke="#6b7280" strokeWidth="2.2" strokeLinecap="round" d="M73 115.5L105 131.5" />
+          <path fill="none" stroke="#8b93a0" strokeWidth="1.4" strokeLinecap="round" d="M73 115.5L105 131.5" />
           {/* stitok zlozky (text na prednej ploche, pod QR) */}
           <g transform={`matrix(1 0.5 0 1 73 115.5)`}>
             <text x={4} y={41} fontFamily="Inter, sans-serif" fontWeight={700} fontSize={5.2} fill="#1f2937">PROJEKT</text>
@@ -146,7 +146,7 @@ export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accen
           <path fill="#9ca3af" d="M161 153.5L169 149.5L169 99.5L161 103.5Z" />
           <path fill="#e5e7eb" d="M129 137.5L161 153.5L161 103.5L129 87.5Z" />
           <path fill="#e5e7eb" d="M129 87.5L161 103.5L169 99.5L137 83.5Z" />
-          <path fill="none" stroke="#6b7280" strokeWidth="2.2" strokeLinecap="round" d="M129 87.5L161 103.5" />
+          <path fill="none" stroke="#8b93a0" strokeWidth="1.4" strokeLinecap="round" d="M129 87.5L161 103.5" />
           {/* stitok zlozky (text na prednej ploche, pod QR) */}
           <g transform={`matrix(1 0.5 0 1 129 87.5)`}>
             <text x={4} y={41} fontFamily="Inter, sans-serif" fontWeight={700} fontSize={5.2} fill="#1f2937">STAVBA</text>
@@ -174,7 +174,7 @@ export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accen
           <path fill="#9ca3af" d="M133 167.5L141 163.5L141 113.5L133 117.5Z" />
           <path fill="#e5e7eb" d="M101 151.5L133 167.5L133 117.5L101 101.5Z" />
           <path fill="#e5e7eb" d="M101 101.5L133 117.5L141 113.5L109 97.5Z" />
-          <path fill="none" stroke="#6b7280" strokeWidth="2.2" strokeLinecap="round" d="M101 101.5L133 117.5" />
+          <path fill="none" stroke="#8b93a0" strokeWidth="1.4" strokeLinecap="round" d="M101 101.5L133 117.5" />
           {/* stitok zlozky (text na prednej ploche, pod QR) */}
           <g transform={`matrix(1 0.5 0 1 101 101.5)`}>
             <text x={4} y={41} fontFamily="Inter, sans-serif" fontWeight={700} fontSize={5.2} fill="#1f2937">ZMLUVY</text>
@@ -221,14 +221,14 @@ export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accen
             ]}
           />
         ) : null}
-        <path fill="none" stroke="#6b7280" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" d="M52 166L104 192L188 150" />
+        <path fill="none" stroke="#8b93a0" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" d="M52 166L104 192L188 150" />
         {/* veko */}
         <g transform={lidT}>
           <path fill="#e5e7eb" d="M46 104L104 133L194 88L136 59Z" />
           <path fill="#d1d5db" d="M46 104L104 133L104 146L46 117Z" />
           <path fill="#9ca3af" d="M104 133L194 88L194 101L104 146Z" />
-          <path fill="none" stroke="#9ca3af" strokeWidth="1.3" strokeLinecap="round" d="M46 117L104 146" />
-          <path fill="none" stroke="#6b7280" strokeWidth="1.8" strokeLinecap="round" d="M104 146L194 101" />
+          <path fill="none" stroke="#a4abb6" strokeWidth="1" strokeLinecap="round" d="M46 117L104 146" />
+          <path fill="none" stroke="#8b93a0" strokeWidth="1.2" strokeLinecap="round" d="M104 146L194 101" />
         </g>
         {/* vytiahnuta predna zlozka: von z krabice doprava-dopredu, nad vsetkym */}
         {pull > 0 ? <g transform={`translate(${78 * pull} ${34 * pull})`}>{binder0}</g> : null}

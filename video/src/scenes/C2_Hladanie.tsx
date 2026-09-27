@@ -151,7 +151,8 @@ const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
   const [sx, sy] = iso(px, py, 0);
   // kolo 33/34: jediny otaznik nad panacikom, ked dojde k polici; rovnaka velkost na obrazovke ako v kancelarii
   // (kancelaria: s 0,9 vo viewBoxe 980 px -> 1,76; sklad: SV = 1,7 -> s 1,04)
-  const qMan = pop(frame, 6100) * (1 - tw(6600, 400));
+  // kolo 42: otaznik od 5,5 s (este pri chodzi), na obraze ~1,1 s ako prvy v kancelarii (3,0-3,6 s + pauza 0,5 s)
+  const qMan = pop(frame, 5500) * (1 - tw(6600, 400));
   const others = 1 - tw(6600, 500);
   const A = fastSearch(tw, 7000, 300); // obe krabice naraz
   const B = fastSearch(tw, 7100, 300);

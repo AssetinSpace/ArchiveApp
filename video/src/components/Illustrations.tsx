@@ -54,7 +54,7 @@ export const Sheet: React.FC<{ w?: number; h?: number; lines?: number; stamp?: b
   title = true,
 }) => (
   <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ display: 'block' }}>
-    <rect x={1} y={1} width={w - 2} height={h - 2} rx={6} fill="#fff" stroke={ISO.edge} strokeWidth={2.2} />
+    <rect x={1} y={1} width={w - 2} height={h - 2} rx={6} fill="#fff" stroke={ISO.line} strokeWidth={1.5} />
     {title ? <rect x={w * 0.14} y={h * 0.1} width={w * 0.72} height={h * 0.05} rx={3} fill={ISO.ink} /> : null}
     {Array.from({ length: lines }).map((_, i) => (
       <rect key={i} x={w * 0.14} y={h * 0.22 + i * (h * 0.07)} width={w * (0.72 - (i % 3) * 0.14)} height={h * 0.028} rx={2} fill={ISO.right} />

@@ -80,8 +80,8 @@ export const IsoBox: React.FC<{
         <polyline
           points={pts([D0, C0, B0])}
           fill="none"
-          stroke={c.edge}
-          strokeWidth={2.2}
+          stroke={faces?.edge ?? ISO.line}
+          strokeWidth={1.4}
           strokeLinecap="round"
           strokeLinejoin="round"
         />
@@ -297,17 +297,18 @@ export const OpenCarton: React.FC<{ x: number; y: number; z: number; w?: number;
       <polygon points={pts([A1, B1, B0, A0])} fill="#4b5563" />
       <polygon points={pts([A1, D1, D0, A0])} fill="#7b8290" />
       <polygon points={pts([A0, B0, C0, D0])} fill="#374151" />
+      {/* kolo 42: horny okraj zadnych sten pred obsahom - vytiahnute zlozky ho zakryju (predtym presvital cez ne) */}
+      <polygon points={pts([A1, B1, iso(x + w - t, y + t, z + h), iso(x + t, y + t, z + h)])} fill={ISO.top} />
+      <polygon points={pts([A1, D1, iso(x + t, y + d - t, z + h), iso(x + t, y + t, z + h)])} fill={ISO.top} />
       {children}
       {/* predne steny bez vrchnej plochy */}
       <polygon points={pts([D1, C1, iso(x + w, y + d, z), iso(x, y + d, z)])} fill={ISO.left} />
       <polygon points={pts([B1, C1, iso(x + w, y + d, z), iso(x + w, y, z)])} fill={ISO.right} />
-      <polyline points={pts([iso(x, y + d, z), iso(x + w, y + d, z), iso(x + w, y, z)])} fill="none" stroke={ISO.edge} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
-      {/* horny okraj vsetkych styroch sten (hrubka t) */}
-      <polygon points={pts([A1, B1, iso(x + w - t, y + t, z + h), iso(x + t, y + t, z + h)])} fill={ISO.top} />
-      <polygon points={pts([A1, D1, iso(x + t, y + d - t, z + h), iso(x + t, y + t, z + h)])} fill={ISO.top} />
+      <polyline points={pts([iso(x, y + d, z), iso(x + w, y + d, z), iso(x + w, y, z)])} fill="none" stroke={ISO.line} strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" />
+      {/* horny okraj prednych sten (hrubka t) */}
       <polygon points={pts([D1, C1, iso(x + w - t, y + d - t, z + h), iso(x + t, y + d - t, z + h)])} fill={ISO.top} />
       <polygon points={pts([B1, C1, iso(x + w - t, y + d - t, z + h), iso(x + w - t, y + t, z + h)])} fill={ISO.top} />
-      <polyline points={pts([D1, C1, B1])} fill="none" stroke={ISO.edge} strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points={pts([D1, C1, B1])} fill="none" stroke={ISO.line} strokeWidth={1} strokeLinecap="round" strokeLinejoin="round" />
     </g>
   );
 };
@@ -331,8 +332,8 @@ export const Binder: React.FC<{ x: number; y: number; z: number; w?: number; d?:
         const b = iso(x + w, y + d, z + h);
         return { x1: a[0], y1: a[1], x2: b[0], y2: b[1] };
       })()}
-      stroke={ISO.edge}
-      strokeWidth={2.2}
+      stroke={ISO.line}
+      strokeWidth={1.4}
       strokeLinecap="round"
     />
     {qr > 0 ? <QrOnLeftFace x={x + w * 0.2} y={y + d} z={z + h * 0.45} size={w * 0.6} s={qr} opacity={Math.min(1, qr * 1.5)} /> : null}

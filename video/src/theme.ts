@@ -15,6 +15,7 @@ export const ISO = {
   left: '#d1d5db',
   right: '#9ca3af',
   edge: '#6b7280',
+  line: '#8b93a0', // kolo 42: obrysove ciary jemnejsie (predtym edge #6b7280, hrubka 2,2 -> 1,4)
   ink: '#1f2937',
   accent: '#1f7a33',
   paper: '#f3f4f6',

@@ -443,3 +443,15 @@ Samuel (screenshot C4): "nejako sa to porozbíjalo, napríklad tu nie je otázni
 | Celok | Kratší film. | Hudba skrátená o dva úseky na dobu (104 BPM): 20,57-25,18 s a 73,26-84,81 s skladby, prelínačka 60 ms (`music.json` "cuts", `mix-music.mjs`); tempo 0,998, záverečný akord 0,4 s pred koncom. Kontrola predelov Gemini: bez počuteľného skoku. |
 
 Full 133,4 s (predtým 153,1 s), -16 LUFS, true peak -1,3 dB. Poradie: C1 · C2 · C4 · C5 · F1 · C6 · F2 · F4 · C10 · F3 · C8 · C9.
+
+
+## Kolo 42 (27. 9. 2026): šesť pripomienok (C2, C5/celok, C6, F3, C9, C8)
+
+| Klip | Pripomienka | Riešenie |
+|---|---|---|
+| C2 | Zložky z krabice presvitajú, za nimi je vidieť okraj krabice. Druhý otáznik je vidieť oveľa kratšie ako prvý. | `OpenCarton` kreslil horný okraj zadných stien až po obsahu, preto bol vidieť cez vytiahnuté zložky; zadný okraj sa kreslí pred zložkami, predný po nich. Druhý otáznik (nad panáčikom pri regáli) nastupuje od 5,5 s namiesto 6,1 s, na obraze ~1,1 s ako prvý v kancelárii. |
+| C5 / celok | Hrany zložiek sú na veľkom monitore príliš výrazné, zjemniť grafiku v celom videu. | Obrysové čiary izometrie a krabice (`lib/iso.tsx`, `ArchiveBox`, hárok `Sheet`) svetlejšie (`ISO.line` #8b93a0 namiesto #6b7280) a tenšie (2,2 -> 1,4, 1,8 -> 1,2); plochy a farby bez zmeny. Týka sa C2, C4, C5, C8. |
+| C6 | Netreba začínať v menšom rámiku, ktorý sa zväčší; hneď zväčšený. | Okno aplikácie je od začiatku v rozmere a polohe okna záznamu F2; fotka v jeho strede, obsah zmizne pred strihom na F2. Dĺžka bez zmeny (3 s). |
+| F3 | Obdĺžnik okolo kľúčového slova v metadátach je priveľký. | Spot tesne okolo žltej zhody (okraj 4 px namiesto 8 px, rámik 3 px); `Mark.pad` v `F2_Metadata.tsx`. |
+| C9 | Dať aj logo Assetin Archives a slogan pod neho. | Hore lockup Assetin Archives (assetin/.space \| Archives, ako v C4) a pod ním „Digitálna katalogizácia archivovanej dokumentácie“; pod čiarou malá značka, Assetin, s. r. o. a web. |
+| C8 | Analyzovať, či by tu nebol lepší hook. | Len návrh v chate (bez zmeny klipu), čaká na výber Samuela. |
