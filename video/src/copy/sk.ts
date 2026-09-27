@@ -1,16 +1,49 @@
 /** Vsetky texty v obraze. Zdroj: brozura Assetin Archives (12 stran). */
 /** Kolo 2: jediny text v obraze per klip, max ~7 slov. */
 export const captions = {
-  C2: 'Dokumentáciu máte. V kancelárii, v sklade… niekde.',
+  C2: 'Dokumentáciu k objektom máte.',
   C2b: 'Len ju nikto nevie nájsť.',
   C2v1: 'Dokumentáciu máte. Nikto ju nevie nájsť.',
   C3a: 'V sklade to nie je lepšie.',
   C3b: 'Je to niekde tam.',
+  C4a: 'Hľadanie trvá dlhšie než nové vyhotovenie.',
   C4: 'Zaplatené dvakrát za tú istú dokumentáciu.',
+  C4brand: 'Digitálna katalogizácia archivovanej dokumentácie',
   C5: 'Nalepiť QR, odfotiť. Celá práca v teréne.',
   C6: 'Text z fotky rozpozná a navrhne údaje.',
   C7: 'Každá položka má svoje miesto.',
-  C8: 'Začneme jednou krabicou.',
+  C8: 'Začnime postupne.',
+};
+
+/** Kolo 28: nazvy faz namiesto "Krok i / n" (kroky vpravo). */
+export const phases = {
+  teren: 'V teréne',
+  app: 'V aplikácii',
+  search: 'Vyhľadávanie',
+  pilot: 'Prvý krok',
+};
+
+/** C8: nadpis vpravo a popisky pod ikonami 1-2-3. */
+export const pilot = {
+  title: 'Začnime postupne.',
+  line: 'Výsledok uvidíte na vlastnej dokumentácii.',
+  labels: ['Obhliadka skladu', 'Pilot na jednej krabici', 'Rozsah a ponuka'],
+};
+
+/** C8 (kolo 42): dve ponuky - sluzba na kluc (hlavna) a softver. */
+export const offer = {
+  kicker: 'Ako začať',
+  // kolo 44: karty s rovnakou stavbou (ikona, nazov, popis, jeden krok); kolo 45: pod nimi rovnaky riadok "Rozsah nasadenia"
+  service: { title: 'Služba na kľúč', desc: 'Celý archív spracujeme za vás.', step: 'Obhliadka a pilot na krabici' },
+  software: { title: 'Softvér', desc: 'Katalogizujete vlastnými silami.', step: 'Licencia podľa rozsahu' },
+  scope: {
+    kicker: 'Rozsah nasadenia',
+    note: 'v oboch prípadoch',
+    options: [
+      { title: 'Identifikačné strany', desc: 'Štítok a obsah každej zložky.', step: 'Metadáta a poloha v archíve' },
+      { title: 'Celé dokumenty', desc: 'Skenovanie všetkých strán.', step: 'Fulltextové vyhľadávanie' },
+    ],
+  },
 };
 
 export const sk = {

@@ -67,6 +67,12 @@ cd frontend && npm run dev   # Vite na http://localhost:5173
 
 Otvor [http://localhost:5173](http://localhost:5173). Prehliadač zobrazí Basic Auth dialóg — zadaj `BASIC_AUTH_USER` a `BASIC_AUTH_PASS` z `backend/.env`.
 
+## Explainer video
+
+Priečinok [`video/`](video/) je samostatný Remotion projekt s krátkym videom k službe Assetin Archives
+(nezávislý od backendu a frontendu). Kde sme skončili a ako pokračovať: [`video/HANDOFF.md`](video/HANDOFF.md),
+história kôl a rozhodnutí: [`video/FEEDBACK.md`](video/FEEDBACK.md), spustenie: [`video/README.md`](video/README.md).
+
 ## Architektúra
 
 Monorepo s dvoma balíkmi:

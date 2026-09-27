@@ -9,6 +9,7 @@ import { captions } from '../copy/sk';
 import { BRAND, FONT, INK, SAFE } from '../theme';
 
 /**
+ * Kolo 42: okno hned v rozmere a polohe okna footage F2 (Samuel: nezacinat v mensom ramiku, ktory sa zvacsi).
  * C6 - Fotka -> aplikacia. Bez simulacie UI: fotka stitku v strede sa
  * "nahra" (mierny pohyb hore), okolo nej sa vykresli okno aplikacie,
  * okno prejde presne do okna footage (F2, vlavo) = strih na footage
@@ -18,7 +19,7 @@ import { BRAND, FONT, INK, SAFE } from '../theme';
  * ms: 0 okno (z bielej) · 150 fotka v strede okna · 700 upload (kratke) ·
  * 900 text vpravo · 1900-2800 okno prejde do okna footage.
  */
-const WIN = { x: 560, y: 90, w: 800, h: 700 };
+// kolo 42: okno je od zaciatku v rozmere okna footage F2 (predtym mensie okno v strede, ktore sa zvacsilo)
 const PH = { w: 380, h: 500 };
 
 export const C6_Spracovanie: React.FC = () => {
@@ -28,9 +29,9 @@ export const C6_Spracovanie: React.FC = () => {
   const photo = settle(frame, 150);
   const upload = tw(700, 400);
   const chrome = tw(0, 350); // okno je na scene od zaciatku (z bielej), fotka v jeho strede
-  const fill = tw(1900, 900); // okno prejde do FOOTAGE_WINDOW (bez roztiahnutia cez frame)
+  const fill = tw(1900, 900); // obsah okna zmizne pred strihom na F2 (okno uz ma rozmer FOOTAGE_WINDOW)
   const note = settle(frame, 900) * (1 - tw(2600, 300)); // text vpravo: dalej uz len v desktopovej aplikacii
-  const at = { x: WIN.x + (FOOTAGE_WINDOW.x - WIN.x) * fill, y: WIN.y + (FOOTAGE_WINDOW.y - WIN.y) * fill, w: WIN.w + (FOOTAGE_WINDOW.w - WIN.w) * fill, h: WIN.h + (FOOTAGE_WINDOW.h - WIN.h) * fill };
+  const at = FOOTAGE_WINDOW;
   const bar = tw(750, 400); // progress "nahravanie" (kratke)
   return (
     <Scene mode="light" footer footerOpacity={1 - fill}>

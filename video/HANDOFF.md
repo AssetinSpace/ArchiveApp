@@ -1,0 +1,110 @@
+# Odovzdanie práce na videu (stav k 25. 9. 2026, kolo 33)
+
+Tento súbor je pre novú session. Všetko dôležité je v gite na vetve `claude/progress-preview-vo1ocm`,
+od 27. 9. 2026 (po kole 48) aj so všetkými podkladmi: zdrojové záznamy `public/footage/`, vygenerované vety hlasu `public/vo/` a hudba Lyria `public/music/bed.wav`. Hlavná verzia je zlúčená aj do `main`. Jediný odvodený súbor mimo gitu je `public/music/bed_level.wav` (vytvorí ho `mix-music.mjs` cez `scripts/music_level.py`).
+
+## Pokračovanie v novej session
+
+Stačí checkout vetvy (alebo `main`), `cd video && npm install`, potom hneď `bash scripts/render.sh <klip>` a `node scripts/mix-music.mjs` (Full s hudbou). Hlas netreba generovať (`vo.mjs --engine gemini --reuse` vezme vety z `public/vo/lines`), hudbu netreba generovať (`public/music/bed.wav` je v gite). Staršie poznámky nižšie o obnove podkladov „mimo gitu“ platia len pre stav pred 27. 9. 2026.
+
+## Checkpoint
+
+- **Kolo 47 (27. 9. 2026)**: commit `068edd1` na `claude/progress-preview-vo1ocm`, film `out/checkpoints/Full_kolo47_1080p.mp4` (145,2 s). Ďalšie kolá pokračujú od neho; podrobnosti v FEEDBACK.md (sekcia CHECKPOINT kolo 47).
+
+## Komentáre na review stránke (od 27. 9. 2026, po kole 48)
+
+- Stránka deklaruje `comments: {"composer_only": true}` (+ `assets`, `db`). Tlačidlo „Pridať pripomienku“ pri klipe otvorí okno komentára claude.ai ukotvené na klip; text sa píše a odosiela v okne claude.ai (editor tam má aj „Send to Claude“).
+- Dôvod: plná verzia `comments: {}` (vlastné pole a odoslanie zo stránky) sa nedáva hosťom pozvaným e-mailom ani návštevníkom cez odkaz; Marek preto videl „Pripomienky sa z tohto zobrazenia nedajú pridať“. Hosť potrebuje v Share prístup s možnosťou komentovať.
+- Nové vlákna už nemajú predponu `[klip]` v texte; klip je v kotve vlákna (`[anchored at] #clip-...`).
+
+## Kde čo je
+
+- Review stránka klipov (videá, pripomienky): https://claude.ai/artifact/R2aK5Ms7zxVvtKM4SjHCJa
+  Zdroj stránky je v `review/index.html` (údaje v `BUILD`, `FULL`, `NEWS`, `CLIPS`; pri novom kole upraviť a publikovať
+  cez `Artifact publish` s `url` stránky, capabilities `assets`, `db`, `comments`). Nové videá sa nahrávajú ako assety
+  (`publish` s `asset: true`), ich id idú do `cap` / `poster`.
+  Kolo 33: pripomienky chodia ako komentáre stránky. Kto má právo úprav, pošle ich tlačidlom priamo Claudovi (session
+  sledujúca stránku sa zobudí), ostatní pridajú bežný komentár a Claudovi ho pošle Samuel. Postup po prijatí: odpovedať
+  vo vlákne, nastaviť stav v databáze (`ArtifactData` set `status/current`: `state` idle / working / rendering, `title`,
+  `note`, `updatedAt`), zapracovať, prerenderovať, nahrať, zmeniť `BUILD.renderedAt` a `NEWS`, publikovať, vlákno
+  vyriešiť (resolve), stav vrátiť na idle, zapísať kolo do FEEDBACK.md. Protichodné pripomienky nerozhodovať, pýtať sa Samuela.
+  Staršie pripomienky (kolo 31 až 33) boli v kolekcii `feedback`; formulár na ňu už stránka nemá.
+  Kolo 34: "Poslať Claudovi" sa v niektorých zobrazeniach (napr. mobilná appka) neponúka, preto beží hodinová Routine
+  "Review video: nove komentare" (trig_01Mzmtn7iXgoggmkm6SN2wXu), ktorá číta komentáre a spracuje nové; spracované
+  vlákna sú v kolekcii `processed` (doc_id = thread id). V novej session Routine zmazať alebo presmerovať (viaže sa na túto session).
+- Dokument so scenárom náhovoru (tabuľka viet, pravidlá): https://claude.ai/code/artifact/4dda9745-5ee0-442b-8175-ff309c835dbc
+- História kôl a rozhodnutí: `FEEDBACK.md` (kolo 1 až 33), storyboard `STORYBOARD.md`, návod `README.md`.
+- Scenár náhovoru (jediný zdroj pravdy pre zvuk aj titulky): `src/copy/vo.json` (záznam = jedno generovanie hlasu, `at` v ms, `parts` = titulky po častiach, `partAt` a `dur` dopĺňa skript, `say` = fonetický prepis len pre Piper/edge/espeak, `_style`).
+- Zostrih footage: `src/footage/cuts.json` (segmenty zdroja, zrýchlenie, zmrazený obraz len na pokojnej obrazovke, `fade` = prelínačka, orez), `scripts/cut-footage.mjs` (meria výsledok a hlási odchýlku).
+- Pauzy a poradie klipov: `src/scenesList.ts` (`paced(...)`: `holds`, `skip`, `vo`, `dark`, `subtitleLeft`).
+- Hlas: `scripts/vo.mjs` (`--engine espeak|edge|piper|gemini`), `scripts/gemini_tts.py`, kontrola `scripts/vo_check.py`, časy slov `scripts/vo_words.py`.
+
+## Obnova prostredia (nová session)
+
+```bash
+cd video && npm ci
+pip install imageio-ffmpeg piper-tts google-genai edge-tts faster-whisper pillow
+apt-get install -y espeak-ng                       # len pre --engine espeak
+mkdir -p /root/piper && cd /root/piper && \
+  curl -sSLO https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/sk/sk_SK/lili/medium/sk_SK-lili-medium.onnx && \
+  curl -sSLO https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/sk/sk_SK/lili/medium/sk_SK-lili-medium.onnx.json
+export REMOTION_CHROME=/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell
+```
+
+Zdrojové záznamy do `video/public/footage/src/` (mimo gitu) sú uložené ako assety review stránky;
+stiahnuť cez `Artifact read` s `url` stránky a `path` = id:
+
+| Súbor | Asset id | Poznámka |
+|---|---|---|
+| `src/sken-1.mp4` | `d8b402908c339502b82249631201aa37` | mobil F1, H.264 prevod pôvodného .mov (1206 x 2622, 60 fps, 10,5 s); druhá časť záznamu (Vytvoriť, nahrávanie) stále chýba |
+| `src/extrakce.mp4` | `1aa84bb6286f29fd9a601c5dad7ce270` | desktop F2 (36 s) |
+| `src/review2-30.mp4` | `7c14646acc6c3a9316d2711a0a944b17` | desktop F4, nový záznam z 25. 9. (70 s), prevod 30 fps; v `cuts.json` je `src/review2.mp4`, po stiahnutí premenovať alebo upraviť `src` |
+| `src/search2.mp4` | `2c36ba26831c4f1d86ba1b899d94c988` | desktop F3, nový záznam z 25. 9. (19 s) |
+
+Overené v kole 32: assety sa sťahujú cez `Artifact read` s `path` = id (jeden súbor na volanie, nie `paths`),
+po `cut-footage` (kolo 33) majú zostrihy F1 14,7 s, F2 8,2 s, F3 16,1 s (kolo 41, bez QR a pôvodného textu), F4 18,6 s; skript hlási, ak nameraná dĺžka nesedí s tabuľkou.
+
+Potom: `node scripts/cut-footage.mjs` (vyrobí `public/footage/f1-sken.mp4`, `f2-metadata.mp4`, `f3-search.mp4`, `f4-review.mp4`),
+`node scripts/vo.mjs --engine gemini --reuse` (hlas, dĺžky, časti titulkov; `--reuse` vezme vety z `public/vo/lines`, bez neho sa generujú znova; nahrávky sú mimo gitu, v novej session ich treba vygenerovať, ~20 generovaní), `npm run stills`, `bash scripts/render.sh`.
+Full sa od kola 37 lepí skriptom `node scripts/mix-music.mjs`: poradie klipov zo `SCENE_LIST`, C1 dostane tichú stopu (inak concat zahodí zvuk), vypíše časy predelov, podmaže hudbu `public/music/bed.wav` a vyrobí `out/mp4/Full_1080p.mp4` + `Full_preview_540p.mp4` (-16 LUFS, true peak -1,5 dB). `--no-music` = Full len s hlasom.
+
+Hudba (kolo 37): `python3 scripts/music.py` generuje cez Lyria (`lyria-3-pro-preview`, prompt a model v `src/copy/music.json`), výsledok `public/music/bed.wav` (mimo gitu) sa cachuje podľa promptu (`--force` = znova). Volanie musí ísť cez stream (`generate_content_stream`), inak brána po ~30 s vráti 502. Lyria občas odmietne prompt (`PROHIBITED_CONTENT`), stačí zopakovať. Kvóta Lyria nie je známa, Samuel: šetriť (jeden štýl, jedno generovanie). Výstup Lyria nesie SynthID vodoznak; pred verejným / komerčným použitím overiť podmienky Google pre generovanú hudbu.
+Vyrovnanie (kolo 39): `scripts/music_level.py` (volá ho `mix-music.mjs`, výstup `public/music/bed_level.wav`, float) zosilní tiché časti skladby najviac na úroveň plnej časti (`--range 0`; úvod Lyria bol o 20-40 dB tichší a pod hlasom nebol počuť), v mixe potom `alimiter`.
+Mix: hudba `atempo 0,983` (skladba končí ~2,5 s pred koncom filmu, takto sedí záverečný akord na koniec C9; pri inej dĺžke filmu upraviť `--tempo`), zárez 1-3 kHz (-3 dB), `--gain -7` dB (kolo 43, predtým -6), stíšenie pod hlasom `sidechaincompress` (prah 0,02, pomer 3): pod hlasom ~14 dB pod rečou, v pauzách ~7 dB. Kontrola zrozumiteľnosti prepisom (gemini-3.8-flash) na úsekoch C4, F3, C9: 5/5. Od kola 38 `--tempo auto` (±3 %, akord 0,4 s pred koncom filmu). Kolo 41: pri kratšom filme sa zo skladby vystrihnú úseky na dobu (`"cuts"` v `music.json`, takt 2,3077 s pri 104 BPM, prelínačka 60 ms), nie väčšie zrýchlenie.
+
+Sieť: povolené sú `huggingface.co` (Piper), `speech.platform.bing.com` (edge-tts; websocket ide cez `--proxy $HTTPS_PROXY`,
+CA proxy treba pridať do certifi: `cat /root/.ccr/ca-bundle.crt >> $(python3 -c "import certifi;print(certifi.where())")`),
+`generativelanguage.googleapis.com` (Gemini).
+
+## Rozhodnutia, ktoré platia
+
+- Video je s hovoreným slovom a titulkami (jedna veta dole, y 926). Text v obraze vpravo je len názov kroku
+  (2-3 slová), a to kľúčové slová z vety, ktorá práve znie. Pred dejom pauza (zmrazený obraz).
+- Oslovenie zmiešané, rozprávač uvedie problém a naše riešenie. Musí zaznieť "fotka je dôkaz" a to, že
+  každý záznam potvrdí človek. "Assetin" s tvrdým t, "Archives" po anglicky, QR "kjúár".
+- Hlas: Gemini TTS "Velvet 1" (`voice_7ws1j8pd39cu`) od kola 32, štýl B od kola 33 (plynulý, svižnejší); Piper Lili ostáva ako záloha (`--engine piper`).
+- Plynulosť (kolo 33): veta sa nikdy negeneruje po kúskoch; pauzy (`holds`) len v pokoji, `Paced` ich plynulo nabieha a dobieha; vo footage sa nezmrazuje prechodová snímka ani živý náhľad, medzi strihmi `fade`.
+- Názov kroku vpravo sa prepína podľa hlasu (`voAt`), zvýraznenia: zelená = potvrdenie, jantárová = oprava, rámik = fotka.
+- F3 a F4 (nové záznamy, iný zoom) majú orez 1764 × 882 a širšie okno `FOOTAGE_WINDOW_WIDE`; F2 (starý záznam) ostáva v pôvodnom okne.
+- C4: bez domčeka na bielom slide, bez popisu pod lockupom (vetu hovorí náhovor).
+- F3: musí byť vidieť drobček PL_01 / KR_01 / ZL_03 a automatické zvýraznenie zhody v metadátach (QR od kola 41 nie).
+- Poradie klipov: C1 · C2 · C4 · C5 · F1 · C6 · F2 · F4 · C10 · F3 · C8 · C9 (C10 Práca s databázou od kola 36, C7 Hierarchia vypadlo v kole 41, súbor scény ostáva; C8 od kola 42 „Ako začať“ s dvomi ponukami). Full má 145,2 s (kolo 45).
+
+## Hlas cez Gemini TTS (kolo 32, 33)
+
+- Kľúč vkladá proxy prostredia (`generativelanguage.googleapis.com`), `GEMINI_API_KEY` v env byť nemusí. Nikdy ho nedávať do chatu ani do gitu.
+- `python3 scripts/gemini_tts.py --list-voices`: "Velvet 1" je v účte päťkrát, používa sa `voice_7ws1j8pd39cu` (natvrdo vo `vo.mjs`, iný cez `--voice`).
+- Kvóta 10 požiadaviek za minútu (skript pri 429 čaká) a 100 za deň na model (potom treba čakať do obnovenia). Celý náhovor (20 generovaní) trvá asi 3 minúty.
+- C9 je v kole 33 ešte z kola 32 (vystrihnutá zo stopy, starší štýl); po obnovení kvóty zmazať `public/vo/lines/C9-Outro-0.wav` a spustiť `vo.mjs --engine gemini --reuse`.
+- Gemini dostáva čistý `text` (bez `say`); výslovnosť QR, PL_01 a pod. rieši anglický pokyn v `_style`. Pri temperature 0,85 sa výsledok medzi pokusmi mení, preto po generovaní: `python3 scripts/vo_check.py --regen 5` (prepis cez `gemini-3.8-flash`, kontrola hlavičky, QR, kódov a zhody slov, zlé vety pregeneruje).
+- Časti titulkov (`partAt`) určuje `vo.mjs` z časov slov (`scripts/vo_words.py`, faster-whisper small, cache `<veta>.words.json`); bez neho podľa páuz v nahrávke.
+- Hlavička "## Transcript:" vypnutá, model ju občas prečíta nahlas.
+- Vety majú asi 0,25 s ticha na začiatku a 0,35 s na konci; medzera medzi vetami aspoň 150 ms (skript hlási prekryvy).
+
+## Otvorené body
+
+- Schválenie plynulosti a nových textov (kolo 33).
+
+- Druhá časť mobilného záznamu F1 (Vytvoriť + nahrávanie) chýba, klip končí zmrazenou obrazovkou Skontrolovať jednotku.
+- Nové desktop záznamy sú celoobrazovkové, orez 300:150 odreže titulok "Archív PD" vľavo; pri ďalšom nahrávaní užšie okno alebo 90 % zoom.
+- Hudobný podmaz sa doplní až v strihu po schválení hlasu.

@@ -19,10 +19,10 @@ export const LOCKUP = {
 };
 export const LOCKUP_W = LOCKUP.stackW + LOCKUP.gap + LOCKUP.sepW + LOCKUP.gap + LOCKUP.modW;
 
-export const BrandStack: React.FC<{ domain?: number; light?: boolean; style?: React.CSSProperties }> = ({ domain = 1, light = false, style }) => (
+export const BrandStack: React.FC<{ domain?: number; light?: boolean; inColor?: string; style?: React.CSSProperties }> = ({ domain = 1, light = false, inColor, style }) => (
   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: LOCKUP.stackW, ...style }}>
     <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: LOCKUP.stackSize, lineHeight: 0.9, color: light ? INK[900] : '#fff', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
-      asset<span style={{ color: light ? BRAND[600] : BRAND[400] }}>in</span>
+      asset<span style={{ color: inColor ?? (light ? BRAND[600] : BRAND[400]) }}>in</span>
     </div>
     {/* .space: rovnaky typ aj velkost pisma ako assetin, len tenkie a sive */}
     <div style={{ fontFamily: FONT.display, fontWeight: 500, fontSize: LOCKUP.stackSize, lineHeight: 0.9, color: light ? INK[400] : NAVY[300], letterSpacing: '-0.02em', marginTop: 0, marginLeft: -4, whiteSpace: 'nowrap', opacity: Math.min(1, domain * 1.5), transform: `translateY(${(1 - domain) * -18}px)` }}>
