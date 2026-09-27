@@ -151,7 +151,8 @@ export const C4_Cena: React.FC = () => {
             );
           })()}
           {/* kolo 36: popis pod lockupom (vetu uz nehovori nahovor) */}
-          <div style={{ position: 'absolute', left: 0, right: 0, top: 590, textAlign: 'center', fontFamily: FONT.display, fontWeight: 600, fontSize: 46, color: NAVY[800], letterSpacing: '-0.01em', opacity: settle(frame, 6750 + D), transform: `translateY(${(1 - settle(frame, 6750 + D)) * 12}px)` }}>
+          {/* kolo 47: slogan inym stylom ako titulky (zelene kapitalky s rozostupom), aby nesplyval s prepisom hlasu */}
+          <div style={{ position: 'absolute', left: 0, right: 0, top: 600, textAlign: 'center', fontFamily: FONT.body, fontWeight: 600, fontSize: 30, color: BRAND[600], letterSpacing: '0.16em', textTransform: 'uppercase', opacity: settle(frame, 6750 + D), transform: `translateY(${(1 - settle(frame, 6750 + D)) * 12}px)` }}>
             {captions.C4brand}
           </div>
         </div>

@@ -22,8 +22,8 @@ const COL = { w: 680, gap: 60 };
 const LEFT = 960 - COL.gap / 2 - COL.w;
 const RIGHT = 960 + COL.gap / 2;
 const CARD_H = 236;
-const ROW1 = { kicker: 112, top: 156 };
-const ROW2 = { kicker: 448, top: 492 };
+const ROW1 = { kicker: 162, top: 206 }; // kolo 47: cely blok nizsie, na stred plochy nad titulkami
+const ROW2 = { kicker: 498, top: 542 };
 
 type IconKind = 'box' | 'app' | 'id' | 'scan';
 type Tone = 'green' | 'navy';

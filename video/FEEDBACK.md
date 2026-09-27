@@ -502,3 +502,15 @@ Full 145,2 s, hudba tempo 0,997, -16 LUFS.
 Samuel: rozloženie je fajn, len dva riadky farebne odlíšiť, splývajú.
 
 - Horný riadok „Ako začať“ ostáva biely so zelenou (farba značky, služba so zeleným rámikom). Dolný „Rozsah nasadenia“ má svetlomodré karty (NAVY 100), biele kruhy s tmavomodrými ikonami, biele štítky s tmavomodrou fajkou, nadpis riadku a čiara tmavomodré (`TONE` v `C8_Pilot.tsx`). Dĺžka bez zmeny, Full 145,2 s.
+
+
+## Kolo 47 (27. 9. 2026): C4 výslovnosť a slogan, C8 na stred, C5 otázka
+
+| Klip | Pripomienka | Riešenie |
+|---|---|---|
+| C4 | Assetin čítať po slovensky (asetyn), nie po anglicky (esetin); Archives je dobre. | Veta „Predstavujeme vám softvérové riešenie katalogizácie Assetin Archives.“ vygenerovaná nanovo s doplnkom pokynu pre vetu (`styleExtra` vo `vo.json`, `vo.mjs` ho pridá k `_style`). Prepis: „...Asetin árkajvs.“ (predtým „eset in árchajvs“). C9 číta „Aset in“ po slovensky už teraz, bez zmeny. |
+| C4 | Text pod logom je rovnaký ako prepis hlasu (titulky), odlíšiť. | Slogan „Digitálna katalogizácia archivovanej dokumentácie“ zelenými kapitálkami s rozostupom (30 px, ako nadpisy krokov), titulky ostávajú tmavé normálnym písmom. |
+| C8 | Trochu vycentrovať. | Celý blok (dva riadky kariet) o 50 px nižšie, na stred plochy nad titulkami. |
+| C5 | „Riešenie začína fyzickými dokumentami“, nie „dokumentmi“. | Zatiaľ bez zmeny: spisovný tvar (vzor dub) je „dokumentmi“; otázka Samuelovi v chate, či napriek tomu zmeniť. |
+
+Full 145,2 s.

@@ -91,7 +91,9 @@ for (const [clip, lines] of Object.entries(vo)) {
       const say = engine === 'gemini' ? l.text : (l.say ?? l.text);
       if (engine === 'gemini') {
         const gv = args.includes('--voice') ? voice : 'voice_7ws1j8pd39cu';
-        const style = vo._style ? ['--style', vo._style] : [];
+        // kolo 47: veta moze mat vlastny doplnok pokynu (`styleExtra`, napr. vyslovnost nazvu), prida sa k `_style`
+        const st = [vo._style, l.styleExtra].filter(Boolean).join(' ');
+        const style = st ? ['--style', st] : [];
         const header = args.includes('--header') ? ['--header'] : [];
         execFileSync('python3', ['scripts/gemini_tts.py', '--text', say, '--out', file + '.raw.wav', '--voice', gv, ...style, ...header], { stdio: ['ignore', 'inherit', 'inherit'] });
         execFileSync(FF, ['-v', 'error', '-y', '-i', file + '.raw.wav', '-af', 'loudnorm=I=-18:TP=-2', '-ar', '48000', '-ac', '1', file]);
