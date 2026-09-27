@@ -122,7 +122,7 @@
 
   <section>
     <h2>Klipy</h2>
-    <p class="muted">Poradie vo filme: C1 · C2 · C4 · C5 · F1 · C7 · C6 · F2 · F4 · C10 · F3 · C8 · C9.</p>
+    <p class="muted">Poradie vo filme: C1 · C2 · C4 · C5 · F1 · C6 · F2 · F4 · C10 · F3 · C8 · C9.</p>
     <div id="clips" style="display:flex;flex-direction:column;gap:16px;margin-top:14px"></div>
   </section>
 
@@ -138,20 +138,21 @@
 <script>
   // Stav stranky: BUILD sa meni pri kazdom publikovani (kolo, cas renderu), zivy stav cita db dokument status/current.
   const BUILD = {
- "round": 40,
- "renderedAt": "2026-09-26T16:40:00Z"
+ "round": 41,
+ "renderedAt": "2026-09-27T00:40:00Z"
 };
   const FULL = {
- "len": 153.1,
- "cap": "098e09aada8bc364c7cac21dcae3981d",
+ "len": 133.4,
+ "cap": "721c7e4d9ecac8ff575744cc80fcb7b6",
  "poster": "7ed206c53b726ea864793fefdee08a5d",
  "desc": "Tvrdé strihy medzi klipmi, hlas Gemini TTS (Velvet 1), titulky a od kola 37 hudba (Lyria, pod hlasom stíšená)."
 };
   const NEWS = [
- "C4: pri logu je znova hlas: „Predstavujeme vám softvérové riešenie katalogizácie Assetin Archives.“ (text pod logom ostáva), logo drží, kým veta dozneje.",
- "C10: nový text „Vytvorenú databázu katalógu archívu vieme exportovať, analyzovať alebo prehľadávať. Najjednoduchšie je vyhľadávanie.“; karty Export, Analýza, Vyhľadávanie v poradí slov, potom ostane Vyhľadávanie.",
- "F4: žltý rámik opravy už neostane po kliknutí na „Prijať úpravu“ (klik bol v zázname o sekundu skôr, ako som mal zmerané; opravený aj kruh kliknutia).",
- "Hudba (kolo 39): na začiatku je pod hlasom počuť. Celý film 153,1 s."
+ "Film skrátený o 20 s (153,1 s -> 133,4 s).",
+ "C4: bez vety „Otázne je, v akej kondícii dokumentáciu nájdete.“ (vystrihnutá z nahrávky, ostatné vety ostali).",
+ "C7 (Hierarchia) vypadlo: zaradenie do hierarchie povie F1 a cestu v hierarchii ukáže F3.",
+ "F3: bez QR kódu a bez vety o pôvodnom texte; nová veta „Kľúčové slovo sa zvýrazní v metadátach záznamu.“, posun k zvýraznenej zhode počas vety a rámik na nej, klip 16,1 s namiesto 24 s.",
+ "Hudba skrátená o 16 s (2 takty v úvode, 5 taktov v pokojnej pasáži, strihy na dobu); nástup pri logu a záverečný akord ostávajú na mieste."
 ];
   const CLIPS = [
  {
@@ -173,9 +174,9 @@
  {
   "id": "C4-Cena",
   "name": "Cena → predel",
-  "len": 21.8,
-  "desc": "Kolo 40: pri logu znova hlas „Predstavujeme vám softvérové riešenie katalogizácie Assetin Archives.“, pod logom text „Digitálna katalogizácia archivovanej dokumentácie“. Kolo 38: veľký otáznik vedľa regálu (tvar ako v C2), „2×€“ na stred.",
-  "cap": "4c5743972916ca5f11031ae568f2faba",
+  "len": 18.5,
+  "desc": "Kolo 41: bez vety o kondícii dokumentácie. Kolo 40: pri logu hlas „Predstavujeme vám softvérové riešenie katalogizácie Assetin Archives.“, pod logom text; veľký otáznik vedľa regálu, „2×€“ na stred.",
+  "cap": "259dbf9dfe946778f875f5f69fede623",
   "poster": "ba867db677c0d4df04f32166c5817318"
  },
  {
@@ -193,14 +194,6 @@
   "desc": "Kolo 36: zvýraznenia Zložka (ZL) a „Pridáva sa jednotka pod KR_01“ ako rámik so stmaveným okolím displeja.",
   "cap": "88619ba8150709c3ab97c4420b3f189b",
   "poster": "c1a5c41b8660f0e2e15c62a533c05187"
- },
- {
-  "id": "C7-Hierarchia",
-  "name": "Hierarchia",
-  "len": 8.4,
-  "desc": "Kolo 33: „Každá položka má presné miesto v hierarchii, ako napríklad polica, krabica, zložka alebo dokument.“ Polica nastúpi so slovom „polica“, zložky so slovom „zložka“.",
-  "cap": "a7738283c71b555128fc29cb7c99750c",
-  "poster": "1f4aa2b612a6584e3a1fa7dccfb7b9ad"
  },
  {
   "id": "C6-Spracovanie",
@@ -237,10 +230,10 @@
  {
   "id": "F3-Vyhladavanie",
   "name": "Footage: vyhľadávanie",
-  "len": 24.0,
-  "desc": "Kolo 36: úvod o databáze je samostatná scéna C10, F3 začína „Stačí zadať kľúčové slovo.“ bez zvýrazňovania menu; rámik so stmavením na poli vyhľadávania, ceste v hierarchii a odznakoch.",
-  "cap": "e45879b23d8ca3a270b8db5c40584769",
-  "poster": "de0404ecada14a5fe8813d799c25df10"
+  "len": 16.1,
+  "desc": "Kolo 41: bez QR kódu a bez vety o pôvodnom texte. „Kľúčové slovo sa zvýrazní v metadátach záznamu.“ s posunom k zvýraznenej zhode (Popis zmeny) a rámikom na nej; predtým cesta v hierarchii a odznaky Nájdené v: Metadáta | OCR.",
+  "cap": "109edc4839e11f5a2c3fa47c0f43bc33",
+  "poster": "cab56da6ad1f94a3602c11305e540423"
  },
  {
   "id": "C8-Pilot",

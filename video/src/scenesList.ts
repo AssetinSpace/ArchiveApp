@@ -11,7 +11,6 @@ import { C10_Databaza } from './scenes/C10_Databaza';
 import { F2_Metadata } from './scenes/F2_Metadata';
 import { F3_Vyhladavanie } from './scenes/F3_Vyhladavanie';
 import { F4_Kontrola } from './scenes/F4_Kontrola';
-import { C7_Hierarchia } from './scenes/C7_Hierarchia';
 import { C8_Pilot } from './scenes/C8_Pilot';
 import { C9_Outro } from './scenes/C9_Outro';
 import { S04_Pokusy } from './scenes/optional/S04_Pokusy';
@@ -38,15 +37,15 @@ const paced = (id: string, d: PacedDef): [string, SceneDef] => {
 export const SCENE_LIST: [string, SceneDef][] = [
   ['C1-Intro', { component: C1_Intro, seconds: 3.6, stills: [30, 55, 95] }],
   paced('C2-Hladanie', { scene: C2_Hladanie, seconds: 10, vo: true, dark: true, holds: [{ at: 1700, hold: 2420 }, { at: 3600, hold: 500 }], stills: [80, 150, 260, 380] }),
-  paced('C4-Cena', { scene: C4_Cena, seconds: 14.18, vo: true, darkUntil: 15200, holds: [{ at: 3000, hold: 5850 }, { at: 4390, hold: 1770 }], stills: [80, 170, 280, 370, 500] }),
+  paced('C4-Cena', { scene: C4_Cena, seconds: 14.18, vo: true, darkUntil: 11850, holds: [{ at: 3000, hold: 2500 }, { at: 4390, hold: 1770 }], stills: [80, 170, 280, 370, 500] }),
   paced('C5-Teren', { scene: C5_Teren, seconds: 8.4, vo: true, holds: [{ at: 1400, hold: 2400 }, { at: 6700, hold: 900 }], stills: [70, 150, 230, 240] }),
   paced('F1-Sken', { scene: F1_Sken, seconds: F1_SECONDS, vo: true, subtitleLeft: 900, stills: [20, 170, 310] }),
-  paced('C7-Hierarchia', { scene: C7_Hierarchia, seconds: 5, vo: true, holds: [{ at: 2050, hold: 2260 }, { at: 2480, hold: 1120 }], stills: [15, 135, 210] }),
+  // kolo 41: C7-Hierarchia vypadlo (Samuel: navyse; hierarchiu povie F1 "zaradime ju do hierarchie" a ukaze F3 cesta v hierarchii)
   paced('C6-Spracovanie', { scene: C6_Spracovanie, seconds: 3, vo: true, stills: [20, 45, 85] }),
   paced('F2-Metadata', { scene: F2_Metadata, seconds: F2_SECONDS, vo: true, stills: [10, 100, 240] }),
   paced('F4-Kontrola', { scene: F4_Kontrola, seconds: F4_SECONDS, vo: true, stills: [10, 150, 400] }),
   paced('C10-Databaza', { scene: C10_Databaza, seconds: 9.0, vo: true, stills: [60, 150, 200, 230] }),
-  paced('F3-Vyhladavanie', { scene: F3_Vyhladavanie, seconds: F3_SECONDS, vo: true, stills: [30, 170, 340] }),
+  paced('F3-Vyhladavanie', { scene: F3_Vyhladavanie, seconds: F3_SECONDS, vo: true, stills: [30, 170, 330, 440] }),
   paced('C8-Pilot', { scene: C8_Pilot, seconds: 8, vo: true, holds: [{ at: 4700, hold: 1240 }], stills: [50, 120, 220] }),
   paced('C9-Outro', { scene: C9_Outro, seconds: 7.3, vo: true, dark: true, stills: [40, 150] }),
 ];

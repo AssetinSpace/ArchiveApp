@@ -431,3 +431,15 @@ Samuel (screenshot C4): "nejako sa to porozbíjalo, napríklad tu nie je otázni
 | F4 | Žltý rámik ostane aj po preklike ďalej. | Klik „Prijať úpravu“ je v zázname v 48,15 s (rozloženie sa mení v 48,23 s), nie v 49,2 s: jantárový spot končí v 48,2 s, kruh kliknutia v 48,15 s. |
 
 `mix-music.mjs`: tempo hudby v rozsahu ±3 % (film 153,1 s, tempo 0,976). Full -16 LUFS.
+
+
+## Kolo 41 (27. 9. 2026): skracovanie (C4, C7, F3, hudba)
+
+| Klip | Pripomienka | Riešenie |
+|---|---|---|
+| C4 | Vypustiť vetu o kondícii dokumentácie. | Veta „Otázne je, v akej kondícii dokumentáciu nájdete.“ vystrihnutá z nahrávky (3,05-6,40 s, prelínačka), bez nového generovania. Hold pri hodinách 2,5 s namiesto 5,85 s, predstavenie riešenia od 12,15 s. Klip 18,5 s (predtým 21,8 s). |
+| C7 | Hierarchia je navyše. | C7 vypadlo z filmu: hierarchiu povie F1 („zaradíme ju do hierarchie“) a ukáže F3 (cesta v hierarchii). Súbor scény ostáva v `src/scenes/C7_Hierarchia.tsx` (nepoužitý), dá sa vrátiť jedným riadkom v `SCENE_LIST`. |
+| F3 | Bez QR a bez vety o pôvodnom texte. | Zostrih bez rolovania k pôvodnému textu a bez QR (5 segmentov, 16,1 s namiesto 24 s). Nová veta „Kľúčové slovo sa zvýrazní v metadátach záznamu.“ (Gemini, prepis OK), spot na zhode v metadátach do konca; krok vpravo „Zvýraznené v metadátach“. |
+| Celok | Kratší film. | Hudba skrátená o dva úseky na dobu (104 BPM): 20,57-25,18 s a 73,26-84,81 s skladby, prelínačka 60 ms (`music.json` "cuts", `mix-music.mjs`); tempo 0,998, záverečný akord 0,4 s pred koncom. Kontrola predelov Gemini: bez počuteľného skoku. |
+
+Full 133,4 s (predtým 153,1 s), -16 LUFS, true peak -1,3 dB. Poradie: C1 · C2 · C4 · C5 · F1 · C6 · F2 · F4 · C10 · F3 · C8 · C9.

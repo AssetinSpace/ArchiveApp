@@ -55,8 +55,8 @@
       {
         "from": 6.2,
         "to": 7.4,
-        "after": 9.45,
-        "note": "vysledok ZL_03 a detail v pokoji (pred posunom 7,5 s): drobcek PL_01 / KR_01 / ZL_03, odznaky Najdene v: Metadata | OCR"
+        "after": 8.05,
+        "note": "vysledok ZL_03 a detail v pokoji (pred posunom 7,5 s): drobcek PL_01 / KR_01 / ZL_03, odznaky Najdene v: Metadata | OCR; kolo 41: pokoj len do 12,0 s (posun k zhode pocas vety o metadatach)"
       },
       {
         "from": 7.4,
@@ -68,20 +68,7 @@
         "from": 12.8,
         "to": 13.2,
         "before": 1.9,
-        "note": "automaticky zvyraznena zhoda v metadatach"
-      },
-      {
-        "from": 13.2,
-        "to": 16.9,
-        "speed": 3,
-        "note": "posun dole"
-      },
-      {
-        "from": 16.9,
-        "to": 19.3,
-        "speed": 1.5,
-        "after": 3.67,
-        "note": "QR kod zlozky"
+        "note": "automaticky zvyraznena zhoda v metadatach (kolo 41: koniec klipu, spot na hodnote)"
       }
     ]
   },

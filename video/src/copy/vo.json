@@ -32,23 +32,21 @@
   "C4-Cena": [
     {
       "at": 400,
-      "text": "Bez jasného systému trvá hľadanie hodiny. Otázne je, v akej kondícii dokumentáciu nájdete. Niekedy je rýchlejšie dať dokumentáciu vyhotoviť nanovo. A tak sa môže stať, že zaplatíte dvakrát za to isté.",
+      "text": "Bez jasného systému trvá hľadanie hodiny. Niekedy je rýchlejšie dať dokumentáciu vyhotoviť nanovo. A tak sa môže stať, že zaplatíte dvakrát za to isté.",
       "parts": [
         "Bez jasného systému trvá hľadanie hodiny.",
-        "Otázne je, v akej kondícii dokumentáciu nájdete.",
         "Niekedy je rýchlejšie dať dokumentáciu vyhotoviť nanovo.",
         "A tak sa môže stať, že zaplatíte dvakrát za to isté."
       ],
-      "dur": 13080,
+      "dur": 9700,
       "partAt": [
         0,
-        3100,
-        6580,
-        9760
+        3080,
+        6380
       ]
     },
     {
-      "at": 15500,
+      "at": 12150,
       "text": "Predstavujeme vám softvérové riešenie katalogizácie Assetin Archives.",
       "dur": 4640
     }
@@ -192,24 +190,8 @@
     },
     {
       "at": 10700,
-      "text": "Kľúčové slovo sa zvýrazní všade, kde sa našlo, v metadátach aj v pôvodnom texte pred spracovaním. Ten sa uchováva, takže sa nič nestratí.",
-      "parts": [
-        "Kľúčové slovo sa zvýrazní všade, kde sa našlo,",
-        "v metadátach aj v pôvodnom texte pred spracovaním.",
-        "Ten sa uchováva, takže sa nič nestratí."
-      ],
-      "dur": 9240,
-      "partAt": [
-        0,
-        3020,
-        6480
-      ]
-    },
-    {
-      "at": 20100,
-      "text": "QR kód na zložke overí obsah bez otvárania.",
-      "say": "Kjúár kód na zložke overí obsah bez otvárania.",
-      "dur": 3440
+      "text": "Kľúčové slovo sa zvýrazní v metadátach záznamu.",
+      "dur": 3320
     }
   ],
   "C8-Pilot": [
