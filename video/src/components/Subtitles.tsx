@@ -1,10 +1,12 @@
 import React from 'react';
 import { getInputProps, useCurrentFrame } from 'remotion';
 import vo from '../copy/vo.json';
+import voKratka from '../copy/vo_kratka.json';
 import { FONT, INK } from '../theme';
 
 type Line = { at: number; text: string; dur?: number; parts?: string[]; partAt?: number[] };
-const script = vo as unknown as Record<string, Line[] | string>;
+/** Hlavny scenar + experiment kratkej verzie (klipy K-*, T-*; ID sa neprekryvaju). */
+const script = { ...(voKratka as object), ...(vo as object) } as unknown as Record<string, Line[] | string>;
 
 export const voLines = (clip: string): Line[] => {
   const v = script[clip];

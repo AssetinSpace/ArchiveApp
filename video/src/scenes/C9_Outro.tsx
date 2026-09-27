@@ -15,7 +15,8 @@ import { BRAND, FONT } from '../theme';
 const T = sk.S12;
 const K = 0.62; // mierka lockupu (ako v C4 0,6)
 
-export const C9_Outro: React.FC = () => {
+/** `cta`: vyzva s webom hned pod ciarou (experiment kratkej verzie, napr. "Dohodnite si obhliadku"); predvolene bez nej. */
+export const C9_Outro: React.FC<{ cta?: string }> = ({ cta }) => {
   const frame = useCurrentFrame();
   React.useEffect(() => {
     loadFonts();
@@ -43,12 +44,24 @@ export const C9_Outro: React.FC = () => {
       </div>
       <div style={{ marginTop: 44, fontFamily: FONT.display, fontWeight: 600, fontSize: 46, letterSpacing: '-0.01em', opacity: tag, transform: `translateY(${(1 - tag) * 14}px)` }}>{captions.C4brand}</div>
       <div style={{ width: 60, height: 5, background: BRAND[300], borderRadius: 3, marginTop: 56, opacity: firm }} />
-      {/* kolo 43: firma a web pod sebou (v jednom riadku splyvali) */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 40, opacity: firm, transform: `translateY(${(1 - firm) * 14}px)` }}>
-        <LogoMark size={64} color="#fff" />
-        <div style={{ marginTop: 18, fontFamily: FONT.display, fontWeight: 600, fontSize: 34, lineHeight: 1.1 }}>{T.company}</div>
-        <div style={{ marginTop: 8, fontSize: 38, fontWeight: 700, lineHeight: 1.1, color: BRAND[100] }}>{T.web}</div>
-      </div>
+      {cta ? (
+        // experiment kratkej verzie: vyzva a web hned pod ciarou, znacka a firma mensie pod nimi
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 40, opacity: firm, transform: `translateY(${(1 - firm) * 14}px)` }}>
+          <div style={{ fontFamily: FONT.display, fontWeight: 700, fontSize: 50, lineHeight: 1.1, letterSpacing: '-0.01em' }}>{cta}</div>
+          <div style={{ marginTop: 12, fontSize: 40, fontWeight: 700, lineHeight: 1.1, color: BRAND[100] }}>{T.web}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 34, opacity: 0.85 }}>
+            <LogoMark size={36} color="#fff" />
+            <div style={{ fontFamily: FONT.display, fontWeight: 600, fontSize: 28, lineHeight: 1 }}>{T.company}</div>
+          </div>
+        </div>
+      ) : (
+        /* kolo 43: firma a web pod sebou (v jednom riadku splyvali) */
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 40, opacity: firm, transform: `translateY(${(1 - firm) * 14}px)` }}>
+          <LogoMark size={64} color="#fff" />
+          <div style={{ marginTop: 18, fontFamily: FONT.display, fontWeight: 600, fontSize: 34, lineHeight: 1.1 }}>{T.company}</div>
+          <div style={{ marginTop: 8, fontSize: 38, fontWeight: 700, lineHeight: 1.1, color: BRAND[100] }}>{T.web}</div>
+        </div>
+      )}
     </AbsoluteFill>
   );
 };

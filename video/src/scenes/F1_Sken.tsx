@@ -49,7 +49,7 @@ const PHONE = FOOTAGE_PHONE;
 /** Orez zaznamu (namerane na f1-sken.mp4): stavova lista iOS 0-115 px, lista Safari od 1743 px z 1920. */
 const CROP = { top: 115 / 1920, bottom: 177 / 1920 };
 
-export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[]; steps?: Step[]; marks?: PhoneMark[]; crop?: { top: number; bottom: number }; panelOnly?: boolean }> = ({ src, seconds, taps = [], steps = [], marks = [], crop = CROP, panelOnly = false }) => {
+export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[]; steps?: Step[]; marks?: PhoneMark[]; crop?: { top: number; bottom: number }; panelOnly?: boolean; phase?: string }> = ({ src, seconds, taps = [], steps = [], marks = [], crop = CROP, panelOnly = false, phase = phases.teren }) => {
   const frame = useCurrentFrame();
   const ms = (frame / 30) * 1000;
   const tw = (s: number, d: number) => tween(frame, s, d);
@@ -108,7 +108,7 @@ export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[];
           return (
             <div key={i} style={{ position: 'absolute', left: 0, right: 0, opacity: on * inT, transform: `translateY(${(1 - inT) * 16}px)` }}>
               <div style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: 24, letterSpacing: '0.14em', textTransform: 'uppercase', color: BRAND[600], marginBottom: 18 }}>
-                {phases.teren}
+                {phase}
               </div>
               <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 64, lineHeight: 1.05, color: INK[900], letterSpacing: '-0.02em', marginBottom: 18 }}>{s.title}</div>
               {s.line ? <div style={{ fontFamily: FONT.body, fontWeight: 400, fontSize: 34, lineHeight: 1.35, color: INK[500], maxWidth: 640 }}>{s.line}</div> : null}

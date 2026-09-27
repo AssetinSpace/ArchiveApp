@@ -39,10 +39,11 @@ import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
  * Kolo 28: texty v obraze (2500 "Hladanie trva...", 4700 "Zaplatene dvakrat..."),
  * predel posunuty o D, znacka drzi o H dlhsie a pod lockupom je popis. 11,1 s.
  */
-const D = 1300; // posun predelu, aby sa dal precitat text pod "2x"
-const H = 3780; // drzanie znacky: kolo 40 znova veta "Predstavujeme vam softverove riesenie katalogizacie Assetin Archives." (15,5-20,1 s vystupu) + text pod lockupom
+const D_MAIN = 1300; // posun predelu, aby sa dal precitat text pod "2x"
+const H_MAIN = 3780; // drzanie znacky: kolo 40 znova veta "Predstavujeme vam softverove riesenie katalogizacie Assetin Archives." (15,5-20,1 s vystupu) + text pod lockupom
 const BOX = 860;
-export const C4_Cena: React.FC = () => {
+/** Experiment kratkej verzie: `d` = posun predelu, `h` = drzanie znacky (ms); predvolene hlavna verzia. */
+export const C4_Cena: React.FC<{ d?: number; h?: number }> = ({ d: D = D_MAIN, h: H = H_MAIN }) => {
   const frame = useCurrentFrame();
   const showCap = useCaptions(); // kolo 29: vety nesie nahovor + titulky (Paced)
   const tw = (s: number, d: number) => tween(frame, s, d);

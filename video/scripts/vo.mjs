@@ -16,6 +16,7 @@
 // styl z vo.json `_style` (speech_metadata). --header posle "## Transcript:" pred text; vypnute, lebo model ho
 // obcas precita nahlas ("Transkript.", kolo 32).
 // Pouzitie: node scripts/vo.mjs [--reuse] [--engine espeak|edge|piper|gemini] [--speed 150] [--voice ...] [--rate -5%]
+//           [--script src/copy/vo.json] [--dir public/vo]   (experiment kratkej verzie: --script src/copy/vo_kratka.json --dir public/vo-kratka)
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 
@@ -27,8 +28,10 @@ const speed = opt('--speed', '150');
 const engine = opt('--engine', 'espeak');
 const voice = opt('--voice', 'sk-SK-LukasNeural');
 const rate = opt('--rate', '-5%');
-const vo = JSON.parse(readFileSync('src/copy/vo.json', 'utf8'));
-mkdirSync('public/vo/lines', { recursive: true });
+const SCRIPT = opt('--script', 'src/copy/vo.json'); // scenar (predvolene hlavna verzia)
+const DIR = opt('--dir', 'public/vo'); // vety v <DIR>/lines, stopy klipov <DIR>/<klip>.wav
+const vo = JSON.parse(readFileSync(SCRIPT, 'utf8'));
+mkdirSync(`${DIR}/lines`, { recursive: true });
 
 /** Pauzy v nahravke (s): [[zaciatok, koniec], ...] */
 const silences = (file, minDur = 0.05) => {
@@ -86,7 +89,7 @@ const partsFromWords = (parts, ws) => {
 for (const [clip, lines] of Object.entries(vo)) {
   if (!Array.isArray(lines)) continue;
   lines.forEach((l, i) => {
-    const file = `public/vo/lines/${clip}-${i}.wav`;
+    const file = `${DIR}/lines/${clip}-${i}.wav`;
     if (!reuse || !existsSync(file)) {
       const say = engine === 'gemini' ? l.text : (l.say ?? l.text);
       if (engine === 'gemini') {
@@ -122,7 +125,7 @@ for (const [clip, lines] of Object.entries(vo)) {
   if (!Array.isArray(lines)) continue;
   lines.forEach((l, i) => {
     if (!l.parts) return;
-    const file = `public/vo/lines/${clip}-${i}.wav`;
+    const file = `${DIR}/lines/${clip}-${i}.wav`;
     const cache = file.replace(/\.wav$/, '.words.json');
     const size = statSync(file).size;
     const c = existsSync(cache) ? JSON.parse(readFileSync(cache, 'utf8')) : null;
@@ -132,8 +135,8 @@ for (const [clip, lines] of Object.entries(vo)) {
 }
 if (todo.length) {
   try {
-    writeFileSync('public/vo/lines/_words.json', JSON.stringify(todo));
-    const out = JSON.parse(execFileSync('python3', ['scripts/vo_words.py', 'public/vo/lines/_words.json'], { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 1 << 26 }).toString());
+    writeFileSync(`${DIR}/lines/_words.json`, JSON.stringify(todo));
+    const out = JSON.parse(execFileSync('python3', ['scripts/vo_words.py', `${DIR}/lines/_words.json`], { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 1 << 26 }).toString());
     for (const t of todo) {
       cached[t.file] = out[t.file];
       writeFileSync(t.cache, JSON.stringify({ text: t.text, size: t.size, words: out[t.file] }));
@@ -151,7 +154,7 @@ for (const [clip, lines] of Object.entries(vo)) {
   const inputs = [];
   const delays = [];
   lines.forEach((l, i) => {
-    const file = `public/vo/lines/${clip}-${i}.wav`;
+    const file = `${DIR}/lines/${clip}-${i}.wav`;
     if (l.parts) l.partAt = partsFromWords(l.parts, cached[file]) ?? partStarts(file, l.parts, l.dur);
     else delete l.partAt;
     inputs.push('-i', file);
@@ -163,7 +166,7 @@ for (const [clip, lines] of Object.entries(vo)) {
     if (l.partAt) l.parts.forEach((p, k) => console.log(`      ${((l.at + l.partAt[k]) / 1000).toFixed(2)} s  ${p}`));
   });
   const mix = `${delays.join(';')};${lines.map((_, i) => `[d${i}]`).join('')}amix=inputs=${lines.length}:normalize=0:dropout_transition=0,aresample=48000`;
-  execFileSync(FF, ['-v', 'error', '-y', ...inputs, '-filter_complex', mix, '-ac', '1', `public/vo/${clip}.wav`]);
+  execFileSync(FF, ['-v', 'error', '-y', ...inputs, '-filter_complex', mix, '-ac', '1', `${DIR}/${clip}.wav`]);
 }
-writeFileSync('src/copy/vo.json', JSON.stringify(vo, null, 2) + '\n');
+writeFileSync(SCRIPT, JSON.stringify(vo, null, 2) + '\n');
 if (overlaps) console.log(`\n${overlaps} veta/vety sa prekryvaju, posun 'at' vo vo.json.`);

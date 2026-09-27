@@ -6,3 +6,6 @@ out/preview/
 # podklady (hlas, hudba, zaznamy) su od 27. 9. 2026 v gite; odvodeny subor sa generuje skriptom music_level.py
 public/music/bed_level.wav
 out/tmp/
+# experiment kratkej verzie: medzikroky (LinkedIn bez hudby, kontrolne stills; kontaktne harky su v gite)
+out/kratka/*_voice.mp4
+out/kratka/stills/

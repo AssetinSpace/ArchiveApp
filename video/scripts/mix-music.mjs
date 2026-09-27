@@ -2,6 +2,8 @@
 // public/music/bed.wav (Lyria, scripts/music.py) so stíšením pod hlasom (sidechain), -16 LUFS.
 //
 // Použitie: node scripts/mix-music.mjs [--music public/music/bed.wav] [--tempo auto|0.983] [--gain -6] [--range 0] [--no-music]
+//           [--list src/scenesList.ts:SCENE_LIST] [--clips out/mp4] [--out out/mp4/Full_1080p.mp4] [--cfg src/copy/music.json] [--variant K]
+//   experiment kratkej verzie: --list src/kratkaList.ts:K_LIST --clips out/kratka --out out/kratka/K_1080p.mp4 --cfg src/copy/music_kratka.json --variant K
 //   --range  vyrovnanie skladby (scripts/music_level.py): tiché časti najviac o toľko dB pod plnou (kolo 39: 0)
 //   --tempo  atempo hudby; auto (predvolene) = koniec skladby ("end" v src/copy/music.json) padne 0,4 s pred koniec filmu (±3 % tempo nepočuť)
 //   --gain   hlasitosť hudby v dB pred stíšením; -6 dB + stíšenie (prah 0,02, pomer 3): pod hlasom ~14 dB pod rečou, v pauzách ~7 dB
@@ -15,6 +17,13 @@ const MUSIC = opt('--music', 'public/music/bed.wav');
 const TEMPO_ARG = opt('--tempo', 'auto');
 const GAIN = Number(opt('--gain', '-7')); // kolo 43: o 1 dB tichsie (Samuel: velmi jemne stisit)
 const withMusic = !args.includes('--no-music');
+const [LIST_FILE, LIST_NAME] = opt('--list', 'src/scenesList.ts:SCENE_LIST').split(':');
+const CLIPS = opt('--clips', 'out/mp4');
+const OUT = opt('--out', 'out/mp4/Full_1080p.mp4');
+const PREVIEW = OUT.replace(/_1080p\.mp4$/, '_preview_540p.mp4');
+const CFG = opt('--cfg', 'src/copy/music.json');
+const VARIANT = opt('--variant', null);
+const TAG = OUT.split('/').pop().replace(/_1080p\.mp4$/, ''); // docasne subory podla vystupu (Full, K, T)
 const FF = process.env.FFMPEG ?? execFileSync('python3', ['-c', 'import imageio_ffmpeg as f; print(f.get_ffmpeg_exe())']).toString().trim();
 const TMP = 'out/tmp';
 mkdirSync(TMP, { recursive: true });
@@ -25,28 +34,39 @@ const probe = (f) => {
   return m ? +m[1] * 3600 + +m[2] * 60 + +m[3] : NaN;
 };
 
-// poradie klipov ako v render.sh (SCENE_LIST v src/scenesList.ts)
-const list = readFileSync('src/scenesList.ts', 'utf8').split('SCENE_LIST')[1].split('\n];')[0];
-const ids = [...list.matchAll(/^ {2}(?:\[|paced\()'([A-Za-z0-9-]+)'/gm)].map((m) => m[1]);
+// --video: hotove video s hlasom (experiment: LinkedIn 4:5 z jedneho renderu), bez skladania klipov
+const VIDEO = opt('--video', null);
+const joinClips = () => {
+  // poradie klipov ako v render.sh (SCENE_LIST v src/scenesList.ts, pri experimente K_LIST / T_LIST v src/kratkaList.ts)
+  const list = readFileSync(LIST_FILE, 'utf8').split(`${LIST_NAME}: [`)[1].split('\n];')[0];
+  const ids = [...list.matchAll(/^ {2}(?:\[|paced\()'([A-Za-z0-9-]+)'/gm)].map((m) => m[1]);
 
-// C1 nemá zvuk: tichá stopa, inak concat zahodí zvuk
-const files = ids.map((id) => `out/mp4/${id}.mp4`);
-const silent = `${TMP}/C1-silent.mp4`;
-execFileSync(FF, ['-v', 'error', '-y', '-i', files[0], '-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=mono', '-shortest', '-c:v', 'copy', '-c:a', 'aac', silent]);
-files[0] = silent;
-writeFileSync(`${TMP}/list.txt`, files.map((f) => `file '${process.cwd()}/${f}'`).join('\n') + '\n');
-const voice = `${TMP}/Full_voice.mp4`;
-execFileSync(FF, ['-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', `${TMP}/list.txt`, '-c:v', 'libx264', '-crf', '18', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', voice]);
+  // klip bez zvuku (C1, v kratkej verzii K-F1): ticha stopa, inak concat zahodi zvuk. Ticha stopa ma rozlozenie kanalov
+  // ako ostatne klipy (Remotion: stereo); mono ticho uprostred filmu rozbilo v concat zvuk vsetkych dalsich klipov.
+  const files = ids.map((id) => `${CLIPS}/${id}.mp4`);
+  const layout = files.map((f) => stderr(['-i', f]).match(/Audio:.*?Hz, (mono|stereo)/)?.[1]).find(Boolean) ?? 'stereo';
+  files.forEach((f, i) => {
+    if (/Audio:/.test(stderr(['-i', f]))) return;
+    const silent = `${TMP}/${ids[i]}-silent.mp4`;
+    execFileSync(FF, ['-v', 'error', '-y', '-i', f, '-f', 'lavfi', '-i', `anullsrc=r=48000:cl=${layout}`, '-shortest', '-c:v', 'copy', '-c:a', 'aac', silent]);
+    files[i] = silent;
+  });
+  writeFileSync(`${TMP}/${TAG}_list.txt`, files.map((f) => `file '${process.cwd()}/${f}'`).join('\n') + '\n');
+  const voice = `${TMP}/${TAG}_voice.mp4`;
+  execFileSync(FF, ['-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', `${TMP}/${TAG}_list.txt`, '-c:v', 'libx264', '-crf', '18', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', voice]);
+
+  let t = 0;
+  console.log('Predely:');
+  ids.forEach((id, i) => {
+    const d = probe(files[i]);
+    console.log(`  ${String(Math.floor(t / 60))}:${(t % 60).toFixed(1).padStart(4, '0')}  ${id} (${d.toFixed(2)} s)`);
+    t += d;
+  });
+  return voice;
+};
+const voice = VIDEO ?? joinClips();
 const total = probe(voice);
-
-let t = 0;
-console.log('Predely:');
-ids.forEach((id, i) => {
-  const d = probe(files[i]);
-  console.log(`  ${String(Math.floor(t / 60))}:${(t % 60).toFixed(1).padStart(4, '0')}  ${id} (${d.toFixed(2)} s)`);
-  t += d;
-});
-console.log(`Full ${total.toFixed(2)} s`);
+console.log(`${TAG} ${total.toFixed(2)} s`);
 
 /** Filter: [1:a] bez usekov cuts ([od, do] s), spojene prelinackou xf -> [mc]. */
 const musicCuts = (cuts, xf) => {
@@ -64,7 +84,7 @@ const musicCuts = (cuts, xf) => {
   return parts;
 };
 
-const out = 'out/mp4/Full_1080p.mp4';
+const out = OUT;
 if (!withMusic) {
   execFileSync(FF, ['-v', 'error', '-y', '-i', voice, '-c:v', 'copy', '-af', 'loudnorm=I=-16:TP=-1.5:LRA=11', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', out]);
 } else {
@@ -72,7 +92,8 @@ if (!withMusic) {
   // kolo 39: vyrovnanie hlasitosti skladby (tichy uvod Lyria bol pod hlasom nepocut), vysledok float WAV
   const LEVEL = MUSIC.replace(/\.wav$/, '_level.wav');
   execFileSync('python3', ['scripts/music_level.py', MUSIC, LEVEL, '--range', opt('--range', '0')], { stdio: 'inherit' });
-  const mcfg = JSON.parse(readFileSync('src/copy/music.json', 'utf8'));
+  const cfg = JSON.parse(readFileSync(CFG, 'utf8'));
+  const mcfg = VARIANT ? { ...cfg, ...cfg[VARIANT] } : cfg; // experiment: vlastne strihy hudby pre K a T
   // kolo 41: vystrihnute useky skladby (music.json "cuts", na dobu), prelinacka XF; koniec skladby sa posunie o ich dlzku
   const cuts = mcfg.cuts ?? [];
   const XF = 0.06;
@@ -92,7 +113,7 @@ if (!withMusic) {
   ].join(';');
   execFileSync(FF, ['-v', 'error', '-y', '-i', voice, '-i', LEVEL, '-filter_complex', fc, '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', out]);
 }
-execFileSync(FF, ['-v', 'error', '-y', '-i', out, '-vf', 'scale=960:540', '-c:v', 'libx264', '-crf', '24', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '128k', 'out/mp4/Full_preview_540p.mp4']);
+execFileSync(FF, ['-v', 'error', '-y', '-i', out, '-vf', 'scale=-2:540', '-c:v', 'libx264', '-crf', '24', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '128k', PREVIEW]);
 const meter = stderr(['-nostats', '-i', out, '-af', 'ebur128=peak=true', '-f', 'null', '-']);
 const summary = meter.split('Summary:')[1] ?? '';
 console.log(`${out}: ${probe(out).toFixed(2)} s, ${summary.match(/I:\s+[-\d.]+ LUFS/)?.[0] ?? '?'}, true peak ${summary.match(/Peak:\s+[-\d.]+ dBFS/)?.[0] ?? '?'}`);
