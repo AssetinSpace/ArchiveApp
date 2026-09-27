@@ -138,21 +138,22 @@
 <script>
   // Stav stranky: BUILD sa meni pri kazdom publikovani (kolo, cas renderu), zivy stav cita db dokument status/current.
   const BUILD = {
- "round": 41,
- "renderedAt": "2026-09-27T00:40:00Z"
+ "round": 42,
+ "renderedAt": "2026-09-27T10:55:00Z"
 };
   const FULL = {
  "len": 133.4,
- "cap": "721c7e4d9ecac8ff575744cc80fcb7b6",
- "poster": "7ed206c53b726ea864793fefdee08a5d",
+ "cap": "68229550b247a6872f1aa8b63a6db72d",
+ "poster": "e03b8d0899c3b93ae1a9aab9de462c1a",
  "desc": "Tvrdé strihy medzi klipmi, hlas Gemini TTS (Velvet 1), titulky a od kola 37 hudba (Lyria, pod hlasom stíšená)."
 };
   const NEWS = [
- "Film skrátený o 20 s (153,1 s -> 133,4 s).",
- "C4: bez vety „Otázne je, v akej kondícii dokumentáciu nájdete.“ (vystrihnutá z nahrávky, ostatné vety ostali).",
- "C7 (Hierarchia) vypadlo: zaradenie do hierarchie povie F1 a cestu v hierarchii ukáže F3.",
- "F3: bez QR kódu a bez vety o pôvodnom texte; nová veta „Kľúčové slovo sa zvýrazní v metadátach záznamu.“, posun k zvýraznenej zhode počas vety a rámik na nej, klip 16,1 s namiesto 24 s.",
- "Hudba skrátená o 16 s (2 takty v úvode, 5 taktov v pokojnej pasáži, strihy na dobu); nástup pri logu a záverečný akord ostávajú na mieste."
+ "C2: vytiahnuté zložky už nepresvitajú, za nimi nie je vidieť okraj krabice; druhý otáznik v sklade je na obraze rovnako dlho ako prvý (~1,1 s).",
+ "Celé video: jemnejšie obrysové čiary (tenšie a svetlejšie) na krabiciach, zložkách a regáloch, najviac vidieť v C5.",
+ "C6: okno aplikácie hneď v plnej veľkosti (ako okno záznamu F2), bez zväčšovania.",
+ "F3: rámik okolo kľúčového slova v metadátach tesne okolo zvýraznenia.",
+ "C9: logo Assetin Archives a slogan pod ním, pod čiarou firma a web.",
+ "C8: hook a rozdelenie ponuky (softvér sami / spracovanie ako služba) - návrh v chate, klip zatiaľ bez zmeny obsahu."
 ];
   const CLIPS = [
  {
@@ -167,25 +168,25 @@
   "id": "C2-Hladanie",
   "name": "Hľadanie (kancelária → sklad)",
   "len": 13.0,
-  "desc": "Kolo 34: jeden otáznik nad panáčikom v kancelárii aj v sklade (rovnaká veľkosť), bez otáznikov nad paletami a krabicami, koniec bez navyše snímok a plynulý strih do C4.",
-  "cap": "40d57e62632ac7b7a0e6a6143a299544",
-  "poster": "8445fcae3c8a73e0fde0ee750f4fac99"
+  "desc": "Kolo 42: vytiahnuté zložky už nepresvitajú (okraj krabice sa kreslí za nimi), druhý otáznik v sklade je na obraze rovnako dlho ako prvý. Jemnejšie obrysy.",
+  "cap": "97eba1583abdd5ae983ad490507a5bf5",
+  "poster": "20c0d63f3dc712d82f26c3f999b09b14"
  },
  {
   "id": "C4-Cena",
   "name": "Cena → predel",
   "len": 18.5,
-  "desc": "Kolo 41: bez vety o kondícii dokumentácie. Kolo 40: pri logu hlas „Predstavujeme vám softvérové riešenie katalogizácie Assetin Archives.“, pod logom text; veľký otáznik vedľa regálu, „2×€“ na stred.",
-  "cap": "259dbf9dfe946778f875f5f69fede623",
-  "poster": "ba867db677c0d4df04f32166c5817318"
+  "desc": "Kolo 42: jemnejšie obrysy. Kolo 41: bez vety o kondícii dokumentácie. Kolo 40: pri logu hlas „Predstavujeme vám softvérové riešenie katalogizácie Assetin Archives.“, pod logom text.",
+  "cap": "5a5ece4d6284bf9a26485facc5cb4db8",
+  "poster": "619074ff5333a1df60c254b877314618"
  },
  {
   "id": "C5-Teren",
   "name": "V sklade",
   "len": 11.8,
-  "desc": "Kolo 37: končí hneď po dosadnutí mobilu do rámika F1 (bez prázdneho displeja), hárok s QR kódmi naplocho na zemi, menší a nad titulkami.",
-  "cap": "fcca2eb36cfb52061f8e4ae0c70de576",
-  "poster": "ed613d6ec4b22f234c9182d5c6ce6f26"
+  "desc": "Kolo 42: hrany zložiek a krabice jemnejšie (tenšie a svetlejšie čiary), rovnako v celom videu. Kolo 37: končí hneď po dosadnutí mobilu do rámika F1.",
+  "cap": "c8c1d395a320eb403fdc38f4bb811536",
+  "poster": "7117991ac886e1d5bbeddd5a35c678b5"
  },
  {
   "id": "F1-Sken",
@@ -199,9 +200,9 @@
   "id": "C6-Spracovanie",
   "name": "Fotka → aplikácia",
   "len": 3.0,
-  "desc": "Kolo 33: bez zmeny, plynulejšie tempo hlasu.",
-  "cap": "75511dc1162fe146dcbde06f7c8212d1",
-  "poster": "3bda2a6a4925d27a7413501d0e8fcae7"
+  "desc": "Kolo 42: okno aplikácie je od začiatku v rozmere okna záznamu F2 (nezväčšuje sa), fotka v jeho strede.",
+  "cap": "a2814da5472e4ac19205e9cdc05004b6",
+  "poster": "78fdadc2e561988a9cb03bb3946f9373"
  },
  {
   "id": "F2-Metadata",
@@ -231,25 +232,25 @@
   "id": "F3-Vyhladavanie",
   "name": "Footage: vyhľadávanie",
   "len": 16.1,
-  "desc": "Kolo 41: bez QR kódu a bez vety o pôvodnom texte. „Kľúčové slovo sa zvýrazní v metadátach záznamu.“ s posunom k zvýraznenej zhode (Popis zmeny) a rámikom na nej; predtým cesta v hierarchii a odznaky Nájdené v: Metadáta | OCR.",
-  "cap": "109edc4839e11f5a2c3fa47c0f43bc33",
-  "poster": "cab56da6ad1f94a3602c11305e540423"
+  "desc": "Kolo 42: rámik okolo kľúčového slova v metadátach tesne okolo zvýraznenia. Kolo 41: bez QR kódu a bez vety o pôvodnom texte.",
+  "cap": "0a177b4323e30122b445cd16020937de",
+  "poster": "655630dfabb04e41bef634df3da46129"
  },
  {
   "id": "C8-Pilot",
   "name": "Pilot",
   "len": 9.3,
-  "desc": "Kolo 33: namiesto „Nezačíname celým archívom“ prívetivejšie „Začnime postupne.“ (aj nadpis vpravo), ikony so slovami vety.",
-  "cap": "68ed1a72b23b6a2dd72eded5e575a9fb",
-  "poster": "90ffc15416200f0a31d394d318289d58"
+  "desc": "Kolo 42: len jemnejšie obrysy krabice; nový hook a rozdelenie ponuky (softvér sami / služba) je návrh v chate, čaká na rozhodnutie.",
+  "cap": "9282e6d5518c6daf48874e0a49734386",
+  "poster": "28058e8c5c90c6d0ae96e65426822ef8"
  },
  {
   "id": "C9-Outro",
   "name": "Outro",
   "len": 7.3,
-  "desc": "Kolo 34: hlas pregenerovaný v plynulom tempe (štýl B) ako zvyšok filmu.",
-  "cap": "b222ed115cb19e83ee43977716e656d0",
-  "poster": "185ddc750fc9f07227236c4d8f8ac6c2"
+  "desc": "Kolo 42: lockup Assetin Archives a pod ním slogan „Digitálna katalogizácia archivovanej dokumentácie“, pod čiarou značka, firma a web.",
+  "cap": "cef9ac7004b196434ca27e31c895ac7f",
+  "poster": "30795f8ea82e3a194ca0ab1b5517f502"
  }
 ];
 

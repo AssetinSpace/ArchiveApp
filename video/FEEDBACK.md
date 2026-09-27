@@ -455,3 +455,5 @@ Full 133,4 s (predtým 153,1 s), -16 LUFS, true peak -1,3 dB. Poradie: C1 · C2 
 | F3 | Obdĺžnik okolo kľúčového slova v metadátach je priveľký. | Spot tesne okolo žltej zhody (okraj 4 px namiesto 8 px, rámik 3 px); `Mark.pad` v `F2_Metadata.tsx`. |
 | C9 | Dať aj logo Assetin Archives a slogan pod neho. | Hore lockup Assetin Archives (assetin/.space \| Archives, ako v C4) a pod ním „Digitálna katalogizácia archivovanej dokumentácie“; pod čiarou malá značka, Assetin, s. r. o. a web. |
 | C8 | Analyzovať, či by tu nebol lepší hook. | Len návrh v chate (bez zmeny klipu), čaká na výber Samuela. |
+
+Full 133,4 s (dĺžky klipov bez zmeny), -16 LUFS, true peak -1,3 dB. Samuel mimo stránky: premyslieť rozdelenie C8 na dve ponuky (softvér používať sami / celý sklad spracujeme ako službu); rozbor pre a proti a otázky v chate, zatiaľ bez zmeny.
