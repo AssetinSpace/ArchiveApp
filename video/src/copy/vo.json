@@ -197,15 +197,28 @@
   "C8-Pilot": [
     {
       "at": 400,
-      "text": "Začnime postupne. Obhliadka skladu, pilot na jednej krabici a až potom rozsah a ponuka.",
+      "text": "Archív vám spracujeme na kľúč. Začneme obhliadkou skladu a pilotom na jednej krabici.",
       "parts": [
-        "Začnime postupne.",
-        "Obhliadka skladu, pilot na jednej krabici a až potom rozsah a ponuka."
+        "Archív vám spracujeme na kľúč.",
+        "Začneme obhliadkou skladu a pilotom na jednej krabici."
       ],
-      "dur": 7160,
+      "dur": 6000,
       "partAt": [
         0,
-        1680
+        2433
+      ]
+    },
+    {
+      "at": 6800,
+      "text": "Alebo ho môžete katalogizovať sami v našej aplikácii. Stačí priradiť licenciu.",
+      "parts": [
+        "Alebo ho môžete katalogizovať sami v našej aplikácii.",
+        "Stačí priradiť licenciu."
+      ],
+      "dur": 5640,
+      "partAt": [
+        0,
+        3560
       ]
     }
   ],

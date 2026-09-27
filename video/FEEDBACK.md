@@ -457,3 +457,12 @@ Full 133,4 s (predtým 153,1 s), -16 LUFS, true peak -1,3 dB. Poradie: C1 · C2 
 | C8 | Analyzovať, či by tu nebol lepší hook. | Len návrh v chate (bez zmeny klipu), čaká na výber Samuela. |
 
 Full 133,4 s (dĺžky klipov bez zmeny), -16 LUFS, true peak -1,3 dB. Samuel mimo stránky: premyslieť rozdelenie C8 na dve ponuky (softvér používať sami / celý sklad spracujeme ako službu); rozbor pre a proti a otázky v chate, zatiaľ bez zmeny.
+
+### Kolo 42b: C8 ako dve ponuky (Samuel v chate)
+
+Samuel: softvér na samostatné používanie budú ponúkať v blízkej dobe; do služby patrí všetko (QR na mieste, fotenie, kontrola metadát, odovzdanie databázy); hlavná ponuka je „spracujeme my“; názvy podľa návrhu; pilot a obhliadka patria k službe, pri softvéri priradenie licencie.
+
+- C8 „Ako začať“ (13,1 s, predtým 9,3 s): vľavo hlavná karta „Služba na kľúč“ (zelená; „Celý archív spracujeme za vás.“; 1 Obhliadka skladu, 2 Pilot na jednej krabici), vpravo „Softvér“ („Katalogizujete vlastnými ľuďmi.“, malé okno aplikácie; 1 Priradenie licencie). Počas vety o softvéri je karta služby stlmená, na konci obe rovnako. Texty v `offer` (`src/copy/sk.ts`).
+- Nový hlas (Gemini, 2 generovania, prepis OK): „Archív vám spracujeme na kľúč. Začneme obhliadkou skladu a pilotom na jednej krabici.“ (0,4 s) a „Alebo ho môžete katalogizovať sami v našej aplikácii. Stačí priradiť licenciu.“ (6,8 s).
+- Pozor pri zverejnení: ak video pôjde von skôr ako softvér, kartu Softvér a druhú vetu vynechať (otázka pre Samuela otvorená).
+- `check-stills.mjs` kontroluje znova aj C8 (karty nad pásmom titulkov). Full 137,2 s, hudba tempo 0,970 (na hranici ±3 %), -16,1 LUFS.

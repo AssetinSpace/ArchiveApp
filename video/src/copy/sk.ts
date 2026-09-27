@@ -30,6 +30,13 @@ export const pilot = {
   labels: ['Obhliadka skladu', 'Pilot na jednej krabici', 'Rozsah a ponuka'],
 };
 
+/** C8 (kolo 42): dve ponuky - sluzba na kluc (hlavna) a softver. */
+export const offer = {
+  kicker: 'Ako začať',
+  service: { title: 'Služba na kľúč', desc: 'Celý archív spracujeme za vás.', steps: ['Obhliadka skladu', 'Pilot na jednej krabici'] },
+  software: { title: 'Softvér', desc: 'Katalogizujete vlastnými ľuďmi.', steps: ['Priradenie licencie'] },
+};
+
 export const sk = {
   S00: {
     title: 'Assetin Archives',
