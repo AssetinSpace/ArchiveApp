@@ -495,3 +495,10 @@ Samuel: hore „Ako začať“, pod tým určenie rozsahu - identifikačné stra
 - Tretia veta hlasu nanovo: „V oboch prípadoch určíte rozsah nasadenia: len identifikačné strany, alebo skenovanie celých dokumentov s fulltextovým vyhľadávaním.“ (prepis OK). Počas nej je horný riadok stlmený, karty rozsahu nastupujú so slovami. Klip 21,1 s.
 
 Full 145,2 s, hudba tempo 0,997, -16 LUFS.
+
+
+## Kolo 46 (27. 9. 2026): C8 riadky farebne odlíšené (Samuel v chate)
+
+Samuel: rozloženie je fajn, len dva riadky farebne odlíšiť, splývajú.
+
+- Horný riadok „Ako začať“ ostáva biely so zelenou (farba značky, služba so zeleným rámikom). Dolný „Rozsah nasadenia“ má svetlomodré karty (NAVY 100), biele kruhy s tmavomodrými ikonami, biele štítky s tmavomodrou fajkou, nadpis riadku a čiara tmavomodré (`TONE` v `C8_Pilot.tsx`). Dĺžka bez zmeny, Full 145,2 s.
