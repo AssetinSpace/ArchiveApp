@@ -525,3 +525,10 @@ Samuel: toto kolo zapísať ako checkpoint, ďalšie pripomienky pokračujú od 
 - Poradie klipov: C1 · C2 · C4 · C5 · F1 · C6 · F2 · F4 · C10 · F3 · C8 · C9.
 - Otvorené: C5 „fyzickými dokumentami“ vs. spisovné „dokumentmi“ (čaká na Samuela); vydanie videa pred spustením softvéru (karta Softvér v C8).
 - Návrat: `git checkout 068edd1 -- video/` (zdroje, texty, hlas `vo.json`, hudba `music.json`); vygenerované vety hlasu a hudba sú mimo gitu (postup obnovy v HANDOFF.md).
+
+
+## Kolo 48 (27. 9. 2026): C5 „dokumentami“ (prvé kolo po checkpointe 47)
+
+Samuel v chate: C5 „dokumentami“ zmeniť všade; otázku vydania pred spustením softvéru neriešiť (karta Softvér v C8 ostáva).
+
+- „Riešenie začína fyzickými dokumentami.“ (text, titulky aj `say` vo `vo.json`, inde sa tvar nevyskytuje). Prvá veta C5 vygenerovaná nanovo (prepis OK), časy slov sa líšia najviac o 0,1 s, klip C5 11,75 s bez zmeny. Full 145,2 s.

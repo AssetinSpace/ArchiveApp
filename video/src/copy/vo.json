@@ -55,18 +55,18 @@
   "C5-Teren": [
     {
       "at": 300,
-      "text": "Riešenie začína fyzickými dokumentmi. Jedinečný QR kód sa prilepí na každú položku a mobilom sa odfotí jej identifikačná strana.",
+      "text": "Riešenie začína fyzickými dokumentami. Jedinečný QR kód sa prilepí na každú položku a mobilom sa odfotí jej identifikačná strana.",
       "parts": [
-        "Riešenie začína fyzickými dokumentmi.",
+        "Riešenie začína fyzickými dokumentami.",
         "Jedinečný QR kód sa prilepí na každú položku",
         "a mobilom sa odfotí jej identifikačná strana."
       ],
-      "say": "Riešenie začína fyzickými dokumentmi. Jedinečný kjúár kód sa prilepí na každú položku a mobilom sa odfotí jej identifikačná strana.",
-      "dur": 9440,
+      "say": "Riešenie začína fyzickými dokumentami. Jedinečný kjúár kód sa prilepí na každú položku a mobilom sa odfotí jej identifikačná strana.",
+      "dur": 9640,
       "partAt": [
         0,
-        2920,
-        5980
+        2940,
+        5840
       ]
     }
   ],
