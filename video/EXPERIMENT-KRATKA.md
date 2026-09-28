@@ -11,6 +11,40 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 6 (28. 9. 2026): priblížený úvod, "Hľadanie môže trvať hodiny", nový nástup loga
+
+Samuel: nie je na začiatku málo vidieť panáčika, nemá zmysel priblížiť?; "hľadanie môže trvať hodiny", nie "trvá";
+okolo 0:11 je zbytočne veľa voľného času; logo okolo 0:14 nemá "horieť", ale prísť profesionálnejšie.
+
+- Priblíženie: rámec 4:5 má nad a pod pásom 16:9 voľné miesto, panáčik v kancelárii mal na mobile asi 12 x 32 px.
+  Kamera rámca (`Cam`, `camShift`, nové `s` v `shift`) priblíži kanceláriu 1,45x a pomaly na 1,75x (panáčik a skriňa),
+  pri prestrihu do skladu späť na 1,3x (sklad, polica), v C4 na 1,45x na skupinu regál, otáznik, hodiny. Okno pásu
+  v úvode `INTRO_WIN` 110-1060 px; pod bielou v C4 znova pás, aby okraj tmavej scény nebol na bielej vidieť.
+- Veta "Hľadanie môže trvať hodiny." je nová (Gemini, tri pokusy, vybraný podľa intonácie, prepis OK), v C4 od 0 ms,
+  reč 0,5 s po konci vety C2 (predtým 2,1 s ticha). C2 je o 0,3 s kratšie (9,7 s).
+- Tempo C4: `K_C4_FAST` prehrá začiatok scény C4 rýchlejšie cez `Freeze` (kamera 1700 ms scény za 1100 ms, otáznik
+  pri "Hľadanie", hodiny pri "hodiny"), pauza `K_C4_HOLDS` vypadla, scéna `C4_Cena` sa nemení (d -1920, h 3320).
+  C4 9,37 s namiesto 10,7 s.
+- Logo: namiesto bieleho svetla zo stredu (pôsobilo ako žiara) čistý prechod zdola nahor: zelený pás značky a 220 ms za
+  ním biely (ostré hrany, 480 ms, od 11,75 s), nad značkou aj webom rámca (nová vrstva `top`). Pod bielou sa scéna C4
+  prelinie do bielej a rámec prepne farby. Logo sa poskladá (`Lockup` s `build`): čiary narastú, domček dosadne,
+  "assetin" a "Archives" vyjdú zospodu z masky a zosvetlia sa, slogan sa dotiahne. Titulok pred prechodom vybledne
+  (`subsOut`), malý riadok značky hore je počas veľkého loga skrytý (`rowOut`). Veta "Predstavujeme vám..." 2750 ms.
+- Hudba: strihy `[[9.03, 27.49], [66.72, 129.03]]`, pulz (takt 11) ~9,2 s na konci vety o sklade, plná kapela ~11,6 s
+  tesne pred zeleným prechodom (11,75 s), pokojný záver ~51,9 s = začiatok ponuky (51,6 s). Film 70,4 s.
+- Test prvej verzie kola 6 (priblíženie 1,3-1,55x, biela 100 ms za zelenou): laikovi aj správcovi sa nástup loga páčil
+  ("pekná a profesionálna", "čisto, budí dôveru"), obaja však panáčika stále vnímali ako drobného a laikovi skok z tmavej
+  do bielej pripomínal záblesk; posudok "dizajnéra" (Gemini, snímky po 1 s) dal prechodu 5/10, polovičné písmená
+  v maske videl ako chybu a malé logo hore ako duplicitu. Preto väčšie priblíženie, dlhšia celá zelená, zosvetlenie
+  slov v maske a skrytý riadok značky.
+- Výsledok: `out/kratka/K-LinkedIn_1080p.mp4` 70,5 s, -16 LUFS, hudba tempo 0,972; technická kontrola bez chýb (hlas 5/5),
+  plná kapela nastúpi v 11,6 s (meranie basov), zelený prechod od 11,75 s. Nový plagát review stránky je priblížená
+  kancelária (2,3 s).
+- Test finálnej verzie na mobile: obaja pochopili podstatu, cestu PL_01 -> KR_01 -> ZL_03, obe voľby a skúšku zadarmo.
+  Logo: laik "seriózne a profesionálne", správca "čisto a profesionálne"; obom je však skok z tmavej do bielej na mobile
+  ostrý. Panáčik je podľa nich stále drobný a schematický, ale zrozumiteľný; úvod pri regáloch 0:04-0:11 im príde pomalý.
+  Dĺžka podľa nich 35-45 s. Otvorené otázky (logo na zelenej, kratšia veta o sklade) sú na review stránke.
+
 ## Kolo 5 (28. 9. 2026): kratší problém a kratšia veta o prevádzke
 
 Samuel: skrátiť vetu o infraštruktúre; posúdiť, či "Platíte dvakrát za to isté" treba ako hook, alebo stačí, že

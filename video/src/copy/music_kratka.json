@@ -4,7 +4,7 @@
   "K": {
     "cuts": [
       [
-        11.34,
+        9.03,
         27.49
       ],
       [
@@ -12,6 +12,6 @@
         129.03
       ]
     ],
-    "_cuts": "Kolo 5 (problem skrateny na \"Hladanie trva hodiny.\", film 72 s): 7 taktov (4-10) z pulzujucej casti, pulz (takt 11) nastupi s vetou o hladani (~11,5 s), plna kapela (takt 12) ~13,8 s tesne pred prechodom do bielej (13,9 s); 26 taktov (28-54) z plneho grooveu, pokojny zaver od ~53,7 s = zaciatok ponuky (53,2 s). Kolo 4: [[13.65, 25.19], [71.34, 129.03]]."
+    "_cuts": "Kolo 6 (\"Hladanie moze trvat hodiny.\" hned po C2, zeleny prechod na logo, film 70,4 s): 8 taktov (3-10) z pulzujucej casti, pulz (takt 11) ~9,2 s na konci vety o sklade, plna kapela (takt 12) ~11,6 s tesne pred zelenym prechodom (11,75 s); 27 taktov (28-54) z plneho grooveu, pokojny zaver od ~51,9 s = zaciatok ponuky (51,6 s). Kolo 5: [[11.34, 27.49], [66.72, 129.03]], kolo 4: [[13.65, 25.19], [71.34, 129.03]]."
   }
 }

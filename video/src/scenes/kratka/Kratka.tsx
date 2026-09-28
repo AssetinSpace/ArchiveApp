@@ -24,8 +24,13 @@ export const SLOGAN = 'Digitálny poriadok v papierovom archíve';
  * ze sa dokumenty nedaju dohladat): z problemu ostava regal, otaznik a hodiny ("Hladanie trva hodiny."), predel hned
  * po hodinach (d -2200 ms: 3400 ms sceny namiesto 6200), vykres, cenovky a "2x EUR" vypadli.
  */
-export const K_C4_D = -2200;
-export const K_C4_H = 3300;
+/**
+ * Kolo 6 (Samuel: "Hladanie moze trvat hodiny.", menej prazdneho miesta): predel 3680 ms sceny (d -1920), LinkedIn
+ * prehra zaciatok C4 rychlejsie (o 1150 ms), predel je tak 2530 ms klipu pod zelenym prechodom (od 2050 ms, plna
+ * kapela 0,15 s pred nim); znacka drzi h 3320, aby logo odislo 5,4 s po zaciatku vety "Predstavujeme vam..." ako v kole 5.
+ */
+export const K_C4_D = -1920;
+export const K_C4_H = 3320;
 export const K_C4: React.FC = () => <C4_Cena d={K_C4_D} h={K_C4_H} brand={false} cost={false} />;
 /** Scena C4 konci po usadeni krabice a paticke (ako v hlavnej verzii: 8200 + d + h + 900 ms). */
 export const c4End = (d: number, h: number) => (8200 + d + h + 900) / 1000;
