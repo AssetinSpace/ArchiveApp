@@ -51,6 +51,9 @@ import { BRAND, FONT, FPS, INK, ISO, NAVY } from '../../theme';
  * hlasom), vacsi mobil, prelinacka F3 -> ponuka, kratsia ponuka a "v sulade s vasimi bezpecnostnymi poziadavkami",
  * vacsia znacka vpravo hore.
  * Kolo 14: kancelaria a sklad na jednej spolocnej plosine (kamera ide po tej istej podlahe), znacka vpravo dole bez domceka.
+ * Kolo 15: namiesto chvile s otaznikom a hodinami most "S nami ho najdete za par sekund." so zelenym prechodom ("Hladanie moze
+ * trvat hodiny." uz pri navrate zloziek, pomaly najazd na policu), pod logom pilulka "Prve dokumenty zadarmo a nezavazne",
+ * web pod vyzvou.
  * Hlas a titulky: src/copy/vo_kratka.json, hudba mix-music.mjs --video.
  */
 export const LI = { w: 1080, h: 1350 };
@@ -82,6 +85,7 @@ type LiDef = {
   rowOut?: [number, number]; // kolo 6: riadok znacky hore v useku [od, do) ms nie je, potom sa vrati (C4: pocas velkeho loga)
   labelOut?: boolean; // nazov kroku na konci klipu vybledne s obrazom (F3 -> C8, kde uz ziadny krok nie je)
   xfadeIn?: number; // kolo 13: ms, o ktore sa klip prekryje s predchadzajucim a cely sa v nich prelinie (F3 -> C8 bez bielej)
+  subInk?: (ms: number) => number; // kolo 15: farba titulkov 0 = biela, 1 = tmava (C4: titulok mosta pocas zeleneho prechodu)
 };
 /**
  * Okno, cez ktore vidno pas 16:9 (px ramca): hore/dole makky prechod `feather` px do pozadia ramca, aby obsah
@@ -155,8 +159,16 @@ const StepLabel: React.FC<{ steps: { from: number; title: string }[]; frame: num
   );
 };
 
-/** Velke titulky pod obrazom: casy a casti ako Subtitles (vo_kratka.json), biela na tmavom, ink na svetlom. */
-const BigSubtitles: React.FC<{ clip: string; tone: Tone }> = ({ clip, tone }) => {
+/** Zmes dvoch farieb #rrggbb (t = 0 prva, 1 druha). */
+const mixHex = (a: string, b: string, t: number) => {
+  const ch = (h: string, i: number) => parseInt(h.slice(1 + 2 * i, 3 + 2 * i), 16);
+  return `rgb(${[0, 1, 2].map((i) => Math.round(ch(a, i) + (ch(b, i) - ch(a, i)) * t)).join(',')})`;
+};
+/**
+ * Velke titulky pod obrazom: casy a casti ako Subtitles (vo_kratka.json), biela na tmavom, ink na svetlom. Kolo 15: `ink`
+ * = plynula farba medzi bielou (0) a tmavou (1), ked sa pozadie pod titulkom meni pocas prechodu.
+ */
+const BigSubtitles: React.FC<{ clip: string; tone: Tone; ink?: number }> = ({ clip, tone, ink }) => {
   const frame = useCurrentFrame();
   const ms = (frame / FPS) * 1000;
   const lines = voLines(clip);
@@ -167,7 +179,7 @@ const BigSubtitles: React.FC<{ clip: string; tone: Tone }> = ({ clip, tone }) =>
   const start = cur.at + (k >= 0 ? cur.partAt![k] : 0);
   const t = Math.min(1, (ms - start) / 180);
   return (
-    <div style={{ position: 'absolute', left: 56, right: 56, top: SUB_Y, textAlign: 'center', fontFamily: FONT.display, fontWeight: 700, fontSize: 58, lineHeight: 1.18, letterSpacing: '-0.01em', color: tone === 'dark' ? '#fff' : INK[900], opacity: t, transform: `translateY(${(1 - t) * 10}px)` }}>
+    <div style={{ position: 'absolute', left: 56, right: 56, top: SUB_Y, textAlign: 'center', fontFamily: FONT.display, fontWeight: 700, fontSize: 58, lineHeight: 1.18, letterSpacing: '-0.01em', color: ink !== undefined ? mixHex('#ffffff', INK[900], ink) : tone === 'dark' ? '#fff' : INK[900], opacity: t, transform: `translateY(${(1 - t) * 10}px)` }}>
       {text}
     </div>
   );
@@ -746,6 +758,21 @@ const SafeBanner: React.FC<{ top: number; on: boolean }> = ({ top, on }) => (
     </div>
   </div>
 );
+/**
+ * Zelena pilulka s fajkou (vyzva "Zadarmo a nezavazne"). Kolo 15: spolocna pre vyzvu na konci aj pilulku pod logom
+ * ("Prve dokumenty zadarmo a nezavazne"), aby ju divak pri vyzve spoznal; `size` = velkost pisma, okraje v pomere.
+ */
+const FreePill: React.FC<{ text: string; size?: number }> = ({ text, size = 54 }) => {
+  const k = size / 54;
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 18 * k, padding: `${22 * k}px ${44 * k}px`, borderRadius: 999, background: `linear-gradient(160deg, ${BRAND[700]} 0%, ${BRAND[600]} 100%)`, boxShadow: '0 18px 40px rgba(31,122,51,0.25)', fontFamily: FONT.display, fontWeight: 800, fontSize: size, lineHeight: 1, letterSpacing: '-0.01em', color: '#fff', whiteSpace: 'nowrap' }}>
+      <svg width={52 * k} height={52 * k} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" style={{ flex: 'none' }}>
+        <path d="M4.5 12.5 L10 18 L19.5 6.5" />
+      </svg>
+      {text}
+    </div>
+  );
+};
 const OrPill: React.FC<{ top: number; t: number }> = ({ top, t }) => (
   <div style={{ position: 'absolute', left: (LI.w - 104) / 2, top, width: 104, height: 50, borderRadius: 25, background: '#fff', border: `2px solid ${INK[200]}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: FONT.body, fontWeight: 600, fontSize: 26, color: INK[500], opacity: t }}>alebo</div>
 );
@@ -766,6 +793,7 @@ const LI_C8: React.FC = () => {
   const head = settle(frame, C8L(3) - 100);
   const sticker = pop(frame, C8L(3) + C8_W3.krabicou - 100);
   const free = pop(frame, C8L(3) + C8_W3.zadarmo - 150, { damping: 16 });
+  const web = settle(frame, C8L(3) + C8_W3.zadarmo + 450);
   return (
     <AbsoluteFill style={{ background: '#fff' }}>
       {slide(
@@ -794,12 +822,11 @@ const LI_C8: React.FC = () => {
             Začnime <span style={{ color: BRAND[600] }}>jednou krabicou</span>
           </div>
           <div style={{ position: 'absolute', left: 0, right: 0, top: 966, display: 'flex', justifyContent: 'center', opacity: Math.min(1, free * 1.5), transform: `scale(${0.85 + 0.15 * free})` }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 18, padding: '22px 44px', borderRadius: 999, background: `linear-gradient(160deg, ${BRAND[700]} 0%, ${BRAND[600]} 100%)`, boxShadow: '0 18px 40px rgba(31,122,51,0.25)', fontFamily: FONT.display, fontWeight: 800, fontSize: 54, lineHeight: 1, letterSpacing: '-0.01em', color: '#fff', whiteSpace: 'nowrap' }}>
-              <svg width={52} height={52} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" style={{ flex: 'none' }}>
-                <path d="M4.5 12.5 L10 18 L19.5 6.5" />
-              </svg>
-              Zadarmo a nezáväzne
-            </div>
+            <FreePill text="Zadarmo a nezáväzne" />
+          </div>
+          {/* kolo 15 (laik v teste: kam sa ozvat): web pod pilulkou, ako na zaverecnom logu */}
+          <div style={{ position: 'absolute', left: 0, right: 0, top: 1108, display: 'flex', justifyContent: 'center', opacity: web, transform: `translateY(${(1 - web) * 12}px)` }}>
+            <div style={{ padding: '12px 32px', borderRadius: 40, border: `2px solid ${INK[200]}`, fontFamily: FONT.display, fontWeight: 700, fontSize: 42, letterSpacing: '0.01em', color: INK[800] }}>{sk.S12.web}</div>
           </div>
         </>,
       )}
@@ -849,33 +876,13 @@ const Lockup: React.FC<{ size: number; onDark: boolean; build?: number }> = ({ s
 };
 
 /**
- * C4 v kole 6 (ms klipu). Samuel: "Hladanie moze trvat hodiny." a menej prazdneho miesta okolo 0:11 (predtym 2 s ticha
- * medzi C2 a vetou o hladani). Veta ide hned za C2 (od 0 ms, rec 270-1840 ms); scena C4 bezi rychlejsie na zaciatku:
- * kamera (0-1700 ms sceny) za 1100 ms, otaznik (1100) pri slove "Hladanie", hodiny (2600) pri slove "hodiny" (1450 ms),
- * dalej 1:1 o C4_SKIP neskor (Freeze na case sceny, scena C4 sa nemeni).
+ * C4 v kolach 6 az 14: "Hladanie moze trvat hodiny." na zaciatku C4, kamera na skupinu regal, otaznik a hodiny (kolo 12:
+ * zaciatok sceny 1,55x bez skoku, kolo 13: pomale priblizenie), zeleny prechod 110 ms po slove "hodiny".
+ * Kolo 15 (Samuel: namiesto hodin most "S nami ho najdete za par sekund."; testeri: pri otazniku a hodinach sa len caka):
+ * veta o hodinach je uz v C2 pri navrate zloziek, C4 zacina zelenym prechodom a mostom (hlas od 0,3 s). Scena C4 stoji na
+ * prvom obraze (polica ako na konci C2, otaznik ani hodiny sa neobjavia), kym ju zelena cela neprekryje (C4_JUMP), potom
+ * skoci na predel (5600 + K_C4_D ms sceny) a dalej bezi 1:1 (Freeze na case sceny, scena C4 sa nemeni).
  */
-/**
- * Kolo 12 (Samuel: 0:07-0:10 je rozsekane, v kole 11 skok 12,5x): zaciatok C4 bezi stale 1,55x (kamera sceny 0-1700 ms za
- * 1100 ms ako kamera pasu, obe su v rovnakej faze), od 950 ms sa rychlost plynulo vrati na 1:1 (1250 ms), ked uz kamera
- * dobieha. Otaznik (1100 ms sceny) pri 712 ms, hodiny (K_C4_CLOCK 1400) pri 906 ms klipu, bez skoku.
- */
-const C4_R = 1700 / 1100;
-const C4_K: [number, number] = [950, 1250];
-const c4SceneMs = (ms: number) => {
-  if (ms <= C4_K[0]) return ms * C4_R;
-  const L = C4_K[1] - C4_K[0],
-    u = Math.min(ms, C4_K[1]) - C4_K[0];
-  return C4_K[0] * C4_R + C4_R * u - ((C4_R - 1) * u * u) / (2 * L) + Math.max(0, ms - C4_K[1]);
-};
-const C4_SKIP = Math.round(c4SceneMs(C4_K[1]) - C4_K[1]); // 600 ms sceny naviac
-const K_C4_FAST: React.FC = () => {
-  const frame = useCurrentFrame();
-  return (
-    <Freeze frame={(c4SceneMs((frame / FPS) * 1000) / 1000) * FPS}>
-      <K_C4 />
-    </Freeze>
-  );
-};
 /**
  * Kolo 6 (Samuel: logo pri 0:14 nema "horiet" ako svetlo, ma prist profesionalnejsie): cisty prechod zdola nahor, najprv
  * zeleny pas znacky, WHITE_AFTER ms za nim biely (ostre hrany, WIPE_MS), potom sa logo posklada. Prechod je nad znackou a webom
@@ -883,45 +890,45 @@ const K_C4_FAST: React.FC = () => {
  */
 /**
  * Kolo 13 (Samuel: zeleny prechod na logo zapracovat; testeri: na mobile prudky, "ako strihova chyba"): 800 ms namiesto
- * 480, mekksia krivka a makka horna hrana (WIPE_FEATHER px), zacina stale 110 ms po slove "hodiny". Scena C4 zbelie
- * pod zelenou o 320 ms neskor (K_C4_D -2250, K_C4_H 3000: vsetko po logu ostava v rovnakom case).
+ * 480, mekksia krivka a makka horna hrana (WIPE_FEATHER px).
  */
 const WIPE_MS = 800;
 const WIPE_FEATHER = 110;
 const WHITE_AFTER = 220; // test kola 6 (laik: z tmavej do bielej ako zablesk): chvilu cela zelena, biela az za nou
 const WIPE_EASE = Easing.bezier(0.45, 0, 0.25, 1);
-const C4_WIPE = 5600 + K_C4_D - C4_SKIP - WIPE_MS; // 1950 ms (kolo 9): 110 ms po slove "hodiny" (1840), plna kapela tesne pred nim
+const C4_WIPE = 0; // kolo 15: hned na zaciatku C4 (C2 konci 110 ms po slove "hodiny"), most "S nami..." od 300 ms
+const C4_JUMP = C4_WIPE + WIPE_MS; // zelena zakryje cely ramec
+const C4_SKIP = 5600 + K_C4_D - C4_JUMP; // po skoku: cas sceny = cas klipu + C4_SKIP (predel sceny pod zelenou ako v kole 13)
+const c4SceneMs = (ms: number) => (ms < C4_JUMP ? 0 : ms + C4_SKIP);
+const K_C4_LI: React.FC = () => {
+  const frame = useCurrentFrame();
+  return (
+    <Freeze frame={(c4SceneMs((frame / FPS) * 1000) / 1000) * FPS}>
+      <K_C4 />
+    </Freeze>
+  );
+};
 const C4_LIGHT = C4_WIPE + WHITE_AFTER + WIPE_MS; // biela zakryje cely ramec: ramec prepne farby, pas bez priblizenia
 const C4_PANEL_OUT = C4_WIPE + WIPE_MS + 630; // scena C4 je cela biela (prelinacka 600 ms), biela vrstva zmizne
 const C4_LOGO = C4_WIPE + WHITE_AFTER + Math.round(0.55 * WIPE_MS); // logo sa zacne skladat, ked biela prejde jeho miesto
 const C4_BRAND_OUT = 7900 + K_C4_D + K_C4_H - C4_SKIP - 50; // odchod loga (C4 brandOut) - 50 ms
 /**
- * Pas v C4: z priblizenej police (koniec C2) na skupinu regal, otaznik, hodiny na stred; pod bielou bez priblizenia.
- * Kolo 8 (Samuel: v sklade, ked tam hlada, to nie je dost priblizene): polica s prehladavanim krabic 1,8x (predtym 1,3x).
+ * Pas na konci C2 a v C4: priblizena polica (kolo 8, Samuel: v sklade, ked tam hlada, to nie je dost priblizene: 1,8x),
+ * pod bielou bez priblizenia.
  */
 const C2_END_CAM: Cam = { z: 1.8, fx: 960, fy: 450, tx: 540, ty: 600 };
-const C4_GROUP_CAM: Cam = { z: 1.45, fx: 690, fy: 480, tx: 540, ty: 560 };
-/**
- * Kolo 13 (Samuel: ozivit hodiny priblizenim; testeri: pri otazniku a hodinach sa len caka): po usadeni kamera pomaly
- * priblizi otaznik a hodiny (bod medzi nimi, scena 955 x 500, ostava na mieste), 1,45 -> 1,7x za 1,6 s, az kym ich
- * neprekryje zeleny prechod. C4_GROUP_Q je ten isty zaber ako C4_GROUP_CAM, len s bodom medzi otaznikom a hodinami.
- */
-const C4_Q: [number, number] = [955, 500];
-const C4_GROUP_Q: Cam = { z: C4_GROUP_CAM.z, fx: C4_Q[0], fy: C4_Q[1], tx: C4_GROUP_CAM.tx + S169 * C4_GROUP_CAM.z * (C4_Q[0] - C4_GROUP_CAM.fx), ty: C4_GROUP_CAM.ty + S169 * C4_GROUP_CAM.z * (C4_Q[1] - C4_GROUP_CAM.fy) };
-const C4_PUSH_CAM: Cam = { ...C4_GROUP_Q, z: 1.7 };
 /**
  * Okno pasu C4: pocas priblizenia vacsie (INTRO_WIN), pod bielou znova pas s makkymi okrajmi. Scena C4 je tmava s bielou
  * prelinackou, jej okraj (878,5 px) by na bielom ramci ostal ako tenka siva ciara; okno pasu ho skryje ako v kole 5.
  */
 const c4Win = (ms: number) => (ms < C4_LIGHT ? INTRO_WIN : BAND_WIN);
-const c4Cam = camShift([
-  [0, C2_END_CAM],
-  [1100, C4_GROUP_CAM], // kolo 12: spolu s kamerou sceny (C4_R), ako v kole 10
-  [1101, C4_GROUP_Q],
-  [C4_WIPE + WIPE_MS - 50, C4_PUSH_CAM], // kolo 13: pomale priblizenie otaznika a hodin
-  [C4_LIGHT, C4_PUSH_CAM],
-  [C4_LIGHT + 1, CAM_ID],
-]);
+/** Kolo 15: pomaly najazd z C2 (slowZoom okolo bodu police C2_Q) pokracuje, kym obraz neprekryje zelena; pod bielou CAM_ID. */
+const c4Shift = (ms: number) => {
+  if (ms >= C4_LIGHT) return camShift([[0, CAM_ID]])(ms);
+  const k = S169 * C2_END_CAM.z; // ten isty zaber ako C2_END_CAM, len s bodom police C2_Q na jeho mieste v ramci
+  const cam: Cam = { z: C2_END_CAM.z * slowZoom(C2_SECONDS * 1000 + ms), fx: C2_END_CAM.fx + (C2_Q[0] - C2_END_CAM.tx) / k, fy: C2_END_CAM.fy + (C2_Q[1] - C2_END_CAM.ty) / k, tx: C2_Q[0], ty: C2_Q[1] };
+  return camShift([[0, cam]])(ms);
+};
 /**
  * Kolo 8 (Samuel: vynechat "Vy viete, ze tam niekde je.") a kolo 9 (Samuel: panacik v sklade ide extremne rychlo):
  * kancelaria a sklad maju vlastny cas (Office a Warehouse z C2_Hladanie, scena sa nemeni). Delenie vedla seba
@@ -977,8 +984,14 @@ const C2_UP = 7820; // cas skladu: zlozky v oboch krabiciach su hore
 /** Kolo 12 (Samuel: zlozky sa vratia do krabice prilis rychlo, 0:07-0:10 rozsekane): navrat 1120 ms sceny za 640 ms (1,75x,
  * v kole 11 3x za 373 ms, v kole 10 2,5x), chvila so zlozkami hore 150 ms (v kole 11 50). Pocas oboch zmien rychlosti
  * sa v sklade nic nehybe (zlozky su hore, krabice dnu), takze nie je vidiet ziadny skok. */
-const C2_HOLD = 150;
-const C2_BACK = 640;
+/**
+ * Kolo 15 (Samuel: veta o hodinach pri navrate zloziek, bez chvile s hodinami): zlozky su hore pocas "...alebo v zlozke"
+ * a pauzy (staticka chvila skladu 680 ms sceny na 0,74 s, nic sa nehybe, obraz nesie pomaly najazd), navrat zloziek, veka
+ * a krabic ide 1:1 (1120 ms, v kole 12 1,75x) od 70 ms po zaciatku vety "Hladanie moze trvat hodiny." (7,83 s), C2 konci
+ * 110 ms po slove "hodiny" (9,42 s), kde zacina zeleny prechod C4.
+ */
+const C2_BACK_AT = 7900;
+const C2_END = (Math.round(9.53 * FPS) * 1000) / FPS; // cely snimok (286)
 const C2_WMAP: [number, number][] = [
   [0, whTime(WH_P0)],
   [C2_WALK_AT, whTime(WH_P0)],
@@ -987,8 +1000,9 @@ const C2_WMAP: [number, number][] = [
     return [C2_WALK_AT + C2_WALK_MS * e, whTime(invert01(whDist, whDist(WH_P0) + WH_D * easeInOut(e)))];
   }),
   [C2_ARR + (C2_UP - 6500), C2_UP], // 1:1: vyblednutie skladu, krabice, veka a zlozky hore
-  [C2_ARR + (C2_UP - 6500) + C2_HOLD, 8500], // staticka chvila so zlozkami hore 680 -> 150 ms
-  [C2_ARR + (C2_UP - 6500) + C2_HOLD + C2_BACK, 9620], // zlozky dole, veka a krabice spat 1,75x
+  [C2_BACK_AT, 8500], // staticka chvila so zlozkami hore
+  [C2_BACK_AT + 1120, 9620], // zlozky dole, veka a krabice spat 1:1
+  [C2_END, 9620 + C2_END - C2_BACK_AT - 1120], // polica v pokoji
 ];
 const C2_SECONDS = C2_WMAP[C2_WMAP.length - 1][0] / 1000;
 const mapMs = (map: [number, number][], ms: number) => {
@@ -1010,6 +1024,17 @@ const WH_N0 = simMul(simCam(C2_CAM), WH_W); // sklad v zabere kancelarie
 const WH_N1 = simMul(simCam(C2_END_CAM), whCam(1e9)); // polica ako na zaciatku C4
 const WH_T: [number, number] = [CAM_END.x + 960, CAM_END.y + 540]; // bod police, na ktory ide vnutorna kamera
 const C2_PUSH: [number, number] = [C2_ARR + 500, 600]; // prechod na policu (cas skladu 7000-7600), sklad uz takmer vybledol
+const C2_Q = simAt(WH_N1, WH_T); // bod police v ramci na konci prechodu (stred najazdu)
+/**
+ * Kolo 15 (namiesto priblizenia otaznika a hodin v kole 13): pomaly najazd na policu, 300 ms pred koncom prechodu na policu
+ * sa rozbehne (900 ms) na +3,5 % za sekundu okolo C2_Q a ide cez vetu o hodinach az pod zeleny prechod v C4 (spolu ~+11 %),
+ * aby polica so zlozkami nestala. `t` = cas filmu (ms), C2 zacina v 0.
+ */
+const SLOW = { at: C2_PUSH[0] + C2_PUSH[1] - 300, ramp: 900, rate: 0.035 / 1000 };
+const slowZoom = (t: number) => {
+  const u = Math.max(0, t - SLOW.at);
+  return 1 + SLOW.rate * (u < SLOW.ramp ? (u * u) / (2 * SLOW.ramp) : u - SLOW.ramp / 2);
+};
 /**
  * Kamera pasu: sklad ma v kazdom case zaber net(ms) (do C2_PUSH ako kancelaria, potom najazd na policu po zaciatok C4).
  * Vnutornu kameru skladu rusi obal priamo okolo sceny (vnutri orezanej platne), inak by bolo vidiet okraj platne.
@@ -1020,7 +1045,8 @@ const c2Shift = (ms: number) => {
     b = simAt(WH_N1, WH_T);
   const k = WH_N0.s * Math.pow(WH_N1.s / WH_N0.s, e);
   const net: Sim = { s: k, x: a[0] + (b[0] - a[0]) * e - k * WH_T[0], y: a[1] + (b[1] - a[1]) * e - k * WH_T[1] };
-  const band = simMul(net, simInv(WH_W));
+  const z = slowZoom(ms);
+  const band = simMul(simMul({ s: z, x: C2_Q[0] * (1 - z), y: C2_Q[1] * (1 - z) }, net), simInv(WH_W));
   return { x: band.x, y: band.y - BAND.y, s: band.s / S169 };
 };
 /**
@@ -1092,7 +1118,10 @@ const LI_C2: React.FC = () => {
  * Kolo 8 (Samuel: pri predstaveni je vela prazdneho miesta, kde sa nic nedeje): pod logom pri vete "Z vasho archivu urobime
  * prehladny digitalny katalog" Vas archiv -> Digitalny katalog (ikona pri slove "archivu", sipka pri "urobime", katalog
  * pri "prehladny"), odide spolu s logom. Casy slov z K-C4-Cena-1.words.json.
+ * Kolo 15: pod logom a sloganom je pilulka "Prve dokumenty zadarmo a nezavazne" (C4_Y.pill), ikony su nizsie (C4_Y.promise).
  */
+/** Kolo 15: rozlozenie pod logom (px ramca): logo so sloganom, pilulka, archiv -> katalog, pod nimi titulky (SUB_Y). */
+const C4_Y = { logo: 372, pill: 600, promise: 752 };
 const C4_W1 = { archivu: 3.36, urobime: 3.88, prehladny: 4.44 };
 const C4Promise: React.FC<{ out: number }> = ({ out }) => {
   const frame = useCurrentFrame();
@@ -1108,7 +1137,7 @@ const C4Promise: React.FC<{ out: number }> = ({ out }) => {
   );
   if (arch <= 0.001 || out >= 1) return null;
   return (
-    <div style={{ position: 'absolute', left: 0, right: 0, top: 710, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', opacity: 1 - out }}>
+    <div style={{ position: 'absolute', left: 0, right: 0, top: C4_Y.promise, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', opacity: 1 - out }}>
       {item('box', 'Váš archív', arch)}
       <svg width={150} height={124} viewBox="0 0 150 124" style={{ flex: 'none' }}>
         <path d="M14 62 H128" fill="none" stroke={BRAND[500]} strokeWidth={7} strokeLinecap="round" strokeDasharray={114} strokeDashoffset={114 * (1 - arrow)} />
@@ -1118,6 +1147,19 @@ const C4Promise: React.FC<{ out: number }> = ({ out }) => {
     </div>
   );
 };
+/**
+ * Kolo 15 (Samuel: namiesto "na obmedzenom rozsahu" ci "Prva krabica" radsej "Prve dokumenty zadarmo a nezavazne"): ponuka
+ * na skusku uz pri logu, kde este pozera vacsina divakov, len v obraze a bez hlasu (hlasom zaznie az vyzva na konci). Ta ista
+ * zelena pilulka ako pri vyzve, mensia; pride 0,3 s po zaciatku vety "Predstavujeme vam..." (logo a slogan uz stoja) a odide s logom.
+ */
+const C4_PILL_AT = voAt('K-C4-Cena', 1) + 300;
+/** Biela vrstva prechodu v bode ramca vo vyske y (0 az 1), pre farbu titulkov mosta. */
+const c4WhiteAt = (ms: number, y: number) => {
+  const w = WIPE_EASE(Math.min(1, Math.max(0, (ms - C4_WIPE - WHITE_AFTER) / WIPE_MS)));
+  return w <= 0 ? 0 : Math.min(1, Math.max(0, (y - (LI.h - LI.h * w - WIPE_FEATHER)) / WIPE_FEATHER));
+};
+/** Kolo 15: titulok mosta je biely na tmavom a na zelenom a stmavne, ked cez neho prejde biela vrstva. */
+const c4SubInk = (ms: number) => (ms >= C4_LIGHT ? 1 : c4WhiteAt(ms, SUB_Y + 36));
 const C4Top: React.FC = () => {
   const frame = useCurrentFrame();
   const ms = (frame / FPS) * 1000;
@@ -1126,15 +1168,21 @@ const C4Top: React.FC = () => {
   const panel = 1 - tween(frame, C4_PANEL_OUT, 250);
   const out = tween(frame, C4_BRAND_OUT, 300);
   const tag = tween(frame, C4_LOGO + 650, 900, OUT_EXPO) * (1 - out);
+  const pill = pop(frame, C4_PILL_AT, { damping: 16 });
   return (
     <>
       {/* kolo 13: makka horna hrana (priehladny prechod WIPE_FEATHER px), pri g = 1 je nad ramcom */}
       {g > 0 && w < 1 ? <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: LI.h * g + WIPE_FEATHER, background: `linear-gradient(to top, ${BRAND[600]} calc(100% - ${WIPE_FEATHER}px), rgba(31,122,51,0) 100%)` }} /> : null}
       {w > 0 && panel > 0 ? <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: LI.h * w + WIPE_FEATHER, background: `linear-gradient(to top, #fff calc(100% - ${WIPE_FEATHER}px), rgba(255,255,255,0) 100%)`, opacity: panel }} /> : null}
       {ms >= C4_LOGO && out < 1 ? (
-        <div style={{ position: 'absolute', left: 0, right: 0, top: 450, display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: 1 - out }}>
+        <div style={{ position: 'absolute', left: 0, right: 0, top: C4_Y.logo, display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: 1 - out }}>
           <Lockup size={88} onDark={false} build={C4_LOGO} />
           <div style={{ marginTop: 40, fontFamily: FONT.body, fontWeight: 600, fontSize: 28, letterSpacing: `${0.16 + 0.22 * (1 - tag)}em`, textTransform: 'uppercase', color: BRAND[600], opacity: tag, whiteSpace: 'nowrap' }}>{SLOGAN}</div>
+        </div>
+      ) : null}
+      {pill > 0 && out < 1 ? (
+        <div style={{ position: 'absolute', left: 0, right: 0, top: C4_Y.pill, display: 'flex', justifyContent: 'center', opacity: Math.min(1, pill * 1.5) * (1 - out), transform: `scale(${0.85 + 0.15 * pill})` }}>
+          <FreePill text="Prvé dokumenty zadarmo a nezáväzne" size={40} />
         </div>
       ) : null}
       <C4Promise out={out} />
@@ -1176,7 +1224,8 @@ const LI_LIST: LiDef[] = [
   // kolo 4: znova ako v kole 2 (kancelaria, prestrih do skladu, kamera na policu = zaciatok C4 "Hladanie trva hodiny")
   // kolo 6: kamera ramca priblizi panacika; kolo 8: bez vety "Vy viete, ze tam niekde je.", sklad rychlejsie (C2_FAST)
   { def: paced('K-C2-Hladanie', { scene: LI_C2, seconds: C2_SECONDS, stills: [], ...noSubs }), band: true, tone: () => 'dark', shift: c2Shift, win: INTRO_WIN, overflow: true },
-  { def: paced('K-C4-Cena', { scene: K_C4_FAST, seconds: c4End(K_C4_D, K_C4_H) - C4_SKIP / 1000, stills: [], ...noSubs }), band: true, tone: (ms) => (ms < C4_LIGHT ? 'dark' : 'light'), toWhite: C4_LIGHT, toWhiteMs: 60, shift: c4Cam, win: c4Win, top: C4Top, subsOut: [C4_WIPE - 120, voAt('K-C4-Cena', 1)], rowOut: [C4_WIPE + WIPE_MS, C4_BRAND_OUT + 300] },
+  // kolo 15: most "S nami..." ma titulky aj pocas zeleneho prechodu (subInk), predtym boli pocas prechodu skryte (subsOut)
+  { def: paced('K-C4-Cena', { scene: K_C4_LI, seconds: c4End(K_C4_D, K_C4_H) - C4_SKIP / 1000, stills: [], ...noSubs }), band: true, tone: (ms) => (ms < C4_LIGHT ? 'dark' : 'light'), toWhite: C4_LIGHT, toWhiteMs: 60, shift: c4Shift, win: c4Win, top: C4Top, subInk: c4SubInk, rowOut: [C4_WIPE + WIPE_MS, C4_BRAND_OUT + 300] },
   // okno od nadpisu kroku (spodok ~200 px) po titulky: veko krabice pri priblizeni kamery vyjde nad ramec 16:9
   { def: paced('K-C5-Teren', { scene: C5_BAND, seconds: 8.4, holds: K_C5_HOLDS, stills: [], ...noSubs }), band: true, tone: () => 'light', steps: C5_STEPS('K-C5-Teren'), phase: PHASE_ARCHIV, shift: c5Shift, win: { top: 138, bottom: 1030, feather: 18 }, overflow: true, overlay: C5Hierarchy },
   { def: paced('K-F1-Sken', { scene: LI_F1, seconds: K_F1_SECONDS, vo: false, stills: [] }), tone: () => 'light', steps: F1_STEPS, phase: PHASE_ARCHIV },
@@ -1234,7 +1283,7 @@ const LiFrame: React.FC<{ d: LiDef }> = ({ d }) => {
       {Top ? <Top /> : null}
       {d.subs !== false && subsA > 0 ? (
         <div style={{ position: 'absolute', inset: 0, opacity: subsA }}>
-          <BigSubtitles clip={id} tone={tone} />
+          <BigSubtitles clip={id} tone={tone} ink={d.subInk?.(ms)} />
         </div>
       ) : null}
     </AbsoluteFill>

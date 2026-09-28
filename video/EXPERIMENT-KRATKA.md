@@ -11,6 +11,49 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 15 (28. 9. 2026): most "S nami ho nájdete za pár sekúnd.", pod logom "Prvé dokumenty zadarmo a nezáväzne", web pri výzve
+
+Samuel: namiesto hodín dať most, ktorý problém vyrieši, a v obraze ponuku zadarmo a nezáväzne; namiesto "Prvá krabica"
+radšej "Prvé dokumenty zadarmo a nezáväzne"; most "S nami ho nájdete za pár sekúnd"; doterajšiu verziu zaistiť, nech je
+určite uložená.
+
+- Uložená verzia kola 14 (75,3 s): video `out/kratka/verzie/K-LinkedIn_kolo14_75s_1080p.mp4` (a náhľad 540p) je v tejto
+  vetve (bajtovo rovnaké ako v commite `6eb819e`, git ho uloží ako ten istý objekt), zdroj v commite `6eb819e`, na review
+  stránke ostáva ako "Kolo 14 (uložená verzia)". Git značku sa pushnúť nedá (prostredie smie pushovať len do vetvy, 403).
+- Úvod: "Hľadanie môže trvať hodiny." je tretia veta C2 (tá istá nahrávka z kola 6, `K-C2-Hladanie-2.full.wav`), 0,42 s
+  po "zložke", počas návratu zložiek, viek a krabíc (1:1, 1120 ms; v kole 12 1,75x). Zložky sú hore počas "...alebo
+  v zložke" a pauzy (0,74 s). Chvíľa s otáznikom a hodinami vypadla. Pomalý nájazd na policu (+3,5 % za sekundu, spolu ~11 %) ide
+  od konca prechodu na policu cez vetu o hodinách až pod zelený prechod, aby polica nestála. Veta C2 o sklade je bez
+  0,36 s ticha na konci (titulok ďalšej vety hneď). Strih C2 -> C4: zmena obrazu medzi susednými snímkami 0,17-0,21 ako
+  pred ním aj za ním (bez skoku).
+- Most: nová veta Gemini "S nami ho nájdete za pár sekúnd." (`K-C4-Cena-0.most.wav`; pokyn: pokojný, istý obrat od
+  problému k riešeniu, bez pauzy vo vete, jemný dôraz na "pár sekúnd"; šesť pokusov, všetky s bezchybným prepisom;
+  vybraný s čisto klesajúcim koncom vety a 5,4 slabiky/s, ostatné končili stúpavo alebo pomalšie). Zelený prechod začína
+  110 ms po slove "hodiny" (koniec C2), hlas mosta o 0,3 s, logo sa poskladá počas vety. Titulok mosta je vidieť aj počas
+  prechodu: biely na tmavej aj zelenej, stmavne, keď cez neho prejde biela vrstva (`subInk`, predtým boli titulky počas
+  prechodu skryté). "Predstavujeme vám..." ide 0,42 s po moste.
+- C4 v LinkedIn: scéna stojí na prvom obraze (polica ako koniec C2), kým ju zelená celú neprekryje, potom skočí na predel
+  (5600 + d ms scény) a beží 1:1; logo odíde ako v kole 14 5,35 s po začiatku vety "Predstavujeme vám..." (`K_C4_H` 4850).
+- Pilulka pod logom: rovnaká zelená pilulka s fajkou ako výzva na konci (spoločný `FreePill`), 40 px, "Prvé dokumenty
+  zadarmo a nezáväzne", len v obraze bez hlasu, 0,3 s po začiatku vety "Predstavujeme vám..." (0:12,4), odíde s logom
+  (vidieť ~5,3 s). Rozloženie: logo 372 px, slogan, pilulka 600 px, archív -> katalóg 752 px, titulky 1060 px.
+- Web pri výzve: www.assetin.sk v obrysovej pilulke pod "Zadarmo a nezáväzne" (ako na záverečnom logu), 0,45 s po slove
+  "zadarmo".
+- Čas: logo o 0,4 s skôr (0:10,2 namiesto 0:10,6), film 76,7 s (+1,4 s za vetu mosta), všetko od predstavenia ďalej
+  o 1,43 s neskôr.
+- Hudba: druhý strih o takt neskôr (skok z konca taktu 31 na takt 55, na hranici 4-taktovej frázy od nástupu kapely
+  v takte 12). So strihom z kola 14 by tempo muselo byť 0,948 a hudba by začala pred filmom. Hudba od 0,25 s tempom
+  0,9986: plná kapela 0,3 s pred zeleným prechodom, prechodový takt 55 na začiatok prelínačky do ponuky.
+- Kontroly: film 76,7 s, -15,9 LUFS, true peak -1,4 dBFS; technická kontrola bez chýb, hlas 5/5; prepis úvodu v hotovom
+  mixe sedí (most zrozumiteľný aj s hudbou). Zmenili sa len súbory experimentu (LinkedIn.tsx, Kratka.tsx, scenár, hudba,
+  hlas K), pôvodné kompozície ich nepoužívajú.
+- Test na mobile (4 snímky za sekundu, s otázkami navyše na text pod logom a na opakovanie ponuky, ktoré mohli navádzať):
+  obaja pochopili podstatu, správca prevzal most do vlastného zhrnutia ("za pár sekúnd nájdete presnú policu"). Pilulka
+  v 0:12 obom pôsobí predčasne a trochu reklamne ("ešte neviem, o čo ide"), na konci pri výzve im pomáha; pozerali však
+  celé video, kým na LinkedIn väčšina do výzvy v 1:11 nedopozerá (preto je pilulka skoro). Zatváranie krabíc 0:07-0:09 je
+  obom stále trochu pomalé, zelený prechod pri 4 snímkach za sekundu prudký. Web pri výzve vidia, chceli by aj priamy
+  kontakt (telefón, e-mail alebo odkaz v príspevku). Dĺžka podľa nich 40-50 s.
+
 ## Kolo 14 (28. 9. 2026): spoločná plošina kancelárie a skladu, logo vpravo dole, návrh verzie do minúty
 
 Samuel: plošina skladu vyzerá úplne inak ako v kancelárii a zdá sa, že odtiaľ vypadne skriňa so šanónmi; k bezpečnosti
