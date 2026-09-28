@@ -36,6 +36,11 @@ jednoduché logo.
 - Po teste (obaja: 0:14-0:19 prázdna biela a malé logo, laik: 0:45 biela diera pred vyhľadávaním): pás C4 sa po prechode
   do bielej priblíži 1,9x okolo loga a sloganu (`zoom` v `LiDef`, pred krabicou C5 sa vráti), okno F24 na konci
   nevybledne (DesktopFootageClip `seconds` + 1 s) a F3 nadväzuje v tom istom okne bez `enter`.
+- Výsledok: `out/kratka/K-LinkedIn_1080p.mp4` 72,7 s, -16 LUFS; technická kontrola bez chýb (hlas 5/5, prechody v hudbe
+  plynulé), 20 snímok pôvodných klipov na pixel rovnakých ako `ea5550e`. Test na mobile (finálna verzia): obaja pochopili
+  úvod aj ponuku, prvý krok "obhliadka a skúška na jednej krabici, 0 €"; bezpečnosť upokojila, laikovi (malá firma) znie
+  "na vašich serveroch" vzdialene; posledný záber čistý, no chceli by na ňom web; prechod do bielej pri logu stále
+  pôsobí prázdne; dĺžka podľa nich 40-50 s (Samuel určil okolo 70 s).
 - Upratanie: klipy 16:9 `K_LIST`, `K-Full`, `KratkaFull.tsx` a 16:9 varianty v `Kratka.tsx` vypadli (nový hlas by im
   nesedel); zmeny zo 1. kola v zdieľaných súboroch, ktoré už nič nepoužíva (`F2_Metadata` priblíženie, `C9_Outro` cta,
   `C8_Pilot` export kariet, `F1_Sken` phase), sú vrátené na stav z `main`. `scripts/kratka-stills.mjs` robí stills

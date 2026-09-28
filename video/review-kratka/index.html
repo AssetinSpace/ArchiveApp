@@ -138,7 +138,7 @@
   <header>
     <div class="eyebrow">Assetin Archives · experiment kratšieho videa · kolo 3</div>
     <h1>Krátke video pre LinkedIn</h1>
-    <p class="lede">LinkedIn verzia na výšku (4:5) má po 3. kole <b>72,6 s</b>. <b>Úvod je kratší</b> (kancelária a archív naraz), v ponuke pribudla <b>bezpečnosť</b> a <b>obhliadka so skúškou zadarmo a nezáväzne</b> a na konci je <b>len logo so sloganom</b>. Aplikácia ostáva celá, na celú šírku a so zväčšenými detailmi ako v 2. kole.</p>
+    <p class="lede">LinkedIn verzia na výšku (4:5) má po 3. kole <b>72,7 s</b>. <b>Úvod je kratší</b> (kancelária a archív naraz), v ponuke pribudla <b>bezpečnosť</b> a <b>obhliadka so skúškou zadarmo a nezáväzne</b> a na konci je <b>len logo so sloganom</b>. Aplikácia ostáva celá, na celú šírku a so zväčšenými detailmi ako v 2. kole.</p>
     <div class="meta-row"><span id="stamp"></span><span class="mono">vetva claude/video-assets-archives-exp-la1hts</span><span>Hlavná review stránka ostáva bez zmeny.</span></div>
     <div class="lengths two" aria-label="Dĺžky verzií">
       <div class="len-cell"><span class="k">Pôvodná verzia</span><span class="v">145<small>s</small></span><span class="d">250 slov, 16:9, 12 klipov</span></div>
@@ -234,7 +234,7 @@
     </div>
     <div class="tablebox">
       <table>
-        <thead><tr><th></th><th>Pôvodná, 145 s</th><th>LinkedIn, kolo 2</th></tr></thead>
+        <thead><tr><th></th><th>Pôvodná, 145 s</th><th>Kolo 3, 73 s</th></tr></thead>
         <tbody id="testtable"></tbody>
       </table>
     </div>
@@ -294,18 +294,21 @@
     ["C9", "Assetin Archives. (Na obraze len logo a slogan.)", "old", "C9, začiatok vety"]
   ];
   const TEST = [
-    ["Pochopili podstatu", "Áno: QR, fotka, nájdem policu, spravia to za mňa. Že to urobíme my, však zaznie až v 1:57.", "Áno, celé: QR a titulná strana, aplikácia text vyčíta sama, polica a krabica, služba na kľúč."],
-    ["Aplikácia v mobile", "netestované na mobile (16:9)", "Zväčšené detaily pod oknom prečítali (\"Novostavba bytového domu SLNEČNÁ 12\", \"vodovod\", PL_01 / KR_01 / ZL_03), podľa nich \"to zachránili\". Samotné okno aplikácie je na mobile drobné."],
-    ["Nerozumeli", "metadáta, fulltextové vyhľadávanie, katalogizácia, zaradiť do hierarchie", "Správca ničomu. Laik slovu pilot a skratke \"Archív PD\" v aplikácii."],
-    ["Rušilo v obraze", "", "prázdna biela pred kartami ponuky a prázdno pod oknom, kým nabehne detail <span class=\"fixed\">(opravené)</span>; veľa tmavej plochy okolo regálu; prudký prechod z tmavej do bielej"],
-    ["Strácali pozornosť", "úvod 0:05-0:25, kontrola v aplikácii 1:05-1:28", "úvod do 0:18 (na LinkedIn by odscrollovali okolo 0:08), overovanie a fotka ako dôkaz 0:43-0:49"],
-    ["Dĺžka podľa nich", "60-90 s (laik), 60-75 s (správca)", "30-45 s (laik), 35-45 s (správca); ty si určil okolo 70 s, tak som dĺžku nechal"],
-    ["Chýbalo im (všetky kolá)", "cena, pre koho to je, kontakt, výzva", "cena, bezpečnosť dokumentov, telefón"]
+    ["Pochopili podstatu", "Áno: QR, fotka, nájdem policu, spravia to za mňa. Že to urobíme my, však zaznie až v 1:57.", "Áno, obaja: QR na krabici, fotka titulnej strany, aplikácia vyčíta údaje a ukáže policu a krabicu; služba na kľúč alebo softvér."],
+    ["Prvých 5 sekúnd", "netestované", "Obaja hneď pochopili hľadanie v kancelárii aj v archíve (laik: \"ten stres z hľadania dôverne poznám\", správca: \"presne tento problém riešim\") a pozerali by ďalej."],
+    ["Aplikácia v mobile", "netestované na mobile (16:9)", "Zväčšené detaily prečítali (\"Novostavba bytového domu SLNEČNÁ 12\", PL_01 / KR_01), celé okno aplikácie je na mobile drobné."],
+    ["Bezpečnosť", "chýbala, pýtali sa na ňu", "Pochopili, že dáta môžu ostať u nich a nie vo verejnom cloude. Laik (malá firma): \"My žiadny server nemáme, je to pre nás?\" Správca by sa pýtal na zálohovanie a servisný prístup."],
+    ["Prvý krok a cena", "chýbala výzva aj cena", "Obaja: obhliadka a skúška na jednej krabici, 0 €, nezáväzne."],
+    ["Posledný záber", "", "Čistý a prehľadný, slogan pochopili (\"v starých papieroch budem vedieť hľadať rýchlo cez počítač\"). Obaja by na konci chceli web alebo výzvu."],
+    ["Nerozumeli", "metadáta, fulltextové vyhľadávanie, katalogizácia, zaradiť do hierarchie", "Správca ničomu. Laikovi znie trochu technicky \"na vašich serveroch\"."],
+    ["Rušilo v obraze", "", "Prechod do bielej pri logu 0:14-0:19 (prudký, veľa bielej aj po zväčšení loga); okno aplikácie drobné s bielymi okrajmi 0:32-0:44."],
+    ["Strácali pozornosť", "úvod 0:05-0:25, kontrola v aplikácii 1:05-1:28", "Laik: zoznam ponuky 0:53-1:03 (\"ako prezentácia na porade\", udrží ho až \"Zadarmo a nezáväzne\"). Správca: vyčítanie údajov 0:33-0:44."],
+    ["Dĺžka podľa nich", "60-90 s (laik), 60-75 s (správca)", "45-50 s (laik), 40-45 s (správca); dĺžku okolo 70 s si určil ty"]
   ];
   const ASKS = [
     ["Slogan", "Navrhujem \"Digitálny poriadok v papierovom archíve\" (je vo videu pod logom v strede aj na konci). \"Papierový archív\" je pre laika jasnejší ako \"fyzické dokumenty\". Ďalšie možnosti: \"Poriadok v papierovom archíve\" (kratšie) alebo \"Viete, kde je každý dokument\" (sľub zákazníkovi)."],
-    ["Posledný záber", "Je na ňom len logo a slogan. Ak chceš úplne samotné logo, slogan dám preč a ostane len pod logom v strede videa."],
-    ["Bezpečnosť", "Veta vychádza z tvojho príkladu prvého zákazníka a z brožúry (strana Nasadenie aplikácie: \"Rozhodnú vaše bezpečnostné požiadavky\"). PDF k správe neprišlo, použil som texty brožúry, ktoré sú v repozitári. Ak chceš presné znenie z PDF, pošli ho znova."],
+    ["Posledný záber", "Je na ňom len logo a slogan. Obaja simulovaní diváci ho mali za čistý, no na konci by chceli web. Môžem pridať malý web pod slogan, alebo naopak slogan dám preč a ostane úplne samotné logo."],
+    ["Bezpečnosť", "Veta vychádza z tvojho príkladu prvého zákazníka a z brožúry (strana Nasadenie aplikácie: \"Rozhodnú vaše bezpečnostné požiadavky\"). PDF k správe neprišlo, použil som texty brožúry, ktoré sú v repozitári. Laik z malej firmy sa pri \"vašich serveroch\" zľakol, že server nemá. Brožúra má aj možnosť \"U nás: prevádzkujeme aplikáciu my\"; ak platí, veta by mohla byť \"Aplikácia beží u nás, alebo u vás na vašich serveroch a zariadeniach.\""],
     ["Skúška namiesto pilota", "Vo videu je \"obhliadka a skúška na jednej krabici, zadarmo a nezáväzne\". Iné možnosti: \"ukážka na jednej krabici\" alebo \"vyskúšame to na jednej krabici\"."],
     ["Telefón", "Nedal som ho. Na LinkedIn sa číslo do videa bežne nedáva, kontakt býva v príspevku a na profile firmy a web je v každom zábere. Ak ho chceš, pridám ho na koniec pod logo."],
     ["Úvod: vedľa seba alebo pod sebou", "Vedľa seba by mala každá scéna len polovicu šírky (panáčik by mal na mobile asi 5 px), preto sú kancelária a archív pod sebou. Úvod trvá 5,4 s namiesto 10 s. Kratší by už nesedel s hudbou (plná kapela má nastúpiť pri logu)."]
@@ -379,7 +382,7 @@
   // test (texty su nase, nie od divakov stranky)
   const tb = document.getElementById('testtable');
   for (const [k, ...cells] of TEST) { const tr = document.createElement('tr'); tr.innerHTML = `<th></th>` + cells.map((c) => `<td>${c}</td>`).join(''); tr.firstChild.textContent = k; tb.append(tr); }
-  document.getElementById('test2').textContent = 'LinkedIn verziu pozerali ako príspevok v mobile (video 432 x 540). Technická kontrola zvuku a obrazu bez chýb, zrozumiteľnosť hlasu 5/5. Po teste som opravil prázdnu bielu pred kartami ponuky, prázdno pod oknom na začiatku F24 a F3, ostrú hranu pásu 16:9 (prestrih v úvode, veko krabice, tenká čiara pod logom) a bliknutie nadpisu kroku na strihu. Všetko je už vo videu vyššie.';
+  document.getElementById('test2').textContent = 'Kolo 3 pozerali ako príspevok v mobile (video 432 x 540), túto finálnu verziu. Technická kontrola zvuku a obrazu bez chýb, hlas 5/5, prechody v hudbe plynulé. Po prvom teste kola 3 som zväčšil logo v strede videa a odstránil bielu dieru pred vyhľadávaním; prechod do bielej pri logu im však stále pripadá prázdny.';
   const asks = document.getElementById('asks');
   for (const [q, a] of ASKS) { const d = document.createElement('div'); d.className = 'ask'; d.innerHTML = '<b></b><p></p>'; d.children[0].textContent = q; d.children[1].textContent = a; asks.append(d); }
 
