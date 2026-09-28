@@ -15,13 +15,16 @@ import { cutDuration, cutTime, segStart } from '../../lib/cuts';
 
 /**
  * Kolo 3 (Samuel): jednoduchsi slogan namiesto "Digitalna katalogizacia archivovanej dokumentacie" (laikom znie uradnicky);
- * rovnaky pod lockupom v C4 aj na zaverecnom logu.
+ * rovnaky pod logom v C4 aj na zaverecnom logu.
  */
 export const SLOGAN = 'Digitálny poriadok v papierovom archíve';
-/** C4 v kratkej verzii: predel skor (d 600 ms namiesto 1300), znacka drzi pocas vety o katalogu. */
+/**
+ * C4 v kratkej verzii: predel skor (d 600 ms namiesto 1300), znacka drzi pocas vety o katalogu. Kolo 4: bez lockupu
+ * assetin.space z C4 (Samuel: zatial bez .space), logo kresli ramec LinkedIn (domcek, assetin | Archives).
+ */
 export const K_C4_D = 600;
 export const K_C4_H = 3300;
-export const K_C4: React.FC = () => <C4_Cena d={K_C4_D} h={K_C4_H} tagline={SLOGAN} />;
+export const K_C4: React.FC = () => <C4_Cena d={K_C4_D} h={K_C4_H} brand={false} />;
 /** Scena C4 konci po usadeni krabice a paticke (ako v hlavnej verzii: 8200 + d + h + 900 ms). */
 export const c4End = (d: number, h: number) => (8200 + d + h + 900) / 1000;
 
@@ -34,12 +37,11 @@ export const C5_STEPS = (clip: string): C5Step[] => [
   { from: voAt(clip, 0, 1), title: 'Odfotiť titulnú stranu' },
 ];
 
-/** F1: skutocny fotoaparat v aplikacii (spust, Use Photo), bez hlasu; obrazovka s vyvojarskym textom vypadla. */
+/** F1: skutocny fotoaparat v aplikacii (spust), bez hlasu; obrazovka s vyvojarskym textom aj nahlad fotky vypadli. */
 export const KF1 = 'k-f1-sken';
 export const K_F1_SECONDS = cutDuration(KF1);
 export const K_F1_TAPS: PhoneTap[] = [
-  { t: cutTime(KF1, 8.9), x: 0.5, y: 0.824 }, // spust
-  { t: cutTime(KF1, 9.9), x: 0.86, y: 0.916 }, // Use Photo
+  { t: cutTime(KF1, 8.9), x: 0.5, y: 0.824 }, // spust (kolo 4: zaznam konci pred nahladom fotky, Use Photo vypadlo)
 ];
 
 /**

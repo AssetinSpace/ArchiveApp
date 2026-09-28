@@ -152,13 +152,13 @@
   "k-f1-sken": {
     "src": "src/sken-1.mp4",
     "vf": "scale=884:1920",
-    "note": "Experiment kratkej verzie (K): len fotenie titulnej strany (fotoaparat, spust, Use Photo); obrazovka Skontrolovat jednotku vypadla, divaci v teste citali jej vyvojarsky text (extract-text-metadata...).",
+    "note": "Experiment kratkej verzie (K): len fotenie titulnej strany (fotoaparat a spust). Kolo 4 (Samuel: po odfoteni sa obraz rozbije a posunie dole): koniec tesne pred nahladom fotky (Retake / Use Photo od 8,98 s ma fotku posunutu nizsie), posledny zaber fotoaparatu drzi.",
     "segs": [
       {
         "from": 7.3,
-        "to": 9.91,
-        "after": 0.6,
-        "note": "fotoaparat 1,6 s pred spustou (8,9 s), Use Photo 9,9 s; kolo 2: v LinkedIn 4:5 mobil najprv narastie z pozicie na konci C5"
+        "to": 8.97,
+        "after": 0.9,
+        "note": "fotoaparat 1,6 s pred spustou (8,9 s), drzi posledny zaber fotoaparatu; v LinkedIn 4:5 mobil najprv narastie z pozicie na konci C5"
       }
     ]
   },
@@ -210,8 +210,8 @@
       {
         "from": 6.2,
         "to": 7.4,
-        "after": 3.65,
-        "note": "vysledok ZL_03 a detail v pokoji, drobcek PL_01 / KR_01 / ZL_03"
+        "after": 4.45,
+        "note": "vysledok ZL_03 a detail v pokoji, drobcek PL_01 / KR_01 / ZL_03; kolo 4: drzi o 0,8 s dlhsie, aby sa dala docitat cesta polica -> krabica -> zlozka -> dokument"
       }
     ]
   }

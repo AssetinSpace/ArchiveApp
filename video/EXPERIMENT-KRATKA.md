@@ -11,6 +11,39 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 4 (28. 9. 2026): úvod späť, hierarchia archívu, cesta k dokumentu, ostré detaily, dve voľby
+
+Samuel: úvod s kanceláriou a archívom naraz je rozbitý a hektický (panáčikovia inak veľkí, prichádzajú inokedy a
+inou rýchlosťou) a chýba pekný prestrih na policu k "Hľadanie trvá hodiny"; vysvetliť, že QR dostane aj šanón a
+polica; po odfotení sa okolo 0:30 obraz rozbije a posunie dole; pri vyhľadávaní ukázať cestu k dokumentu cez
+konkrétne police, krabice a šanóny; výstrižky sú rozmazané; Ako začať: na kľúč alebo vlastnými silami, na vašej alebo
+našej infraštruktúre, vždy bezpečne s rešpektom k požiadavkám; "vyskúšajme to na obmedzenom rozsahu, zadarmo a
+nezáväzne"; posledné logo super, len zvislá čiara nie je v strede; zatiaľ bez assetin.space? páči sa mu logo z riadku
+značky hore (domček, assetin, Archives), ale "Archives" písmom z posledného záberu.
+
+- Úvod: C2 v páse znova ako v kole 2 (obe vety, prestrih do skladu, kamera na policu = začiatok C4); `LI_C2` a export
+  `Office`/`Warehouse` vypadli (C2_Hladanie.tsx je znova ako na `main`).
+- C5: nová veta "Každá polica, krabica, šanón aj zložka dostane QR kód. Mobilom potom odfotíme titulnú stranu
+  dokumentu." (Gemini, prepis OK) a vrstva `C5Hierarchy`: ikony Polica, Krabica, Šanón, Zložka pri svojich slovách,
+  nálepky QR pri "dostane QR kód" (časy slov z `K-C5-Teren-0.words.json`).
+- F1: `k-f1-sken` končí 8,97 s (od 8,98 s náhľad fotky Retake / Use Photo s fotkou posunutou nižšie), posledný záber
+  fotoaparátu drží 0,9 s, pri spúšti biely blesk.
+- Detaily pod oknom (`Panel`): text na fotke = výrez `public/footage/k-photo-title.png` zo záznamu mobilu
+  (`src/sken-1.mp4`, 1206 x 2622, 8,93 s), pole s návrhom (`ValueField`, aj "Potvrdené" pri kliknutí) a vyhľadávanie
+  (`SearchField`, "vodovod" sa píše 0,8-1,9 s ako v zázname) sú prekreslené písmom aplikácie (Inter). Živý výrez zo
+  záznamu obrazovky 1920 x 1032 bol pri 3-4x zväčšení rozmazaný.
+- F3: cesta k dokumentu (`DocPath`): Polica PL_01 -> Krabica KR_01 -> Zložka ZL_03 -> Dokument, kroky sa rozsvietia
+  pri slovách "polici", "krabici", "dokument" (časy slov z nahrávky); záznam drží o 0,8 s dlhšie (`k-f3-search` 8,2 s).
+- C8: "Kto to spracuje" (Služba na kľúč / Vlastnými silami), "Kde to beží" (U vás / U nás, na vašej / našej
+  infraštruktúre), pás "Vždy bezpečne a s rešpektom k vašim požiadavkám" a výzva "Vyskúšajme to na obmedzenom rozsahu /
+  Zadarmo a nezáväzne". Nové vety "Aplikácia beží na vašej infraštruktúre alebo na našej. Vždy bezpečne a s
+  rešpektom k vašim požiadavkám." a "Vyskúšajme to na obmedzenom rozsahu, zadarmo a nezáväzne." (Gemini, prepis OK).
+- Logo `Lockup`: domček | assetin | Archives (Manrope 800, "in" zelené) bez .space, rozostupy okolo čiar rovnaké
+  (flex), v C4 ako vrstva na výšku (`C4_Cena` nový voliteľný `brand={false}` skryje lockup assetin.space; `tagline` z
+  kola 3 vypadol) a na konci. Priblíženie pásu C4 z kola 3 vypadlo.
+- Hudba: strihy `[[13.65, 25.19], [71.34, 129.03]]`, plná kapela ~18,0 s (prechod do bielej 18,2 s), pokojný záver od
+  ~61,4 s (záver skladby má 17,7 s, ponuka a logo spolu 21,7 s). Film 79,2 s.
+
 ## Kolo 3 (28. 9. 2026): kratší úvod, bezpečnosť, skúška zadarmo, záver len logo
 
 Samuel: úvod skrátiť (napadlo mu dať kancelársku a archívnu animáciu vedľa seba: hľadá sa v kancelárii aj v archíve),
@@ -146,6 +179,6 @@ Kontrolné stills `node scripts/kratka-stills.mjs [s ...]` (časy vo filme, do `
 ## Súbory
 
 - Nové: `src/scenes/kratka/LinkedIn.tsx` (kompozícia K-LinkedIn 4:5, jediná krátka verzia), `src/kratkaList.ts` (`paced`, pauzy C4), `src/scenes/kratka/Kratka.tsx` (spoločné dáta: C4 so sloganom, kroky, spoty, kliky), `src/copy/vo_kratka.json`, `src/copy/music_kratka.json`, `scripts/kratka_lines.py`, `scripts/kratka-stills.mjs`, `review-kratka/index.html`, `public/vo-kratka/`, `public/footage/k-*.mp4`, `out/kratka/`.
-- Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`, `subtitles`), `Scene` (`SceneFrameContext`: jednofarebné pozadie, bez päty a bez orezania na rámec 16:9 len vnútri LinkedIn rámca), `Subtitles` (scenár K vedľa hlavného), `C2_Hladanie` (export `Office`, `Warehouse`), `C4_Cena` (`d`, `h`, `tagline`), `C5_Teren` (`steps`, `phase`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`).
+- Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`, `subtitles`), `Scene` (`SceneFrameContext`: jednofarebné pozadie, bez päty a bez orezania na rámec 16:9 len vnútri LinkedIn rámca), `Subtitles` (scenár K vedľa hlavného), `C4_Cena` (`d`, `h`, `brand`), `C5_Teren` (`steps`, `phase`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`).
 - Kontrola: 20 snímok pôvodných klipov (C2, C4, C5, C8, C9, F1, F4) z commitu `ea5550e` a z tejto vetvy je na pixel rovnakých; dĺžky kompozícií bez zmeny.
 - Jediná zmena správania pôvodnej cesty: `mix-music.mjs` dáva tichému klipu (C1) stopu v rozložení kanálov ostatných klipov (stereo namiesto mono). Zvuk je ticho, výsledok rovnaký.

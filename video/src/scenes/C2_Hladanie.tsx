@@ -55,8 +55,8 @@ const Papers: React.FC<{ x: number; y: number; z: number; h?: number }> = ({ x, 
   <IsoBox x={x} y={y} z={z} w={21} d={30} h={h} faces={{ top: '#fff', left: ISO.paper, right: ISO.left }} stroke />
 );
 
-/** Kancelaria (0-3,9 s): skratena verzia C2. Export: experiment LinkedIn 4:5 (kancelaria a sklad naraz). */
-export const Office: React.FC<{ frame: number }> = ({ frame }) => {
+/** Kancelaria (0-3,9 s): skratena verzia C2. */
+const Office: React.FC<{ frame: number }> = ({ frame }) => {
   const tw = (s: number, d: number) => tween(frame, s, d);
   const walk = tw(300, 800);
   const open = tw(1100, 600);
@@ -141,7 +141,7 @@ const fastSearch = (tw: (s: number, d: number) => number, start: number, hold = 
   return { out, lid, binders };
 };
 
-export const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
+const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
   const tw = (s: number, d: number) => tween(frame, s, d);
   const walk = tw(4300, 2200); // panacik vojde do skladu pomalsie (2,2 s)
   const seg = Math.min(PATH.length - 2, Math.floor(walk * (PATH.length - 1)));

@@ -42,8 +42,11 @@ import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
 const D_MAIN = 1300; // posun predelu, aby sa dal precitat text pod "2x"
 const H_MAIN = 3780; // drzanie znacky: kolo 40 znova veta "Predstavujeme vam softverove riesenie katalogizacie Assetin Archives." (15,5-20,1 s vystupu) + text pod lockupom
 const BOX = 860;
-/** Experiment kratkej verzie: `d` = posun predelu, `h` = drzanie znacky (ms), `tagline` = text pod lockupom; predvolene hlavna verzia. */
-export const C4_Cena: React.FC<{ d?: number; h?: number; tagline?: string }> = ({ d: D = D_MAIN, h: H = H_MAIN, tagline = captions.C4brand }) => {
+/**
+ * Experiment kratkej verzie: `d` = posun predelu, `h` = drzanie znacky (ms), `brand` = false: bez lockupu a textu pod nim
+ * (LinkedIn 4:5 kresli vlastne logo na vysku); predvolene hlavna verzia.
+ */
+export const C4_Cena: React.FC<{ d?: number; h?: number; brand?: boolean }> = ({ d: D = D_MAIN, h: H = H_MAIN, brand = true }) => {
   const frame = useCurrentFrame();
   const showCap = useCaptions(); // kolo 29: vety nesie nahovor + titulky (Paced)
   const tw = (s: number, d: number) => tween(frame, s, d);
@@ -126,7 +129,7 @@ export const C4_Cena: React.FC<{ d?: number; h?: number; tagline?: string }> = (
       {light > 0 ? <div style={{ position: 'absolute', inset: 0, background: '#fff', opacity: light, pointerEvents: 'none' }} /> : null}
 
       {/* znacka Assetin + lockup z design kitu (assetin / .space | Archives), svetla verzia */}
-      {mark > 0 ? (
+      {brand && mark > 0 ? (
         <div style={{ position: 'absolute', inset: 0, opacity: (1 - brandOut) * Math.min(1, mark * 1.2), transform: `scale(${(1 - 0.06 * brandOut) * (0.97 + 0.03 * mark)})`, transformOrigin: '50% 50%' }}>
           {(() => {
             const k = 0.6;
@@ -154,7 +157,7 @@ export const C4_Cena: React.FC<{ d?: number; h?: number; tagline?: string }> = (
           {/* kolo 36: popis pod lockupom (vetu uz nehovori nahovor) */}
           {/* kolo 47: slogan inym stylom ako titulky (zelene kapitalky s rozostupom), aby nesplyval s prepisom hlasu */}
           <div style={{ position: 'absolute', left: 0, right: 0, top: 600, textAlign: 'center', fontFamily: FONT.body, fontWeight: 600, fontSize: 30, color: BRAND[600], letterSpacing: '0.16em', textTransform: 'uppercase', opacity: settle(frame, 6750 + D), transform: `translateY(${(1 - settle(frame, 6750 + D)) * 12}px)` }}>
-            {tagline}
+            {captions.C4brand}
           </div>
         </div>
       ) : null}
