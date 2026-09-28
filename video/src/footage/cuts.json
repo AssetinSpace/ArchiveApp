@@ -171,22 +171,23 @@
         "from": 0.5,
         "to": 2.5,
         "before": 0.4,
-        "after": 5.55,
-        "note": "fotka a navrhnute udaje v pokoji (veta: aplikacia z fotky precita text a navrhne udaje)"
+        "after": 6.6,
+        "note": "fotka a navrhnute udaje v pokoji (veta: aplikacia z fotky precita text a navrhne udaje); kolo 11: dlhsia veta (napriklad nazov projektu, autora alebo rok)"
       },
       {
         "from": 6.4,
         "to": 9.4,
-        "speed": 2,
+        "speed": 1.25,
         "fade": 0.25,
-        "note": "lupa nad fotkou: clovek overi"
+        "note": "lupa nad fotkou: clovek overi; kolo 11: pomalsie (1,25x) pocas \"overi a pripadne opravi\""
       },
       {
         "from": 11.3,
         "to": 12.8,
         "fade": 0.25,
         "after": 2.9,
-        "note": "spravna hodnota, prijatie 12,15 s, zelena ciara schvaleneho navrhu; drzi pocas vety fotka je dokaz"
+        "note": "spravna hodnota, prijatie 12,15 s (pri \"potvrdi\"), zelena ciara schvaleneho navrhu",
+        "before": 0.25
       }
     ]
   },

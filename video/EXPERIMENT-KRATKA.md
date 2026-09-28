@@ -11,6 +11,40 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 11 (28. 9. 2026): podlaha, dlhšia chôdza, otáznik a hodiny naraz, "napríklad", zelené potvrdenie, logo vpravo hore
+
+Samuel: spodok úvodu je rozmazaný (posunúť); panáčik v sklade nech ide o 0,5-1 s dlhšie (nie pomalšie); otáznik
+a hodiny naraz, nech sú vidieť dosť dlho; v oblúkoch mobilu sú stále biele miesta; pri údajoch povedať "napríklad" (nie
+len tieto, podľa toho, čo je na fotke); zelený obdĺžnik zarovnať ako okno nad ním; človek hodnotu "prípadne opraví"
+alebo potvrdí a obdĺžnik má potom zozelenať s fajkou; "Bezpečne" oddeliť od volieb; QR na poslednej krabici je iný
+ako na ostatných; v celom videu malé logo domček + assetin vpravo hore.
+
+- C2: kamera o 125 px vyššie (`C2_CAM` ty 450), okno úvodu 90-1040 px s prechodom 30 px: podlaha kancelárie končí
+  vlastnou hranou v obraze (predtým sa spodok rozmazal v prechode okna), stred skladu `WH_C` [1200, 425]. Chôdza od
+  parametra 0,32 (ľavý okraj, ešte počas prechodu dole, od 4100 ms) rovnakou rýchlosťou, ~1,75 s (predtým 1,05 s);
+  veta o sklade od 4,0 s, statická chvíľa so zložkami 50 ms a vrátenie krabíc 3x. C2 7,6 s.
+- C4: nová mapa času sceny `C4_MAP` [[0, 0], [550, 1100], [800, 1350], [900, 2600]]: otáznik 1:1 pri "Hľadanie"
+  (0,55 s), hodiny hneď za ním (0,9 s, predtým pri slove "hodiny" 1,45 s); `K_C4_D` -1470 (o 550 ms viac), takže
+  zelený prechod aj všetko po hodinách ostáva v rovnakom čase klipu.
+- F1: čierne pozadie displeja (`PhoneFrame` dostal voliteľné `screenBg`, predvolene biele), v zaoblení rohov už nie je
+  biela. C8: nálepka QR na krabici v pôvodnej veľkosti ako v C5 (voliteľné `qrScale` v `ArchiveBox` z kola 9 vypadlo,
+  súbor je zhodný s `main`).
+- F24: nové vety Gemini "Aplikácia z fotky sama prečíta text a navrhne údaje, ktoré na nej nájde, napríklad názov
+  projektu, autora alebo rok." (7,8 s) a "Človek každú hodnotu overí a prípadne opraví alebo potvrdí." (4,4 s; predtým
+  vystrihnutá z F4), vybrané zo 4 a 3 pokusov, prepis bez chýb. Záznam: pokoj na fotke 6,6 s (predtým 5,55), lupa
+  1,25x (predtým 2x) počas "overí a prípadne opraví", 0,25 s pred prijatím; klik na prijatie v 12,0 s pri "potvrdí".
+  Karta s údajmi (aj karta zložky, hľadané slovo a cesta v F3) má šírku a okraje okna aplikácie (1032 px); pri
+  potvrdení zelené pozadie, zelený okraj, veľká fajka a "Potvrdené". F24 12,75 s.
+- C8: "Bezpečne" je samostatný zelený pás (`SafeBanner`), voľby Online u nás / Na vašej infraštruktúre sú pod ním
+  spolu v sivom rámci.
+- Značka: vpravo hore v celom videu (okrem záverečného loga a veľkého loga v C4) domček + assetin (32 px, text 30 px),
+  zarovnaná s nadpisom kroku; dole vpravo už nie je.
+- Hudba: strihy `[[6.72, 27.49], [73.65, 129.03]]`, tempo 0,97: plná kapela ~9,25 s (na doznení "hodiny", 0,3 s pred
+  zeleným prechodom), prechodový takt 55 od ~54,4 s = začiatok ponuky. Film 76,3 s, 131 slov.
+- Test na mobile: technická kontrola bez chýb (hlas 5/5). Laik: sklad v podobnej mierke ako kancelária, čisto; správca:
+  čas na čítanie "nastavený optimálne". Obaja: zelený prechod v 0:09 prudký, celé okno aplikácie drobné, ponuka
+  0:54-1:08 trochu dlhá, dĺžka podľa nich 45-50 s.
+
 ## Kolo 10 (28. 9. 2026): sklad ako kancelária, tesnejšie rozloženie, "Názov projektu", čas na čítanie
 
 Samuel: scéna v sklade je rozmixovaná a inak priblížená ako kancelária, majú byť rovnako a pohyb rovnako rýchly
@@ -395,6 +429,6 @@ Kontrolné stills `node scripts/kratka-stills.mjs [s ...]` (časy vo filme, do `
 ## Súbory
 
 - Nové: `src/scenes/kratka/LinkedIn.tsx` (kompozícia K-LinkedIn 4:5, jediná krátka verzia), `src/kratkaList.ts` (`paced`, pauzy C4), `src/scenes/kratka/Kratka.tsx` (spoločné dáta: C4 so sloganom, kroky, spoty, kliky), `src/copy/vo_kratka.json`, `src/copy/music_kratka.json`, `scripts/kratka_lines.py`, `scripts/kratka-stills.mjs`, `review-kratka/index.html`, `public/vo-kratka/`, `public/footage/k-*.mp4`, `out/kratka/`.
-- Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`, `subtitles`), `Scene` (`SceneFrameContext`: jednofarebné pozadie, bez päty a bez orezania na rámec 16:9 len vnútri LinkedIn rámca), `Subtitles` (scenár K vedľa hlavného), `C4_Cena` (`d`, `h`, `brand`, `cost`), `C5_Teren` (`steps`, `phase`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`); kolo 9 a 10: `C2_Hladanie` (export `Office`, `Warehouse` a `PATH`), `ArchiveBox` (`qrScale`).
+- Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`, `subtitles`), `Scene` (`SceneFrameContext`: jednofarebné pozadie, bez päty a bez orezania na rámec 16:9 len vnútri LinkedIn rámca), `Subtitles` (scenár K vedľa hlavného), `C4_Cena` (`d`, `h`, `brand`, `cost`), `C5_Teren` (`steps`, `phase`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`); kolo 9 až 11: `C2_Hladanie` (export `Office`, `Warehouse` a `PATH`), `Device` (`PhoneFrame` `screenBg`).
 - Kontrola: 20 snímok pôvodných klipov (C2, C4, C5, C8, C9, F1, F4) z commitu `ea5550e` a z tejto vetvy je na pixel rovnakých; dĺžky kompozícií bez zmeny.
 - Jediná zmena správania pôvodnej cesty: `mix-music.mjs` dáva tichému klipu (C1) stopu v rozložení kanálov ostatných klipov (stereo namiesto mono). Zvuk je ticho, výsledok rovnaký.

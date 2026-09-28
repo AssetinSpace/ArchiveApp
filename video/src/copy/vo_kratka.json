@@ -1,5 +1,5 @@
 {
-  "_": "Experiment kratkej verzie (K ~74 s, LinkedIn 4:5; teaser v kole 2 vypadol). Povodny scenar src/copy/vo.json sa nemeni. Rovnaky format ako vo.json (at, text, parts, styleExtra); navyse `src` = veta vyrezana z existujucej nahravky (file, start, end v s), vyrobi ju scripts/kratka_lines.py, Gemini ju negeneruje. Hlas: node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --dir public/vo-kratka. Kolo 3 (Samuel): kratsi uvod (len otazka, kancelaria a sklad naraz), v C8 bezpecnost a obhliadka so skuskou zadarmo a nezavazne (2 nove vety), zaver len \"Assetin Archives.\" z povodnej nahravky C9. Kolo 4 (Samuel): uvod znova ako v kole 2 (obe vety C2), v C5 nova veta o QR na polici, krabici, sanone aj zlozke, v C8 nove vety o infrastrukture (u vas alebo u nas, vzdy bezpecne) a skuske na obmedzenom rozsahu. Kolo 5 (Samuel): z problemu v C4 ostava len \"Hladanie trva hodiny.\" (vystrihnute z povodnej vety K-C4-Cena-0, cela je v K-C4-Cena-0.full.wav), veta o infrastrukture kratsia. Kolo 6 (Samuel): \"Hladanie moze trvat hodiny.\" (nova veta Gemini namiesto vystrihnutej \"Hladanie trva hodiny.\"), hned po C2 (menej prazdna okolo 0:11). Kolo 7 (Samuel): v C5 \"Kazda polozka, ci uz polica, krabica, sanon alebo zlozka, dostane QR kod, podla toho, ako mate archiv usporiadany.\" (struktura nie je pevne dana), v F3 \"aplikacia ukaze udaje o konkretnej polozke aj cestu k nej\" (nove vety Gemini, QR po anglicky overene prepisom). Kolo 8 (Samuel): v C2 bez \"Vy viete, ze tam niekde je.\" (vystrihnute z povodnej nahravky od 1,95 s), veta v C5 pokojnejsie a ako dve vety s pauzou pred \"Mobilom\" (nove vety Gemini). Kolo 9 (Samuel): v F24 bez \"Fotka je dokaz a ostava pri zazname.\" (duplicita, veta K-F24-Aplikacia-1 vystrihnuta z povodnej F4-Kontrola-1 len po \"potvrdi\"), v C8 \"Aplikacia funguje bezpecne podla vasich poziadaviek, online u nas alebo na vasej infrastrukture.\" a vyzva \"Zacnime jednou krabicou, zadarmo a nezavazne.\" (nove vety Gemini, vybrate zo styroch verzii). Kolo 10 (Samuel: pri 1:02 je to prilis kratko, analyza casu na citanie): veta vo vyhladavani rozdelena pred \"aj cestu k nej.\" (rez v 4,62 s medzi slovami, cela nahravka v K-F3-Vyhladavanie-0.full.wav) s pauzou 1,2 s, aby sa dala docitat karta najdenej zlozky; v ponuke 0,6 s po prvom slide a 1,2 s po slide Kde to bezi; prva veta F24 o 0,1 s skor.",
+  "_": "Experiment kratkej verzie (K ~74 s, LinkedIn 4:5; teaser v kole 2 vypadol). Povodny scenar src/copy/vo.json sa nemeni. Rovnaky format ako vo.json (at, text, parts, styleExtra); navyse `src` = veta vyrezana z existujucej nahravky (file, start, end v s), vyrobi ju scripts/kratka_lines.py, Gemini ju negeneruje. Hlas: node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --dir public/vo-kratka. Kolo 3 (Samuel): kratsi uvod (len otazka, kancelaria a sklad naraz), v C8 bezpecnost a obhliadka so skuskou zadarmo a nezavazne (2 nove vety), zaver len \"Assetin Archives.\" z povodnej nahravky C9. Kolo 4 (Samuel): uvod znova ako v kole 2 (obe vety C2), v C5 nova veta o QR na polici, krabici, sanone aj zlozke, v C8 nove vety o infrastrukture (u vas alebo u nas, vzdy bezpecne) a skuske na obmedzenom rozsahu. Kolo 5 (Samuel): z problemu v C4 ostava len \"Hladanie trva hodiny.\" (vystrihnute z povodnej vety K-C4-Cena-0, cela je v K-C4-Cena-0.full.wav), veta o infrastrukture kratsia. Kolo 6 (Samuel): \"Hladanie moze trvat hodiny.\" (nova veta Gemini namiesto vystrihnutej \"Hladanie trva hodiny.\"), hned po C2 (menej prazdna okolo 0:11). Kolo 7 (Samuel): v C5 \"Kazda polozka, ci uz polica, krabica, sanon alebo zlozka, dostane QR kod, podla toho, ako mate archiv usporiadany.\" (struktura nie je pevne dana), v F3 \"aplikacia ukaze udaje o konkretnej polozke aj cestu k nej\" (nove vety Gemini, QR po anglicky overene prepisom). Kolo 8 (Samuel): v C2 bez \"Vy viete, ze tam niekde je.\" (vystrihnute z povodnej nahravky od 1,95 s), veta v C5 pokojnejsie a ako dve vety s pauzou pred \"Mobilom\" (nove vety Gemini). Kolo 9 (Samuel): v F24 bez \"Fotka je dokaz a ostava pri zazname.\" (duplicita, veta K-F24-Aplikacia-1 vystrihnuta z povodnej F4-Kontrola-1 len po \"potvrdi\"), v C8 \"Aplikacia funguje bezpecne podla vasich poziadaviek, online u nas alebo na vasej infrastrukture.\" a vyzva \"Zacnime jednou krabicou, zadarmo a nezavazne.\" (nove vety Gemini, vybrate zo styroch verzii). Kolo 10 (Samuel: pri 1:02 je to prilis kratko, analyza casu na citanie): veta vo vyhladavani rozdelena pred \"aj cestu k nej.\" (rez v 4,62 s medzi slovami, cela nahravka v K-F3-Vyhladavanie-0.full.wav) s pauzou 1,2 s, aby sa dala docitat karta najdenej zlozky; v ponuke 0,6 s po prvom slide a 1,2 s po slide Kde to bezi; prva veta F24 o 0,1 s skor. Kolo 11 (Samuel: pri udajoch povedat \"napriklad\", nie iba tieto; clovek hodnotu aj pripadne opravi): v F24 nove vety Gemini \"Aplikacia z fotky sama precita text a navrhne udaje, ktore na nej najde, napriklad nazov projektu, autora alebo rok.\" a \"Clovek kazdu hodnotu overi a pripadne opravi alebo potvrdi.\" (vybrate zo styroch a troch pokusov, prepis bez chyb); veta o sklade od 4,0 s.",
   "_style": "pokojný, vecný firemný rozprávač; plynulý, súvislý prejav, o niečo svižnejšie tempo; pri čiarkach len krátky nádych, dlhšia pauza iba na konci vety; zreteľná výslovnosť; bez emócií navyše. Pace: fluent and connected, a bit brisker than a documentary narrator, no long pauses inside a sentence. Pronunciation: say the abbreviation QR in English, like 'cue are'. Codes like PL_01, KR_01, ZL_03 are read as Slovak letter names plus the plain number, without the underscore and without the leading zero (never say 'nula' or 'pomlčka'): 'pé el jedna, ká er jedna, zet el tri'.",
   "K-C2-Hladanie": [
     {
@@ -13,7 +13,7 @@
       "dur": 3400
     },
     {
-      "at": 3800,
+      "at": 4000,
       "text": "V sklade, na polici, v krabici alebo v zložke.",
       "src": {
         "file": "public/vo/lines/C2-Hladanie-1.wav",
@@ -68,26 +68,31 @@
   "K-F24-Aplikacia": [
     {
       "at": 300,
-      "text": "Aplikácia z fotky sama prečíta text a navrhne údaje: názov projektu, autora, rok.",
+      "text": "Aplikácia z fotky sama prečíta text a navrhne údaje, ktoré na nej nájde, napríklad názov projektu, autora alebo rok.",
       "parts": [
         "Aplikácia z fotky sama prečíta text",
-        "a navrhne údaje: názov projektu, autora, rok."
+        "a navrhne údaje, ktoré na nej nájde,",
+        "napríklad názov projektu, autora alebo rok."
       ],
-      "dur": 7080,
+      "dur": 7840,
       "partAt": [
         0,
-        2320
+        2180,
+        4500
       ]
     },
     {
-      "at": 7700,
-      "text": "Človek každú hodnotu overí a potvrdí.",
-      "src": {
-        "file": "public/vo/lines/F4-Kontrola-1.wav",
-        "start": 0,
-        "end": 2.7
-      },
-      "dur": 2700
+      "at": 8440,
+      "text": "Človek každú hodnotu overí a prípadne opraví alebo potvrdí.",
+      "parts": [
+        "Človek každú hodnotu overí",
+        "a prípadne opraví alebo potvrdí."
+      ],
+      "dur": 4360,
+      "partAt": [
+        0,
+        1760
+      ]
     }
   ],
   "K-F3-Vyhladavanie": [

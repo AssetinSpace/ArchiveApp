@@ -43,6 +43,8 @@ import { BRAND, FONT, FPS, INK, NAVY } from '../../theme';
  * Kolo 10: sklad s rovnakou kamerou, mierkou a rychlostou chodze ako kancelaria (cisty prestrih dole, najazd na policu az
  * po vyblednuti skladu), tesnejsie rozlozenie (nadpis 48 px, obsah 36 px pod nim, vacsie detaily, titulky 1060 px),
  * "Nazov projektu", pauzy na citanie (karta zlozky, ponuka), kratsi mobil a zaver.
+ * Kolo 11: uvod vyssie (podlaha bez rozmazania), dlhsia chodza, otaznik a hodiny naraz, cierny displej mobilu, v F24
+ * "napriklad" a "pripadne opravi", karty na sirku okna a zelene potvrdenie, Bezpecne oddelene, znacka vpravo hore.
  * Hlas a titulky: src/copy/vo_kratka.json, hudba mix-music.mjs --video.
  */
 export const LI = { w: 1080, h: 1350 };
@@ -106,21 +108,18 @@ const camShift = (keys: [number, Cam][]) => (ms: number) => {
   return { x: c.tx - S169 * c.z * c.fx, y: c.ty - BAND.y - S169 * c.z * c.fy, s: c.z };
 };
 /** Okno pasu v uvode (C2, C4): od riadku znacky po titulky, priblizeny obsah ma miesto nad aj pod pasom. */
-const INTRO_WIN: Win = { top: 110, bottom: 1040, feather: 40 };
+const INTRO_WIN: Win = { top: 90, bottom: 1040, feather: 30 }; // kolo 11: podlaha konci nad prechodom (nie je rozmazana)
 
 /**
- * Znacka (domcek | assetin | Archives). Kolo 8 (Samuel: znacku hore dat dole malu pod prepis hlasu doprava, kde nerusi):
- * mala v pravom dolnom rohu pod titulkami, tlmenejsia; web je len na zaverecnom zabere.
+ * Znacka. Kolo 8 (Samuel: znacku dat malu dole doprava): mala v pravom dolnom rohu. Kolo 11 (Samuel: v celom videu do
+ * praveho horneho rohu domcek s textom assetin, male, decentne, ale jasne): vpravo hore na vysku nadpisu kroku.
  */
 const BrandRow: React.FC<{ tone: Tone }> = ({ tone }) => (
-  <div style={{ position: 'absolute', right: 40, bottom: 34, display: 'flex', alignItems: 'center', gap: 9, fontFamily: FONT.body, fontSize: 21, color: tone === 'dark' ? NAVY[200] : INK[400], opacity: 0.9 }}>
-    <LogoMark size={24} color={tone === 'dark' ? '#fff' : BRAND[700]} />
-    <span style={{ width: 2, height: 20, background: tone === 'dark' ? NAVY[700] : INK[200] }} />
-    <span style={{ fontFamily: FONT.display, fontWeight: 700, color: tone === 'dark' ? '#fff' : INK[700] }}>
+  <div style={{ position: 'absolute', right: 44, top: TITLE_Y + 12, height: 34, display: 'flex', alignItems: 'center', gap: 10 }}>
+    <LogoMark size={32} color={tone === 'dark' ? '#fff' : BRAND[700]} />
+    <span style={{ fontFamily: FONT.display, fontWeight: 700, fontSize: 30, lineHeight: 1, letterSpacing: '-0.01em', color: tone === 'dark' ? '#fff' : INK[800] }}>
       asset<span style={{ color: tone === 'dark' ? BRAND[400] : BRAND[600] }}>in</span>
     </span>
-    <span style={{ width: 2, height: 20, background: tone === 'dark' ? NAVY[700] : INK[200] }} />
-    <span>Archives</span>
   </div>
 );
 
@@ -192,14 +191,16 @@ const PhotoTitle: React.FC<{ width: number }> = ({ width }) => (
 );
 
 /**
- * Pole s navrhom aplikacie (kolo 10, Samuel: "Názov projektu" namiesto "Hodnota"); pri potvrdeni (klik v zazname) zelena
- * lista vlavo a "Potvrdené" ako v aplikacii. Kolo 10 (test: dlhy staticky usek pri vete "navrhne udaje: nazov projektu,
- * autora, rok"): pod nazvom pribudne autor a rok presne pri tychto slovach, hodnoty su zo zaznamu aplikacie (Generalny
- * projektant DOMINIS PROJEKT, s.r.o., Datum 2018-05-01); mena osob z titulnej strany tu nie su.
+ * Pole s navrhom aplikacie (kolo 10, Samuel: "Názov projektu" namiesto "Hodnota"). Kolo 10 (test: dlhy staticky usek):
+ * pod nazvom pribudne autor a rok presne pri tychto slovach, hodnoty su zo zaznamu aplikacie (Generalny projektant
+ * DOMINIS PROJEKT, s.r.o., Datum 2018-05-01); mena osob z titulnej strany tu nie su. Kolo 11 (Samuel: zarovnat s oknom
+ * nad nim; po overeni a potvrdeni ma karta zozelenat aj na pozadi a dostat fajku): sirka a okraje ako okno aplikacie,
+ * pri potvrdeni (klik v zazname pri "potvrdi") zelene pozadie, zeleny okraj a velka fajka vpravo.
  */
 const ValueField: React.FC<{ approveAt: number; authorAt: number; yearAt: number }> = ({ approveAt, authorAt, yearAt }) => {
   const frame = useCurrentFrame();
   const ok = settle(frame, approveAt * 1000);
+  const tick = pop(frame, approveAt * 1000 + 80);
   const au = settle(frame, authorAt * 1000);
   const yr = settle(frame, yearAt * 1000);
   const cell = (t: number, label: string, value: string) => (
@@ -208,17 +209,18 @@ const ValueField: React.FC<{ approveAt: number; authorAt: number; yearAt: number
       <div style={{ marginTop: 2, fontFamily: APP_FONT, fontWeight: 700, fontSize: 34, lineHeight: 1.15, color: INK[900], whiteSpace: 'nowrap' }}>{value}</div>
     </div>
   );
+  const mix = (a: string, b: string) => (ok > 0.5 ? b : a);
   return (
-    <div style={{ ...BOX, width: 1000, padding: '18px 34px 22px 44px' }}>
-      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 12, background: BRAND[500], opacity: ok }} />
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ fontFamily: APP_FONT, fontWeight: 500, fontSize: 28, color: INK[500] }}>Názov projektu</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 9, height: 46, padding: '0 18px', borderRadius: 23, background: BRAND[50], border: `2px solid ${BRAND[300]}`, fontFamily: APP_FONT, fontWeight: 700, fontSize: 26, color: BRAND[700], opacity: ok, transform: `scale(${0.85 + 0.15 * ok})` }}>
-          <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={BRAND[600]} strokeWidth={3.4} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 12.5 L10 17 L19 7" />
-          </svg>
-          Potvrdené
-        </div>
+    <div style={{ ...BOX, width: WIN.w, padding: '18px 34px 22px 40px', background: ok > 0 ? `rgba(234,245,235,${ok})` : '#fff', border: `3px solid ${mix(BRAND[400], BRAND[500])}`, boxShadow: ok > 0 ? `0 0 0 ${3 * ok}px ${BRAND[400]}, 0 14px 36px rgba(31,122,51,${0.18 * ok})` : BOX.boxShadow }}>
+      {/* velka fajka vpravo pri potvrdeni */}
+      <div style={{ position: 'absolute', right: 30, top: 22, width: 84, height: 84, borderRadius: 42, background: BRAND[500], display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: Math.min(1, tick * 1.4), transform: `scale(${0.4 + 0.6 * tick})`, boxShadow: '0 8px 20px rgba(31,122,51,0.3)' }}>
+        <svg width={50} height={50} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={3.2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M5 12.5 L10 17 L19 7" />
+        </svg>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ fontFamily: APP_FONT, fontWeight: 500, fontSize: 28, color: mix(INK[500], BRAND[700]) }}>Názov projektu</div>
+        <div style={{ display: 'flex', alignItems: 'center', height: 40, padding: '0 16px', borderRadius: 20, background: BRAND[500], fontFamily: APP_FONT, fontWeight: 700, fontSize: 24, color: '#fff', opacity: ok, transform: `scale(${0.85 + 0.15 * ok})` }}>Potvrdené</div>
       </div>
       <div style={{ marginTop: 4, fontFamily: APP_FONT, fontWeight: 700, fontSize: 43, lineHeight: 1.14, letterSpacing: '-0.01em', color: INK[900] }}>
         Novostavba bytového domu
@@ -227,7 +229,7 @@ const ValueField: React.FC<{ approveAt: number; authorAt: number; yearAt: number
       </div>
       {/* riadok s autorom a rokom sa vysunie pri slove "autora" (karta plynulo narastie) */}
       <div style={{ height: 96 * au, overflow: 'hidden' }}>
-        <div style={{ marginTop: 12, paddingTop: 12, borderTop: `2px solid ${INK[100]}`, display: 'flex', gap: 28 }}>
+        <div style={{ marginTop: 12, paddingTop: 12, borderTop: `2px solid ${ok > 0.5 ? BRAND[200] : INK[100]}`, display: 'flex', gap: 28 }}>
           {cell(au, 'Autor', 'DOMINIS PROJEKT, s.r.o.')}
           <div style={{ flex: 'none', width: 220 }}>{cell(yr, 'Rok', '2018')}</div>
         </div>
@@ -244,7 +246,7 @@ const SearchField: React.FC<{ typeFrom: number; typeTo: number }> = ({ typeFrom,
   const n = sec < typeFrom ? 0 : Math.min(SEARCH_WORD.length, 1 + Math.floor(((sec - typeFrom) / (typeTo - typeFrom)) * SEARCH_WORD.length));
   const caret = (sec >= typeFrom - 0.3 && sec <= typeTo + 0.2) || Math.floor(sec * 2.2) % 2 === 0;
   return (
-    <div style={{ ...BOX, width: 960, height: 136, display: 'flex', alignItems: 'stretch' }}>
+    <div style={{ ...BOX, width: WIN.w, height: 136, display: 'flex', alignItems: 'stretch' }}>
       <div style={{ width: 118, flex: 'none', borderRight: `2px solid ${INK[200]}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <svg width={46} height={46} viewBox="0 0 24 24" fill="none" stroke={INK[700]} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
           <circle cx={12} cy={12} r={9.5} />
@@ -394,8 +396,9 @@ const LI_F1: React.FC = () => {
   const videoH = (videoW * REC_PHONE.h) / REC_PHONE.w;
   return (
     <AbsoluteFill style={{ background: '#fff' }}>
-      <PhoneFrame at={at}>
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#fff' }}>
+      {/* kolo 11 (Samuel: v zaobleni rohov displeja su biele miesta): cierne pozadie displeja pod zaznamom */}
+      <PhoneFrame at={at} screenBg="#000">
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#000' }}>
           <div style={{ position: 'absolute', left: 0, top: -REC_PHONE.cropTop * videoH, width: videoW, height: videoH }}>
             <OffthreadVideo src={staticFile('footage/k-f1-sken.mp4')} muted style={{ width: '100%', height: '100%', objectFit: 'fill' }} />
             {K_F1_TAPS.map((tp, i) => {
@@ -419,7 +422,7 @@ const LI_F1: React.FC = () => {
  */
 const kv = (i: number, k = 0) => voAt('K-F24-Aplikacia', i, k) / 1000;
 const F24_SRC = 'footage/k-f24-review.mp4';
-const F24_W0 = { autora: 5.52, rok: 6.3 }; // s od zaciatku vety K-F24-Aplikacia-0 (words.json)
+const F24_W0 = { autora: 6.32, rok: 7.24 }; // s od zaciatku vety K-F24-Aplikacia-0 (words.json; kolo 11: nova veta s "napriklad")
 const LI_F24: React.FC = () => (
   <AbsoluteFill>
     {/* kolo 3: okno na konci nevybledne do bielej (dlzka +1 s len pre prelinacku), F3 nadvazuje v tom istom okne */}
@@ -428,7 +431,7 @@ const LI_F24: React.FC = () => (
       <PhotoTitle width={720} />
     </Panel>
     {/* navrh ostava az po potvrdenie (klik na slove "potvrdi"); kolo 9: panel s fotkou pri zazname vypadol (duplicita) */}
-    <Panel from={kv(0, 1) + 0.35} to={K_F24_END} label="Návrh aplikácie: názov projektu" width={1000}>
+    <Panel from={kv(0, 1) + 0.35} to={K_F24_END} label="Návrh aplikácie: názov projektu" width={WIN.w}>
       <ValueField approveAt={K_F24_TAPS[0].t} authorAt={kv(0) + F24_W0.autora - 0.1} yearAt={kv(0) + F24_W0.rok - 0.1} />
     </Panel>
   </AbsoluteFill>
@@ -451,7 +454,7 @@ const PATH_STEPS: { kind: HKind; label: string; code: string; at: number }[] = [
 const DocPath: React.FC<{ lineAt: number }> = ({ lineAt }) => {
   const frame = useCurrentFrame();
   const sec = frame / FPS;
-  const W = 1000,
+  const W = WIN.w,
     C = 124,
     col = W / PATH_STEPS.length;
   return (
@@ -497,7 +500,7 @@ const Chip: React.FC<{ tone: 'green' | 'amber'; children: React.ReactNode }> = (
  */
 const HIT_TEXT = ['Doplnenie ', 'vodovod', 'nej prípojky podľa požiadavky investora'] as const;
 const ItemCard: React.FC = () => (
-  <div style={{ ...BOX, width: 1000, padding: '20px 30px 24px' }}>
+  <div style={{ ...BOX, width: WIN.w, padding: '20px 34px 24px 40px' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
       <HIcon kind="folder" size={64} on />
       <span style={{ fontFamily: APP_FONT, fontWeight: 700, fontSize: 40, lineHeight: 1, color: INK[900] }}>ZL_03</span>
@@ -519,13 +522,13 @@ const LI_F3: React.FC = () => {
     <AbsoluteFill>
       {/* kolo 3: bez `enter` (okno je na rovnakom mieste ako v F24, test: 0:45 biela diera pred vyhladavanim) */}
       <DesktopFootageClip src={F3_SRC} seconds={K_F3_SECONDS} steps={[]} phase={phases.search} marks={f3Marks(F3_CLIP)} win={WIN} />
-      <Panel from={0.25} to={v(1) + 0.4} label="Hľadané slovo" width={960}>
+      <Panel from={0.25} to={v(1) + 0.4} label="Hľadané slovo" width={WIN.w}>
         <SearchField typeFrom={0.8} typeTo={1.9} />
       </Panel>
-      <Panel from={v(1) + 0.45} to={path + 0.05} label="Nájdená položka" width={1000}>
+      <Panel from={v(1) + 0.45} to={path + 0.05} label="Nájdená položka" width={WIN.w}>
         <ItemCard />
       </Panel>
-      <Panel from={path + 0.1} to={K_F3_SECONDS - 0.4} label="Cesta k položke" width={1000}>
+      <Panel from={path + 0.1} to={K_F3_SECONDS - 0.4} label="Cesta k položke" width={WIN.w}>
         <DocPath lineAt={path} />
       </Panel>
     </AbsoluteFill>
@@ -600,12 +603,25 @@ const C8_STEPS = [
 const C8W = 976,
   C8X = (LI.w - C8W) / 2;
 /** Karta volby na slide: ikona, nazov, popis; zeleny okraj, ked sa o nej hovori. */
-const OptionCard: React.FC<{ icon: OfferIconKind; title: string; desc: string; top: number; h: number; t: number; on: boolean; size?: number }> = ({ icon, title, desc, top, h, t, on, size = 58 }) => (
-  <div style={{ position: 'absolute', left: C8X, top, width: C8W, height: h, boxSizing: 'border-box', borderRadius: 26, background: '#fff', border: `2px solid ${on ? BRAND[500] : INK[200]}`, boxShadow: on ? `0 0 0 2px ${BRAND[500]}, 0 18px 44px rgba(31,122,51,0.14)` : '0 12px 30px rgba(15,23,42,0.06)', opacity: t, transform: `translateY(${(1 - t) * 24}px)`, display: 'flex', alignItems: 'center', gap: 30, padding: '0 40px' }}>
+const OptionCard: React.FC<{ icon: OfferIconKind; title: string; desc: string; top: number; h: number; t: number; on: boolean; size?: number; inset?: number }> = ({ icon, title, desc, top, h, t, on, size = 58, inset = 0 }) => (
+  <div style={{ position: 'absolute', left: C8X + inset, top, width: C8W - 2 * inset, height: h, boxSizing: 'border-box', borderRadius: 26, background: '#fff', border: `2px solid ${on ? BRAND[500] : INK[200]}`, boxShadow: on ? `0 0 0 2px ${BRAND[500]}, 0 18px 44px rgba(31,122,51,0.14)` : '0 12px 30px rgba(15,23,42,0.06)', opacity: t, transform: `translateY(${(1 - t) * 24}px)`, display: 'flex', alignItems: 'center', gap: 30, padding: '0 40px' }}>
     <OfferIcon kind={icon} on={on} size={118} />
     <div style={{ minWidth: 0 }}>
       <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: size, lineHeight: 1.05, letterSpacing: '-0.02em', color: on ? BRAND[700] : INK[900], whiteSpace: 'nowrap' }}>{title}</div>
       <div style={{ marginTop: 10, fontFamily: FONT.body, fontSize: 36, lineHeight: 1.2, color: INK[500], whiteSpace: 'nowrap' }}>{desc}</div>
+    </div>
+  </div>
+);
+/**
+ * Kolo 11 (Samuel: "Bezpečne" ma byt oddelene od volieb online u nas / na vasej infrastrukture, teraz splyva): bezpecnost
+ * je zeleny pas nad volbami (iny styl ako karty), volby su spolu v sivom ramci pod nim.
+ */
+const SafeBanner: React.FC<{ top: number; on: boolean }> = ({ top, on }) => (
+  <div style={{ position: 'absolute', left: C8X, top, width: C8W, height: 150, boxSizing: 'border-box', borderRadius: 26, background: on ? BRAND[100] : BRAND[50], border: `2px solid ${on ? BRAND[500] : BRAND[200]}`, boxShadow: on ? `0 0 0 2px ${BRAND[500]}, 0 18px 44px rgba(31,122,51,0.16)` : 'none', display: 'flex', alignItems: 'center', gap: 28, padding: '0 40px' }}>
+    <OfferIcon kind="shield" on size={100} />
+    <div>
+      <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 56, lineHeight: 1.05, letterSpacing: '-0.02em', color: BRAND[700] }}>Bezpečne</div>
+      <div style={{ marginTop: 8, fontFamily: FONT.body, fontSize: 34, lineHeight: 1.2, color: INK[600] }}>Podľa vašich požiadaviek</div>
     </div>
   </div>
 );
@@ -642,16 +658,17 @@ const LI_C8: React.FC = () => {
       {slide(
         1,
         <>
-          <OptionCard icon="shield" title="Bezpečne" desc="Podľa vašich požiadaviek" top={200} h={200} t={1} on={ms >= safeAt && ms < onlineAt} />
-          <OptionCard icon="cloud" title="Online u nás" desc="Bez vlastných serverov" top={440} h={200} t={opts} on={ms >= onlineAt && ms < yoursAt} />
-          <OrPill top={656} t={opts} />
-          <OptionCard icon="server" title="Na vašej infraštruktúre" desc="Na vašich serveroch" top={722} h={200} t={opts} on={ms >= yoursAt} size={52} />
+          <SafeBanner top={190} on={ms >= safeAt && ms < onlineAt} />
+          <div style={{ position: 'absolute', left: C8X, top: 380, width: C8W, height: 520, boxSizing: 'border-box', borderRadius: 30, background: INK[50], border: `1px solid ${INK[100]}`, opacity: opts }} />
+          <OptionCard icon="cloud" title="Online u nás" desc="Bez vlastných serverov" top={400} h={190} t={opts} on={ms >= onlineAt && ms < yoursAt} inset={20} />
+          <OrPill top={615} t={opts} />
+          <OptionCard icon="server" title="Na vašej infraštruktúre" desc="Na vašich serveroch" top={690} h={190} t={opts} on={ms >= yoursAt} size={52} inset={20} />
         </>,
       )}
       {slide(
         2,
         <>
-          <ArchiveBox state={{ lid: 0, binders: [0, 0, 0], qr: [0, 0, 0, sticker] }} size={700} qrScale={1.4} style={{ position: 'absolute', left: (LI.w - 700) / 2, top: 156 }} />
+          <ArchiveBox state={{ lid: 0, binders: [0, 0, 0], qr: [0, 0, 0, sticker] }} size={700} style={{ position: 'absolute', left: (LI.w - 700) / 2, top: 156 }} />
           <div style={{ position: 'absolute', left: 0, right: 0, top: 832, textAlign: 'center', fontFamily: FONT.display, fontWeight: 800, fontSize: 76, lineHeight: 1.05, letterSpacing: '-0.02em', color: INK[900], opacity: head, transform: `translateY(${(1 - head) * 24}px)` }}>
             Začnime <span style={{ color: BRAND[600] }}>jednou krabicou</span>
           </div>
@@ -718,8 +735,9 @@ const Lockup: React.FC<{ size: number; onDark: boolean; build?: number }> = ({ s
  */
 const C4_MAP: [number, number][] = [
   [0, 0],
-  [1100, 1700],
-  [1450, 2600],
+  [550, 1100], // kolo 11 (Samuel: otaznik a hodiny naraz, nech su vidiet dost dlho): kamera 2x
+  [800, 1350], // otaznik vyskoci 1:1 pri "Hladanie"
+  [900, 2600], // zvysok vyskoku a koniec kamery rychlo, hodiny hned za otaznikom (sceny 2600 ms)
 ];
 const C4_SKIP = C4_MAP[C4_MAP.length - 1][1] - C4_MAP[C4_MAP.length - 1][0]; // 1150 ms sceny naviac
 const c4SceneMs = (ms: number) => {
@@ -764,7 +782,7 @@ const C4_GROUP_CAM: Cam = { z: 1.45, fx: 690, fy: 480, tx: 540, ty: 560 };
 const c4Win = (ms: number) => (ms < C4_LIGHT ? INTRO_WIN : BAND_WIN);
 const c4Cam = camShift([
   [0, C2_END_CAM],
-  [1100, C4_GROUP_CAM],
+  [800, C4_GROUP_CAM],
   [C4_LIGHT, C4_GROUP_CAM],
   [C4_LIGHT + 1, CAM_ID],
 ]);
@@ -783,7 +801,7 @@ const c4Cam = camShift([
  */
 const C2_PAN_AT = 3450; // ms klipu: prestrih dole do skladu
 const C2_PAN_MS = 900;
-const C2_CAM: Cam = { z: 1.55, fx: 1025, fy: 380, tx: 540, ty: 575 }; // kancelaria aj sklad (stred: stol az skrina)
+const C2_CAM: Cam = { z: 1.55, fx: 1025, fy: 380, tx: 540, ty: 450 }; // kancelaria aj sklad; kolo 11: vyssie, podlaha konci v obraze
 /** Podobnost p -> s * p + (x, y): pas -> ram (kamera), platna -> pas (sklad). */
 type Sim = { s: number; x: number; y: number };
 const simCam = (c: Cam): Sim => ({ s: S169 * c.z, x: c.tx - S169 * c.z * c.fx, y: c.ty - S169 * c.z * c.fy });
@@ -802,7 +820,7 @@ const invert01 = (f: (x: number) => number, y: number) => {
   return (lo + hi) / 2;
 };
 const WH_K = 1.09;
-const WH_C: [number, number] = [1200, 400]; // stred zaberu skladu (ulicka, cielovy regal, palety) -> stred kancelarie
+const WH_C: [number, number] = [1200, 425]; // stred zaberu skladu (ulicka, cielovy regal, palety) -> stred kancelarie
 const WH_W: Sim = { s: WH_K, x: C2_CAM.fx - WH_K * WH_C[0], y: C2_CAM.fy - WH_K * WH_C[1] };
 /** Cesta panacika v sklade (Warehouse: walk = tw(4300, 2200), kazdy usek PATH 1/5 parametra), dlzky v px sceny skladu. */
 const WH_SEG = WH_PATH.slice(1).map((q, i) => {
@@ -812,11 +830,11 @@ const WH_SEG = WH_PATH.slice(1).map((q, i) => {
 });
 const whDist = (param: number) => WH_SEG.reduce((d, len, i) => d + len * Math.min(1, Math.max(0, param * WH_SEG.length - i)), 0);
 const whTime = (param: number) => 4300 + 2200 * invert01(easeInOut, param); // cas skladu, ked je panacik na parametri
-const WH_P0 = 0.5; // panacik stoji v polovici ulicky pred regalmi
+const WH_P0 = 0.32; // kolo 11 (Samuel: panacik nech ide o 0,5-1 s dlhsie, nie pomalsie): zacina pri lavom okraji, ide ~1,75 s
 const WH_D = whDist(1) - whDist(WH_P0); // ~411 px sceny skladu
 /** Kancelaria: panacik prejde z iso(200, 260) ku skrini iso(210, 110) za 800 ms ease-in-out, mierka 1920 / 980. */
 const OFFICE_WALK_PX = Math.hypot(160, -70) * (1920 / 980);
-const C2_WALK_AT = C2_PAN_AT + C2_PAN_MS; // chodza v sklade po prestrihu
+const C2_WALK_AT = C2_PAN_AT + 650; // chodza v sklade od konca prestrihu (sklad uz takmer cely v obraze)
 const C2_WALK_MS = (800 * WH_D * WH_K) / OFFICE_WALK_PX; // ~1050 ms: rovnaka rychlost na obrazovke ako v kancelarii
 const C2_ARR = C2_WALK_AT + C2_WALK_MS; // panacik pri regali (cas skladu 6500)
 const C2_UP = 7820; // cas skladu: zlozky v oboch krabiciach su hore
@@ -828,8 +846,8 @@ const C2_WMAP: [number, number][] = [
     return [C2_WALK_AT + C2_WALK_MS * e, whTime(invert01(whDist, whDist(WH_P0) + WH_D * easeInOut(e)))];
   }),
   [C2_ARR + (C2_UP - 6500), C2_UP], // 1:1: vyblednutie skladu, krabice, veka a zlozky hore
-  [C2_ARR + (C2_UP - 6500) + 150, 8500], // staticka chvila so zlozkami hore 780 -> 150 ms (ticho pred "Hladanie...")
-  [C2_ARR + (C2_UP - 6500) + 150 + 440, 9620], // zlozky dole, veka a krabice spat 2,5x
+  [C2_ARR + (C2_UP - 6500) + 50, 8500], // staticka chvila so zlozkami hore 780 -> 50 ms (ticho pred "Hladanie...")
+  [C2_ARR + (C2_UP - 6500) + 50 + 373, 9620], // zlozky dole, veka a krabice spat 3x
 ];
 const C2_SECONDS = C2_WMAP[C2_WMAP.length - 1][0] / 1000;
 const mapMs = (map: [number, number][], ms: number) => {

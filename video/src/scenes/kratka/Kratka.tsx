@@ -32,7 +32,9 @@ export const SLOGAN = 'Digitálny poriadok v papierovom archíve';
  * Kolo 9 (Samuel: hodiny jemne skratit): predel o 0,1 s skor (d -2020, zeleny prechod od 1950 ms), veta
  * "Predstavujeme vam..." tiez o 0,1 s skor (2650 ms), h ostava 3320.
  */
-export const K_C4_D = -2020;
+/** Kolo 11 (Samuel: otaznik a hodiny naraz): LinkedIn preskoci zaciatok C4 o 1700 ms (predtym 1150), d o 550 ms vyssie,
+ * aby zeleny prechod ostal v 1950 ms klipu a vsetko po hodinach v rovnakom case. */
+export const K_C4_D = -1470;
 export const K_C4_H = 3320;
 export const K_C4: React.FC = () => <C4_Cena d={K_C4_D} h={K_C4_H} brand={false} cost={false} />;
 /** Scena C4 konci po usadeni krabice a paticke (ako v hlavnej verzii: 8200 + d + h + 900 ms). */
