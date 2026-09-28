@@ -46,6 +46,8 @@ značky hore (domček, assetin, Archives), ale "Archives" písmom z posledného 
 - Po teste (obaja: sivý prechod z tmavej do bielej pred logom 0:17 je sekaný, nadpis "Polica a krabica" ostane sám na
   bielej 0:56): biele svetlo sa rozlieha zo stredu ponad prelínačku pásu (C4 8150-8630 ms), rámec prepne farby, keď je
   celý biely (8520 ms); názov kroku na konci F3 vybledne spolu s obrazom (`labelOut`).
+- Výsledok: `out/kratka/K-LinkedIn_1080p.mp4` 79,3 s, -16 LUFS; technická kontrola bez chýb (prechod pri logu plynulý,
+  hlas 5/5), 20 snímok pôvodných klipov na pixel rovnakých ako `ea5550e`.
 - Test na mobile (pred poslednými dvoma opravami): obaja pochopili úvod ("súvislý, plynulý, jasný príbeh"), čo dostane
   QR (polica, krabica, šanón, zložka), cestu PL_01 -> KR_01 -> ZL_03 -> Dokument, obe voľby a že skúška je zadarmo.
   Laikovi znie "na vašej infraštruktúre" odborne; obaja sa pýtali na GDPR, šifrovanie a prístupové práva; na poslednom

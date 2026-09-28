@@ -265,10 +265,10 @@
 <div class="tip" id="tip" hidden></div>
 
 <script>
-  const BUILD = { renderedAt: "2026-09-28T10:17:00Z" };
+  const BUILD = { renderedAt: "2026-09-28T10:24:00Z" };
   // id assetov (videa a plagaty); prazdne = este sa nahrava
   const VIDEOS = {
-    L: { cap: "854bdb0736fbe6bda0442a8ba364ffd3", poster: "c38b85a4c7a4fb534b9f5919225680e7", len: 79.3 },
+    L: { cap: "de31d15dfd3758e65baf2734aa5f285e", poster: "c38b85a4c7a4fb534b9f5919225680e7", len: 79.3 },
     FULL: { cap: "82122ce5cb36a031995136d89d2b36d1", poster: "b1dcf071776b4b4ea0079ec1cdb2ab89", len: 145.2 }
   };
   const PARTS = ["Úvod a problém", "Predstavenie", "Ako to funguje", "Hľadanie", "Ponuka a záver"];
@@ -384,7 +384,7 @@
   // test (texty su nase, nie od divakov stranky)
   const tb = document.getElementById('testtable');
   for (const [k, ...cells] of TEST) { const tr = document.createElement('tr'); tr.innerHTML = `<th></th>` + cells.map((c) => `<td>${c}</td>`).join(''); tr.firstChild.textContent = k; tb.append(tr); }
-  document.getElementById('test2').textContent = 'Kolo 4 pozerali ako príspevok v mobile (video 432 x 540), verziu tesne pred dvoma poslednými opravami prechodov. Technická kontrola: hlas 5/5, bez chýb v reči a obraze; ako zlom v hudbe označila nástup plnej kapely pri logu (0:18), čo je zámerný prechod z problému na riešenie. Po teste som sivý prechod pred logom nahradil bielym svetlom zo stredu a nadpis na konci vyhľadávania teraz zmizne spolu s obrazom.';
+  document.getElementById('test2').textContent = 'Kolo 4 pozerali ako príspevok v mobile (video 432 x 540), verziu tesne pred dvoma poslednými opravami prechodov. Po teste som sivý prechod pred logom nahradil bielym svetlom zo stredu a nadpis na konci vyhľadávania teraz zmizne spolu s obrazom. Technická kontrola finálnej verzie: bez chýb v reči, hudbe aj obraze, prechod pri logu plynulý, hlas 5/5.';
   const asks = document.getElementById('asks');
   for (const [q, a] of ASKS) { const d = document.createElement('div'); d.className = 'ask'; d.innerHTML = '<b></b><p></p>'; d.children[0].textContent = q; d.children[1].textContent = a; asks.append(d); }
 
