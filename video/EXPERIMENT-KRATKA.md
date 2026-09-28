@@ -11,6 +11,43 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 13 (28. 9. 2026): živšie hodiny, mäkší prechod na logo, priblížená aplikácia, prelínanie do kratšej ponuky
+
+Samuel: hodiny oživiť priblížením; prechod do ponuky prelínaním, nie prebliknutie; zelený prechod na logo zapracovať;
+dĺžku ponuky vhodne skrátiť; okno aplikácie nemusí byť celé vidieť, kľudne ho zväčšiť, orezať inak aj mobil;
+k bezpečnosti "v súlade s vašimi bezpečnostnými požiadavkami"; logo vpravo hore je teraz malé.
+
+- C4: po usadení kamery (1100 ms klipu) pomalé priblíženie otáznika a hodín, 1,45 -> 1,7x do 2700 ms, bod medzi nimi
+  (scéna 955 x 500) ostáva na mieste (`C4_GROUP_Q`, `C4_PUSH_CAM`). Zelený prechod 800 ms namiesto 480 (krivka
+  0.45/0/0.25/1, mäkká horná hrana 110 px, biela 220 ms za zelenou), začína stále v 1950 ms (110 ms po "hodiny");
+  scéna C4 zbelie pod zelenou o 320 ms neskôr (`K_C4_D` -2250, `K_C4_H` 3000, všetko po logu v rovnakom čase), logo
+  sa skladá v 2610 ms pri "Predstavujeme vám".
+- F24 a F3: vlastný `LiFootage` namiesto `DesktopFootageClip` (pôvodný komponent sa nemení): záznam v okne je
+  priblížený asi 2,1x (výrez 840 px zdroja) a výrez ide za hlasom (kľúče `F24_VIEWS`, `F3_VIEWS`, ease-in-out):
+  nadpis na fotke, návrh názvu projektu, lupa na fotke pri "overí", tlačidlá pri "potvrdí"; hľadané slovo, výsledok
+  ZL_03, pri "aj cestu k nej" drobček PL_01 / KR_01 / ZL_03 (620 px, ~2,8x). Zvýraznenia a kliky sa kreslia v px
+  okna. Pri 1,6x (prvý pokus) bolo okno podľa správcu stále "extrémne drobné".
+- F1: mobil 800 px (predtým 575), presahuje dolný okraj rámca, displej začína tesne nad hľadáčikom (orez 250 px záznamu
+  namiesto 115), dokument je asi 1,4x väčší a spúšť je stále v obraze.
+- Prelínanie F3 -> C8: nový kľúč `xfadeIn` v `LiDef` (klip sa prekryje s predchádzajúcim, `Series.Sequence` s
+  `offset`, `liFrames` a `liStarts` s prekrytím), celý rámec ponuky sa 500 ms prelieva cez posledný obraz F3 (F3 už
+  nevybledne, nadpis kroku ostáva, prvý slide ponuky je hotový od začiatku). Najmenej obsahu v strede obrazu počas
+  prechodu 3,1 % (v kole 12 0 %, čistá biela).
+- C8: nová veta Gemini "Aplikácia funguje v súlade s vašimi bezpečnostnými požiadavkami, online u nás alebo na vašej
+  infraštruktúre." (4 pokusy, prepis bez chýb; hodnotenie Gemini dalo všetkým 10/10, vybraná s_1 podľa merania:
+  čistý začiatok, prirodzený nádych 0,22 s za "požiadavkami"), v zelenom páse "V súlade s vašimi bezpečnostnými
+  požiadavkami". Veta od 6,05 s (slide odíde 0,36 s po predchádzajúcej vete), výzva od 13,98 s (karty ešte 0,9 s po
+  vete, predtým 1,32 s). Ponuka o 0,6 s kratšia, film o 1,1 s kratší.
+- Značka vpravo hore: domček 46 px, text 42 px (predtým 32 a 30).
+- Hudba: `delay` 0,532 s, `tempo` 0,9875: plná kapela ~9,62 s (0,3 s pred zeleným prechodom), prechodový takt 55 od
+  ~53,96 s = začiatok prelínania do ponuky (53,93 s). Film 75,3 s, 133 slov.
+- Test na mobile (4 snímky za sekundu): technická kontrola bez chýb, hlas 5/5. Nástup loga správca hodnotí
+  "profesionálne, moderne a korporátne, žiadny lacný efekt" (v kole 12 "sekol scénu"), laikovi je prechod do bielej
+  stále trochu prudký. Logo vpravo hore laik "decentné, dobre čitateľné", správca skôr periférne. Celé okno aplikácie
+  je obom stále drobné, karty pod ním "výborne čitateľné". Pomalé priblíženie pri hodinách a 0,5 s prelínanie pri
+  4 snímkach za sekundu nevidia (0:07-0:10 obaja stále vnímajú ako pomalšie, správca prelínanie ako skok). Dĺžka podľa
+  nich 45-60 s.
+
 ## Kolo 12 (28. 9. 2026): plynulé 0:07-0:10, prirodzene nadväzujúci hlas pri vyhľadávaní
 
 Samuel: 0:07 až 0:10 je teraz rozsekané, čo predtým nebolo, zložky sa až moc rýchlo vrátia do krabice atď.; pri 0:53

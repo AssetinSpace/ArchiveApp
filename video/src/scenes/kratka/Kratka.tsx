@@ -36,8 +36,8 @@ export const SLOGAN = 'Digitálny poriadok v papierovom archíve';
  * aby zeleny prechod ostal v 1950 ms klipu a vsetko po hodinach v rovnakom case.
  * Kolo 12 (Samuel: 0:07-0:10 je teraz rozsekane): bez skoku casu, hodiny su hned za otaznikom cez `clockAt` (1400 ms sceny
  * namiesto 2600), LinkedIn preskoci len 600 ms (kamera 1,55x ako v kole 10), d -2570 (d - preskok ostava -3170). */
-export const K_C4_D = -2570;
-export const K_C4_H = 3320;
+export const K_C4_D = -2250; // kolo 13: predel sceny o 320 ms neskor pod pomalsim zelenym prechodom (800 ms), h o 320 ms kratsie
+export const K_C4_H = 3000;
 export const K_C4_CLOCK = 1400;
 export const K_C4: React.FC = () => <C4_Cena d={K_C4_D} h={K_C4_H} brand={false} cost={false} clockAt={K_C4_CLOCK} />;
 /** Scena C4 konci po usadeni krabice a paticke (ako v hlavnej verzii: 8200 + d + h + 900 ms). */
