@@ -4,6 +4,7 @@ import { C5Step } from '../C5_Teren';
 import { Tap as PhoneTap } from '../F1_Sken';
 import { Mark, Tap, markAt, tapAt } from '../F2_Metadata';
 import { Step } from '../../components/Steps';
+import type { Hold } from '../../components/Paced';
 import { voAt } from '../../components/Subtitles';
 import { cutDuration, cutTime, segStart } from '../../lib/cuts';
 
@@ -38,11 +39,16 @@ export const c4End = (d: number, h: number) => (8200 + d + h + 900) / 1000;
 /** Nazov fazy pre pracu so skutocnymi krabicami: "V terene" divakom v teste evokovalo stavbu, "V archive" je jasne. */
 export const PHASE_ARCHIV = 'V archíve';
 
-/** C5: dva kroky podla jednej vety (QR na krabicu aj zlozky, fotka titulnej strany). */
+/** C5: dva kroky podla jednej vety (QR na krabicu aj zlozky, fotka titulnej strany). Kolo 7: veta ma tri casti. */
 export const C5_STEPS = (clip: string): C5Step[] => [
   { from: 600, title: 'Prilepiť QR kód' },
-  { from: voAt(clip, 0, 1), title: 'Odfotiť titulnú stranu' },
+  { from: voAt(clip, 0, 2), title: 'Odfotiť titulnú stranu' },
 ];
+/**
+ * Kolo 7 (Samuel: QR dostane kazda polozka, nie je to pevne dane): dlhsia prva veta, scena C5 stoji po dopade poslednej
+ * nalepky (ako hlavna verzia v kole 32), kym zaznie "Mobilom potom odfotime..." a pride mobil.
+ */
+export const K_C5_HOLDS: Hold[] = [{ at: 4000, hold: 2750 }]; // po dopade poslednej nalepky (3940), pred vytiahnutim zlozky a mobilom (4100, 4300)
 
 /** F1: skutocny fotoaparat v aplikacii (spust), bez hlasu; obrazovka s vyvojarskym textom aj nahlad fotky vypadli. */
 export const KF1 = 'k-f1-sken';
@@ -78,13 +84,15 @@ export const K_F3_SECONDS = cutDuration(KF3);
 /** F3: kroky a zvyraznenia podla vety klipu (16:9 aj LinkedIn). */
 export const f3Steps = (clip: string): Step[] => [
   { from: 0, title: 'Napísať slovo' },
-  { from: voAt(clip, 0, 1), title: 'Polica a krabica' },
+  { from: voAt(clip, 0, 1), title: 'Údaje o položke' }, // kolo 7 (Samuel): "aplikacia ukaze udaje o konkretnej polozke aj cestu k nej"
+  { from: voAt(clip, 0, 2), title: 'Cesta k položke' },
 ];
 export const f3Marks = (clip: string): Mark[] => {
   const v = (k: number) => voAt(clip, 0, k);
   return [
     markAt(KF3, v(0) / 1000 + 0.3, segStart(KF3, 1) + 0.1, 190, 578, 1638, 62, spot), // pole vyhladavania (pisanie slova)
-    markAt(KF3, v(1) / 1000 + 1.0, K_F3_SECONDS - 0.45, 596, 783, 246, 28, spot), // PL_01 / KR_01 / ZL_03: "na ktorej polici a v ktorej krabici"
+    markAt(KF3, v(1) / 1000 + 0.9, v(2) / 1000 + 0.1, 132, 830, 402, 180, spot), // vysledok ZL_03 (Zlozka, najdene v metadatach a OCR): "udaje o konkretnej polozke"
+    markAt(KF3, v(2) / 1000 + 0.1, K_F3_SECONDS - 0.45, 596, 783, 246, 28, spot), // PL_01 / KR_01 / ZL_03: "aj cestu k nej"
   ];
 };
 /** Popis karty softveru (LinkedIn C8). */

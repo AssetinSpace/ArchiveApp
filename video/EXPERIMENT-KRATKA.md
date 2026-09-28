@@ -11,6 +11,38 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 7 (28. 9. 2026): "každá položka" a nie pevná štruktúra, údaje o položke, ponuka na troch slidoch
+
+Samuel: pri 0:22 povedať, že QR dostane každá položka, či polica, šanón alebo zložka, a že to nie je pevne dané; pri
+0:50 aplikácia ukáže konkrétne údaje o položke a cestu ku konkrétnej položke; koniec (ponuka) je prehustený, rozdeliť na
+viac slidov.
+
+- C5: "Každá položka, či už polica, krabica, šanón alebo zložka, dostane QR kód, podľa toho, ako máte archív
+  usporiadaný. Mobilom potom odfotíme titulnú stranu dokumentu." (Gemini). Prvé tri pokusy vyslovili QR po slovensky
+  ("kvé er"), s doplnkom `styleExtra` k vete vyšli 3 z 5 po anglicky ("kju ár", overené prepisom), vybraný podľa
+  intonácie a dĺžky (10,2 s). Ikony pri svojich slovách, QR pri "dostane QR kód", pri "podľa toho, ako máte archív
+  usporiadaný" dva príklady usporiadania (polica, krabica, zložka; potom polica a šanón), ostatné na chvíľu stlmené.
+  Scéna C5 stojí 2,75 s po dopade poslednej nálepky (`K_C5_HOLDS`, 4000 ms scény), mobil príde na konci prvej vety.
+  Krok "Odfotiť titulnú stranu" je pri tretej časti vety. C5 11,15 s namiesto 8,4 s.
+- F3: "Potom stačí napísať slovo a aplikácia ukáže údaje o konkrétnej položke aj cestu k nej." (Gemini, z troch pokusov).
+  Pod oknom po hľadanom slove karta nájdenej položky podľa záznamu aplikácie (ZL_03, Zložka, nájdené v "Údaje" a "Text
+  z fotky" = v aplikácii Metadáta a OCR, príloha = fotka titulnej strany), potom "Cesta k položke" Polica PL_01 -> Krabica KR_01 -> Zložka ZL_03 (drobček
+  z aplikácie, bez kroku Dokument). V zázname sa zvýrazní najprv výsledok, potom drobček. Kroky: Napísať slovo, Údaje
+  o položke, Cesta k položke.
+- C8 na troch slidoch s posunom doľava a názvom nad obrazom ako v ostatných častiach (Ako začať: Kto to spracuje, Kde
+  to beží, Prvý krok): väčšie karty (58 px), "alebo" medzi nimi, na druhom slide aj "Vždy bezpečne...", na treťom len
+  výzva (bez titulku, jej slová sú na karte). Časy viet sa nemenia.
+- C9 3,3 s namiesto 3,6 s (film musí ostať okolo 72,9 s, aby hudba sedela, pozri nižšie).
+- Hudba: strihy `[[9.03, 27.49], [69.03, 129.03]]` (v druhom strihu o takt menej), plná kapela stále tesne pred
+  zeleným prechodom (11,75 s), pokojný záver od začiatku ponuky (54,37 s). Plná kapela musí padnúť na prechod pri tempe
+  ~0,97, čo pri 26 vystrihnutých taktoch dáva film okolo 72,9 s. Film 72,9 s.
+- Výsledok: `out/kratka/K-LinkedIn_1080p.mp4` 73,0 s, -16 LUFS, hudba tempo 0,971; technická kontrola bez chýb (hlas 5/5).
+- Test na mobile: obaja pochopili, že štruktúra nie je pevná ("prispôsobí sa to tomu, ako máte archív usporiadaný"),
+  že aplikácia ukáže nájdenú položku, jej údaje a fotku a cestu PL_01 -> KR_01 -> ZL_03; ponuku na slidoch hodnotia
+  "veľmi pekná, čistá a dobre čitateľná, žiadny chaos" a "prehľadná, čistá". Laik nerozumel štítkom "Metadáta" a
+  "OCR" na karte položky, po teste sú na karte "Údaje" a "Text z fotky". Stále: regály a hodiny 0:06-0:11 pomalé,
+  skok do bielej pri logu správcovi prudký, bezpečnosť by chceli konkrétnejšie, dĺžka podľa nich 40-50 s.
+
 ## Kolo 6 (28. 9. 2026): priblížený úvod, "Hľadanie môže trvať hodiny", nový nástup loga
 
 Samuel: nie je na začiatku málo vidieť panáčika, nemá zmysel priblížiť?; "hľadanie môže trvať hodiny", nie "trvá";
