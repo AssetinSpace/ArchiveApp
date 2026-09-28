@@ -11,6 +11,48 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 9 (28. 9. 2026): prirodzená chôdza v sklade, bez duplicity o fotke, údaje zložky, infraštruktúra, jedna krabica
+
+Samuel: panáčik v sklade ide extrémne rýchlo (prípadne skúsiť sklad a kanceláriu vedľa seba, nie pod sebou), hodiny
+jemne skrátiť; "Fotka je dôkaz a ostáva pri zázname" pri 0:45 je duplicita (posúdiť, ktorú vetu vyhodiť); pri
+"vodovod" čaká konkrétne údaje zo zložky (povolenie vodovodnej prípojky); ponuku začať infraštruktúrou ("funguje
+bezpečne podľa vašich požiadaviek, online u nás alebo na vašej infraštruktúre"); výzva na obmedzený rozsah je suchá,
+posúdiť "jednu krabicu".
+
+- C2: kancelária a sklad majú vlastný čas (`LI_C2`, `Office` a `Warehouse` z `C2_Hladanie` len exportované, scéna sa
+  nemení). Kancelária 1:1, prestrih dole 0,9 s ako v pôvodnej, sklad 1:1 od 4,5 s svojho času (v kole 8 prestrih
+  a chôdza 2,2x): panáčik vojde počas prestrihu, po ňom ešte ~0,9 s ide uličkou k regálu a dôjde k nemu pri "na
+  polici", prehľadávanie krabíc 1:1; statická chvíľa so zložkami hore 780 -> 150 ms a vrátenie krabíc 2,5x. Veta
+  o sklade od 3,8 s (predtým 3,95 s), pauzy v reči 0,65 s po otázke a 0,67 s pred "Hľadanie...". C2 7,37 s (kolo 8:
+  7,25 s), zelený prechod ostáva v 9,3 s. Prvý render kola 9 (C2 8,0 s, bez skrátenia) mal pred "Hľadanie..." 1,2 s
+  ticha a obaja testeri ho cítili ako hluché miesto 0:07-0:09. Vedľa seba som neskúšal: na výšku 4:5 by obe polovice
+  mali 540 px a panáčik by bol ešte menší; dve scény naraz (kolo 3, pod sebou) pôsobili chaoticky.
+- C4: predel do loga o 0,1 s skôr (`K_C4_D` -2020, zelený prechod 1950 ms po začiatku C4, 110 ms po slove "hodiny"),
+  "Predstavujeme vám..." od 2650 ms.
+- F24: veta "Fotka je dôkaz a ostáva pri zázname." aj panel s fotkou vypadli (nahrávka F4-Kontrola-1 len po
+  "potvrdí", 2,7 s), klip končí 0,75 s po prijatí hodnoty (`K_F24_END`). Nechal som kontrolu človekom (dôvera), fotku
+  vidieť pri vete "Aplikácia z fotky sama prečíta text". F24 10,5 s (kolo 8: 13,4 s).
+- F3: pod výsledkom karta nájdenej položky so skutočnými údajmi zo záznamu (ZL_03 Zložka, Projekt pre stavebné
+  povolenie 05/2018, Novostavba bytového domu SLNEČNÁ 12, BRATISLAVA, "Doplnenie vodovodnej prípojky podľa požiadavky
+  investora" so zvýrazneným "vodovod"), pri "údaje o konkrétnej položke".
+- C8: nová veta "Aplikácia funguje bezpečne podľa vašich požiadaviek, online u nás alebo na vašej infraštruktúre."
+  (6,3 s) a výzva "Začnime jednou krabicou, zadarmo a nezáväzne." (3,8 s, teplejší tón); Gemini, 4 pokusy na vetu,
+  prepis bez chýb, vybrané podľa porovnania s referenčnou vetou. Slide Kde to beží: karta Bezpečne (podľa vašich
+  požiadaviek) pri "bezpečne", pri "online" prídu karty Online u nás (bez vlastných serverov) a Na vašej infraštruktúre
+  (na vašich serveroch). Slide Prvý krok: krabica z C5 (`ArchiveBox`, nový voliteľný `qrScale` 1,4, inde 0,62),
+  nálepka QR na ňu dopadne pri "krabicou", zelená pilulka "Zadarmo a nezáväzne" pri "zadarmo". Posúdenie: "jedna
+  krabica" amatérsky neznie, keď je to prvý krok (nie celá ponuka); je konkrétna a divák si ju vie predstaviť, pôvodná
+  verzia mala tiež "pilot na jednej krabici". C8 17,2 s (kolo 8: 15,2 s).
+- Hudba: rovnaké strihy ako v kole 8 `[[6.72, 27.49], [71.34, 129.03]]`, tempo 0,987: plná kapela ~9,1 s tesne pred
+  zeleným prechodom (9,32 s), prechodový takt 55 (bez bicích) od ~51,1 s = začiatok ponuky (51,2 s), pokojný záver od
+  ~53,4 s. Film 71,7 s, 122 slov.
+- Test na mobile (finálny render): technická kontrola bez chýb (hlas 5/5). Obaja pochopili podstatu, pri "vodovod"
+  vymenujú údaje zložky a cestu k nej. Výzva: laik "veľmi férovo, nenásilne, znižuje strach", správca "veľmi konkrétne,
+  nízka bariéra vstupu". "Na vašej infraštruktúre" správca rozumie presne, laik vďaka "Na vašich serveroch", ale znie
+  mu to IT-čkársky. Chôdzu Gemini spoľahlivo neposúdi (video vidí zhruba po sekundách): v prvom renderi ju správca
+  opísal ako prirodzenú, vo finálnom obaja ako statickú. Stále: sklad 0:05-0:09 pomalší, celé okno aplikácie
+  0:32-0:43 drobné, bezpečnosť konkrétnejšie (šifrovanie, GDPR, prístupové práva), dĺžka podľa nich 45-60 s.
+
 ## Kolo 8 (28. 9. 2026): menej textu v obraze, kratší úvod, pokojnejšia veta o QR, väčší mobil, web na konci
 
 Samuel: vynechať "Vy viete, že tam niekde je."; sklad, keď tam panáčik hľadá, nie je dosť priblížený; web na konci určite
@@ -314,6 +356,6 @@ Kontrolné stills `node scripts/kratka-stills.mjs [s ...]` (časy vo filme, do `
 ## Súbory
 
 - Nové: `src/scenes/kratka/LinkedIn.tsx` (kompozícia K-LinkedIn 4:5, jediná krátka verzia), `src/kratkaList.ts` (`paced`, pauzy C4), `src/scenes/kratka/Kratka.tsx` (spoločné dáta: C4 so sloganom, kroky, spoty, kliky), `src/copy/vo_kratka.json`, `src/copy/music_kratka.json`, `scripts/kratka_lines.py`, `scripts/kratka-stills.mjs`, `review-kratka/index.html`, `public/vo-kratka/`, `public/footage/k-*.mp4`, `out/kratka/`.
-- Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`, `subtitles`), `Scene` (`SceneFrameContext`: jednofarebné pozadie, bez päty a bez orezania na rámec 16:9 len vnútri LinkedIn rámca), `Subtitles` (scenár K vedľa hlavného), `C4_Cena` (`d`, `h`, `brand`, `cost`), `C5_Teren` (`steps`, `phase`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`).
+- Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`, `subtitles`), `Scene` (`SceneFrameContext`: jednofarebné pozadie, bez päty a bez orezania na rámec 16:9 len vnútri LinkedIn rámca), `Subtitles` (scenár K vedľa hlavného), `C4_Cena` (`d`, `h`, `brand`, `cost`), `C5_Teren` (`steps`, `phase`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`); kolo 9: `C2_Hladanie` (export `Office` a `Warehouse`), `ArchiveBox` (`qrScale`).
 - Kontrola: 20 snímok pôvodných klipov (C2, C4, C5, C8, C9, F1, F4) z commitu `ea5550e` a z tejto vetvy je na pixel rovnakých; dĺžky kompozícií bez zmeny.
 - Jediná zmena správania pôvodnej cesty: `mix-music.mjs` dáva tichému klipu (C1) stopu v rozložení kanálov ostatných klipov (stereo namiesto mono). Zvuk je ticho, výsledok rovnaký.

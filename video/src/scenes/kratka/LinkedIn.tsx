@@ -1,13 +1,14 @@
 import React from 'react';
 import { AbsoluteFill, Easing, Freeze, Img, OffthreadVideo, Series, staticFile, useCurrentFrame } from 'remotion';
-import { LogoMark, SceneFrameContext } from '../../components/Scene';
+import { LogoMark, Scene, SceneFrameContext } from '../../components/Scene';
 import { voLines } from '../../components/Subtitles';
 import { FOOTAGE_PHONE, PHONE_BEZEL, PhoneFrame, Rect } from '../../components/Device';
 import { BrandMod, BrandSep, BrandStack, LOCKUP, LOCKUP_W } from '../../components/Brand';
-import { C2_Hladanie } from '../C2_Hladanie';
+import { ArchiveBox } from '../../components/ArchiveBox';
+import { Office, Warehouse } from '../C2_Hladanie';
 import { C5_Teren } from '../C5_Teren';
 import { DesktopFootageClip } from '../F2_Metadata';
-import { C5_STEPS, SLOGAN, K_C4, K_C4_D, K_C4_H, K_C5_HOLDS, K_F1_SECONDS, K_F1_TAPS, K_F24_MARKS, K_F24_SECONDS, K_F24_STEPS, K_F24_TAPS, K_F3_SECONDS, PHASE_ARCHIV, SOFTWARE_DESC, c4End, f3Marks, f3Steps } from './Kratka';
+import { C5_STEPS, SLOGAN, K_C4, K_C4_D, K_C4_H, K_C5_HOLDS, K_F1_SECONDS, K_F1_TAPS, K_F24_END, K_F24_MARKS, K_F24_SECONDS, K_F24_STEPS, K_F24_TAPS, K_F3_SECONDS, PHASE_ARCHIV, SOFTWARE_DESC, c4End, f3Marks, f3Steps } from './Kratka';
 import { paced } from '../../kratkaList';
 import type { SceneDef } from '../../scenesList';
 import { easeInOut, easeOut, pop, settle, tween } from '../../lib/anim';
@@ -34,6 +35,9 @@ import { BRAND, FONT, FPS, INK, NAVY } from '../../theme';
  * o najdenej polozke a cesta k nej, ponuka na troch slidoch.
  * Kolo 8: v obraze len nadpis, obsah a titulky (znacka mala dole vpravo, web na konci), uvod bez "Vy viete...", sklad
  * a polica viac priblizene, pokojnejsia veta o QR, pod logom archiv -> katalog, vacsi mobil.
+ * Kolo 9: panacik v sklade ide prirodzene (vlastny cas skladu 1:1), predel do loga o 0,1 s skor, F24 bez vety
+ * "Fotka je dokaz...", pri "vodovod" karta so skutocnymi udajmi zlozky, ponuka zacina bezpecnostou a infrastrukturou
+ * (online u nas / na vasej infrastrukture), vyzva "Zacnime jednou krabicou" s krabicou a nalepkou QR.
  * Hlas a titulky: src/copy/vo_kratka.json, hudba mix-music.mjs --video.
  */
 export const LI = { w: 1080, h: 1350 };
@@ -393,12 +397,9 @@ const LI_F24: React.FC = () => (
     <Panel from={0.5} to={kv(0, 1) + 0.1} label="Na fotke" width={640}>
       <PhotoTitle width={640} />
     </Panel>
-    {/* navrh ostava az po potvrdenie (klik 10,3 s na slove "potvrdi"), potom fotka pri vete "Fotka je dokaz" */}
-    <Panel from={kv(0, 1) + 0.35} to={K_F24_TAPS[0].t + 0.95} label="Návrh aplikácie: názov projektu" width={940}>
+    {/* navrh ostava az po potvrdenie (klik na slove "potvrdi"); kolo 9: panel s fotkou pri zazname vypadol (duplicita) */}
+    <Panel from={kv(0, 1) + 0.35} to={K_F24_END} label="Návrh aplikácie: názov projektu" width={940}>
       <ValueField approveAt={K_F24_TAPS[0].t} />
-    </Panel>
-    <Panel from={K_F24_TAPS[0].t + 0.95} to={K_F24_SECONDS + 1} label="Fotka pri zázname" width={640}>
-      <PhotoTitle width={640} />
     </Panel>
   </AbsoluteFill>
 );
@@ -459,24 +460,25 @@ const Chip: React.FC<{ tone: 'green' | 'amber'; children: React.ReactNode }> = (
   <span style={{ display: 'inline-flex', alignItems: 'center', height: 40, padding: '0 14px', borderRadius: 8, fontFamily: APP_FONT, fontWeight: 600, fontSize: 24, background: tone === 'green' ? BRAND[50] : '#FEF3C7', border: `2px solid ${tone === 'green' ? BRAND[300] : '#F2C94C'}`, color: tone === 'green' ? BRAND[700] : '#7A5200' }}>{children}</span>
 );
 /**
- * Najdena polozka (vysledok hladania "vodovod" v zazname): kod, typ, kde sa slovo naslo a priloha. Stitky aplikacie
- * "Metadata" a "OCR" su tu slovami pre laika (test kola 7: laik im nerozumel), v okne aplikacie ostavaju povodne.
+ * Najdena polozka (vysledok hladania "vodovod" v zazname). Kolo 9 (Samuel: po slove "vodovod" cakam konkretne udaje,
+ * napr. vodovodna pripojka): udaje zo zlozky ZL_03 presne podla titulnej strany na fotke (nazov projektu, stupen,
+ * datum) a riadok, v ktorom sa slovo naslo ("Doplnenie vodovodnej pripojky podla poziadavky investora", zmena c. 1),
+ * "vodovod" je zvyraznene ako v aplikacii. Mena osob z titulnej strany tu nie su.
  */
+const HIT_TEXT = ['Doplnenie ', 'vodovod', 'nej prípojky podľa požiadavky investora'] as const;
 const ItemCard: React.FC = () => (
-  <div style={{ ...BOX, width: 940, height: 176, padding: '0 28px', display: 'flex', alignItems: 'center', gap: 24 }}>
-    <HIcon kind="folder" size={100} on />
-    <div style={{ flex: 1, minWidth: 0 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <span style={{ fontFamily: APP_FONT, fontWeight: 700, fontSize: 46, lineHeight: 1, color: INK[900] }}>ZL_03</span>
-        <Chip tone="green">Zložka</Chip>
-      </div>
-      <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 10, fontFamily: APP_FONT, fontSize: 24, color: INK[500], whiteSpace: 'nowrap' }}>
-        Nájdené v: <Chip tone="amber">Údaje</Chip> <Chip tone="amber">Text z fotky</Chip>
-      </div>
+  <div style={{ ...BOX, width: 940, padding: '18px 28px 20px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+      <HIcon kind="folder" size={58} on />
+      <span style={{ fontFamily: APP_FONT, fontWeight: 700, fontSize: 36, lineHeight: 1, color: INK[900] }}>ZL_03</span>
+      <Chip tone="green">Zložka</Chip>
+      <span style={{ marginLeft: 'auto', fontFamily: APP_FONT, fontSize: 22, color: INK[500], whiteSpace: 'nowrap' }}>Projekt pre stavebné povolenie · 05/2018</span>
     </div>
-    <div style={{ flex: 'none', display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <div style={{ fontFamily: APP_FONT, fontWeight: 600, fontSize: 20, color: INK[500] }}>Príloha</div>
-      <PhotoTitle width={300} />
+    <div style={{ marginTop: 12, fontFamily: APP_FONT, fontWeight: 700, fontSize: 30, lineHeight: 1.15, color: INK[900], whiteSpace: 'nowrap' }}>Novostavba bytového domu SLNEČNÁ 12, BRATISLAVA</div>
+    <div style={{ marginTop: 12, padding: '10px 16px', borderRadius: 10, background: '#FFFBEB', border: '2px solid #F2C94C', fontFamily: APP_FONT, fontSize: 25, lineHeight: 1.25, color: INK[700], whiteSpace: 'nowrap' }}>
+      {HIT_TEXT[0]}
+      <span style={{ background: '#FDE68A', borderRadius: 4, padding: '0 3px', fontWeight: 700, color: INK[900] }}>{HIT_TEXT[1]}</span>
+      {HIT_TEXT[2]}
     </div>
   </div>
 );
@@ -548,10 +550,17 @@ const OfferIcon: React.FC<{ kind: OfferIconKind; on: boolean; size?: number }> =
  * to na obmedzenom rozsahu, zadarmo a nezavazne. Karta, o ktorej sa prave hovori, ma zeleny okraj.
  * Kolo 7 (Samuel: na konci je to prehustene, rozdelit na viac slidov): tri slidy za sebou (posun dolava), nazov slidu je
  * nad obrazom ako kroky v ostatnych castiach (Ako zacat: Kto to spracuje / Kde to bezi / Prvy krok), vacsie karty.
+ * Kolo 9 (Samuel: zacat bezpecnostou, "online u nas alebo na vasej infrastrukture"; vyzva na obmedzeny rozsah je sucha,
+ * posudit "jednu krabicu"): slide Kde to bezi zacina kartou Bezpecne, volby pridu pri slove "online". Vyzva je konkretna
+ * ("Zacnime jednou krabicou, zadarmo a nezavazne."): krabica z C5, nalepka QR na nu dopadne pri "krabicou" a zelena
+ * pilulka pri "zadarmo". Ako prvy krok (nie cela ponuka) neznie amatersky a divak si ju vie predstavit.
  */
 const C8_CLIP = 'K-C8-Ponuka';
 const C8L = (i: number, k = 0) => voAt(C8_CLIP, i, k);
 const C8_SLIDE = [C8L(2) - 350, C8L(3) - 350]; // prechod na 2. a 3. slide (tesne pred vetou)
+/** Casy slov (ms od zaciatku vety, public/vo-kratka/lines/K-C8-Ponuka-2/3.words.json). */
+const C8_W2 = { bezpecne: 1240, online: 3160, na: 4700 };
+const C8_W3 = { krabicou: 1120, zadarmo: 2040 };
 const C8_STEPS = [
   { from: 0, title: 'Kto to spracuje' },
   { from: C8_SLIDE[0], title: 'Kde to beží' },
@@ -560,11 +569,11 @@ const C8_STEPS = [
 const C8W = 976,
   C8X = (LI.w - C8W) / 2;
 /** Karta volby na slide: ikona, nazov, popis; zeleny okraj, ked sa o nej hovori. */
-const OptionCard: React.FC<{ icon: OfferIconKind; title: string; desc: string; top: number; h: number; t: number; on: boolean }> = ({ icon, title, desc, top, h, t, on }) => (
+const OptionCard: React.FC<{ icon: OfferIconKind; title: string; desc: string; top: number; h: number; t: number; on: boolean; size?: number }> = ({ icon, title, desc, top, h, t, on, size = 58 }) => (
   <div style={{ position: 'absolute', left: C8X, top, width: C8W, height: h, boxSizing: 'border-box', borderRadius: 26, background: '#fff', border: `2px solid ${on ? BRAND[500] : INK[200]}`, boxShadow: on ? `0 0 0 2px ${BRAND[500]}, 0 18px 44px rgba(31,122,51,0.14)` : '0 12px 30px rgba(15,23,42,0.06)', opacity: t, transform: `translateY(${(1 - t) * 24}px)`, display: 'flex', alignItems: 'center', gap: 30, padding: '0 40px' }}>
     <OfferIcon kind={icon} on={on} size={112} />
     <div style={{ minWidth: 0 }}>
-      <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 58, lineHeight: 1.05, letterSpacing: '-0.02em', color: on ? BRAND[700] : INK[900], whiteSpace: 'nowrap' }}>{title}</div>
+      <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: size, lineHeight: 1.05, letterSpacing: '-0.02em', color: on ? BRAND[700] : INK[900], whiteSpace: 'nowrap' }}>{title}</div>
       <div style={{ marginTop: 10, fontFamily: FONT.body, fontSize: 34, lineHeight: 1.2, color: INK[500], whiteSpace: 'nowrap' }}>{desc}</div>
     </div>
   </div>
@@ -575,7 +584,6 @@ const OrPill: React.FC<{ top: number; t: number }> = ({ top, t }) => (
 const LI_C8: React.FC = () => {
   const frame = useCurrentFrame();
   const ms = (frame / FPS) * 1000;
-  const w2 = [1420, 2400]; // "vas", "nas" (ms od zaciatku vety "Aplikacia bezi u vas alebo u nas, vzdy bezpecne.", words.json)
   const pos = tween(frame, C8_SLIDE[0], 520) + tween(frame, C8_SLIDE[1], 520); // 0, 1, 2 = slide
   const slide = (i: number, node: React.ReactNode) =>
     Math.abs(i - pos) < 1 ? (
@@ -583,12 +591,13 @@ const LI_C8: React.FC = () => {
         {node}
       </div>
     ) : null;
-  const vas = C8L(2) + w2[0] - 250,
-    nas = C8L(2) + w2[1] - 250,
-    safeAt = C8L(2, 1) - 150;
-  const safe = settle(frame, safeAt);
-  const safeOn = ms >= safeAt;
-  const cta = settle(frame, C8_SLIDE[1] + 250);
+  const safeAt = C8L(2) + C8_W2.bezpecne - 250,
+    onlineAt = C8L(2) + C8_W2.online - 250,
+    yoursAt = C8L(2) + C8_W2.na - 250;
+  const opts = settle(frame, onlineAt);
+  const head = settle(frame, C8L(3) - 100);
+  const sticker = pop(frame, C8L(3) + C8_W3.krabicou - 100);
+  const free = pop(frame, C8L(3) + C8_W3.zadarmo - 150, { damping: 16 });
   return (
     <AbsoluteFill style={{ background: '#fff' }}>
       {slide(
@@ -602,26 +611,28 @@ const LI_C8: React.FC = () => {
       {slide(
         1,
         <>
-          <OptionCard icon="server" title="U vás" desc="Na vašej infraštruktúre" top={250} h={210} t={1} on={ms >= vas && ms < nas} />
-          <OrPill top={476} t={1} />
-          <OptionCard icon="cloud" title="U nás" desc="Na našej infraštruktúre" top={542} h={210} t={1} on={ms >= nas && ms < safeAt} />
-          <div style={{ position: 'absolute', left: C8X, top: 798, width: C8W, height: 132, boxSizing: 'border-box', borderRadius: 26, background: safeOn ? BRAND[50] : '#fff', border: `2px solid ${safeOn ? BRAND[400] : INK[200]}`, opacity: safe, transform: `translateY(${(1 - safe) * 20}px)`, display: 'flex', alignItems: 'center', gap: 24, padding: '0 32px' }}>
-            <OfferIcon kind="shield" on={safeOn} size={80} />
-            <div style={{ fontFamily: FONT.display, fontWeight: 700, fontSize: 36, lineHeight: 1.15, color: safeOn ? BRAND[700] : INK[900] }}>Vždy bezpečne a s rešpektom k vašim požiadavkám</div>
-          </div>
+          <OptionCard icon="shield" title="Bezpečne" desc="Podľa vašich požiadaviek" top={240} h={190} t={1} on={ms >= safeAt && ms < onlineAt} />
+          <OptionCard icon="cloud" title="Online u nás" desc="Bez vlastných serverov" top={490} h={190} t={opts} on={ms >= onlineAt && ms < yoursAt} />
+          <OrPill top={696} t={opts} />
+          <OptionCard icon="server" title="Na vašej infraštruktúre" desc="Na vašich serveroch" top={762} h={190} t={opts} on={ms >= yoursAt} size={52} />
         </>,
       )}
       {slide(
         2,
-        <div style={{ position: 'absolute', left: C8X, top: 360, width: C8W, height: 420, boxSizing: 'border-box', borderRadius: 32, background: `linear-gradient(160deg, ${BRAND[700]} 0%, ${BRAND[600]} 100%)`, boxShadow: '0 22px 50px rgba(31,122,51,0.25)', opacity: cta, transform: `scale(${0.97 + 0.03 * cta})`, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 56px', color: '#fff' }}>
-          <div style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: 46, lineHeight: 1.2, color: BRAND[100] }}>Vyskúšajme to na obmedzenom rozsahu</div>
-          <div style={{ marginTop: 26, display: 'flex', alignItems: 'center', gap: 20, fontFamily: FONT.display, fontWeight: 800, fontSize: 68, lineHeight: 1.05, letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
-            <svg width={60} height={60} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" style={{ flex: 'none' }}>
-              <path d="M4.5 12.5 L10 18 L19.5 6.5" />
-            </svg>
-            Zadarmo a nezáväzne
+        <>
+          <ArchiveBox state={{ lid: 0, binders: [0, 0, 0], qr: [0, 0, 0, sticker] }} size={700} qrScale={1.4} style={{ position: 'absolute', left: (LI.w - 700) / 2, top: 180 }} />
+          <div style={{ position: 'absolute', left: 0, right: 0, top: 856, textAlign: 'center', fontFamily: FONT.display, fontWeight: 800, fontSize: 76, lineHeight: 1.05, letterSpacing: '-0.02em', color: INK[900], opacity: head, transform: `translateY(${(1 - head) * 24}px)` }}>
+            Začnime <span style={{ color: BRAND[600] }}>jednou krabicou</span>
           </div>
-        </div>,
+          <div style={{ position: 'absolute', left: 0, right: 0, top: 990, display: 'flex', justifyContent: 'center', opacity: Math.min(1, free * 1.5), transform: `scale(${0.85 + 0.15 * free})` }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 18, padding: '22px 44px', borderRadius: 999, background: `linear-gradient(160deg, ${BRAND[700]} 0%, ${BRAND[600]} 100%)`, boxShadow: '0 18px 40px rgba(31,122,51,0.25)', fontFamily: FONT.display, fontWeight: 800, fontSize: 54, lineHeight: 1, letterSpacing: '-0.01em', color: '#fff', whiteSpace: 'nowrap' }}>
+              <svg width={52} height={52} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" style={{ flex: 'none' }}>
+                <path d="M4.5 12.5 L10 18 L19.5 6.5" />
+              </svg>
+              Zadarmo a nezáväzne
+            </div>
+          </div>
+        </>,
       )}
     </AbsoluteFill>
   );
@@ -704,7 +715,7 @@ const K_C4_FAST: React.FC = () => {
 const WIPE_MS = 480;
 const WHITE_AFTER = 220; // test kola 6 (laik: z tmavej do bielej ako zablesk): chvilu cela zelena, biela az za nou
 const WIPE_EASE = Easing.bezier(0.65, 0, 0.25, 1);
-const C4_WIPE = 5600 + K_C4_D - C4_SKIP - WIPE_MS; // 2050 ms: 210 ms po slove "hodiny" (1840), plna kapela 0,15 s pred nim
+const C4_WIPE = 5600 + K_C4_D - C4_SKIP - WIPE_MS; // 1950 ms (kolo 9): 110 ms po slove "hodiny" (1840), plna kapela tesne pred nim
 const C4_LIGHT = C4_WIPE + WHITE_AFTER + WIPE_MS; // biela zakryje cely ramec: ramec prepne farby, pas bez priblizenia
 const C4_PANEL_OUT = C4_WIPE + WIPE_MS + 630; // scena C4 je cela biela (prelinacka 600 ms), biela vrstva zmizne
 const C4_LOGO = C4_WIPE + WHITE_AFTER + 280; // logo sa zacne skladat, ked biela prejde jeho miesto
@@ -727,34 +738,26 @@ const c4Cam = camShift([
   [C4_LIGHT + 1, CAM_ID],
 ]);
 /**
- * C2: kancelaria priblizena na panacika a skrinu (pomaly najazd 1,45-1,75x), pri prestrihu sklad 1,5x (panacik ide k regalu),
- * potom polica s krabicami 1,8x. Kolo 8: casy su casy vystupu (scena C2 bezi v sklade rychlejsie, C2_MAP).
+ * Kolo 8 (Samuel: vynechat "Vy viete, ze tam niekde je.") a kolo 9 (Samuel: panacik v sklade ide extremne rychlo):
+ * kancelaria a sklad maju vlastny cas (Office a Warehouse z C2_Hladanie, scena sa nemeni). Kancelaria 1:1, prestrih
+ * dole do skladu 0,9 s ako povodne, sklad 1:1 od 4500 ms svojho casu (panacik vojde pocas prestrihu, po nom este
+ * ~0,9 s ide ulickou k regalu a dojde k nemu pri "na polici"), kamera na policu a prehladavanie krabic 1:1, staticka
+ * chvila so zlozkami hore skratena a vratenie krabic 2,5x (C2 7,36 s, v kole 8 7,25 s; pauzy v hlase ~0,65 s, veta
+ * o sklade od 3,8 s). Delenie vedla seba (kancelaria
+ * a sklad naraz) som neskusal: na sirku 4:5 by boli obe polovice uzke a panacik mensi, dve postavicky naraz v kole 3
+ * (pod sebou) posobili chaoticky.
  */
-const OFFICE_CAM: Cam = { z: 1.45, fx: 1160, fy: 400, tx: 540, ty: 570 }; // test kola 6: panacik stale drobny
-const WAREHOUSE_CAM: Cam = { z: 1.5, fx: 800, fy: 520, tx: 540, ty: 575 };
-const c2Cam = camShift([
-  [0, OFFICE_CAM],
-  [3400, { ...OFFICE_CAM, z: 1.75 }],
-  [3500, { ...OFFICE_CAM, z: 1.75 }],
-  [3950, WAREHOUSE_CAM],
-  [4700, WAREHOUSE_CAM],
-  [5350, C2_END_CAM],
-]);
-/**
- * Kolo 8 (Samuel: vynechat "Vy viete, ze tam niekde je."): veta o sklade je o 2 s kratsia, scena C2 v sklade bezi
- * rychlejsie (Freeze na case sceny, scena C2 sa nemeni): prestrih a chodza 2,2x, kamera na policu 1,4x, prehladavanie
- * krabic 1:1, zatvaranie 1,9x. "V sklade" pri prestrihu, "na polici" pri kamere na policu, "v krabici alebo v zlozke"
- * pri krabiciach a zlozkach. C2 7,25 s namiesto 9,7 s.
- */
-const C2_MAP: [number, number][] = [
-  [0, 0],
-  [3500, 3700],
-  [4700, 6300],
-  [5350, 7200],
-  [6650, 8500],
-  [7250, 9620],
+const C2_PAN_AT = 3450; // ms klipu: prestrih dole do skladu
+const C2_PAN_MS = 900;
+const C2_W0 = 4500; // cas skladu (ms) na zaciatku prestrihu
+const C2_UP = 7820; // cas skladu: zlozky v oboch krabiciach su hore
+const C2_WMAP: [number, number][] = [
+  [C2_PAN_AT, C2_W0],
+  [C2_PAN_AT + (C2_UP - C2_W0), C2_UP], // 1:1: chodza, kamera na policu, krabice, veka a zlozky hore
+  [C2_PAN_AT + (C2_UP - C2_W0) + 150, 8500], // staticka chvila so zlozkami hore 780 -> 150 ms (ticho pred "Hladanie...")
+  [C2_PAN_AT + (C2_UP - C2_W0) + 150 + 440, 9620], // zlozky dole, veka a krabice spat 2,5x
 ];
-const C2_SECONDS = C2_MAP[C2_MAP.length - 1][0] / 1000;
+const C2_SECONDS = C2_WMAP[C2_WMAP.length - 1][0] / 1000;
 const mapMs = (map: [number, number][], ms: number) => {
   for (let i = 1; i < map.length; i++) {
     const [a, sa] = map[i - 1];
@@ -764,12 +767,38 @@ const mapMs = (map: [number, number][], ms: number) => {
   const [a, sa] = map[map.length - 1];
   return sa + (ms - a);
 };
-const C2_FAST: React.FC = () => {
+/** C2: kancelaria priblizena na panacika a skrinu (pomaly najazd 1,45-1,75x), sklad 1,5x, polica s krabicami 1,8x. */
+const OFFICE_CAM: Cam = { z: 1.45, fx: 1160, fy: 400, tx: 540, ty: 570 }; // test kola 6: panacik stale drobny
+const WAREHOUSE_CAM: Cam = { z: 1.5, fx: 800, fy: 520, tx: 540, ty: 575 };
+const c2Cam = camShift([
+  [0, OFFICE_CAM],
+  [C2_PAN_AT - 100, { ...OFFICE_CAM, z: 1.75 }],
+  [C2_PAN_AT, { ...OFFICE_CAM, z: 1.75 }],
+  [C2_PAN_AT + 650, WAREHOUSE_CAM],
+  [C2_PAN_AT + (6300 - C2_W0), WAREHOUSE_CAM], // kamera skladu na policu (6300-7200 jeho casu)
+  [C2_PAN_AT + (7200 - C2_W0), C2_END_CAM],
+]);
+const LI_C2: React.FC = () => {
   const frame = useCurrentFrame();
+  const pan = tween(frame, C2_PAN_AT, C2_PAN_MS);
+  const fw = (mapMs(C2_WMAP, (frame / FPS) * 1000) / 1000) * FPS;
   return (
-    <Freeze frame={(mapMs(C2_MAP, (frame / FPS) * 1000) / 1000) * FPS}>
-      <C2_Hladanie />
-    </Freeze>
+    <Scene mode="dark">
+      <div style={{ position: 'absolute', inset: 0, transform: `translateY(${-1080 * pan}px)` }}>
+        {pan < 1 ? (
+          <div style={{ position: 'absolute', left: 0, top: 0, width: 1920, height: 1080, overflow: 'hidden' }}>
+            <Office frame={frame} />
+          </div>
+        ) : null}
+        {pan > 0 ? (
+          <div style={{ position: 'absolute', left: 0, top: 1080, width: 1920, height: 1080, overflow: 'hidden' }}>
+            <Freeze frame={fw}>
+              <Warehouse frame={fw} />
+            </Freeze>
+          </div>
+        ) : null}
+      </div>
+    </Scene>
   );
 };
 /**
@@ -858,12 +887,12 @@ const C8_SECONDS = (voAt('K-C8-Ponuka', 3) + (voLines('K-C8-Ponuka')[3].dur ?? 4
 const LI_LIST: LiDef[] = [
   // kolo 4: znova ako v kole 2 (kancelaria, prestrih do skladu, kamera na policu = zaciatok C4 "Hladanie trva hodiny")
   // kolo 6: kamera ramca priblizi panacika; kolo 8: bez vety "Vy viete, ze tam niekde je.", sklad rychlejsie (C2_FAST)
-  { def: paced('K-C2-Hladanie', { scene: C2_FAST, seconds: C2_SECONDS, stills: [], ...noSubs }), band: true, tone: () => 'dark', shift: c2Cam, win: INTRO_WIN, overflow: true },
+  { def: paced('K-C2-Hladanie', { scene: LI_C2, seconds: C2_SECONDS, stills: [], ...noSubs }), band: true, tone: () => 'dark', shift: c2Cam, win: INTRO_WIN, overflow: true },
   { def: paced('K-C4-Cena', { scene: K_C4_FAST, seconds: c4End(K_C4_D, K_C4_H) - C4_SKIP / 1000, stills: [], ...noSubs }), band: true, tone: (ms) => (ms < C4_LIGHT ? 'dark' : 'light'), toWhite: C4_LIGHT, toWhiteMs: 60, shift: c4Cam, win: c4Win, top: C4Top, subsOut: [C4_WIPE - 120, voAt('K-C4-Cena', 1)], rowOut: [C4_WIPE + WIPE_MS, C4_BRAND_OUT + 300] },
   // okno od nadpisu kroku (spodok ~200 px) po titulky: veko krabice pri priblizeni kamery vyjde nad ramec 16:9
   { def: paced('K-C5-Teren', { scene: C5_BAND, seconds: 8.4, holds: K_C5_HOLDS, stills: [], ...noSubs }), band: true, tone: () => 'light', steps: C5_STEPS('K-C5-Teren'), phase: PHASE_ARCHIV, shift: c5Shift, win: { top: 206, bottom: 1040, feather: 18 }, overflow: true, overlay: C5Hierarchy },
   { def: paced('K-F1-Sken', { scene: LI_F1, seconds: K_F1_SECONDS, vo: false, stills: [] }), tone: () => 'light', steps: F1_STEPS, phase: PHASE_ARCHIV },
-  { def: paced('K-F24-Aplikacia', { scene: LI_F24, seconds: K_F24_SECONDS, stills: [], ...noSubs }), tone: () => 'light', steps: K_F24_STEPS, phase: phases.app },
+  { def: paced('K-F24-Aplikacia', { scene: LI_F24, seconds: K_F24_END, stills: [], ...noSubs }), tone: () => 'light', steps: K_F24_STEPS, phase: phases.app },
   { def: paced('K-F3-Vyhladavanie', { scene: LI_F3, seconds: K_F3_SECONDS, stills: [], ...noSubs }), tone: () => 'light', steps: f3Steps(F3_CLIP), phase: phases.search, labelOut: true },
   // kolo 7: tri slidy s nazvom nad obrazom; pri vyzve su jej slova v obraze, titulky by ich len opakovali
   { def: paced('K-C8-Ponuka', { scene: LI_C8, seconds: C8_SECONDS, stills: [], ...noSubs }), tone: () => 'light', steps: C8_STEPS, phase: offer.kicker, subsOut: [C8_SLIDE[1], 1e9] },

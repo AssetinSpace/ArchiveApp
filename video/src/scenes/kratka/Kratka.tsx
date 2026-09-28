@@ -29,8 +29,10 @@ export const SLOGAN = 'Digitálny poriadok v papierovom archíve';
  * Kolo 6 (Samuel: "Hladanie moze trvat hodiny.", menej prazdneho miesta): predel 3680 ms sceny (d -1920), LinkedIn
  * prehra zaciatok C4 rychlejsie (o 1150 ms), predel je tak 2530 ms klipu pod zelenym prechodom (od 2050 ms, plna
  * kapela 0,15 s pred nim); znacka drzi h 3320, aby logo odislo 5,4 s po zaciatku vety "Predstavujeme vam..." ako v kole 5.
+ * Kolo 9 (Samuel: hodiny jemne skratit): predel o 0,1 s skor (d -2020, zeleny prechod od 1950 ms), veta
+ * "Predstavujeme vam..." tiez o 0,1 s skor (2650 ms), h ostava 3320.
  */
-export const K_C4_D = -1920;
+export const K_C4_D = -2020;
 export const K_C4_H = 3320;
 export const K_C4: React.FC = () => <C4_Cena d={K_C4_D} h={K_C4_H} brand={false} cost={false} />;
 /** Scena C4 konci po usadeni krabice a paticke (ako v hlavnej verzii: 8200 + d + h + 900 ms). */
@@ -71,14 +73,17 @@ export const K_F24_STEPS: Step[] = [
   { from: 0, title: 'Prečítať text' },
   { from: kv(0, 1), title: 'Návrh údajov' },
   { from: kv(1), title: 'Overiť a potvrdiť' },
-  { from: kv(1, 1), title: 'Fotka je dôkaz' },
 ];
 export const K_F24_TAPS: Tap[] = [tapAt(KF24, 12.15, 1734, 764)]; // prijat spravnu hodnotu (Nazov projektu)
+/**
+ * Kolo 9 (Samuel: "Fotka je dokaz a ostava pri zazname" je duplicita): veta aj panel s fotkou vypadli, klip konci
+ * 0,75 s po prijati hodnoty (zelena ciara potvrdenia), priloha s fotkou je vidiet pri vyhladavani (karta polozky).
+ */
+export const K_F24_END = K_F24_TAPS[0].t + 0.75;
 const spot = { spot: true };
 export const K_F24_MARKS: Mark[] = [
   markAt(KF24, kv(0) / 1000 + 0.9, kv(0, 1) / 1000 - 0.05, 286, 523, 331, 443, spot), // "z fotky sama precita text": fotka
   markAt(KF24, kv(0, 1) / 1000 + 0.5, segStart(KF24, 1) - 0.05, 824, 654, 428, 32, spot), // "navrhne udaje: nazov projektu": navrhnuta hodnota
-  markAt(KF24, kv(1, 1) / 1000, K_F24_SECONDS - 0.45, 286, 523, 331, 443, spot), // "Fotka je dokaz": fotka pri zazname
 ];
 
 /** F3: slovo, vysledok a cesta PL_01 / KR_01 / ZL_03 (polica, krabica, zlozka); rovnaky zostrih v K aj T. */

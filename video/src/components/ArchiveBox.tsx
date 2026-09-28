@@ -31,7 +31,7 @@ export const archiveBoxOpen: ArchiveBoxState = { lid: 1, binders: [1, 1, 1], qr:
 /** Mierka nalepky QR na krabici/zlozkach, aby zodpovedala bunke harku A4 (~3,6 cm). */
 export const QR_SCALE = 0.62;
 
-const Qr: React.FC<{ s: number; cx: number; cy: number; accent: string; paths: string[] }> = ({ s, cx, cy, paths }) => {
+const Qr: React.FC<{ s: number; cx: number; cy: number; accent: string; paths: string[]; k?: number }> = ({ s, cx, cy, paths, k = QR_SCALE }) => {
   const nums = paths[0].match(/-?[\d.]+/g)!.map(Number);
   const P: [number, number][] = [
     [nums[0], nums[1]],
@@ -54,7 +54,7 @@ const Qr: React.FC<{ s: number; cx: number; cy: number; accent: string; paths: s
     [0.08, 0.62],
   ];
   return (
-    <g opacity={Math.min(1, s * 1.3)} transform={`translate(${cx} ${cy}) scale(${s * QR_SCALE}) translate(${-cx} ${-cy})`}>
+    <g opacity={Math.min(1, s * 1.3)} transform={`translate(${cx} ${cy}) scale(${s * k}) translate(${-cx} ${-cy})`}>
       <path fill="#fff" stroke={ISO.edge} strokeWidth={0.8} d={paths[0]} />
       {finders.map(([u, v], i) => (
         <g key={i}>
@@ -87,11 +87,13 @@ const Qr: React.FC<{ s: number; cx: number; cy: number; accent: string; paths: s
 /** px na 1 cm pri danej velkosti komponentu (krabica ~136 vb-jednotiek = 52 cm). */
 export const archiveBoxPxPerCm = (size: number) => ((size / 240) * 136) / 52;
 
-export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accent?: string; showQr?: boolean; style?: React.CSSProperties }> = ({
+/** qrScale: mierka nalepiek QR (predvolene QR_SCALE; experiment kratkej verzie ju vo vyzve zvacsi, aby bola vidiet na mobile). */
+export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accent?: string; showQr?: boolean; qrScale?: number; style?: React.CSSProperties }> = ({
   state,
   size = 240,
   accent = ISO.accent,
   showQr = true,
+  qrScale = QR_SCALE,
   style,
 }) => {
   const { lid, binders, qr } = state;
@@ -110,6 +112,7 @@ export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accen
           </g>
           {showQr ? (
             <Qr
+              k={qrScale}
               s={qr[0]}
               cx={86}
               cy={135}
@@ -154,6 +157,7 @@ export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accen
           </g>
           {showQr ? (
             <Qr
+              k={qrScale}
               s={qr[2]}
               cx={142}
               cy={107}
@@ -182,6 +186,7 @@ export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accen
           </g>
           {showQr ? (
             <Qr
+              k={qrScale}
               s={qr[1]}
               cx={114}
               cy={121}
@@ -207,6 +212,7 @@ export const ArchiveBox: React.FC<{ state: ArchiveBoxState; size?: number; accen
         <path fill="#9ca3af" d="M104 136L188 94L188 150L104 192Z" />
         {showQr ? (
           <Qr
+            k={qrScale}
             s={qr[3]}
             cx={140.49}
             cy={145.75}
