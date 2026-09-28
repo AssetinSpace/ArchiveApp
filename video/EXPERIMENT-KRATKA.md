@@ -11,6 +11,31 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 14 (28. 9. 2026): spoločná plošina kancelárie a skladu, logo vpravo dole, návrh verzie do minúty
+
+Samuel: plošina skladu vyzerá úplne inak ako v kancelárii a zdá sa, že odtiaľ vypadne skriňa so šanónmi; k bezpečnosti
+zatiaľ nič konkrétne nemáte, prispôsobíte sa zákazníkovi; logo vpravo dole bez domčeka, písmom a výškou nech pekne
+sedí; čo vyhodiť, ak má byť video do minúty a prečo (len napísať, nemeniť, neskracovať).
+
+- Príčina: pri prestrihu dole (3,45-4,35 s) boli na obraze dve samostatné dosky nad sebou (každá scéna má vlastnú
+  podlahu, kancelária navyše orezaná inak ako sklad), kancelária s vyhodenými šanónmi pri prednej hrane pôsobila ako
+  polica nad skladom. `Office` a `Warehouse` v `C2_Hladanie` dostali voliteľné `floor` (predvolene true, hlavná verzia
+  bez zmeny); LinkedIn kreslí jednu spoločnú plošinu (`SharedFloor`): zadný roh = zadný roh podlahy kancelárie, predný
+  roh = predný roh podlahy skladu, farby #263246 / #131F31 / ISO.edge a hrúbka 8 cm ako `Floor`, vybledne so skladom
+  (6600-7100 ms času skladu). Kamera ide pri prechode po tej istej podlahe, meranie pohybu bez skokov.
+- Značka: vpravo dole len slovo assetin písmom veľkého loga (Manrope 800, -0,02 em), 42 px, 48 px od pravého okraja
+  ako nadpis kroku zľava, spodok písmen 57 px od spodku ako vrch písmen nadpisu od vrchu. F1: mobil 740 px, posunutý
+  doľava (x 100), aby sa so značkou neprekrýval.
+- Bezpečnosť bez zmeny ("V súlade s vašimi bezpečnostnými požiadavkami"). Hlas, hudba a dĺžka ako v kole 13 (75,3 s).
+- Návrh verzie do minúty (nič nie je zmenené, na review stránke): bez slidu "Kde to beží" (-7,9 s), bez vety
+  "Človek každú hodnotu overí..." (-4,4 s), kratšia veta o QR bez vymenovania (-3,5 s, nová veta), fotenie bez hlasu
+  a záver kratšie (-1,1 s): 58,4 s. Ostáva otázka a hľadanie, logo so sľubom, QR a fotka, aplikácia sama prečíta text,
+  hľadanie s cestou, "Kto to spracuje" a prvý krok zadarmo.
+- Test na mobile (4 snímky za sekundu): technická kontrola bez chýb, hlas 5/5. Logo vpravo dole: správca
+  "decentné, neprekáža, dostatočne čitateľné", laik "decentné", na bielom občas zaniká a v mobile ho môže prekryť
+  ovládanie LinkedIn. Plošina: obom pôsobí ako ostrov v tme (tak vyzerá aj pôvodná verzia), správca by chcel schody do
+  suterénu alebo jednoduchý strih. Laik: potvrdenie údajov (0:41-0:45) je zbytočne dvakrát (podporuje návrh do minúty).
+
 ## Kolo 13 (28. 9. 2026): živšie hodiny, mäkší prechod na logo, priblížená aplikácia, prelínanie do kratšej ponuky
 
 Samuel: hodiny oživiť priblížením; prechod do ponuky prelínaním, nie prebliknutie; zelený prechod na logo zapracovať;
@@ -500,6 +525,6 @@ Kontrolné stills `node scripts/kratka-stills.mjs [s ...]` (časy vo filme, do `
 ## Súbory
 
 - Nové: `src/scenes/kratka/LinkedIn.tsx` (kompozícia K-LinkedIn 4:5, jediná krátka verzia), `src/kratkaList.ts` (`paced`, pauzy C4), `src/scenes/kratka/Kratka.tsx` (spoločné dáta: C4 so sloganom, kroky, spoty, kliky), `src/copy/vo_kratka.json`, `src/copy/music_kratka.json`, `scripts/kratka_lines.py`, `scripts/kratka-stills.mjs`, `review-kratka/index.html`, `public/vo-kratka/`, `public/footage/k-*.mp4`, `out/kratka/`.
-- Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`, `subtitles`), `Scene` (`SceneFrameContext`: jednofarebné pozadie, bez päty a bez orezania na rámec 16:9 len vnútri LinkedIn rámca), `Subtitles` (scenár K vedľa hlavného), `C4_Cena` (`d`, `h`, `brand`, `cost`, kolo 12 `clockAt`), `C5_Teren` (`steps`, `phase`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`, kolo 12 kľúč `delay` v cfg); kolo 9 až 11: `C2_Hladanie` (export `Office`, `Warehouse` a `PATH`), `Device` (`PhoneFrame` `screenBg`).
+- Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`, `subtitles`), `Scene` (`SceneFrameContext`: jednofarebné pozadie, bez päty a bez orezania na rámec 16:9 len vnútri LinkedIn rámca), `Subtitles` (scenár K vedľa hlavného), `C4_Cena` (`d`, `h`, `brand`, `cost`, kolo 12 `clockAt`), `C5_Teren` (`steps`, `phase`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`, kolo 12 kľúč `delay` v cfg); kolo 9 až 11: `C2_Hladanie` (export `Office`, `Warehouse` a `PATH`, kolo 14 ich `floor`), `Device` (`PhoneFrame` `screenBg`).
 - Kontrola: 20 snímok pôvodných klipov (C2, C4, C5, C8, C9, F1, F4) z commitu `ea5550e` a z tejto vetvy je na pixel rovnakých; dĺžky kompozícií bez zmeny.
 - Jediná zmena správania pôvodnej cesty: `mix-music.mjs` dáva tichému klipu (C1) stopu v rozložení kanálov ostatných klipov (stereo namiesto mono). Zvuk je ticho, výsledok rovnaký.

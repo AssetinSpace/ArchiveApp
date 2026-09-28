@@ -55,8 +55,11 @@ const Papers: React.FC<{ x: number; y: number; z: number; h?: number }> = ({ x, 
   <IsoBox x={x} y={y} z={z} w={21} d={30} h={h} faces={{ top: '#fff', left: ISO.paper, right: ISO.left }} stroke />
 );
 
-/** Kancelaria (0-3,9 s): skratena verzia C2. Export pre experiment kratkej verzie (LinkedIn: vlastny cas kancelarie a skladu). */
-export const Office: React.FC<{ frame: number }> = ({ frame }) => {
+/**
+ * Kancelaria (0-3,9 s): skratena verzia C2. Export pre experiment kratkej verzie (LinkedIn: vlastny cas kancelarie a skladu).
+ * `floor` = false: bez vlastnej podlahy (LinkedIn kresli jednu spolocnu plosinu pre kancelariu aj sklad), predvolene s nou.
+ */
+export const Office: React.FC<{ frame: number; floor?: boolean }> = ({ frame, floor = true }) => {
   const tw = (s: number, d: number) => tween(frame, s, d);
   const walk = tw(300, 800);
   const open = tw(1100, 600);
@@ -78,7 +81,7 @@ export const Office: React.FC<{ frame: number }> = ({ frame }) => {
 
   return (
     <svg width={1920} height={1080} viewBox="-470 -80 980 551" style={{ position: 'absolute', left: 0, top: 0 }}>
-      <Floor x={-40} y={-40} w={520} d={420} fill="#263246" edge="#131F31" />
+      {floor ? <Floor x={-40} y={-40} w={520} d={420} fill="#263246" edge="#131F31" /> : null}
       <Desk x={40} y={160} />
       <Chair x={90} y={248} />
       <Lying x={60} y={170} z={75} label={['FAKTÚRY', '2021']} />
@@ -141,7 +144,8 @@ const fastSearch = (tw: (s: number, d: number) => number, start: number, hold = 
   return { out, lid, binders };
 };
 
-export const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
+/** `floor` = false: bez vlastnej podlahy (ako pri Office), predvolene s nou. */
+export const Warehouse: React.FC<{ frame: number; floor?: boolean }> = ({ frame, floor = true }) => {
   const tw = (s: number, d: number) => tween(frame, s, d);
   const walk = tw(4300, 2200); // panacik vojde do skladu pomalsie (2,2 s)
   const seg = Math.min(PATH.length - 2, Math.floor(walk * (PATH.length - 1)));
@@ -171,9 +175,11 @@ export const Warehouse: React.FC<{ frame: number }> = ({ frame }) => {
   return (
     <Camera keys={[{ ms: 6300, x: 0, y: 0, scale: 1 }, { ms: 7200, ...CAM_END }]}>
       <svg width={1920} height={1080} viewBox={`${VB.x} ${VB.y} ${1920 / SV} ${1080 / SV}`} style={{ position: 'absolute', left: 0, top: 0 }}>
-        <g opacity={others}>
-          <Floor x={-60} y={-60} w={560} d={560} fill="#263246" edge="#131F31" />
-        </g>
+        {floor ? (
+          <g opacity={others}>
+            <Floor x={-60} y={-60} w={560} d={560} fill="#263246" edge="#131F31" />
+          </g>
+        ) : null}
         {SHELVES.map((s, i) => {
           const isTarget = s === TARGET_SHELF;
           return (

@@ -6,7 +6,7 @@ import { FOOTAGE_PHONE, PHONE_BEZEL, PhoneFrame, Rect, WindowFrame } from '../..
 import { BrandMod, BrandSep, BrandStack, LOCKUP, LOCKUP_W } from '../../components/Brand';
 import { ArchiveBox } from '../../components/ArchiveBox';
 import { Office, PATH as WH_PATH, Warehouse } from '../C2_Hladanie';
-import { CAM_END, SV } from '../C3_Sklad';
+import { CAM_END, SV, VB } from '../C3_Sklad';
 import { iso } from '../../lib/iso';
 import { C5_Teren } from '../C5_Teren';
 import type { Mark, Tap } from '../F2_Metadata';
@@ -17,7 +17,7 @@ import { easeInOut, easeOut, pop, settle, tween } from '../../lib/anim';
 import { loadFonts } from '../../lib/fonts';
 import { offer, phases, sk } from '../../copy/sk';
 import { voAt } from '../../components/Subtitles';
-import { BRAND, FONT, FPS, INK, NAVY } from '../../theme';
+import { BRAND, FONT, FPS, INK, ISO, NAVY } from '../../theme';
 
 /**
  * Experiment: kratka verzia pre LinkedIn na vysku 4:5 (1080 x 1350). Kolo 2 (Samuel): jedina kratka verzia,
@@ -50,6 +50,7 @@ import { BRAND, FONT, FPS, INK, NAVY } from '../../theme';
  * Kolo 13: pomale priblizenie otaznika a hodin, mekksi a pomalsi zeleny prechod, priblizene okno aplikacie (vyrez ide za
  * hlasom), vacsi mobil, prelinacka F3 -> ponuka, kratsia ponuka a "v sulade s vasimi bezpecnostnymi poziadavkami",
  * vacsia znacka vpravo hore.
+ * Kolo 14: kancelaria a sklad na jednej spolocnej plosine (kamera ide po tej istej podlahe), znacka vpravo dole bez domceka.
  * Hlas a titulky: src/copy/vo_kratka.json, hudba mix-music.mjs --video.
  */
 export const LI = { w: 1080, h: 1350 };
@@ -119,15 +120,17 @@ const INTRO_WIN: Win = { top: 90, bottom: 1040, feather: 30 }; // kolo 11: podla
 /**
  * Znacka. Kolo 8 (Samuel: znacku dat malu dole doprava): mala v pravom dolnom rohu. Kolo 11 (Samuel: v celom videu do
  * praveho horneho rohu domcek s textom assetin, male, decentne, ale jasne): vpravo hore na vysku nadpisu kroku.
- * Kolo 13 (Samuel: logo vpravo hore je teraz prilis male): domcek 46 px, text 42 px (predtym 32 a 30), stred na vyske
- * nadpisu kroku; najdlhsi nadpis ("Odfotiť titulnú stranu") konci ~120 px pred nim.
+ * Kolo 13 (Samuel: logo vpravo hore je teraz prilis male): domcek 46 px, text 42 px.
+ * Kolo 14 (Samuel: logo vpravo dole, bez domceka, pismom a vyskou nech pekne sedi): len slovo assetin pismom velkeho loga
+ * (Manrope 800, -0,02 em), 42 px, vpravo 48 px ako nadpis kroku zlava; uaziara je od spodku ramca tak daleko ako vrch
+ * pismen nadpisu od vrchu (BRAND_BASE), takze nadpis a znacka su v protilahlych rohoch sumerne. Pod titulkami (koncia
+ * ~1200 px), v F1 je mobil posunuty dolava.
  */
+const BRAND_SIZE = 42;
+const BRAND_BASE = 57; // px od spodku ramca po uaziaru (vrch pismen nadpisu kroku je ~57 px od vrchu)
 const BrandRow: React.FC<{ tone: Tone }> = ({ tone }) => (
-  <div style={{ position: 'absolute', right: 44, top: TITLE_Y + 4, height: 48, display: 'flex', alignItems: 'center', gap: 13 }}>
-    <LogoMark size={46} color={tone === 'dark' ? '#fff' : BRAND[700]} />
-    <span style={{ fontFamily: FONT.display, fontWeight: 700, fontSize: 42, lineHeight: 1, letterSpacing: '-0.01em', color: tone === 'dark' ? '#fff' : INK[800] }}>
-      asset<span style={{ color: tone === 'dark' ? BRAND[400] : BRAND[600] }}>in</span>
-    </span>
+  <div style={{ position: 'absolute', right: 48, bottom: BRAND_BASE - 0.1175 * BRAND_SIZE, fontFamily: FONT.display, fontWeight: 800, fontSize: BRAND_SIZE, lineHeight: 1, letterSpacing: '-0.02em', whiteSpace: 'nowrap', color: tone === 'dark' ? '#fff' : INK[900] }}>
+    asset<span style={{ color: tone === 'dark' ? BRAND[400] : BRAND[600] }}>in</span>
   </div>
 );
 
@@ -389,7 +392,7 @@ const PHONE_FROM: Rect = { x: C5_SHIFT + FOOTAGE_PHONE.x * S169, y: BAND.y + C5_
  * 800 px (predtym 575), presahuje dolny okraj ramca; displej zacina tesne nad hladacikom (orez 250 px zaznamu namiesto
  * stavovej listy 115 px), dokument je ~1,4x vacsi a spust je stale v obraze.
  */
-const PHONE_TO: Rect = { x: (LI.w - 800) / 2, y: 138, w: 800, h: (800 * 1040) / 575 }; // kolo 10: 36 px pod nadpisom
+const PHONE_TO: Rect = { x: 100, y: 138, w: 740, h: (740 * 1040) / 575 }; // kolo 14: 740 px, posunuty dolava (vpravo dole je znacka)
 const REC_PHONE = { w: 884, h: 1920, cropTop: 250 / 1920 }; // zaznam mobilu, orez nad hladacikom fotoaparatu
 const LI_F1: React.FC = () => {
   const frame = useCurrentFrame();
@@ -1020,6 +1023,41 @@ const c2Shift = (ms: number) => {
   const band = simMul(net, simInv(WH_W));
   return { x: band.x, y: band.y - BAND.y, s: band.s / S169 };
 };
+/**
+ * Kolo 14 (Samuel: plosina skladu vyzera uplne inak ako v kancelarii a zda sa, ze z nej vypadne skrina so sanonmi):
+ * pri prestrihu dole boli na obraze dve samostatne dosky nad sebou, kancelaria s vyhodenymi sanonmi pri hrane posobila
+ * ako polica nad skladom. Teraz stoja kancelaria aj sklad na jednej spolocnej plosine a kamera ide po tej istej podlahe:
+ * zadny roh = zadny roh podlahy kancelarie, predny roh = predny roh podlahy skladu, farby a hrubka hrany ako Floor.
+ * Vlastne podlahy scen su vypnute (`floor={false}`), spolocna podlaha vybledne so skladom (ako jeho podlaha).
+ */
+const OFFICE_VB = { x: -470, y: -80, w: 980, h: 551 }; // viewBox kancelarie (Office v C2_Hladanie)
+const OFFICE_K = Math.min(1920 / OFFICE_VB.w, 1080 / OFFICE_VB.h);
+const officePx = (p: [number, number]): [number, number] => [(p[0] - OFFICE_VB.x) * OFFICE_K, (p[1] - OFFICE_VB.y) * OFFICE_K + (1080 - OFFICE_VB.h * OFFICE_K) / 2];
+const whPx = (p: [number, number]): [number, number] => [WH_W.s * (p[0] - VB.x) * SV + WH_W.x, WH_W.s * (p[1] - VB.y) * SV + WH_W.y + 1080];
+const C2_FLOOR = (() => {
+  const B = officePx(iso(-40, -40, 0)); // zadny roh kancelarie (Floor x -40, y -40)
+  const F = whPx(iso(500, 500, 0)); // predny roh skladu (Floor x -60 + 560, y -60 + 560)
+  const dx = F[0] - B[0],
+    dy = F[1] - B[1];
+  const a = dy + dx / 2,
+    b = dy - dx / 2; // F = B + a (1, 0,5) + b (-1, 0,5)
+  const R: [number, number] = [B[0] + a, B[1] + a / 2];
+  const L: [number, number] = [B[0] - b, B[1] + b / 2];
+  return { B, R, F, L, th: 8 * SV * WH_K }; // hrubka dosky 8 cm ako Floor, v mierke skladu
+})();
+const SharedFloor: React.FC<{ opacity: number }> = ({ opacity }) => {
+  const { B, R, F, L, th } = C2_FLOOR;
+  const P = (list: [number, number][]) => list.map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+  const down = (p: [number, number]): [number, number] => [p[0], p[1] + th];
+  if (opacity <= 0.001) return null;
+  return (
+    <svg width={1920} height={2160} style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible', opacity }}>
+      <polygon points={P([B, R, F, L])} fill="#263246" />
+      <polygon points={P([L, F, down(F), down(L)])} fill="#131F31" />
+      <polygon points={P([R, F, down(F), down(R)])} fill={ISO.edge} />
+    </svg>
+  );
+};
 const LI_C2: React.FC = () => {
   const frame = useCurrentFrame();
   const pan = tween(frame, C2_PAN_AT, C2_PAN_MS);
@@ -1029,9 +1067,10 @@ const LI_C2: React.FC = () => {
   return (
     <Scene mode="dark">
       <div style={{ position: 'absolute', inset: 0, transform: `translateY(${-1080 * pan}px)` }}>
+        <SharedFloor opacity={1 - tween(fw, 6600, 500)} />
         {pan < 1 ? (
           <div style={{ position: 'absolute', left: 0, top: 0, width: 1920, height: 1080, overflow: 'hidden' }}>
-            <Office frame={frame} />
+            <Office frame={frame} floor={false} />
           </div>
         ) : null}
         {pan > 0 ? (
@@ -1039,7 +1078,7 @@ const LI_C2: React.FC = () => {
             <div style={{ position: 'absolute', left: 0, top: 0, width: 1920, height: 1080, transformOrigin: '0 0', transform: `translate(${WH_W.x}px, ${WH_W.y}px) scale(${WH_W.s})` }}>
               <div style={{ position: 'absolute', left: 0, top: 0, width: 1920, height: 1080, transformOrigin: '0 0', transform: `translate(${un.x}px, ${un.y}px) scale(${un.s})` }}>
                 <Freeze frame={fw}>
-                  <Warehouse frame={fw} />
+                  <Warehouse frame={fw} floor={false} />
                 </Freeze>
               </div>
             </div>
