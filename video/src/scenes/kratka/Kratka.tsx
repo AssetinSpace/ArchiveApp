@@ -93,14 +93,15 @@ export const K_F3_SECONDS = cutDuration(KF3);
 export const f3Steps = (clip: string): Step[] => [
   { from: 0, title: 'Napísať slovo' },
   { from: voAt(clip, 0, 1), title: 'Údaje o položke' }, // kolo 7 (Samuel): "aplikacia ukaze udaje o konkretnej polozke aj cestu k nej"
-  { from: voAt(clip, 0, 2), title: 'Cesta k položke' },
+  { from: voAt(clip, 1), title: 'Cesta k položke' }, // kolo 10: "aj cestu k nej." je samostatna veta po pauze
 ];
 export const f3Marks = (clip: string): Mark[] => {
   const v = (k: number) => voAt(clip, 0, k);
+  const path = voAt(clip, 1); // kolo 10: "aj cestu k nej." je samostatna veta po pauze
   return [
     markAt(KF3, v(0) / 1000 + 0.3, segStart(KF3, 1) + 0.1, 190, 578, 1638, 62, spot), // pole vyhladavania (pisanie slova)
-    markAt(KF3, v(1) / 1000 + 0.9, v(2) / 1000 + 0.1, 132, 830, 402, 180, spot), // vysledok ZL_03 (Zlozka, najdene v metadatach a OCR): "udaje o konkretnej polozke"
-    markAt(KF3, v(2) / 1000 + 0.1, K_F3_SECONDS - 0.45, 596, 783, 246, 28, spot), // PL_01 / KR_01 / ZL_03: "aj cestu k nej"
+    markAt(KF3, v(1) / 1000 + 0.9, path / 1000 + 0.1, 132, 830, 402, 180, spot), // vysledok ZL_03 (Zlozka, najdene v metadatach a OCR): "udaje o konkretnej polozke"
+    markAt(KF3, path / 1000 + 0.1, K_F3_SECONDS - 0.45, 596, 783, 246, 28, spot), // PL_01 / KR_01 / ZL_03: "aj cestu k nej"
   ];
 };
 /** Popis karty softveru (LinkedIn C8). */

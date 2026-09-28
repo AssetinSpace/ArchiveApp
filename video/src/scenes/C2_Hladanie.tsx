@@ -125,7 +125,7 @@ export const Office: React.FC<{ frame: number }> = ({ frame }) => {
 };
 
 /** Sklad (od 3,5 s): skratena verzia C3 s jednou prehladanou krabicou. */
-const PATH: [number, number][] = [
+export const PATH: [number, number][] = [
   [-20, 400],
   [40, 300],
   [40, 140],

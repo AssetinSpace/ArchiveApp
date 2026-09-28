@@ -11,6 +11,45 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 10 (28. 9. 2026): sklad ako kancelária, tesnejšie rozloženie, "Názov projektu", čas na čítanie
+
+Samuel: scéna v sklade je rozmixovaná a inak priblížená ako kancelária, majú byť rovnako a pohyb rovnako rýchly
+(panáčika prípadne pustiť neskôr); v kontrole "Názov projektu" namiesto "Hodnota"; horný nadpis aj obsah pod ním sú
+príliš odsadené, kompozíciu lepšie vymyslieť; pri 1:02 je to prikrátko, zanalyzovať, či je každý záber dosť dlho na
+prečítanie a či niektoré nie sú zbytočne dlhé.
+
+- C2: jedna kamera pre kanceláriu aj sklad (`C2_CAM`, bez pomalého nájazdu), prestrih dole je čisté posunutie. Plátno
+  skladu je zväčšené o 1,09 (sklad 1,7 px/cm, kancelária 1,96 px/cm, panáčik 1,4 vs 1,25: mierka sveta aj panáčik do
+  6 %). Panáčik počas prestrihu stojí v polovici uličky (parameter chôdze 0,5) a potom ide k regálu rovnakou rýchlosťou
+  a s rovnakým rozbehom ako v kancelárii (342 px za 0,8 s ease-in-out, tu 411 px za 1,05 s; čas skladu je prepočítaný
+  po snímkach), dôjde pri "na polici". Vnútornú kameru skladu (6300-7200 ms) ruší obal okolo scény vo vnútri orezaného
+  plátna; kamera pásu prejde na samotnú policu až keď palety, ostatné regály a panáčik vyblednú (koniec ako v kole 9,
+  C4 bez zmeny). `C2_Hladanie` dostal len export `PATH`. C2 7,3 s.
+- Rozloženie: nadpis kroku 48 px od vrchu (predtým 80), okno aplikácie 138 px (36 px pod nadpisom, predtým 222),
+  detail pod oknom od 736 px a väčší (Názov projektu 48 px, hľadané slovo 54 px, karta zložky a cesta na šírku
+  1000 px), titulky 1060 px (predtým 1080, ďalej od lišty prehrávača LinkedIn). Mobil v F1 od 138 px, krabica v C5
+  o 30 px vyššie, karty ponuky o 20 až 40 px vyššie a o kúsok väčšie, prvý krok vycentrovaný.
+- F24: "Názov projektu" namiesto "Hodnota", názov sa láme "Novostavba bytového domu / SLNEČNÁ 12, BRATISLAVA".
+  Test prvého renderu: dlhý statický úsek pri "navrhne údaje: názov projektu, autora, rok" (7,6 s) pôsobí pomaly, preto
+  sa pod názvom pri slove "autora" vysunie Autor (DOMINIS PROJEKT, s.r.o., v zázname Generálny projektant) a pri "rok"
+  Rok (2018, v zázname Dátum 2018-05-01); mená osôb z titulnej strany nie sú.
+- Čas na čítanie (text v obraze bez titulkov, orientačne 0,8 s + 1 s na 3 slová a aspoň 0,5 s po dohovorení): krátke
+  boli karta nájdenej zložky (19 slov, 2,4 s, zmizla pri dohovorení), Kde to beží (1:02, všetky karty 3,5 s, 0,1 s
+  po vete) a Kto to spracuje (0 s po vete); dlhé bolo ticho pri mobile (3,2 s). Úpravy: veta vo vyhľadávaní rozdelená
+  pred "aj cestu k nej." (celá nahrávka v `K-F3-Vyhladavanie-0.full.wav`, rez v 4,62 s medzi slovami; prvý rez v 4,46 s
+  bol v uzávere hlásky k v slove "položke", odhalila ho technická kontrola) s pauzou 1,2 s, záznam F3 o 1,2 s dlhší
+  (karta 3,8 s, 1,4 s po vete); v ponuke 0,6 s po prvom slide a 1,2 s po Kde to beží (4,7 s, 1,3 s po vete);
+  záznam mobilu od 7,8 s (o 0,5 s kratší), prvá veta F24 o 0,1 s skôr, záver 3,0 s. Názov projektu v F24 (7,6 s)
+  a C5 (9,7 s) sú dlhšie, ale nesie ich hlas.
+- Hudba: strihy ako v kolách 8 a 9, tempo 0,97 (dolná hranica): plná kapela ~9,25 s = začiatok zeleného prechodu,
+  prechodový takt 55 od ~52,0 s = začiatok ponuky (51,83 s). Film 73,8 s, 122 slov.
+- Test na mobile (Gemini tentoraz so 4 snímkami za sekundu, predtým asi 1): technická kontrola bez chýb (hlas 5/5).
+  Laik: sklad "v podobnom štýle a mierke", pohyb "primerane svižný", nič chaotické, rozloženie vyvážené bez hluchého
+  priestoru, "všetko sa stíhalo dočítať"; správca: texty v kartách majú primeraný čas, sklad mu však príde z väčšej
+  diaľky (v zábere je panáčik v kancelárii 172 px a v sklade 182 px, sklad má menšie a početnejšie predmety). Obaja:
+  výzva s jednou krabicou presvedčivá, zelený prechod v 0:09 pôsobí na mobile prudko, 0:04-0:09 pomalšie, celé okno
+  aplikácie drobné; laikovi "infraštruktúra" IT-čkárska; dĺžka podľa nich 45-60 s.
+
 ## Kolo 9 (28. 9. 2026): prirodzená chôdza v sklade, bez duplicity o fotke, údaje zložky, infraštruktúra, jedna krabica
 
 Samuel: panáčik v sklade ide extrémne rýchlo (prípadne skúsiť sklad a kanceláriu vedľa seba, nie pod sebou), hodiny
@@ -356,6 +395,6 @@ Kontrolné stills `node scripts/kratka-stills.mjs [s ...]` (časy vo filme, do `
 ## Súbory
 
 - Nové: `src/scenes/kratka/LinkedIn.tsx` (kompozícia K-LinkedIn 4:5, jediná krátka verzia), `src/kratkaList.ts` (`paced`, pauzy C4), `src/scenes/kratka/Kratka.tsx` (spoločné dáta: C4 so sloganom, kroky, spoty, kliky), `src/copy/vo_kratka.json`, `src/copy/music_kratka.json`, `scripts/kratka_lines.py`, `scripts/kratka-stills.mjs`, `review-kratka/index.html`, `public/vo-kratka/`, `public/footage/k-*.mp4`, `out/kratka/`.
-- Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`, `subtitles`), `Scene` (`SceneFrameContext`: jednofarebné pozadie, bez päty a bez orezania na rámec 16:9 len vnútri LinkedIn rámca), `Subtitles` (scenár K vedľa hlavného), `C4_Cena` (`d`, `h`, `brand`, `cost`), `C5_Teren` (`steps`, `phase`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`); kolo 9: `C2_Hladanie` (export `Office` a `Warehouse`), `ArchiveBox` (`qrScale`).
+- Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`, `subtitles`), `Scene` (`SceneFrameContext`: jednofarebné pozadie, bez päty a bez orezania na rámec 16:9 len vnútri LinkedIn rámca), `Subtitles` (scenár K vedľa hlavného), `C4_Cena` (`d`, `h`, `brand`, `cost`), `C5_Teren` (`steps`, `phase`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`); kolo 9 a 10: `C2_Hladanie` (export `Office`, `Warehouse` a `PATH`), `ArchiveBox` (`qrScale`).
 - Kontrola: 20 snímok pôvodných klipov (C2, C4, C5, C8, C9, F1, F4) z commitu `ea5550e` a z tejto vetvy je na pixel rovnakých; dĺžky kompozícií bez zmeny.
 - Jediná zmena správania pôvodnej cesty: `mix-music.mjs` dáva tichému klipu (C1) stopu v rozložení kanálov ostatných klipov (stereo namiesto mono). Zvuk je ticho, výsledok rovnaký.

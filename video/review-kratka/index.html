@@ -114,6 +114,8 @@
   .tag.none { background: transparent; color: var(--muted); border: 1px dashed var(--rule); }
   td.clip { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--muted); white-space: nowrap; }
   .fixed { color: var(--accent); font-weight: 600; }
+  .tag.ok { background: var(--accent-soft); color: var(--accent-ink); }
+  .tag.warn { background: var(--warn-soft); color: var(--warn-ink); }
 
   .cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
   .panel { padding: 18px 20px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; display: flex; flex-direction: column; gap: 10px; }
@@ -136,31 +138,31 @@
 
 <div class="wrap">
   <header>
-    <div class="eyebrow">Assetin Archives · experiment kratšieho videa · kolo 9</div>
+    <div class="eyebrow">Assetin Archives · experiment kratšieho videa · kolo 10</div>
     <h1>Krátke video pre LinkedIn</h1>
-    <p class="lede">LinkedIn verzia na výšku (4:5) má po 9. kole <b>72 s</b>. Panáčik v sklade ide <b>prirodzenou rýchlosťou</b>, z kontroly v aplikácii vypadla duplicitná veta o fotke, pri hľadaní "vodovod" sú <b>konkrétne údaje zložky</b>, ponuka začína <b>bezpečnosťou a tým, kde aplikácia beží</b>, a výzva je <b>"Začnime jednou krabicou"</b>.</p>
+    <p class="lede">LinkedIn verzia na výšku (4:5) má po 10. kole <b>74 s</b>. Sklad má <b>rovnakú kameru, mierku aj rýchlosť chôdze ako kancelária</b>, rozloženie je tesnejšie (nadpis vyššie, okno hneď pod ním, <b>väčší detail</b>), v kontrole je <b>"Názov projektu"</b> a karta zložky aj ponuka majú <b>čas na dočítanie</b> (analýza nižšie).</p>
     <div class="meta-row"><span id="stamp"></span><span class="mono">vetva claude/video-assets-archives-exp-la1hts</span><span>Hlavná review stránka ostáva bez zmeny.</span></div>
     <div class="lengths two" aria-label="Dĺžky verzií">
       <div class="len-cell"><span class="k">Pôvodná verzia</span><span class="v">145<small>s</small></span><span class="d">250 slov, 16:9, 12 klipov</span></div>
-      <div class="len-cell new"><span class="k">LinkedIn verzia</span><span class="v">72<small>s</small></span><span class="d">122 slov, 4:5, 8 klipov, -51 %</span></div>
+      <div class="len-cell new"><span class="k">LinkedIn verzia</span><span class="v">74<small>s</small></span><span class="d">122 slov, 4:5, 8 klipov, -49 %</span></div>
     </div>
   </header>
 
   <section id="linkedin">
     <div class="sec-head">
       <h2>LinkedIn verzia</h2>
-      <p>Rovnaký hlas a hudba, dve nové vety v ponuke tým istým hlasom, hudba znova strihaná na takt. Zvuk si zapni.</p>
+      <p>Rovnaký hlas a hudba bez nového generovania, veta vo vyhľadávaní rozdelená pauzou, hudba znova strihaná na takt. Zvuk si zapni.</p>
     </div>
     <article class="film tallfilm" id="film-L">
       <div data-video="L" data-shape="v45"></div>
       <div class="info">
-        <div class="head"><h3>Kolo 9</h3><span class="len" data-len="L"></span></div>
+        <div class="head"><h3>Kolo 10</h3><span class="len" data-len="L"></span></div>
         <ul>
-          <li>Chôdza v sklade: panáčik ide prirodzenou rýchlosťou ako v pôvodnej scéne (v kole 8 bol 2,2x zrýchlený). Do skladu vojde počas prestrihu, potom ešte asi sekundu ide uličkou k regálu a dôjde k nemu pri "na polici". Vedľa seba som to neskúšal: na výšku by každá polovica mala len 540 px a panáčik by bol ešte menší, dve scény naraz (kolo 3) pôsobili chaoticky. Hodiny: predel do loga ide o 0,1 s skôr, hneď po slove "hodiny". Aby úvod nenarástol, skrátil som statickú chvíľu so zložkami hore a ticho pred "Hľadanie môže trvať hodiny" (z 1,2 s na 0,65 s, obaja testeri ho v prvom renderi cítili ako hluché miesto). Logo príde v 9,3 s ako v kole 8.</li>
-          <li>Duplicita pri 0:45: vypadla veta "Fotka je dôkaz a ostáva pri zázname." aj panel s fotkou. Nechal som "Človek každú hodnotu overí a potvrdí.", lebo kontrola človekom buduje dôveru a fotku vidieť už pri vete o čítaní textu.</li>
-          <li>Pri "vodovod" je pod výsledkom karta nájdenej zložky so skutočnými údajmi zo záznamu: ZL_03, Projekt pre stavebné povolenie 05/2018, Novostavba bytového domu SLNEČNÁ 12 a "Doplnenie vodovodnej prípojky podľa požiadavky investora" so zvýrazneným slovom.</li>
-          <li>Kde to beží: "Aplikácia funguje bezpečne podľa vašich požiadaviek, online u nás alebo na vašej infraštruktúre." Najprv karta Bezpečne, pri slove "online" karty Online u nás (bez vlastných serverov) a Na vašej infraštruktúre (na vašich serveroch).</li>
-          <li>Výzva: "Začnime jednou krabicou, zadarmo a nezáväzne." Podľa mňa to amatérsky neznie, keď je to prvý krok a nie celá ponuka: je to konkrétne a každý si to vie predstaviť, "obmedzený rozsah" je abstraktný. Na slide je krabica z úvodu, pri slove "krabicou" na ňu dopadne nálepka QR a pri "zadarmo" príde zelený štítok. Pôvodná verzia mala tiež "pilot na jednej krabici".</li>
+          <li>Sklad: jedna kamera pre kanceláriu aj sklad, prechod dole je čisté posunutie (bez zoomu a posunu do strany) a sklad má rovnakú mierku ako kancelária (panáčik aj regály do 6 %). Panáčik počas prechodu stojí v polovici uličky, potom ide k regálu rovnakou rýchlosťou a s rovnakým rozbehom ako v kancelárii a dôjde k nemu pri "na polici". Na regál sa kamera priblíži až keď zmiznú palety, ostatné regály aj panáčik, takže už nie je vidieť priesvitného panáčika a veľké palety v popredí.</li>
+          <li>V kontrole je "Názov projektu" namiesto "Hodnota" a názov sa láme ako "Novostavba bytového domu / SLNEČNÁ 12, BRATISLAVA".</li>
+          <li>Rozloženie: nadpis je 48 px od vrchu (predtým 80), okno aplikácie hneď pod ním (36 px, predtým 87), detail pod oknom je väčší (písmo o 15 až 25 %) a titulky o 20 px vyššie, ďalej od lišty prehrávača. Rovnaké pravidlo platí pre mobil, krabicu v C5 aj karty ponuky.</li>
+          <li>Čas na čítanie (tabuľka nižšie): pauza 1,2 s pred "aj cestu k nej" (karta zložky 3,8 s namiesto 2,4 s), pri návrhu údajov pribudne autor a rok presne pri týchto slovách (dlhý statický úsek má obsah), v ponuke 0,6 s po prvom slide a 1,2 s po "Kde to beží" (1:02: všetky karty 4,7 s namiesto 3,5 s). Najdlhšie ticho (mobil pri fotení) je o 0,5 s kratšie, záver 3,0 s.</li>
+          <li>Hudba: rovnaké strihy, tempo 0,97. Plná kapela nastúpi presne so zeleným prechodom a pod ponukou hudba stíchne.</li>
         </ul>
         <div class="composer"><button type="button" data-role="compose" disabled>Pridať pripomienku</button><span class="result" aria-live="polite"></span></div>
       </div>
@@ -170,7 +172,7 @@
   <section id="cas">
     <div class="sec-head">
       <h2>Kam išiel čas</h2>
-      <p>Všetky verzie v jednej mierke. Oproti pôvodnej najviac ubudlo z vysvetľovania aplikácie (C6, F2, F4 a databáza C10). V kole 8 ubudla veta "Vy viete, že tam niekde je.", v kole 9 veta o fotke (kontrola v aplikácii o 2,8 s kratšia), ponuka je o 2 s dlhšia (kde aplikácia beží) a úvod ostal rovnako dlhý aj s prirodzenou chôdzou.</p>
+      <p>Všetky verzie v jednej mierke. Oproti pôvodnej najviac ubudlo z vysvetľovania aplikácie (C6, F2, F4 a databáza C10). V kole 8 ubudla veta "Vy viete, že tam niekde je.", v kole 9 veta o fotke (kontrola v aplikácii o 2,8 s kratšia), ponuka je o 2 s dlhšia (kde aplikácia beží). V kole 10 pribudli krátke pauzy na čítanie pri karte zložky a v ponuke (+3 s), mobil a záver sú o 0,8 s kratšie.</p>
     </div>
     <div class="chart" id="chart">
       <div class="legend" id="legend"></div>
@@ -179,8 +181,33 @@
     </div>
     <div class="tablebox">
       <table>
-        <thead><tr><th>Časť filmu</th><th class="num">Pôvodná</th><th class="num">Kolo 8</th><th class="num">Kolo 9</th></tr></thead>
+        <thead><tr><th>Časť filmu</th><th class="num">Pôvodná</th><th class="num">Kolo 9</th><th class="num">Kolo 10</th></tr></thead>
         <tbody id="timetable"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="citanie">
+    <div class="sec-head">
+      <h2>Čas na čítanie</h2>
+      <p>Pri každom zábere text v obraze (bez titulkov), ako dlho ho vidno a koľko času ostane po dohovorení vety. Orientačne treba 0,8 s a k tomu 1 s na každé 3 slová (číta sa popri počúvaní) a po dohovorení aspoň pol sekundy, kým sa obraz zmení. V kole 9 sa ponuka menila hneď po dohovorení (preto 1:02 pôsobilo prikrátko) a karta nájdenej zložky bola vidieť len 2,4 s.</p>
+    </div>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>Záber</th><th class="num">Slov</th><th class="num">Vidno</th><th class="num">Po dohovorení</th><th>Hodnotenie</th></tr></thead>
+        <tbody>
+          <tr><td>Karta nájdenej zložky (0:45)</td><td class="num">19</td><td class="num">2,4 -&gt; 3,8 s</td><td class="num">0 -&gt; 1,3 s</td><td><span class="tag warn">bolo krátko</span> pauza 1,2 s pred "aj cestu k nej"; stačí zvýraznený riadok a názov</td></tr>
+          <tr><td>Kde to beží, všetky tri karty (1:02)</td><td class="num">13</td><td class="num">3,5 -&gt; 4,7 s</td><td class="num">0,1 -&gt; 1,3 s</td><td><span class="tag warn">bolo krátko</span> pauza 1,2 s po vete</td></tr>
+          <tr><td>Kto to spracuje, obe karty</td><td class="num">11</td><td class="num">3,0 -&gt; 3,6 s</td><td class="num">0 -&gt; 0,6 s</td><td><span class="tag warn">bolo krátko</span> pauza 0,6 s po vete</td></tr>
+          <tr><td>Mobil pri fotení (bez hlasu)</td><td class="num">0</td><td class="num">2,6 -&gt; 2,1 s</td><td class="num">ticho 3,2 -&gt; 2,7 s</td><td><span class="tag warn">bolo dlho</span> najdlhšie ticho vo videu, skrátené o 0,5 s</td></tr>
+          <tr><td>Záver: logo, slogan, web</td><td class="num">8</td><td class="num">3,3 -&gt; 3,0 s</td><td class="num">1,0 s</td><td><span class="tag ok">v poriadku</span> nový je len web, logo a slogan divák pozná</td></tr>
+          <tr><td>Text na fotke</td><td class="num">7</td><td class="num">2,2 s</td><td class="num">0,1 s</td><td><span class="tag ok">tesne</span> ten istý názov hneď nasleduje veľkým písmom</td></tr>
+          <tr><td>Návrh údajov (názov, autor, rok) a potvrdenie</td><td class="num">9 -&gt; 14</td><td class="num">7,6 s</td><td class="num">0,1 s</td><td><span class="tag warn">bolo dlho</span> autor a rok pribudnú pri slovách "autora, rok", úsek už nie je statický</td></tr>
+          <tr><td>Prilepiť QR kód a štyri položky</td><td class="num">7</td><td class="num">9,7 s</td><td class="num">1,4 s</td><td><span class="tag ok">v poriadku</span> nesie ho hlas a príklady usporiadania</td></tr>
+          <tr><td>Logo, slogan, archív -&gt; katalóg</td><td class="num">11</td><td class="num">5,6 s</td><td class="num">hlas pokračuje</td><td><span class="tag ok">v poriadku</span></td></tr>
+          <tr><td>Cesta PL_01 -&gt; KR_01 -&gt; ZL_03</td><td class="num">6</td><td class="num">2,8 s</td><td class="num">1,6 s</td><td><span class="tag ok">v poriadku</span></td></tr>
+          <tr><td>Prvý krok (krabica a štítok)</td><td class="num">8</td><td class="num">4,8 s</td><td class="num">0,6 s</td><td><span class="tag ok">v poriadku</span></td></tr>
+        </tbody>
       </table>
     </div>
   </section>
@@ -188,7 +215,7 @@
   <section id="scenar">
     <div class="sec-head">
       <h2>Scenár</h2>
-      <p>Päť viet je vystrihnutých z existujúcich nahrávok (v pauze medzi vetami), deväť je nových tým istým hlasom. V kole 9 sú nové obe posledné vety ponuky (vybrané zo štyroch pokusov). Výslovnosť je overená prepisom.</p>
+      <p>Päť viet je vystrihnutých z existujúcich nahrávok (v pauze medzi vetami), deväť je nových tým istým hlasom. V kole 9 sú nové obe posledné vety ponuky (vybrané zo štyroch pokusov), v kole 10 je veta vo vyhľadávaní rozdelená pauzou pred "aj cestu k nej". Výslovnosť je overená prepisom.</p>
     </div>
     <div class="tablebox">
       <table>
@@ -234,7 +261,7 @@
     </div>
     <div class="tablebox">
       <table>
-        <thead><tr><th></th><th>Pôvodná, 145 s</th><th>Kolo 9, 72 s</th></tr></thead>
+        <thead><tr><th></th><th>Pôvodná, 145 s</th><th>Kolo 10, 74 s</th></tr></thead>
         <tbody id="testtable"></tbody>
       </table>
     </div>
@@ -258,25 +285,25 @@
 
   <footer>
     <p>Zdroj: <span class="mono">video/src/scenes/kratka/LinkedIn.tsx</span> (kompozícia K-LinkedIn), scenár <span class="mono">video/src/copy/vo_kratka.json</span>, hudba <span class="mono">video/src/copy/music_kratka.json</span>, postup v <span class="mono">video/EXPERIMENT-KRATKA.md</span>.</p>
-    <p>Kolo 1 (krátka verzia 16:9, teaser 31 s) je v gite v commite b8552d5, kolo 2 (74 s) v commite f88328b, kolo 3 (73 s) v commite c862b18, kolo 4 (79 s) v commite e4cd18d, kolo 5 (72 s) v commite 8f74123, kolo 6 (70 s) v commite 33fcd7c, kolo 7 (73 s) v commite e81eaa7, kolo 8 (73 s) v commite d53eaf7.</p>
+    <p>Kolo 1 (krátka verzia 16:9, teaser 31 s) je v gite v commite b8552d5, kolo 2 (74 s) v commite f88328b, kolo 3 (73 s) v commite c862b18, kolo 4 (79 s) v commite e4cd18d, kolo 5 (72 s) v commite 8f74123, kolo 6 (70 s) v commite 33fcd7c, kolo 7 (73 s) v commite e81eaa7, kolo 8 (73 s) v commite d53eaf7, kolo 9 (72 s) v commite 7e3512d.</p>
     <p>Pripomienky sa píšu cez okno komentára claude.ai (tlačidlo pri videu).</p>
   </footer>
 </div>
 <div class="tip" id="tip" hidden></div>
 
 <script>
-  const BUILD = { renderedAt: "2026-09-28T14:27:00Z" };
+  const BUILD = { renderedAt: "2026-09-28T16:10:00Z" };
   // id assetov (videa a plagaty); prazdne = este sa nahrava
   const VIDEOS = {
-    L: { cap: "75be2af91004aa24beaeb5d4ee0ccde7", poster: "b493ef8bf90a86843753e097f5ad87e4", len: 71.7 },
+    L: { cap: "9e43be5e9b2c1d373e376c2f4fcc9669", poster: "21cde3284ddac3aa6bec2d9e6dea99cd", len: 73.8 },
     FULL: { cap: "82122ce5cb36a031995136d89d2b36d1", poster: "b1dcf071776b4b4ea0079ec1cdb2ab89", len: 145.2 }
   };
   const PARTS = ["Úvod a problém", "Predstavenie", "Ako to funguje", "Hľadanie", "Ponuka a záver"];
   // sekundy casti (podla klipov a predelu v C4: prechod do bielej)
   const TIMES = {
     "Pôvodná": [28.4, 6.6, 56.5, 25.2, 28.5],
-    "Kolo 8": [10.0, 6.6, 29.2, 8.2, 18.5],
-    "Kolo 9": [10.0, 6.6, 26.4, 8.2, 20.5]
+    "Kolo 9": [10.0, 6.6, 26.4, 8.2, 20.5],
+    "Kolo 10": [9.9, 6.6, 25.9, 9.4, 22.0]
   };
   const SCRIPT = [
     ["C2", "Kedy ste naposledy nevedeli nájsť nejaký dokument?", "old", "C2, prvá veta"],
@@ -288,7 +315,8 @@
     ["F1", "(skutočný fotoaparát v aplikácii, 2,6 s bez hlasu)", "none", ""],
     ["F24", "Aplikácia z fotky sama prečíta text a navrhne údaje: názov projektu, autora, rok.", "new", "namiesto C6 a F2"],
     ["F24", "Človek každú hodnotu overí a potvrdí.", "old", "F4, kolo 9: bez \"Fotka je dôkaz a ostáva pri zázname.\" (duplicita)"],
-    ["F3", "Potom stačí napísať slovo a aplikácia ukáže údaje o konkrétnej položke aj cestu k nej.", "new", "kolo 7: údaje o položke a cesta k nej"],
+    ["F3", "Potom stačí napísať slovo a aplikácia ukáže údaje o konkrétnej položke", "new", "kolo 7; kolo 10: pauza 1,2 s pred koncom vety"],
+    ["F3", "aj cestu k nej.", "new", "kolo 10: po pauze (tá istá nahrávka)"],
     ["C8", "Archív vám spracujeme na kľúč.", "old", "C8, prvá veta"],
     ["C8", "Alebo ho spracujete sami v našej aplikácii.", "new", "vlastnými silami"],
     ["C8", "Aplikácia funguje bezpečne podľa vašich požiadaviek, online u nás alebo na vašej infraštruktúre.", "new", "kolo 9: najprv bezpečnosť, potom kde beží"],
@@ -296,27 +324,29 @@
     ["C9", "Assetin Archives. (Na obraze len logo a slogan.)", "old", "C9, začiatok vety"]
   ];
   const TEST = [
-    ["Pochopili podstatu", "Áno: QR, fotka, nájdem policu, spravia to za mňa. Že to urobíme my, však zaznie až v 1:57.", "Áno, obaja: QR na polici, krabici, šanóne aj zložke podľa toho, ako je archív usporiadaný, fotka titulnej strany, vyhľadanie s konkrétnymi údajmi a cesta PL_01 -> KR_01 -> ZL_03."],
-    ["Úvod (15 s)", "netestované", "Situáciu pochopili a zaujala ich (správca: \"trefná, pozeral som ďalej\"). Obaja: 0:05-0:09 je stále trochu statické. Chôdzu tester spoľahlivo neposúdi (video vidí zhruba po sekundách): v prvom renderi ju správca opísal ako prirodzenú, vo finálnom obaja ako statickú."],
-    ["Nástup loga", "", "Obaja: čisto a profesionálne. Laik: \"zelený prechod je svieži a jasne oddelil problém od riešenia\"."],
+    ["Pochopili podstatu", "Áno: QR, fotka, nájdem policu, spravia to za mňa. Že to urobíme my, však zaznie až v 1:57.", "Áno, obaja: QR na polici, krabici, šanóne aj zložke podľa toho, ako je archív usporiadaný, fotka titulnej strany, návrh údajov (názov, autor, rok), vyhľadanie a cesta PL_01 -> KR_01 -> ZL_03."],
+    ["Úvod (15 s)", "netestované", "Laik: sklad je \"v podobnom štýle a mierke\", postavička sa pohybuje \"primerane svižne\", nič nie je chaotické. Správca: sklad mu príde z väčšej diaľky a pohyb trochu trhaný. Obaja: 0:06-0:09 (regál s hodinami) je pomalšie."],
+    ["Nástup loga", "", "Obaja: čisté a profesionálne, zelený pás zdola však na mobile pôsobí prudko (\"farebný záblesk\")."],
     ["Štruktúra archívu", "", "Obaja: nemusí byť pevne daná, prispôsobí sa tomu, ako majú archív usporiadaný."],
-    ["Ako nájdu dokument", "", "Obaja pri \"vodovod\" vymenujú údaje zložky (ZL_03, projekt pre stavebné povolenie 05/2018, Novostavba bytového domu SLNEČNÁ 12, poznámka so zvýrazneným slovom) a cestu PL_01 -> KR_01 -> ZL_03."],
-    ["Aplikácia v mobile", "netestované na mobile (16:9)", "Zväčšené výrezy sú čitateľné, celé okno aplikácie 0:32-0:43 je stále drobné a okolo je veľa bielej (obaja)."],
-    ["Ponuka na konci", "chýbala, pýtali sa na bezpečnosť", "Prehľadná, čisté karty (obaja). \"Na vašej infraštruktúre\": správca rozumie presne, laik to pochopil vďaka \"Na vašich serveroch\", ale znie mu to IT-čkársky. K bezpečnosti by chceli šifrovanie, GDPR a prístupové práva."],
-    ["Prvý krok a cena", "chýbala výzva aj cena", "Obaja: jedna krabica, zadarmo a nezáväzne. Laik: \"veľmi férovo, nenásilne, znižuje strach\", správca: \"veľmi konkrétne, nízka bariéra vstupu\"."],
-    ["Posledný záber", "", "Logo, slogan a www.assetin.sk: čisté a výborne čitateľné (obaja)."],
-    ["Nerozumeli", "metadáta, fulltextové vyhľadávanie, katalogizácia, zaradiť do hierarchie", "Správca ničomu. Laik: \"infraštruktúra\" (radšej \"na vašom serveri\")."],
-    ["Rušilo v obraze", "", "Veľa bielej plochy okolo zmenšeného okna aplikácie 0:33-0:43 (obaja), laikovi tmavý úvod."],
-    ["Strácali pozornosť", "úvod 0:05-0:25, kontrola v aplikácii 1:05-1:28", "Sklad 0:05-0:09 (obaja), prechod do okna aplikácie 0:32-0:35 (laik)."],
-    ["Dĺžka podľa nich", "60-90 s (laik), 60-75 s (správca)", "45-60 s (laik), 45-50 s (správca); dĺžku si určil ty"]
+    ["Ako nájdu dokument", "", "Obaja: ZL_03 s názvom projektu, stupňom, rokom a zvýrazneným \"vodovod\", potom cesta PL_01 -> KR_01 -> ZL_03."],
+    ["Aplikácia v mobile", "netestované na mobile (16:9)", "Celé okno je stále drobné, zväčšené karty sú čitateľné. Laik: rozloženie vyvážené, bez hluchého priestoru. Správca: v strede dobré, na začiatku a konci veľa prázdnej plochy."],
+    ["Čas na čítanie", "", "Laik: \"žiadny text nebol príliš rýchly, všetko sa stíhalo dočítať\". Správca: texty v kartách majú primeraný čas. (V prvom renderi kola 10 mu karta zložky ešte \"preblikla\".)"],
+    ["Ponuka na konci", "chýbala, pýtali sa na bezpečnosť", "Prehľadná (obaja). \"Na vašej infraštruktúre\" laikovi znie IT-čkársky, správca rozumie. Bezpečnosť laikovi stačí, správca by chcel zálohovanie a prístupové práva."],
+    ["Prvý krok a cena", "chýbala výzva aj cena", "Obaja: jedna krabica, zadarmo a nezáväzne. Laik: \"veľmi presvedčivo, férovo\", správca: \"výborne, konkrétne a realisticky\"."],
+    ["Posledný záber", "", "Logo, slogan a www.assetin.sk: čisté a perfektne čitateľné (obaja)."],
+    ["Nerozumeli", "metadáta, fulltextové vyhľadávanie, katalogizácia, zaradiť do hierarchie", "Správca ničomu. Laik: \"na vašej infraštruktúre\"."],
+    ["Rušilo v obraze", "", "Zelený prechod 0:09 (obaja), miniatúrne okno aplikácie; správcovi posun dole do skladu 0:03."],
+    ["Strácali pozornosť", "úvod 0:05-0:25, kontrola v aplikácii 1:05-1:28", "Správca 0:04-0:09 (úvod by skrátil na polovicu). Laik: návrh údajov 0:33-0:41 a Kde to beží 0:58-1:05 sú technickejšie."],
+    ["Dĺžka podľa nich", "60-90 s (laik), 60-75 s (správca)", "45-60 s (obaja); dĺžku si určil ty"]
   ];
   const ASKS = [
-    ["Úvod v sklade", "Obaja testeri stále cítia 0:05-0:09 (prehľadávanie krabíc, regál s hodinami) ako pomalšie miesto, laik by úvod skrátil o 3-4 s. Obraz teraz ide s hlasom 1:1 a ticho som skrátil. Kratšie by to bolo už len s kratšou vetou, napríklad bez \"v krabici alebo v zložke\" (asi -1,5 s). Odporúčam nechať: veta ukazuje, prečo je hľadanie zdĺhavé."],
-    ["Okno aplikácie v mobile", "Obaja opäť: celé okno aplikácie 0:32-0:43 je na mobile drobné a okolo je veľa bielej, čitateľné sú až zväčšené výrezy. Návrh na ďalšie kolo: namiesto celého okna len výrez s fotkou a formulárom (bez horných líšt), asi o 40 % väčší."],
-    ["Infraštruktúra", "Veta aj karta sú podľa tvojho návrhu, pod kartou je \"Na vašich serveroch\". Správca rozumie presne, laik to pochopil vďaka podtitulku, ale znie mu to IT-čkársky. Ak chceš ešte jednoduchšie, nadpis karty môže byť \"Na vašich serveroch\" a veta ostane."],
-    ["Bezpečnosť podrobnejšie", "Obaja sa znova pýtali na šifrovanie, GDPR a prístupové práva. Ak máte niečo overené, stačí jedno slovo pod kartou Bezpečne (napríklad \"Šifrované, podľa GDPR\")."],
-    ["Dvojité platenie", "Z videa vypadlo. Hookom je úvodná otázka a bolesť \"hľadanie môže trvať hodiny\" pozná každý, cenu nového vyhotovenia rieši skôr ten, kto rozhoduje o rozpočte. Odporúčam ju dať do textu LinkedIn príspevku, napríklad \"Koľkokrát ste už platili za dokument, ktorý máte niekde v archíve?\"."],
-    ["assetin.space", "Navrhujem zatiaľ ho nepoužívať: web je assetin.sk, firma Assetin, s. r. o., a .space bez vysvetlenia laika zmätie. Logo je domček | assetin | Archives."]
+    ["Mierka skladu", "Kamera aj mierka sú teraz rovnaké ako v kancelárii (panáčik 172 px vs 182 px). Sklad môže pôsobiť vzdialenejšie, lebo má menšie a početnejšie predmety (krabice, palety) ako kancelária (skriňa, stôl); správcovi v teste tak pôsobil. Ak to vidíš rovnako, priblížim sklad o 10 až 15 %, panáčik tam potom bude o toľko väčší."],
+    ["Zelený prechod na logo", "Obom testerom zelený pás zdola na mobile pôsobí ako prudký farebný záblesk (0:09). Ak ti to tiež vadí, môže ísť pomalšie (0,8 s namiesto 0,5 s) alebo len jemne prejsť do bielej."],
+    ["Úvod v sklade", "Správca by úvod 0:04-0:09 skrátil na polovicu. Obraz ide s hlasom 1:1, kratšie by to bolo len s kratšou vetou, napríklad bez \"v krabici alebo v zložke\" (asi -1,5 s). Odporúčam nechať, veta ukazuje, prečo je hľadanie zdĺhavé."],
+    ["Okno aplikácie v mobile", "Obaja opäť: celé okno aplikácie je na mobile drobné, čitateľné sú až zväčšené karty. Návrh na ďalšie kolo: namiesto celého okna len výrez s fotkou a formulárom, asi o 40 % väčší."],
+    ["Infraštruktúra", "Veta aj karta sú podľa tvojho návrhu, pod kartou je \"Na vašich serveroch\". Správca rozumie presne, laikovi to znie IT-čkársky. Ak chceš jednoduchšie, nadpis karty môže byť \"Na vašich serveroch\" a veta ostane."],
+    ["Bezpečnosť podrobnejšie", "Správca sa znova pýtal na zálohovanie a prístupové práva, laikovi \"Bezpečne\" stačí. Ak máte niečo overené, stačí jedno slovo pod kartou Bezpečne."],
+    ["Dvojité platenie a assetin.space", "Bez zmeny: dvojité platenie odporúčam do textu LinkedIn príspevku, .space zatiaľ nepoužívať (web je assetin.sk)."]
   ];
   const blob = (id) => '/_blob/' + id;
   const fmtS = (s) => String(Math.round(s * 10) / 10).replace('.', ',') + ' s';
@@ -387,7 +417,7 @@
   // test (texty su nase, nie od divakov stranky)
   const tb = document.getElementById('testtable');
   for (const [k, ...cells] of TEST) { const tr = document.createElement('tr'); tr.innerHTML = `<th></th>` + cells.map((c) => `<td>${c}</td>`).join(''); tr.firstChild.textContent = k; tb.append(tr); }
-  document.getElementById('test2').textContent = 'Kolo 9 pozerali ako príspevok v mobile (video 432 x 540), finálny render. V prvom renderi kola 9 bolo pred vetou "Hľadanie môže trvať hodiny." 1,2 s ticha a obaja ho označili ako hluché miesto, teraz je to 0,65 s. Chôdzu panáčika Gemini nevie spoľahlivo posúdiť, lebo video vidí zhruba po sekundách, preto ju prosím posúď okom. Technická kontrola: bez chýb v reči, hudbe aj obraze, hlas 5/5.';
+  document.getElementById('test2').textContent = 'Kolo 10 pozerali ako príspevok v mobile (video 432 x 540), tentoraz so 4 snímkami za sekundu (predtým asi 1), aby videli aj pohyb. Prvý render kola 10 mal rez vety v slove "položke" (odhalila ho technická kontrola) a správcovi v ňom karta zložky ešte preblikla; vo finálnom je rez medzi slovami a pri návrhu údajov pribudol autor a rok. Hodnotenia chôdze a mierky skladu sa medzi rendermi aj testermi líšia, v zábere je panáčik v kancelárii vysoký 172 px a v sklade 182 px. Technická kontrola: bez chýb, hlas 5/5.';
   const asks = document.getElementById('asks');
   for (const [q, a] of ASKS) { const d = document.createElement('div'); d.className = 'ask'; d.innerHTML = '<b></b><p></p>'; d.children[0].textContent = q; d.children[1].textContent = a; asks.append(d); }
 

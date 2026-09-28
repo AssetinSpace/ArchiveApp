@@ -155,10 +155,10 @@
     "note": "Experiment kratkej verzie (K): len fotenie titulnej strany (fotoaparat a spust). Kolo 4 (Samuel: po odfoteni sa obraz rozbije a posunie dole): koniec tesne pred nahladom fotky (Retake / Use Photo od 8,98 s ma fotku posunutu nizsie), posledny zaber fotoaparatu drzi.",
     "segs": [
       {
-        "from": 7.3,
+        "from": 7.8,
         "to": 8.97,
         "after": 0.9,
-        "note": "fotoaparat 1,6 s pred spustou (8,9 s), drzi posledny zaber fotoaparatu; v LinkedIn 4:5 mobil najprv narastie z pozicie na konci C5"
+        "note": "fotoaparat 1,6 s pred spustou (8,9 s), drzi posledny zaber fotoaparatu; v LinkedIn 4:5 mobil najprv narastie z pozicie na konci C5; kolo 10: od 7,8 s (1,1 s pred spustou), zaber mobilu o 0,5 s kratsi"
       }
     ]
   },
@@ -210,8 +210,8 @@
       {
         "from": 6.2,
         "to": 7.4,
-        "after": 4.45,
-        "note": "vysledok ZL_03 a detail v pokoji, drobcek PL_01 / KR_01 / ZL_03; kolo 4: drzi o 0,8 s dlhsie, aby sa dala docitat cesta polica -> krabica -> zlozka -> dokument"
+        "after": 5.65,
+        "note": "vysledok ZL_03 a detail v pokoji, drobcek PL_01 / KR_01 / ZL_03; kolo 4: drzi o 0,8 s dlhsie, aby sa dala docitat cesta polica -> krabica -> zlozka -> dokument; kolo 10: o 1,2 s dlhsie (pauza pred \"aj cestu k nej\", karta najdenej zlozky sa da docitat)"
       }
     ]
   }
