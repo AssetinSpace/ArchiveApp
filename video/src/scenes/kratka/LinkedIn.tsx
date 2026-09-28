@@ -50,6 +50,7 @@ type LiDef = {
   overflow?: boolean; // obsah sceny smie presiahnut ramec 16:9 az po okraj okna (C5: veko krabice pri priblizeni)
   chrome?: boolean; // false = bez riadku znacky a webu (C9 ich ma vo vlastnom rozlozeni)
   subs?: boolean; // false = bez titulkov (C9: hlas povie len nazov, ktory je v obraze)
+  zoom?: { z: (ms: number) => number; x: number; y: number }; // priblizenie pasu okolo bodu ramca (C4: logo)
 };
 /**
  * Okno, cez ktore vidno pas 16:9 (px ramca): hore/dole makky prechod `feather` px do pozadia ramca, aby obsah
@@ -154,6 +155,16 @@ const C5_SHIFT = 186;
 const C5_DY = 60;
 const c5Ease = (ms: number) => easeInOut(Math.min(1, Math.max(0, ms / 700)));
 const c5Shift = (ms: number) => ({ x: C5_SHIFT * c5Ease(ms), y: C5_DY * c5Ease(ms) });
+/**
+ * Kolo 3 (test: 0:14-0:19 prazdna biela, male logo): logo v C4 je v pase 16:9 len 456 px a slogan 17 px. Po prechode
+ * do bielej sa pas priblizi 1,9x okolo loga a sloganu (stred bloku y 528 px sceny), pred usadenim krabice (C5) sa vrati.
+ * Casy v ms vystupu C4 (s pauzami 2 s): biela 8200-8800, logo 9050, odchod loga 13800, krabica 14000.
+ */
+const C4_BRAND_Z = 1.9;
+const c4Zoom = (ms: number) => {
+  const e = (a: number, d: number) => easeInOut(Math.min(1, Math.max(0, (ms - a) / d)));
+  return 1 + (C4_BRAND_Z - 1) * (e(8750, 650) - e(13500, 450));
+};
 
 /** F1 na vysku: mobil z pozicie na konci C5 (v pase) narastie na velky mobil na stred, potom skutocny fotoaparat. */
 const PHONE_FROM: Rect = { x: C5_SHIFT + FOOTAGE_PHONE.x * S169, y: BAND.y + C5_DY + FOOTAGE_PHONE.y * S169, w: FOOTAGE_PHONE.w * S169, h: FOOTAGE_PHONE.h * S169 };
@@ -203,10 +214,11 @@ const PHOTO_TITLE = { x: 222, y: 432, w: 162, h: 38 }; // "Novostavba bytoveho d
 const VALUE = { x: 722, y: 484, w: 448, h: 54 }; // Hodnota: navrh pre Nazov projektu
 const LI_F24: React.FC = () => (
   <AbsoluteFill>
-    <DesktopFootageClip src={F24_SRC} seconds={K_F24_SECONDS} steps={[]} taps={K_F24_TAPS} marks={K_F24_MARKS} win={WIN} enter />
+    {/* kolo 3: okno na konci nevybledne do bielej (dlzka +1 s len pre prelinacku), F3 nadvazuje v tom istom okne */}
+    <DesktopFootageClip src={F24_SRC} seconds={K_F24_SECONDS + 1} steps={[]} taps={K_F24_TAPS} marks={K_F24_MARKS} win={WIN} enter />
     <Callout src={F24_SRC} region={PHOTO_TITLE} from={0.5} to={kv(0, 1) + 0.1} label="Na fotke" width={640} />
     <Callout src={F24_SRC} region={VALUE} from={kv(0, 1) + 0.35} to={kv(1, 1) - 0.1} label="Návrh aplikácie: názov projektu" width={940} />
-    <Callout src={F24_SRC} region={PHOTO_TITLE} from={kv(1, 1) + 0.1} to={K_F24_SECONDS - 0.5} label="Fotka pri zázname" width={640} />
+    <Callout src={F24_SRC} region={PHOTO_TITLE} from={kv(1, 1) + 0.1} to={K_F24_SECONDS + 1} label="Fotka pri zázname" width={640} />
   </AbsoluteFill>
 );
 
@@ -219,8 +231,9 @@ const LI_F3: React.FC = () => {
   const v = (k: number) => voAt(F3_CLIP, 0, k) / 1000;
   return (
     <AbsoluteFill>
-      <DesktopFootageClip src={F3_SRC} seconds={K_F3_SECONDS} steps={[]} phase={phases.search} marks={f3Marks(F3_CLIP)} win={WIN} enter />
-      <Callout src={F3_SRC} region={SEARCH} from={0.4} to={v(1) + 0.4} label="Hľadané slovo" width={880} />
+      {/* kolo 3: bez `enter` (okno je na rovnakom mieste ako v F24, test: 0:45 biela diera pred vyhladavanim) */}
+      <DesktopFootageClip src={F3_SRC} seconds={K_F3_SECONDS} steps={[]} phase={phases.search} marks={f3Marks(F3_CLIP)} win={WIN} />
+      <Callout src={F3_SRC} region={SEARCH} from={0.25} to={v(1) + 0.4} label="Hľadané slovo" width={880} />
       <Callout
         src={F3_SRC}
         region={CRUMB}
@@ -401,7 +414,7 @@ const C5_BAND: React.FC = () => <C5_Teren steps={[]} />; // kroky su nad obrazom
 const LI_LIST: LiDef[] = [
   // kolo 3: 5,4 s (otazka 0,4-3,8 s; nastup plnej kapely v hudbe padne na prechod do bielej v C4 ako v kole 2)
   { def: paced('K-C2-Hladanie', { scene: LI_C2, seconds: 5.4, stills: [], ...noSubs }), tone: () => 'dark' },
-  { def: paced('K-C4-Cena', { scene: K_C4, seconds: c4End(K_C4_D, K_C4_H), holds: K_C4_HOLDS, stills: [], ...noSubs }), band: true, tone: (ms) => (ms < 8450 ? 'dark' : 'light'), toWhite: 8200 },
+  { def: paced('K-C4-Cena', { scene: K_C4, seconds: c4End(K_C4_D, K_C4_H), holds: K_C4_HOLDS, stills: [], ...noSubs }), band: true, tone: (ms) => (ms < 8450 ? 'dark' : 'light'), toWhite: 8200, zoom: { z: c4Zoom, x: LI.w / 2, y: BAND.y + 528 * S169 } },
   // okno od nadpisu kroku (spodok ~200 px) po titulky: veko krabice pri priblizeni kamery vyjde nad ramec 16:9
   { def: paced('K-C5-Teren', { scene: C5_BAND, seconds: 8.4, stills: [], ...noSubs }), band: true, tone: () => 'light', steps: C5_STEPS('K-C5-Teren'), phase: PHASE_ARCHIV, shift: c5Shift, win: { top: 206, bottom: 1040, feather: 18 }, overflow: true },
   { def: paced('K-F1-Sken', { scene: LI_F1, seconds: K_F1_SECONDS, vo: false, stills: [] }), tone: () => 'light', steps: F1_STEPS, phase: PHASE_ARCHIV },
@@ -422,6 +435,7 @@ const LiFrame: React.FC<{ d: LiDef }> = ({ d }) => {
   const white = d.toWhite !== undefined ? tween(frame, d.toWhite, 600) : tone === 'light' ? 1 : 0;
   const win = d.win ?? BAND_WIN;
   const sh = d.shift ? d.shift(ms) : { x: 0, y: 0 };
+  const z = d.zoom ? d.zoom.z(ms) : 1;
   const wh = win.bottom - win.top;
   const mask = `linear-gradient(to bottom, transparent 0px, #000 ${win.feather}px, #000 ${wh - win.feather}px, transparent ${wh}px)`;
   return (
@@ -429,10 +443,12 @@ const LiFrame: React.FC<{ d: LiDef }> = ({ d }) => {
       {white > 0 ? <AbsoluteFill style={{ background: '#fff', opacity: white }} /> : null}
       {d.band ? (
         <div style={{ position: 'absolute', left: 0, top: win.top, width: LI.w, height: win.bottom - win.top, overflow: 'hidden', WebkitMaskImage: mask, maskImage: mask }}>
-          <div style={{ position: 'absolute', left: 0, top: BAND.y - win.top, width: 1920, height: 1080, transform: `translate(${sh.x}px, ${sh.y}px) scale(${S169})`, transformOrigin: '0 0' }}>
-            <SceneFrameContext.Provider value={{ flatBg: true, hideFooter: true, overflowVisible: d.overflow }}>
-              <Body />
-            </SceneFrameContext.Provider>
+          <div style={{ position: 'absolute', inset: 0, transform: z !== 1 ? `scale(${z})` : undefined, transformOrigin: d.zoom ? `${d.zoom.x}px ${d.zoom.y - win.top}px` : undefined }}>
+            <div style={{ position: 'absolute', left: 0, top: BAND.y - win.top, width: 1920, height: 1080, transform: `translate(${sh.x}px, ${sh.y}px) scale(${S169})`, transformOrigin: '0 0' }}>
+              <SceneFrameContext.Provider value={{ flatBg: true, hideFooter: true, overflowVisible: d.overflow }}>
+                <Body />
+              </SceneFrameContext.Provider>
+            </div>
           </div>
         </div>
       ) : (
