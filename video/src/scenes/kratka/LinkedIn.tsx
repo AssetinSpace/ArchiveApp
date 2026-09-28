@@ -52,6 +52,7 @@ type LiDef = {
   chrome?: boolean; // false = bez riadku znacky a webu (C9 ich ma vo vlastnom rozlozeni)
   subs?: boolean; // false = bez titulkov (C9: hlas povie len nazov, ktory je v obraze)
   overlay?: React.FC; // nativna vrstva na vysku nad obsahom (C4: logo, C5: polica / krabica / sanon / zlozka)
+  labelOut?: boolean; // nazov kroku na konci klipu vybledne s obrazom (F3 -> C8, kde uz ziadny krok nie je)
 };
 /**
  * Okno, cez ktore vidno pas 16:9 (px ramca): hore/dole makky prechod `feather` px do pozadia ramca, aby obsah
@@ -568,20 +569,33 @@ const Lockup: React.FC<{ size: number; onDark: boolean }> = ({ size: F, onDark }
   );
 };
 
-/** C4: logo na vysku v bielej casti (miesto lockupu assetin.space z C4), casy ako v C4 (ms vystupu s pauzami 2 s). */
+/**
+ * C4: logo na vysku v bielej casti (miesto lockupu assetin.space z C4), casy ako v C4 (ms vystupu s pauzami 2 s).
+ * Kolo 4 (test: sivy prelinacka z tmavej do bielej pred logom je sekana): biele svetlo sa rozlieha zo stredu
+ * (8150-8650 ms) ponad prelinacku pasu, ramec prepne farby, ked je cely biely (C4_LIGHT).
+ */
+const C4_REVEAL = 8150;
+const C4_LIGHT = 8520;
 const C4Brand: React.FC = () => {
   const frame = useCurrentFrame();
+  const r = easeInOut(Math.min(1, Math.max(0, ((frame / FPS) * 1000 - C4_REVEAL) / 480)));
   const out = tween(frame, 13750, 300);
   const logo = settle(frame, 9000) * (1 - out);
   const tag = settle(frame, 9350) * (1 - out);
-  if (logo <= 0.001) return null;
+  const R = 980 * r; // polomer svetla (roh ramca je 865 px od stredu)
   return (
+    <>
+      {r > 0 && r < 1 ? <AbsoluteFill style={{ background: `radial-gradient(circle at 50% 46%, #fff ${Math.max(0, R - 140)}px, rgba(255,255,255,0) ${R}px)` }} /> : null}
+      {r >= 1 && frame < ((C4_LIGHT + 400) / 1000) * FPS ? <AbsoluteFill style={{ background: '#fff' }} /> : null}
+      {logo > 0.001 ? (
     <div style={{ position: 'absolute', left: 0, right: 0, top: 450, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ opacity: logo, transform: `translateY(${(1 - logo) * 12}px) scale(${0.97 + 0.03 * logo})` }}>
         <Lockup size={88} onDark={false} />
       </div>
       <div style={{ marginTop: 40, fontFamily: FONT.body, fontWeight: 600, fontSize: 28, letterSpacing: '0.16em', textTransform: 'uppercase', color: BRAND[600], opacity: tag, transform: `translateY(${(1 - tag) * 10}px)` }}>{SLOGAN}</div>
     </div>
+      ) : null}
+    </>
   );
 };
 
@@ -615,12 +629,12 @@ const C8_SECONDS = (voAt('K-C8-Ponuka', 3) + (voLines('K-C8-Ponuka')[3].dur ?? 4
 const LI_LIST: LiDef[] = [
   // kolo 4: znova ako v kole 2 (kancelaria, prestrih do skladu, kamera na policu = zaciatok C4 "Hladanie trva hodiny")
   { def: paced('K-C2-Hladanie', { scene: C2_Hladanie, seconds: 10, stills: [], ...noSubs }), band: true, tone: () => 'dark' },
-  { def: paced('K-C4-Cena', { scene: K_C4, seconds: c4End(K_C4_D, K_C4_H), holds: K_C4_HOLDS, stills: [], ...noSubs }), band: true, tone: (ms) => (ms < 8450 ? 'dark' : 'light'), toWhite: 8200, overlay: C4Brand },
+  { def: paced('K-C4-Cena', { scene: K_C4, seconds: c4End(K_C4_D, K_C4_H), holds: K_C4_HOLDS, stills: [], ...noSubs }), band: true, tone: (ms) => (ms < C4_LIGHT ? 'dark' : 'light'), toWhite: 8200, overlay: C4Brand },
   // okno od nadpisu kroku (spodok ~200 px) po titulky: veko krabice pri priblizeni kamery vyjde nad ramec 16:9
   { def: paced('K-C5-Teren', { scene: C5_BAND, seconds: 8.4, stills: [], ...noSubs }), band: true, tone: () => 'light', steps: C5_STEPS('K-C5-Teren'), phase: PHASE_ARCHIV, shift: c5Shift, win: { top: 206, bottom: 1040, feather: 18 }, overflow: true, overlay: C5Hierarchy },
   { def: paced('K-F1-Sken', { scene: LI_F1, seconds: K_F1_SECONDS, vo: false, stills: [] }), tone: () => 'light', steps: F1_STEPS, phase: PHASE_ARCHIV },
   { def: paced('K-F24-Aplikacia', { scene: LI_F24, seconds: K_F24_SECONDS, stills: [], ...noSubs }), tone: () => 'light', steps: K_F24_STEPS, phase: phases.app },
-  { def: paced('K-F3-Vyhladavanie', { scene: LI_F3, seconds: K_F3_SECONDS, stills: [], ...noSubs }), tone: () => 'light', steps: f3Steps(F3_CLIP), phase: phases.search },
+  { def: paced('K-F3-Vyhladavanie', { scene: LI_F3, seconds: K_F3_SECONDS, stills: [], ...noSubs }), tone: () => 'light', steps: f3Steps(F3_CLIP), phase: phases.search, labelOut: true },
   { def: paced('K-C8-Ponuka', { scene: LI_C8, seconds: C8_SECONDS, stills: [], ...noSubs }), tone: () => 'light' },
   // zaver: hlas "Assetin Archives." = logo v obraze, preto bez titulkov
   { def: paced('K-C9-Outro', { scene: LI_C9, seconds: 3.6, stills: [], ...noSubs }), tone: () => 'dark', chrome: false, subs: false },
@@ -655,7 +669,11 @@ const LiFrame: React.FC<{ d: LiDef }> = ({ d }) => {
       )}
       {Overlay ? <Overlay /> : null}
       {d.chrome !== false ? <BrandRow tone={tone} /> : null}
-      {d.steps ? <StepLabel steps={d.steps} phase={d.phase} frame={frame} /> : null}
+      {d.steps ? (
+        <div style={{ position: 'absolute', inset: 0, opacity: d.labelOut ? 1 - tween(frame, s.seconds * 1000 - 500, 400) : 1 }}>
+          <StepLabel steps={d.steps} phase={d.phase} frame={frame} />
+        </div>
+      ) : null}
       {d.subs !== false ? <BigSubtitles clip={id} tone={tone} /> : null}
       {d.chrome !== false ? <Web tone={tone} /> : null}
     </AbsoluteFill>

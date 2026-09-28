@@ -138,7 +138,7 @@
   <header>
     <div class="eyebrow">Assetin Archives · experiment kratšieho videa · kolo 4</div>
     <h1>Krátke video pre LinkedIn</h1>
-    <p class="lede">LinkedIn verzia na výšku (4:5) má po 4. kole <b>79 s</b>. Úvod je znova <b>postupný</b> (kancelária, archív, kamera na policu), QR dostane <b>každá polica, krabica, šanón aj zložka</b>, pri vyhľadávaní je nakreslená <b>cesta k dokumentu</b>, detaily pod aplikáciou sú <b>ostré</b> a ponuka má <b>dve voľby</b>: kto to spracuje a kde to beží, vždy bezpečne. Logo je bez .space.</p>
+    <p class="lede">LinkedIn verzia na výšku (4:5) má po 4. kole <b>79,3 s</b>. Úvod je znova <b>postupný</b> (kancelária, archív, kamera na policu), QR dostane <b>každá polica, krabica, šanón aj zložka</b>, pri vyhľadávaní je nakreslená <b>cesta k dokumentu</b>, detaily pod aplikáciou sú <b>ostré</b> a ponuka má <b>dve voľby</b>: kto to spracuje a kde to beží, vždy bezpečne. Logo je bez .space.</p>
     <div class="meta-row"><span id="stamp"></span><span class="mono">vetva claude/video-assets-archives-exp-la1hts</span><span>Hlavná review stránka ostáva bez zmeny.</span></div>
     <div class="lengths two" aria-label="Dĺžky verzií">
       <div class="len-cell"><span class="k">Pôvodná verzia</span><span class="v">145<small>s</small></span><span class="d">250 slov, 16:9, 12 klipov</span></div>
@@ -234,7 +234,7 @@
     </div>
     <div class="tablebox">
       <table>
-        <thead><tr><th></th><th>Pôvodná, 145 s</th><th>Kolo 3, 73 s</th></tr></thead>
+        <thead><tr><th></th><th>Pôvodná, 145 s</th><th>Kolo 4, 79 s</th></tr></thead>
         <tbody id="testtable"></tbody>
       </table>
     </div>
@@ -265,10 +265,10 @@
 <div class="tip" id="tip" hidden></div>
 
 <script>
-  const BUILD = { renderedAt: "2026-09-28T09:30:00Z" };
+  const BUILD = { renderedAt: "2026-09-28T10:17:00Z" };
   // id assetov (videa a plagaty); prazdne = este sa nahrava
   const VIDEOS = {
-    L: { cap: "fd20bbd3ce8395b9331a2d9a89141c4b", poster: "63616ed25c7041e693bb30ad5674d926", len: 72.7 },
+    L: { cap: "854bdb0736fbe6bda0442a8ba364ffd3", poster: "c38b85a4c7a4fb534b9f5919225680e7", len: 79.3 },
     FULL: { cap: "82122ce5cb36a031995136d89d2b36d1", poster: "b1dcf071776b4b4ea0079ec1cdb2ab89", len: 145.2 }
   };
   const PARTS = ["Úvod a problém", "Predstavenie", "Ako to funguje", "Hľadanie", "Ponuka a záver"];
@@ -295,22 +295,25 @@
     ["C9", "Assetin Archives. (Na obraze len logo a slogan.)", "old", "C9, začiatok vety"]
   ];
   const TEST = [
-    ["Pochopili podstatu", "Áno: QR, fotka, nájdem policu, spravia to za mňa. Že to urobíme my, však zaznie až v 1:57.", "Áno, obaja: QR na krabici, fotka titulnej strany, aplikácia vyčíta údaje a ukáže policu a krabicu; služba na kľúč alebo softvér."],
-    ["Prvých 5 sekúnd", "netestované", "Obaja hneď pochopili hľadanie v kancelárii aj v archíve (laik: \"ten stres z hľadania dôverne poznám\", správca: \"presne tento problém riešim\") a pozerali by ďalej."],
-    ["Aplikácia v mobile", "netestované na mobile (16:9)", "Zväčšené detaily prečítali (\"Novostavba bytového domu SLNEČNÁ 12\", PL_01 / KR_01), celé okno aplikácie je na mobile drobné."],
-    ["Bezpečnosť", "chýbala, pýtali sa na ňu", "Pochopili, že dáta môžu ostať u nich a nie vo verejnom cloude. Laik (malá firma): \"My žiadny server nemáme, je to pre nás?\" Správca by sa pýtal na zálohovanie a servisný prístup."],
-    ["Prvý krok a cena", "chýbala výzva aj cena", "Obaja: obhliadka a skúška na jednej krabici, 0 €, nezáväzne."],
-    ["Posledný záber", "", "Čistý a prehľadný, slogan pochopili (\"v starých papieroch budem vedieť hľadať rýchlo cez počítač\"). Obaja by na konci chceli web alebo výzvu."],
-    ["Nerozumeli", "metadáta, fulltextové vyhľadávanie, katalogizácia, zaradiť do hierarchie", "Správca ničomu. Laikovi znie trochu technicky \"na vašich serveroch\"."],
-    ["Rušilo v obraze", "", "Prechod do bielej pri logu 0:14-0:19 (prudký, veľa bielej aj po zväčšení loga); okno aplikácie drobné s bielymi okrajmi 0:32-0:44."],
-    ["Strácali pozornosť", "úvod 0:05-0:25, kontrola v aplikácii 1:05-1:28", "Laik: zoznam ponuky 0:53-1:03 (\"ako prezentácia na porade\", udrží ho až \"Zadarmo a nezáväzne\"). Správca: vyčítanie údajov 0:33-0:44."],
-    ["Dĺžka podľa nich", "60-90 s (laik), 60-75 s (správca)", "45-50 s (laik), 40-45 s (správca); dĺžku okolo 70 s si určil ty"]
+    ["Pochopili podstatu", "Áno: QR, fotka, nájdem policu, spravia to za mňa. Že to urobíme my, však zaznie až v 1:57.", "Áno, obaja: QR na polici, krabici, šanóne aj zložke, fotka titulnej strany, aplikácia vyčíta údaje a ukáže presné miesto v sklade."],
+    ["Prvých 10 sekúnd", "netestované", "Obaja: súvislé a plynulé (laik: \"malo to jasný príbeh\", správca: \"presne toto riešim\"), pozerali by ďalej. V kole 3 (naraz pod sebou) to bolo chaotické."],
+    ["Ako nájdu dokument", "", "Obaja presne: slovo vo vyhľadávaní, potom Polica PL_01 -> Krabica KR_01 -> Zložka ZL_03 -> Dokument a ísť priamo na miesto."],
+    ["Aplikácia v mobile", "netestované na mobile (16:9)", "Zväčšené detaily prečítali (názov z fotky, \"vodovod\", cesta), celé okno aplikácie je na mobile drobné."],
+    ["Možnosti a bezpečnosť", "chýbala, pýtali sa na ňu", "Pochopili obe voľby (na kľúč alebo vlastnými silami, u vás alebo u nás). Pýtali sa na GDPR, šifrovanie a prístupové práva."],
+    ["Prvý krok a cena", "chýbala výzva aj cena", "Obaja: vyskúšať to na obmedzenom rozsahu, 0 €, nezáväzne."],
+    ["Posledný záber", "", "Logo výborne čitateľné, záber čistý. Obaja by na konci chceli web."],
+    ["Nerozumeli", "metadáta, fulltextové vyhľadávanie, katalogizácia, zaradiť do hierarchie", "Správca ničomu. Laikovi znie odborne \"na vašej infraštruktúre\" (navrhol \"u vás vo firme\")."],
+    ["Rušilo v obraze", "", "Sivý prechod z tmavej do bielej pred logom 0:17 a nadpis \"Polica a krabica\" sám na bielej 0:56 <span class=\"fixed\">(opravené)</span>; okno aplikácie drobné s bielymi okrajmi 0:36-0:48."],
+    ["Strácali pozornosť", "úvod 0:05-0:25, kontrola v aplikácii 1:05-1:28", "Laik: aplikácia 0:36-0:48 a voľby v ponuke 0:58-1:10. Správca: potvrdzovanie 0:43-0:48 a voľby 1:03-1:10."],
+    ["Dĺžka podľa nich", "60-90 s (laik), 60-75 s (správca)", "45-60 s (obaja); dĺžku si určil ty"]
   ];
   const ASKS = [
     ["assetin.space", "Navrhujem zatiaľ ho nepoužívať: web je assetin.sk, firma Assetin, s. r. o., a .space bez vysvetlenia laika zmätie. Logo je domček | assetin | Archives. Keď bude .space hotové, dá sa pridať do loga aj na koniec."],
-    ["Dĺžka 79 s", "O 6,5 s viac ako v kole 3: celý úvod späť (+4,6 s), dlhšia veta o označení, cesta k dokumentu a dve voľby v ponuke. Ak chceš späť pod 75 s, najviac sa dá ušetriť v ponuke (veta o infraštruktúre má 7 s) alebo vo vete \"Vy viete, že tam niekde je.\"."],
-    ["Ostré detaily", "Pole s návrhom a vyhľadávanie sú prekreslené podľa aplikácie (rovnaký text, písmo a farby), fotka je výrez zo záznamu mobilu. Priamo zo záznamu obrazovky by boli pri zväčšení na mobil vždy rozmazané."],
-    ["Slogan", "Ostáva \"Digitálny poriadok v papierovom archíve\" pod logom v strede videa aj na konci. Ďalšie možnosti: \"Poriadok v papierovom archíve\" alebo \"Viete, kde je každý dokument\"."]
+    ["Bezpečnosť podrobnejšie", "Obaja diváci sa pýtali na GDPR, šifrovanie a prístupové práva. Ak máte niečo overené (napr. GDPR, prístup len pre určených ľudí), stačí jedno slovo na karte \"Vždy bezpečne\"."],
+    ["Infraštruktúra", "Laikovi z malej firmy znie \"na vašej infraštruktúre\" odborne, navrhol \"u vás vo firme\". Karty už hovoria \"U vás / U nás\"; vetu hlasu som nechal podľa tvojho znenia."],
+    ["Dĺžka 79 s", "O 6,5 s viac ako v kole 3: celý úvod späť (+4,6 s), dlhšia veta o označení, cesta k dokumentu a dve voľby v ponuke. Diváci by chceli 45-60 s. Najviac sa dá ušetriť vo vete o infraštruktúre (7 s) alebo pri potvrdzovaní v aplikácii."],
+    ["Web na konci", "Obaja diváci by na poslednom zábere chceli web. Logo si schválil bez neho; ak chceš, pridám malý web pod slogan."],
+    ["Ostré detaily", "Pole s návrhom a vyhľadávanie sú prekreslené podľa aplikácie (rovnaký text, písmo a farby), fotka je výrez zo záznamu mobilu. Priamo zo záznamu obrazovky by boli pri zväčšení na mobil vždy rozmazané."]
   ];
   const blob = (id) => '/_blob/' + id;
   const fmtS = (s) => String(Math.round(s * 10) / 10).replace('.', ',') + ' s';
@@ -381,7 +384,7 @@
   // test (texty su nase, nie od divakov stranky)
   const tb = document.getElementById('testtable');
   for (const [k, ...cells] of TEST) { const tr = document.createElement('tr'); tr.innerHTML = `<th></th>` + cells.map((c) => `<td>${c}</td>`).join(''); tr.firstChild.textContent = k; tb.append(tr); }
-  document.getElementById('test2').textContent = 'Kolo 3 pozerali ako príspevok v mobile (video 432 x 540), túto finálnu verziu. Technická kontrola zvuku a obrazu bez chýb, hlas 5/5, prechody v hudbe plynulé. Po prvom teste kola 3 som zväčšil logo v strede videa a odstránil bielu dieru pred vyhľadávaním; prechod do bielej pri logu im však stále pripadá prázdny.';
+  document.getElementById('test2').textContent = 'Kolo 4 pozerali ako príspevok v mobile (video 432 x 540), verziu tesne pred dvoma poslednými opravami prechodov. Technická kontrola: hlas 5/5, bez chýb v reči a obraze; ako zlom v hudbe označila nástup plnej kapely pri logu (0:18), čo je zámerný prechod z problému na riešenie. Po teste som sivý prechod pred logom nahradil bielym svetlom zo stredu a nadpis na konci vyhľadávania teraz zmizne spolu s obrazom.';
   const asks = document.getElementById('asks');
   for (const [q, a] of ASKS) { const d = document.createElement('div'); d.className = 'ask'; d.innerHTML = '<b></b><p></p>'; d.children[0].textContent = q; d.children[1].textContent = a; asks.append(d); }
 
