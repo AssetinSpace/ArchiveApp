@@ -4,14 +4,14 @@
   "K": {
     "cuts": [
       [
-        13.65,
-        25.19
+        11.34,
+        27.49
       ],
       [
-        71.34,
+        66.72,
         129.03
       ]
     ],
-    "_cuts": "Kolo 4 (uvod znova 10 s, film 79,2 s): 5 taktov (5-9) z pulzujucej casti ako v kole 2, nastup plnej kapely ~18,0 s filmu tesne pred prechodom do bielej (18,2 s); 25 taktov (30-54) z plneho grooveu, od ~59,1 s filmu prechodovy takt 55 a pokojny zaver od ~61,4 s (zaver skladby ma 17,7 s, C8 a C9 spolu 21,7 s). Kolo 3: [[6.72, 22.88], [69.03, 129.03]], kolo 2: [[13.65, 25.19], [66.72, 129.03]]."
+    "_cuts": "Kolo 5 (problem skrateny na \"Hladanie trva hodiny.\", film 72 s): 7 taktov (4-10) z pulzujucej casti, pulz (takt 11) nastupi s vetou o hladani (~11,5 s), plna kapela (takt 12) ~13,8 s tesne pred prechodom do bielej (13,9 s); 26 taktov (28-54) z plneho grooveu, pokojny zaver od ~53,7 s = zaciatok ponuky (53,2 s). Kolo 4: [[13.65, 25.19], [71.34, 129.03]]."
   }
 }

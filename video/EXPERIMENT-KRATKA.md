@@ -11,6 +11,23 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 5 (28. 9. 2026): kratší problém a kratšia veta o prevádzke
+
+Samuel: skrátiť vetu o infraštruktúre; posúdiť, či "Platíte dvakrát za to isté" treba ako hook, alebo stačí, že
+ľudia nevedia dohľadať dokumenty; možno netreba ani nové vyhotovenie dokumentov.
+
+- Posúdenie: hookom je úvodná otázka (prvé 3 s), veta o dvojitom platení prichádzala až okolo 16 s a predlžovala
+  problém (správca v kole 3: "netreba ho dlho poúčať"). Bolesť "hľadanie trvá hodiny" pozná každý; cena nového
+  vyhotovenia je argument pre toho, kto rozhoduje o rozpočte, patrí skôr do textu príspevku.
+- C4: z hlasu ostáva "Hľadanie trvá hodiny." (vystrihnuté z nahrávky kola 1, celá je v `K-C4-Cena-0.full.wav`),
+  `C4_Cena` nový voliteľný `cost={false}` skryje šípku, výkres, cenovky a "2x EUR", predel `d` -2200 (hneď po
+  hodinách), pauza 500 ms pri hodinách (`K_C4_HOLDS`), pás sa počas problému posunie o 140 px (skupina regál,
+  otáznik, hodiny na stred) a počas bielej sa vráti. C4 10,7 s namiesto 15 s.
+- C8: "Aplikácia beží u vás alebo u nás, vždy bezpečne." (Gemini, prepis OK) namiesto 7,2 s vety o infraštruktúre;
+  karty a pás "Vždy bezpečne a s rešpektom k vašim požiadavkám" ostávajú. C8 15,2 s namiesto 18,1 s.
+- Hudba: strihy `[[11.34, 27.49], [66.72, 129.03]]`, pulz (takt 11) s vetou o hľadaní, plná kapela ~13,8 s (predel do
+  bielej 13,9 s), pokojný záver od ~53,7 s = začiatok ponuky (53,2 s). Film 72 s.
+
 ## Kolo 4 (28. 9. 2026): úvod späť, hierarchia archívu, cesta k dokumentu, ostré detaily, dve voľby
 
 Samuel: úvod s kanceláriou a archívom naraz je rozbitý a hektický (panáčikovia inak veľkí, prichádzajú inokedy a
@@ -188,6 +205,6 @@ Kontrolné stills `node scripts/kratka-stills.mjs [s ...]` (časy vo filme, do `
 ## Súbory
 
 - Nové: `src/scenes/kratka/LinkedIn.tsx` (kompozícia K-LinkedIn 4:5, jediná krátka verzia), `src/kratkaList.ts` (`paced`, pauzy C4), `src/scenes/kratka/Kratka.tsx` (spoločné dáta: C4 so sloganom, kroky, spoty, kliky), `src/copy/vo_kratka.json`, `src/copy/music_kratka.json`, `scripts/kratka_lines.py`, `scripts/kratka-stills.mjs`, `review-kratka/index.html`, `public/vo-kratka/`, `public/footage/k-*.mp4`, `out/kratka/`.
-- Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`, `subtitles`), `Scene` (`SceneFrameContext`: jednofarebné pozadie, bez päty a bez orezania na rámec 16:9 len vnútri LinkedIn rámca), `Subtitles` (scenár K vedľa hlavného), `C4_Cena` (`d`, `h`, `brand`), `C5_Teren` (`steps`, `phase`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`).
+- Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`, `subtitles`), `Scene` (`SceneFrameContext`: jednofarebné pozadie, bez päty a bez orezania na rámec 16:9 len vnútri LinkedIn rámca), `Subtitles` (scenár K vedľa hlavného), `C4_Cena` (`d`, `h`, `brand`, `cost`), `C5_Teren` (`steps`, `phase`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`).
 - Kontrola: 20 snímok pôvodných klipov (C2, C4, C5, C8, C9, F1, F4) z commitu `ea5550e` a z tejto vetvy je na pixel rovnakých; dĺžky kompozícií bez zmeny.
 - Jediná zmena správania pôvodnej cesty: `mix-music.mjs` dáva tichému klipu (C1) stopu v rozložení kanálov ostatných klipov (stereo namiesto mono). Zvuk je ticho, výsledok rovnaký.

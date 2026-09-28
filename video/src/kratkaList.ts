@@ -15,5 +15,5 @@ export const paced = (id: string, d: PacedDef): [string, SceneDef] => {
     React.createElement(Paced, { id, holds: d.holds, skip: d.skip, vo: d.vo ?? true, dark: d.dark, darkUntil: d.darkUntil, subtitleLeft: d.subtitleLeft, subtitles: d.subtitles, audio: `vo-kratka/${id}.wav`, children: React.createElement(Scene) });
   return [id, { component, seconds: d.seconds + holdsSeconds(d.holds) - (d.skip ?? 0) / 1000, stills: d.stills }];
 };
-/** Pauzy C4 v kratkej verzii (hodiny so slovom "hodiny", vykres so slovom "nanovo", "2x" so slovom "dvakrat"). */
-export const K_C4_HOLDS: Hold[] = [{ at: 2900, hold: 1600 }, { at: 4300, hold: 400 }];
+/** Pauza C4 v kratkej verzii: hodiny drzia, kym dozneje "Hladanie trva hodiny." (kolo 5: vykres a "2x" vypadli). */
+export const K_C4_HOLDS: Hold[] = [{ at: 3000, hold: 500 }];

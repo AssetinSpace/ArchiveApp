@@ -44,9 +44,10 @@ const H_MAIN = 3780; // drzanie znacky: kolo 40 znova veta "Predstavujeme vam so
 const BOX = 860;
 /**
  * Experiment kratkej verzie: `d` = posun predelu, `h` = drzanie znacky (ms), `brand` = false: bez lockupu a textu pod nim
- * (LinkedIn 4:5 kresli vlastne logo na vysku); predvolene hlavna verzia.
+ * (LinkedIn 4:5 kresli vlastne logo na vysku), `cost` = false: bez sipky, vykresu, cenoviek a "2x EUR" (len regal,
+ * otaznik a hodiny); predvolene hlavna verzia.
  */
-export const C4_Cena: React.FC<{ d?: number; h?: number; brand?: boolean }> = ({ d: D = D_MAIN, h: H = H_MAIN, brand = true }) => {
+export const C4_Cena: React.FC<{ d?: number; h?: number; brand?: boolean; cost?: boolean }> = ({ d: D = D_MAIN, h: H = H_MAIN, brand = true, cost = true }) => {
   const frame = useCurrentFrame();
   const showCap = useCaptions(); // kolo 29: vety nesie nahovor + titulky (Paced)
   const tw = (s: number, d: number) => tween(frame, s, d);
@@ -100,11 +101,13 @@ export const C4_Cena: React.FC<{ d?: number; h?: number; brand?: boolean }> = ({
         <circle r={8} fill={BRAND[400]} />
       </svg>
       {/* sipka hodiny -> vykres */}
-      <svg width={180} height={80} viewBox="0 0 180 80" style={{ position: 'absolute', left: 1200, top: 460, opacity: arrow > 0 ? out : 0 }}>
+      <svg width={180} height={80} viewBox="0 0 180 80" style={{ position: 'absolute', left: 1200, top: 460, opacity: cost && arrow > 0 ? out : 0 }}>
         <path d="M10 40 H150" fill="none" stroke={BRAND[400]} strokeWidth={8} strokeLinecap="round" {...drawProps(arrow, 140)} />
         <path d="M122 12 L156 40 L122 68" fill="none" stroke={BRAND[400]} strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" opacity={arrow > 0.85 ? 1 : 0} />
       </svg>
 
+      {cost ? (
+        <>
       <div style={{ position: 'absolute', left: 300, top: 720, opacity: out }}>
         <PriceTag text="skladovanie" s={tagA} color={BRAND[700]} size={36} />
       </div>
@@ -114,8 +117,10 @@ export const C4_Cena: React.FC<{ d?: number; h?: number; brand?: boolean }> = ({
       <div style={{ position: 'absolute', left: 1395, top: 720, opacity: out }}>
         <PriceTag text="nové vyhotovenie" s={tagB} color={BRAND[700]} size={36} />
       </div>
+        </>
+      ) : null}
       {/* 2x EUR dole v strede, medzi cenovkami (kolo 36: jeden text, jedno EUR, na stred) */}
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 640, textAlign: 'center', opacity: big * out, transform: `scale(${0.6 + 0.4 * big})`, whiteSpace: 'nowrap', fontFamily: FONT.display, fontWeight: 800, fontSize: 170, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.03em' }}>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 640, textAlign: 'center', opacity: cost ? big * out : 0, transform: `scale(${0.6 + 0.4 * big})`, whiteSpace: 'nowrap', fontFamily: FONT.display, fontWeight: 800, fontSize: 170, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.03em' }}>
         2×€
       </div>
       {showCap ? (

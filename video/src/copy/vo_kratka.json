@@ -1,5 +1,5 @@
 {
-  "_": "Experiment kratkej verzie (K ~74 s, LinkedIn 4:5; teaser v kole 2 vypadol). Povodny scenar src/copy/vo.json sa nemeni. Rovnaky format ako vo.json (at, text, parts, styleExtra); navyse `src` = veta vyrezana z existujucej nahravky (file, start, end v s), vyrobi ju scripts/kratka_lines.py, Gemini ju negeneruje. Hlas: node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --dir public/vo-kratka. Kolo 3 (Samuel): kratsi uvod (len otazka, kancelaria a sklad naraz), v C8 bezpecnost a obhliadka so skuskou zadarmo a nezavazne (2 nove vety), zaver len \"Assetin Archives.\" z povodnej nahravky C9. Kolo 4 (Samuel): uvod znova ako v kole 2 (obe vety C2), v C5 nova veta o QR na polici, krabici, sanone aj zlozke, v C8 nove vety o infrastrukture (u vas alebo u nas, vzdy bezpecne) a skuske na obmedzenom rozsahu.",
+  "_": "Experiment kratkej verzie (K ~74 s, LinkedIn 4:5; teaser v kole 2 vypadol). Povodny scenar src/copy/vo.json sa nemeni. Rovnaky format ako vo.json (at, text, parts, styleExtra); navyse `src` = veta vyrezana z existujucej nahravky (file, start, end v s), vyrobi ju scripts/kratka_lines.py, Gemini ju negeneruje. Hlas: node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --dir public/vo-kratka. Kolo 3 (Samuel): kratsi uvod (len otazka, kancelaria a sklad naraz), v C8 bezpecnost a obhliadka so skuskou zadarmo a nezavazne (2 nove vety), zaver len \"Assetin Archives.\" z povodnej nahravky C9. Kolo 4 (Samuel): uvod znova ako v kole 2 (obe vety C2), v C5 nova veta o QR na polici, krabici, sanone aj zlozke, v C8 nove vety o infrastrukture (u vas alebo u nas, vzdy bezpecne) a skuske na obmedzenom rozsahu. Kolo 5 (Samuel): z problemu v C4 ostava len \"Hladanie trva hodiny.\" (vystrihnute z povodnej vety K-C4-Cena-0, cela je v K-C4-Cena-0.full.wav), veta o infrastrukture kratsia.",
   "_style": "pokojný, vecný firemný rozprávač; plynulý, súvislý prejav, o niečo svižnejšie tempo; pri čiarkach len krátky nádych, dlhšia pauza iba na konci vety; zreteľná výslovnosť; bez emócií navyše. Pace: fluent and connected, a bit brisker than a documentary narrator, no long pauses inside a sentence. Pronunciation: say the abbreviation QR in English, like 'cue are'. Codes like PL_01, KR_01, ZL_03 are read as Slovak letter names plus the plain number, without the underscore and without the leading zero (never say 'nula' or 'pomlčka'): 'pé el jedna, ká er jedna, zet el tri'.",
   "K-C2-Hladanie": [
     {
@@ -32,21 +32,16 @@
   "K-C4-Cena": [
     {
       "at": 1500,
-      "text": "Hľadanie trvá hodiny. Niekedy je rýchlejšie dať dokument vyhotoviť nanovo. Platíte dvakrát za to isté.",
-      "parts": [
-        "Hľadanie trvá hodiny.",
-        "Niekedy je rýchlejšie dať dokument vyhotoviť nanovo.",
-        "Platíte dvakrát za to isté."
-      ],
-      "dur": 6720,
-      "partAt": [
-        0,
-        1740,
-        4680
-      ]
+      "text": "Hľadanie trvá hodiny.",
+      "src": {
+        "file": "public/vo-kratka/lines/K-C4-Cena-0.full.wav",
+        "start": 0,
+        "end": 1.6
+      },
+      "dur": 1600
     },
     {
-      "at": 8400,
+      "at": 4100,
       "text": "Predstavujeme vám Assetin Archives. Z vášho archívu urobíme prehľadný digitálny katalóg.",
       "parts": [
         "Predstavujeme vám Assetin Archives.",
@@ -141,19 +136,19 @@
     },
     {
       "at": 6000,
-      "text": "Aplikácia beží na vašej infraštruktúre alebo na našej. Vždy bezpečne a s rešpektom k vašim požiadavkám.",
+      "text": "Aplikácia beží u vás alebo u nás, vždy bezpečne.",
       "parts": [
-        "Aplikácia beží na vašej infraštruktúre alebo na našej.",
-        "Vždy bezpečne a s rešpektom k vašim požiadavkám."
+        "Aplikácia beží u vás alebo u nás,",
+        "vždy bezpečne."
       ],
-      "dur": 7160,
+      "dur": 4280,
       "partAt": [
         0,
-        3840
+        2980
       ]
     },
     {
-      "at": 13560,
+      "at": 10680,
       "text": "Vyskúšajme to na obmedzenom rozsahu, zadarmo a nezáväzne.",
       "parts": [
         "Vyskúšajme to na obmedzenom rozsahu,",

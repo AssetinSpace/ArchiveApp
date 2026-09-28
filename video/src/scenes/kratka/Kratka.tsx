@@ -19,12 +19,14 @@ import { cutDuration, cutTime, segStart } from '../../lib/cuts';
  */
 export const SLOGAN = 'Digitálny poriadok v papierovom archíve';
 /**
- * C4 v kratkej verzii: predel skor (d 600 ms namiesto 1300), znacka drzi pocas vety o katalogu. Kolo 4: bez lockupu
- * assetin.space z C4 (Samuel: zatial bez .space), logo kresli ramec LinkedIn (domcek, assetin | Archives).
+ * C4 v kratkej verzii: znacka drzi pocas vety o katalogu (h). Kolo 4: bez lockupu assetin.space z C4 (Samuel: zatial
+ * bez .space), logo kresli ramec LinkedIn (domcek, assetin | Archives). Kolo 5 (Samuel: dvojite platenie netreba, staci
+ * ze sa dokumenty nedaju dohladat): z problemu ostava regal, otaznik a hodiny ("Hladanie trva hodiny."), predel hned
+ * po hodinach (d -2200 ms: 3400 ms sceny namiesto 6200), vykres, cenovky a "2x EUR" vypadli.
  */
-export const K_C4_D = 600;
+export const K_C4_D = -2200;
 export const K_C4_H = 3300;
-export const K_C4: React.FC = () => <C4_Cena d={K_C4_D} h={K_C4_H} brand={false} />;
+export const K_C4: React.FC = () => <C4_Cena d={K_C4_D} h={K_C4_H} brand={false} cost={false} />;
 /** Scena C4 konci po usadeni krabice a paticke (ako v hlavnej verzii: 8200 + d + h + 900 ms). */
 export const c4End = (d: number, h: number) => (8200 + d + h + 900) / 1000;
 
