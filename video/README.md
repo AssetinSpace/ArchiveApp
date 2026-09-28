@@ -127,3 +127,19 @@ sa nesmú prekrývať (`vo.mjs` to hlási) a text v obraze je len názov kroku (
 
 - **Verzia 2 (aktuálna, kolo 31, ~140 s)**: C2-Hladanie nahrádza C2-Kancelaria + C3-Sklad; od kola 29 hovorené slovo + titulky, pauzy pred dejom.
 - **Verzia 1 (88,5 s)**: rendre v `out/mp4/v1/` a `out/stills/v1/`; scény ostávajú v `src/scenes/` (`V1_LIST` v `scenesList.ts`, `npm run stills`/`render` ich preskakujú).
+
+## Web (assetin.sk)
+
+Produktova stranka Assetin Archives na assetin.sk (repo Assetin.sk) berie video, klipy,
+stills, nazvy krokov a prepis nahovoru z tohto projektu. Po kazdom renderi:
+
+```bash
+npm run render && node scripts/mix-music.mjs && npm run stills
+npm run export:web        # zapise out/web/manifest.json (cesty, velkosti, SHA-256, dlzky, kroky, prepis)
+git add out && git commit
+```
+
+Potom v repe Assetin.sk `npm run sync:archives` stiahne presne to, co manifest popisuje
+(z `main`, alebo `-- --ref <vetva>`). Manifest cita `SCENE_LIST` v `src/scenesList.ts`,
+nazvy krokov `{ from, title }` v scenach, nahovor `src/copy/vo.json` a dlzky priamo
+z MP4. Ak manifest nesedi s rendrom (SHA), sync skonci chybou a treba export spustit znova.

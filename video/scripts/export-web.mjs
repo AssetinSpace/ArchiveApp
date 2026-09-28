@@ -2,9 +2,9 @@
 /**
  * Export pre web: zapise out/web/manifest.json, podla ktoreho si produktova
  * stranka na assetin.sk (repo Assetin.sk, `npm run sync:archives`) stiahne
- * video, klipy, stills, texty krokov a prepis nahovoru.
+ * video, klipy, stills, nazvy krokov a prepis nahovoru.
  *
- * Pouzitie (po `npm run render` a `npm run stills`):
+ * Pouzitie (po `npm run render`, `node scripts/mix-music.mjs` a `npm run stills`):
  *   npm run export:web
  *
  * Manifest neobsahuje kopie suborov, len cesty (relativne k video/), velkost
@@ -12,16 +12,17 @@
  * a ze manifest nie je starsi ako render (sha nesedi -> treba znova exportovat).
  *
  * Zdroje pravdy:
- *   src/scenesList.ts  poradie a dlzky klipov, frame-y stills
- *   src/copy/steps.ts  texty krokov v obraze
- *   VOICEOVER.md       nahovor (citaty v uvodzovkach „...“)
- *   src/theme.ts       rozmery a fps
+ *   src/scenesList.ts   poradie klipov (SCENE_LIST) a pocet stills
+ *   out/mp4/<klip>.mp4  dlzka klipu (z hlavicky MP4, vratane pauz Paced)
+ *   src/scenes/*.tsx    nazvy krokov v obraze (polia `{ from, title }`)
+ *   src/copy/vo.json    nahovor (vety po klipoch) - ak chyba, video je bez hlasu
+ *   src/theme.ts        rozmery a fps
  */
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'out/web/manifest.json');
@@ -44,24 +45,33 @@ const H = num('H');
 const FPS = num('FPS');
 
 // --- klipy (src/scenesList.ts, len SCENE_LIST = jadro videa) ---
-const list = readFileSync(join(ROOT, 'src/scenesList.ts'), 'utf8').split('V1_LIST')[0];
-const re = /\['([A-Za-z0-9-]+)', \{[^}]*seconds: ([0-9.]+), stills: \[([0-9, ]+)\]/g;
+// Zaznam je na jednom riadku: `['C1-Intro', { component: C1_Intro, ... stills: [..] }]`
+// alebo `paced('C2-Hladanie', { scene: C2_Hladanie, ... stills: [..] })`.
+const listSrc = readFileSync(join(ROOT, 'src/scenesList.ts'), 'utf8');
+const list = listSrc.split('V1_LIST')[0];
+const re = /(?:\['|paced\(')([A-Za-z0-9-]+)',\s*\{[^\n]*?(?:component|scene): (\w+)[^\n]*?stills: \[([0-9, ]+)\]/g;
 const scenes = [];
 for (let m; (m = re.exec(list)); ) {
-  scenes.push({ id: m[1], seconds: Number(m[2]), stillCount: m[3].split(',').length });
+  scenes.push({ id: m[1], symbol: m[2], stillCount: m[3].split(',').length });
 }
 if (scenes.length === 0) fail('v src/scenesList.ts sa nenasiel ziaden klip');
 
-// --- texty krokov (src/copy/steps.ts, cisty TS bez importov) ---
-let STEPS_BY_CLIP;
-try {
-  ({ STEPS_BY_CLIP } = await import(pathToFileURL(join(ROOT, 'src/copy/steps.ts')).href));
-} catch (e) {
-  fail(`src/copy/steps.ts sa nedal nacitat (treba Node 22.6+ s --experimental-strip-types): ${e.message}`);
-}
-for (const id of Object.keys(STEPS_BY_CLIP)) {
-  if (!scenes.some((s) => s.id === id)) fail(`steps.ts ma kroky pre ${id}, ale klip nie je v SCENE_LIST`);
-}
+// --- nazvy krokov v obraze (pole `{ from: ..., title: '...' }` v scene) ---
+/** Subor sceny podla importu v scenesList (`import { C5_Teren } from './scenes/C5_Teren'`). */
+const sceneFile = (symbol) => {
+  const m = listSrc.match(new RegExp(`import \\{[^}]*\\b${symbol}\\b[^}]*\\} from '\\./scenes/([^']+)'`));
+  return m ? join(ROOT, 'src/scenes', `${m[1]}.tsx`) : null;
+};
+const stepsOf = (symbol) => {
+  const file = sceneFile(symbol);
+  if (!file || !existsSync(file)) return [];
+  const src = readFileSync(file, 'utf8');
+  const steps = [];
+  for (const m of src.matchAll(/\{\s*from: [^{}]*?title: '([^']+)'(?:[^{}]*?line: '([^']*)')?[^{}]*\}/g)) {
+    steps.push({ title: m[1], line: m[2] ?? '' });
+  }
+  return steps;
+};
 
 // --- subory ---
 /** Datum posledneho commitu suboru; necommitnuta zmena = dnes. */
@@ -92,91 +102,106 @@ const file = (rel, { optional = false } = {}) => {
   };
 };
 
-// --- nahovor (VOICEOVER.md) ---
 /**
- * Sekcie `## C2 · Hladanie (10,5 s) ...` a v nich citaty „...“ v poradi textu.
- * Citat hned za "(" je poznamka k strihu, nie nahovor - preskakuje sa.
+ * Dlzka MP4 v sekundach z hlavicky `moov/mvhd` (timescale + duration),
+ * bez ffprobe. Klip s pauzami (Paced) je dlhsi ako `seconds` v scenesList,
+ * preto sa dlzka meria z vyrenderovaneho suboru.
  */
-const parseVoiceover = (md) => {
-  const sections = [];
-  let cur = null;
-  for (const raw of md.split('\n')) {
-    const h = raw.match(/^## ([A-Z]\d+) · ([^(]+?)\s*\(/);
-    if (h) {
-      cur = { clip: h[1], title: h[2].trim(), lines: [], tail: [] };
-      sections.push(cur);
+const mp4Seconds = (rel) => {
+  const buf = readFileSync(join(ROOT, rel));
+  const walk = (start, end) => {
+    let p = start;
+    while (p + 8 <= end) {
+      let size = buf.readUInt32BE(p);
+      const type = buf.toString('latin1', p + 4, p + 8);
+      let head = 8;
+      if (size === 1) {
+        size = Number(buf.readBigUInt64BE(p + 8));
+        head = 16;
+      } else if (size === 0) size = end - p;
+      if (type === 'moov') return walk(p + head, p + size);
+      if (type === 'mvhd') {
+        const version = buf[p + head];
+        if (version === 1) {
+          return Number(buf.readBigUInt64BE(p + head + 24)) / buf.readUInt32BE(p + head + 20);
+        }
+        return buf.readUInt32BE(p + head + 16) / buf.readUInt32BE(p + head + 12);
+      }
+      p += size;
     }
-    if (!cur) continue;
-    // Nahovor v nadpise patri footage, ktora ide po klipe (C6 -> F4 Kontrola),
-    // preto ide az na koniec sekcie.
-    const into = h ? cur.tail : cur.lines;
-    for (const q of raw.matchAll(/„([^“]+)“/g)) {
-      if (raw[q.index - 1] === '(') continue;
-      into.push(q[1].trim());
-    }
-  }
-  return sections
-    .map(({ tail, ...s }) => ({ ...s, lines: [...s.lines, ...tail] }))
-    .filter((s) => s.lines.length > 0)
-    .map((s) => ({ ...s, text: joinLines(s.lines) }));
+    return null;
+  };
+  const s = walk(0, buf.length);
+  if (!s) fail(`${rel}: v MP4 sa nenasla hlavicka mvhd`);
+  return Math.round(s * 100) / 100;
 };
-/**
- * Citaty su useky jednej vety rozdelenej casom ("...za uskladnenie…" +
- * "…hladanie trva hodiny"). Pri spajani sa z "… …" stane ciarka a osamotene
- * "…" na zaciatku vety zmizne.
- */
-const joinLines = (lines) =>
-  lines
-    .join(' ')
-    .replace(/…\s+…\s*(a|aj|alebo|ani|i)\s/g, ' $1 ')
-    .replace(/…\s+…/g, ', ')
-    .replace(/([.!?])\s+…\s*(\p{L})/gu, (_, end, ch) => `${end} ${ch.toUpperCase()}`)
-    .replace(/\s+/g, ' ')
-    .trim();
 
-const voiceover = parseVoiceover(readFileSync(join(ROOT, 'VOICEOVER.md'), 'utf8'));
-const titleOf = (id) => voiceover.find((v) => id.startsWith(`${v.clip}-`))?.title ?? null;
+// --- nahovor (src/copy/vo.json: klip -> vety s casmi) ---
+const voPath = join(ROOT, 'src/copy/vo.json');
+const vo = existsSync(voPath) ? JSON.parse(readFileSync(voPath, 'utf8')) : {};
+const sentencesOf = (id) =>
+  (Array.isArray(vo[id]) ? vo[id] : [])
+    .map((s) => (typeof s?.text === 'string' ? s.text.trim() : ''))
+    .filter(Boolean);
+/** Nazvy klipov pre prepis (v obraze ich nie je, video ich nepotrebuje). */
+const TITLES = {
+  'C1-Intro': 'Intro',
+  'C2-Hladanie': 'Hľadanie',
+  'C4-Cena': 'Cena problému',
+  'C5-Teren': 'V teréne',
+  'F1-Sken': 'V mobile',
+  'C6-Spracovanie': 'Spracovanie',
+  'F2-Metadata': 'Návrh metadát',
+  'F4-Kontrola': 'Kontrola',
+  'C10-Databaza': 'Práca s databázou',
+  'F3-Vyhladavanie': 'Vyhľadávanie',
+  'C8-Pilot': 'Ako začať',
+  'C9-Outro': 'Záver',
+};
 
 // --- manifest ---
-const frames = (s) => Math.round(s * FPS);
-const clips = scenes.map((s, i) => ({
-  id: s.id,
-  order: i + 1,
-  title: titleOf(s.id),
-  seconds: frames(s.seconds) / FPS,
-  file: file(`out/mp4/${s.id}.mp4`),
-  stills: Array.from({ length: s.stillCount }, (_, k) => file(`out/stills/${s.id}_${k + 1}.png`)),
-  steps: (STEPS_BY_CLIP[s.id] ?? []).map(({ title, line }) => ({ title, line })),
-}));
+const clips = scenes.map((s, i) => {
+  const rel = `out/mp4/${s.id}.mp4`;
+  return {
+    id: s.id,
+    order: i + 1,
+    title: TITLES[s.id] ?? s.id,
+    seconds: mp4Seconds(rel),
+    file: file(rel),
+    stills: Array.from({ length: s.stillCount }, (_, k) => file(`out/stills/${s.id}_${k + 1}.png`)),
+    steps: stepsOf(s.symbol),
+  };
+});
+const transcript = clips
+  .map((c) => ({ clip: c.id, title: c.title, text: sentencesOf(c.id).join(' ') }))
+  .filter((t) => t.text);
 
-const fullFrames = scenes.reduce((a, s) => a + frames(s.seconds), 0);
 const full = {
-  seconds: fullFrames / FPS,
-  files: {
-    '1080p': file('out/mp4/Full_1080p.mp4'),
-    '540p': file('out/mp4/Full_preview_540p.mp4', { optional: true }),
-  },
+  '1080p': file('out/mp4/Full_1080p.mp4'),
+  '540p': file('out/mp4/Full_preview_540p.mp4', { optional: true }),
 };
-if (!full.files['540p']) delete full.files['540p'];
-
-// Bez casu generovania: rovnaky vstup = rovnaky manifest (ziadny sum v diffe).
-const allFiles = [...Object.values(full.files), ...clips.flatMap((c) => [c.file, ...c.stills])];
-const updated = allFiles.map((f) => f.changed).sort().at(-1);
-
 const manifest = {
+  $comment: 'Generuje `npm run export:web` (video/scripts/export-web.mjs) - needitovat rucne.',
   schema: SCHEMA,
-  updated,
-  source: { repo: 'AssetinSpace/ArchiveApp', dir: 'video' },
-  video: { width: W, height: H, fps: FPS },
-  full,
+  updated: [full['1080p'], ...clips.flatMap((c) => [c.file, ...c.stills])]
+    .map((f) => f.changed)
+    .sort()
+    .at(-1),
+  video: { width: W, height: H, fps: FPS, sound: transcript.length > 0 },
+  full: {
+    seconds: mp4Seconds('out/mp4/Full_1080p.mp4'),
+    files: Object.fromEntries(Object.entries(full).filter(([, f]) => f)),
+  },
   clips,
-  transcript: voiceover,
+  transcript,
 };
 
 mkdirSync(dirname(OUT), { recursive: true });
 writeFileSync(OUT, `${JSON.stringify(manifest, null, 2)}\n`);
-
-const mb = (b) => (b / 1024 / 1024).toFixed(1);
-console.log(`export-web: ${clips.length} klipov, plne video ${full.seconds.toFixed(1)} s (${mb(full.files['1080p'].bytes)} MB)`);
-console.log(`export-web: kroky pre ${Object.keys(STEPS_BY_CLIP).join(', ')}`);
-console.log(`export-web: nahovor ${voiceover.length} sekcii -> ${OUT.replace(`${ROOT}/`, '')}`);
+console.log(
+  `export-web: ${clips.length} klipov, plne video ${manifest.full.seconds} s${manifest.video.sound ? ' s nahovorom' : ''}, ` +
+    `${transcript.length} sekcii prepisu -> out/web/manifest.json`,
+);
+for (const c of clips) {
+  console.log(`  ${String(c.order).padStart(2)}. ${c.id.padEnd(16)} ${String(c.seconds).padStart(6)} s  stills ${c.stills.length}  kroky ${c.steps.length}`);
+}
