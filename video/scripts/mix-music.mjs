@@ -99,14 +99,17 @@ if (!withMusic) {
   const XF = 0.06;
   const cutLen = cuts.reduce((s, [a, b]) => s + (b - a) + XF, 0);
   const musicEnd = (mcfg.end ?? probe(MUSIC)) - cutLen;
-  const TEMPO = TEMPO_ARG === 'auto' ? Math.min(1.03, Math.max(0.97, musicEnd / (total - 0.4))) : Number(TEMPO_ARG);
-  console.log(`hudba: tempo ${TEMPO.toFixed(4)} (koniec skladby ${musicEnd} s -> ${(musicEnd / TEMPO).toFixed(2)} s)`);
+  // experiment kratkej verzie: "delay" (s) = hudba zacne o tolko neskor, "tempo" = pevne tempo namiesto auto, aby nastup
+  // plnej kapely aj prechodovy takt padli na strih (obe predvolene bez zmeny, hlavna verzia ich nema)
+  const DELAY = mcfg.delay ?? 0;
+  const TEMPO = TEMPO_ARG !== 'auto' ? Number(TEMPO_ARG) : mcfg.tempo ?? Math.min(1.03, Math.max(0.97, musicEnd / (total - 0.4 - DELAY)));
+  console.log(`hudba: tempo ${TEMPO.toFixed(4)} (koniec skladby ${musicEnd} s -> ${(DELAY + musicEnd / TEMPO).toFixed(2)} s${DELAY ? `, od ${DELAY} s` : ''})`);
   const fc = [
     // hlas: stereo, jedna vetva do mixu, druha ako kluc stisenia
     `[0:a]aformat=sample_rates=48000:channel_layouts=stereo,asplit=2[v][key]`,
     // hudba: tempo na dlzku filmu, jemny zarez 1-3 kHz (plucky vs. rec), zaciatok a koniec
     ...musicCuts(cuts, XF),
-    `[mc]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,atempo=${TEMPO},atrim=0:${T},asetpts=PTS-STARTPTS,equalizer=f=2000:t=q:w=1.2:g=-3,volume=${GAIN}dB,alimiter=limit=0.9:level=disabled,afade=t=in:st=0:d=0.4,afade=t=out:st=${(total - 1.2).toFixed(3)}:d=1.2[m]`,
+    `[mc]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,atempo=${TEMPO}${DELAY ? `,adelay=${Math.round(DELAY * 1000)}:all=1` : ''},atrim=0:${T},asetpts=PTS-STARTPTS,equalizer=f=2000:t=q:w=1.2:g=-3,volume=${GAIN}dB,alimiter=limit=0.9:level=disabled,afade=t=in:st=${DELAY}:d=0.4,afade=t=out:st=${(total - 1.2).toFixed(3)}:d=1.2[m]`,
     // stisenie pod hlasom
     `[m][key]sidechaincompress=threshold=0.02:ratio=3:attack=40:release=600:knee=4[md]`,
     `[v][md]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000[a]`,

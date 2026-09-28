@@ -11,6 +11,40 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 12 (28. 9. 2026): plynulé 0:07-0:10, prirodzene nadväzujúci hlas pri vyhľadávaní
+
+Samuel: 0:07 až 0:10 je teraz rozsekané, čo predtým nebolo, zložky sa až moc rýchlo vrátia do krabice atď.; pri 0:53
+sa pri "konkrétnej položke" hlas sekne a potom pokračuje "aj cestu k nej", to je v poriadku, len by to malo lepšie
+nadväzovať.
+
+- Príčiny (meranie zmeny obrazu medzi snímkami, 30 fps, bez titulkov): v kole 11 sa zložky, veká a krabice vracali 3x
+  (0,37 s, najväčší pohyb v celom úvode) a začiatok C4 mal skok: mapa času `[800, 1350] -> [900, 2600]` prehrala 1,25 s
+  scény za 3 snímky (hrot 7,6x oproti susedným snímkam v 8,43 s). Pri hlase bol strih v 4,62 s pôvodnej nahrávky priamo
+  v spojení "položke aj": koniec slova v plnej hlasitosti (-16 dB) stíchol za 40 ms do úplného ticha a "aj" nastúpilo
+  z ticha naraz.
+- C2: návrat 1120 ms scény za 640 ms (1,75x, `C2_BACK`), chvíľa so zložkami hore 150 ms (`C2_HOLD`, v kole 11 50 ms).
+  Obe zmeny rýchlosti sú vo chvíľach, keď sa v sklade nič nehýbe. Veta o sklade od 4,2 s (slová sedia na obraz). C2 8,0 s
+  (+0,37 s), pauza pred "Hľadanie..." 0,85 s.
+- C4: `C4_Cena` dostal voliteľné `clockAt` (predvolene 2600, hlavná verzia bez zmeny, 20 snímok pôvodných klipov je
+  na pixel rovnakých s `ea5550e`). LinkedIn: hodiny 1400 ms scény (`K_C4_CLOCK`), scéna beží rovnomerne 1,55x
+  (kamera scény 0-1700 ms za 1100 ms spolu s kamerou rámu `c4Cam`), od 950 ms sa rýchlosť plynulo vráti na 1:1
+  (1250 ms), preskočí sa len 600 ms, `K_C4_D` -2570 (d - preskok ostáva -3170, všetko po hodinách v rovnakom čase klipu).
+  Otáznik 8,68 s, hodiny 8,87 s, zelený prechod 9,92 s. Po zmene je jediný hrot na strihu C2 -> C4 výmena titulku,
+  obraz sa na strihu zmení menej ako pri bežnom pohybe (0,27).
+- F3: nová veta Gemini "Potom stačí napísať slovo a aplikácia ukáže údaje o konkrétnej položke... aj cestu k nej."
+  s prirodzenou pauzou (4 pokusy, prepis bez chýb, vybraná f_3: "položke" doznie celé, melódia na konci mierne stúpa ako
+  pri čiarke). Rez v tichu 70 ms pred "aj" (5,26 s), pauza 0,7 s (prirodzená 0,49 s, v kolách 10 a 11 1,2 s). Karta
+  nájdenej zložky o 0,15 s skôr (vidno ju 3,6 s), F3 o 0,3 s kratšie (záznam drží 5,35 s), ticho na konci F3 ostáva.
+- Hudba: `mix-music.mjs` dostal voliteľné kľúče cfg `delay` a `tempo` (hlavná verzia ich nemá). Strihy ako v kole 11,
+  hudba od 0,43 s s tempom 0,9765: plná kapela ~9,62 s (0,3 s pred zeleným prechodom), prechodový takt 55 od ~54,46 s
+  = začiatok ponuky (54,43 s). Film 76,4 s, 131 slov.
+- Hodnotenie modelom je pri týchto jemných veciach nespoľahlivé: Gemini pri slepom porovnaní dvoch nahrávok (aj dvoch
+  videí) vybral v oboch poradiach tú prvú. Rozhodovalo meranie (zmena obrazu medzi snímkami, obálka hlasitosti, výška
+  hlasu). Test na mobile bez návodných otázok: technická kontrola bez chýb (hlas 5/5), hlas pri 0:50 nikto nespomenul,
+  0:07-0:10 nikto nevníma ako sekané, obaja skôr ako čakanie pri hodinách. S návodnou otázkou obaja pri kole 11 aj 12
+  "znie zlepene". Ďalšie návrhy (oživiť chvíľu s hodinami, prechod do ponuky bez bielej, pomalší zelený prechod) sú
+  otázky na review stránke.
+
 ## Kolo 11 (28. 9. 2026): podlaha, dlhšia chôdza, otáznik a hodiny naraz, "napríklad", zelené potvrdenie, logo vpravo hore
 
 Samuel: spodok úvodu je rozmazaný (posunúť); panáčik v sklade nech ide o 0,5-1 s dlhšie (nie pomalšie); otáznik
@@ -429,6 +463,6 @@ Kontrolné stills `node scripts/kratka-stills.mjs [s ...]` (časy vo filme, do `
 ## Súbory
 
 - Nové: `src/scenes/kratka/LinkedIn.tsx` (kompozícia K-LinkedIn 4:5, jediná krátka verzia), `src/kratkaList.ts` (`paced`, pauzy C4), `src/scenes/kratka/Kratka.tsx` (spoločné dáta: C4 so sloganom, kroky, spoty, kliky), `src/copy/vo_kratka.json`, `src/copy/music_kratka.json`, `scripts/kratka_lines.py`, `scripts/kratka-stills.mjs`, `review-kratka/index.html`, `public/vo-kratka/`, `public/footage/k-*.mp4`, `out/kratka/`.
-- Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`, `subtitles`), `Scene` (`SceneFrameContext`: jednofarebné pozadie, bez päty a bez orezania na rámec 16:9 len vnútri LinkedIn rámca), `Subtitles` (scenár K vedľa hlavného), `C4_Cena` (`d`, `h`, `brand`, `cost`), `C5_Teren` (`steps`, `phase`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`); kolo 9 až 11: `C2_Hladanie` (export `Office`, `Warehouse` a `PATH`), `Device` (`PhoneFrame` `screenBg`).
+- Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`, `subtitles`), `Scene` (`SceneFrameContext`: jednofarebné pozadie, bez päty a bez orezania na rámec 16:9 len vnútri LinkedIn rámca), `Subtitles` (scenár K vedľa hlavného), `C4_Cena` (`d`, `h`, `brand`, `cost`, kolo 12 `clockAt`), `C5_Teren` (`steps`, `phase`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`, kolo 12 kľúč `delay` v cfg); kolo 9 až 11: `C2_Hladanie` (export `Office`, `Warehouse` a `PATH`), `Device` (`PhoneFrame` `screenBg`).
 - Kontrola: 20 snímok pôvodných klipov (C2, C4, C5, C8, C9, F1, F4) z commitu `ea5550e` a z tejto vetvy je na pixel rovnakých; dĺžky kompozícií bez zmeny.
 - Jediná zmena správania pôvodnej cesty: `mix-music.mjs` dáva tichému klipu (C1) stopu v rozložení kanálov ostatných klipov (stereo namiesto mono). Zvuk je ticho, výsledok rovnaký.

@@ -45,6 +45,8 @@ import { BRAND, FONT, FPS, INK, NAVY } from '../../theme';
  * "Nazov projektu", pauzy na citanie (karta zlozky, ponuka), kratsi mobil a zaver.
  * Kolo 11: uvod vyssie (podlaha bez rozmazania), dlhsia chodza, otaznik a hodiny naraz, cierny displej mobilu, v F24
  * "napriklad" a "pripadne opravi", karty na sirku okna a zelene potvrdenie, Bezpecne oddelene, znacka vpravo hore.
+ * Kolo 12: plynuly koniec skladu a zaciatok C4 (zlozky spat 1,75x, C4 bez skoku casu, hodiny hned za otaznikom cez
+ * `clockAt`), v F3 nova nahravka s prirodzenou pauzou za "polozke".
  * Hlas a titulky: src/copy/vo_kratka.json, hudba mix-music.mjs --video.
  */
 export const LI = { w: 1080, h: 1350 };
@@ -445,7 +447,7 @@ const LI_F24: React.FC = () => (
  */
 const F3_CLIP = 'K-F3-Vyhladavanie';
 const F3_SRC = 'footage/k-f3-search.mp4';
-const F3_WORDS = { cestu: 0.18, k: 0.52, nej: 0.6 }; // s od zaciatku vety "aj cestu k nej." (kolo 10: samostatna veta, rez v 4,62 s povodnej medzi "polozke" a "aj")
+const F3_WORDS = { cestu: 0.26, k: 0.6, nej: 0.66 }; // s od zaciatku vety "aj cestu k nej." (kolo 12: nova nahravka s prirodzenou pauzou za "polozke", rez v tichu 70 ms pred "aj")
 const PATH_STEPS: { kind: HKind; label: string; code: string; at: number }[] = [
   { kind: 'shelf', label: 'Polica', code: 'PL_01', at: F3_WORDS.cestu - 0.06 },
   { kind: 'box', label: 'Krabica', code: 'KR_01', at: F3_WORDS.k - 0.1 },
@@ -517,15 +519,16 @@ const ItemCard: React.FC = () => (
 );
 const LI_F3: React.FC = () => {
   const v = (k: number) => voAt(F3_CLIP, 0, k) / 1000;
-  const path = voAt(F3_CLIP, 1) / 1000; // kolo 10: "aj cestu k nej." po pauze 1,2 s, karta polozky sa da docitat
+  const path = voAt(F3_CLIP, 1) / 1000; // kolo 10: "aj cestu k nej." po pauze (kolo 12: 0,7 s, "polozke" prirodzene doznie), karta polozky sa da docitat
   return (
     <AbsoluteFill>
       {/* kolo 3: bez `enter` (okno je na rovnakom mieste ako v F24, test: 0:45 biela diera pred vyhladavanim) */}
       <DesktopFootageClip src={F3_SRC} seconds={K_F3_SECONDS} steps={[]} phase={phases.search} marks={f3Marks(F3_CLIP)} win={WIN} />
-      <Panel from={0.25} to={v(1) + 0.4} label="Hľadané slovo" width={WIN.w}>
+      <Panel from={0.25} to={v(1) + 0.25} label="Hľadané slovo" width={WIN.w}>
         <SearchField typeFrom={0.8} typeTo={1.9} />
       </Panel>
-      <Panel from={v(1) + 0.45} to={path + 0.05} label="Nájdená položka" width={WIN.w}>
+      {/* kolo 12: karta o 0,15 s skor (pauza pred "aj cestu k nej" je kratsia), vidno ju 3,6 s */}
+      <Panel from={v(1) + 0.3} to={path + 0.05} label="Nájdená položka" width={WIN.w}>
         <ItemCard />
       </Panel>
       <Panel from={path + 0.1} to={K_F3_SECONDS - 0.4} label="Cesta k položke" width={WIN.w}>
@@ -733,21 +736,20 @@ const Lockup: React.FC<{ size: number; onDark: boolean; build?: number }> = ({ s
  * kamera (0-1700 ms sceny) za 1100 ms, otaznik (1100) pri slove "Hladanie", hodiny (2600) pri slove "hodiny" (1450 ms),
  * dalej 1:1 o C4_SKIP neskor (Freeze na case sceny, scena C4 sa nemeni).
  */
-const C4_MAP: [number, number][] = [
-  [0, 0],
-  [550, 1100], // kolo 11 (Samuel: otaznik a hodiny naraz, nech su vidiet dost dlho): kamera 2x
-  [800, 1350], // otaznik vyskoci 1:1 pri "Hladanie"
-  [900, 2600], // zvysok vyskoku a koniec kamery rychlo, hodiny hned za otaznikom (sceny 2600 ms)
-];
-const C4_SKIP = C4_MAP[C4_MAP.length - 1][1] - C4_MAP[C4_MAP.length - 1][0]; // 1150 ms sceny naviac
+/**
+ * Kolo 12 (Samuel: 0:07-0:10 je rozsekane, v kole 11 skok 12,5x): zaciatok C4 bezi stale 1,55x (kamera sceny 0-1700 ms za
+ * 1100 ms ako kamera pasu, obe su v rovnakej faze), od 950 ms sa rychlost plynulo vrati na 1:1 (1250 ms), ked uz kamera
+ * dobieha. Otaznik (1100 ms sceny) pri 712 ms, hodiny (K_C4_CLOCK 1400) pri 906 ms klipu, bez skoku.
+ */
+const C4_R = 1700 / 1100;
+const C4_K: [number, number] = [950, 1250];
 const c4SceneMs = (ms: number) => {
-  for (let i = 1; i < C4_MAP.length; i++) {
-    const [a, sa] = C4_MAP[i - 1];
-    const [b, sb] = C4_MAP[i];
-    if (ms < b) return sa + ((Math.max(a, ms) - a) * (sb - sa)) / (b - a);
-  }
-  return ms + C4_SKIP;
+  if (ms <= C4_K[0]) return ms * C4_R;
+  const L = C4_K[1] - C4_K[0],
+    u = Math.min(ms, C4_K[1]) - C4_K[0];
+  return C4_K[0] * C4_R + C4_R * u - ((C4_R - 1) * u * u) / (2 * L) + Math.max(0, ms - C4_K[1]);
 };
+const C4_SKIP = Math.round(c4SceneMs(C4_K[1]) - C4_K[1]); // 600 ms sceny naviac
 const K_C4_FAST: React.FC = () => {
   const frame = useCurrentFrame();
   return (
@@ -782,7 +784,7 @@ const C4_GROUP_CAM: Cam = { z: 1.45, fx: 690, fy: 480, tx: 540, ty: 560 };
 const c4Win = (ms: number) => (ms < C4_LIGHT ? INTRO_WIN : BAND_WIN);
 const c4Cam = camShift([
   [0, C2_END_CAM],
-  [800, C4_GROUP_CAM],
+  [1100, C4_GROUP_CAM], // kolo 12: spolu s kamerou sceny (C4_R), ako v kole 10
   [C4_LIGHT, C4_GROUP_CAM],
   [C4_LIGHT + 1, CAM_ID],
 ]);
@@ -838,6 +840,11 @@ const C2_WALK_AT = C2_PAN_AT + 650; // chodza v sklade od konca prestrihu (sklad
 const C2_WALK_MS = (800 * WH_D * WH_K) / OFFICE_WALK_PX; // ~1050 ms: rovnaka rychlost na obrazovke ako v kancelarii
 const C2_ARR = C2_WALK_AT + C2_WALK_MS; // panacik pri regali (cas skladu 6500)
 const C2_UP = 7820; // cas skladu: zlozky v oboch krabiciach su hore
+/** Kolo 12 (Samuel: zlozky sa vratia do krabice prilis rychlo, 0:07-0:10 rozsekane): navrat 1120 ms sceny za 640 ms (1,75x,
+ * v kole 11 3x za 373 ms, v kole 10 2,5x), chvila so zlozkami hore 150 ms (v kole 11 50). Pocas oboch zmien rychlosti
+ * sa v sklade nic nehybe (zlozky su hore, krabice dnu), takze nie je vidiet ziadny skok. */
+const C2_HOLD = 150;
+const C2_BACK = 640;
 const C2_WMAP: [number, number][] = [
   [0, whTime(WH_P0)],
   [C2_WALK_AT, whTime(WH_P0)],
@@ -846,8 +853,8 @@ const C2_WMAP: [number, number][] = [
     return [C2_WALK_AT + C2_WALK_MS * e, whTime(invert01(whDist, whDist(WH_P0) + WH_D * easeInOut(e)))];
   }),
   [C2_ARR + (C2_UP - 6500), C2_UP], // 1:1: vyblednutie skladu, krabice, veka a zlozky hore
-  [C2_ARR + (C2_UP - 6500) + 50, 8500], // staticka chvila so zlozkami hore 780 -> 50 ms (ticho pred "Hladanie...")
-  [C2_ARR + (C2_UP - 6500) + 50 + 373, 9620], // zlozky dole, veka a krabice spat 3x
+  [C2_ARR + (C2_UP - 6500) + C2_HOLD, 8500], // staticka chvila so zlozkami hore 680 -> 150 ms
+  [C2_ARR + (C2_UP - 6500) + C2_HOLD + C2_BACK, 9620], // zlozky dole, veka a krabice spat 1,75x
 ];
 const C2_SECONDS = C2_WMAP[C2_WMAP.length - 1][0] / 1000;
 const mapMs = (map: [number, number][], ms: number) => {

@@ -45,14 +45,14 @@ const BOX = 860;
 /**
  * Experiment kratkej verzie: `d` = posun predelu, `h` = drzanie znacky (ms), `brand` = false: bez lockupu a textu pod nim
  * (LinkedIn 4:5 kresli vlastne logo na vysku), `cost` = false: bez sipky, vykresu, cenoviek a "2x EUR" (len regal,
- * otaznik a hodiny); predvolene hlavna verzia.
+ * otaznik a hodiny), `clockAt` = kedy sa objavia hodiny (ms sceny); predvolene hlavna verzia.
  */
-export const C4_Cena: React.FC<{ d?: number; h?: number; brand?: boolean; cost?: boolean }> = ({ d: D = D_MAIN, h: H = H_MAIN, brand = true, cost = true }) => {
+export const C4_Cena: React.FC<{ d?: number; h?: number; brand?: boolean; cost?: boolean; clockAt?: number }> = ({ d: D = D_MAIN, h: H = H_MAIN, brand = true, cost = true, clockAt = 2600 }) => {
   const frame = useCurrentFrame();
   const showCap = useCaptions(); // kolo 29: vety nesie nahovor + titulky (Paced)
   const tw = (s: number, d: number) => tween(frame, s, d);
   const bigQ = pop(frame, 1100);
-  const clock = settle(frame, 2600);
+  const clock = settle(frame, clockAt);
   const hand = (useOutputFrame() / 30) * 300; // kolo 33: rucicka tika plynulo podla skutocneho casu klipu, aj pocas pauz
   const arrow = tw(3000, 500);
   const sheet = settle(frame, 3200);

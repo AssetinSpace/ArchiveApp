@@ -211,8 +211,8 @@
       {
         "from": 6.2,
         "to": 7.4,
-        "after": 5.65,
-        "note": "vysledok ZL_03 a detail v pokoji, drobcek PL_01 / KR_01 / ZL_03; kolo 4: drzi o 0,8 s dlhsie, aby sa dala docitat cesta polica -> krabica -> zlozka -> dokument; kolo 10: o 1,2 s dlhsie (pauza pred \"aj cestu k nej\", karta najdenej zlozky sa da docitat)"
+        "after": 5.35,
+        "note": "vysledok ZL_03 a detail v pokoji, drobcek PL_01 / KR_01 / ZL_03; kolo 4: drzi o 0,8 s dlhsie, aby sa dala docitat cesta polica -> krabica -> zlozka -> dokument; kolo 10: o 1,2 s dlhsie (pauza pred \"aj cestu k nej\", karta najdenej zlozky sa da docitat); kolo 12: o 0,3 s kratsie (pauza pred \"aj cestu k nej\" 0,7 s namiesto 1,0 s, ticho na konci ostava)"
       }
     ]
   }

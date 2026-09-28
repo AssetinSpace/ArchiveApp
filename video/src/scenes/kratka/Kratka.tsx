@@ -33,10 +33,13 @@ export const SLOGAN = 'Digitálny poriadok v papierovom archíve';
  * "Predstavujeme vam..." tiez o 0,1 s skor (2650 ms), h ostava 3320.
  */
 /** Kolo 11 (Samuel: otaznik a hodiny naraz): LinkedIn preskoci zaciatok C4 o 1700 ms (predtym 1150), d o 550 ms vyssie,
- * aby zeleny prechod ostal v 1950 ms klipu a vsetko po hodinach v rovnakom case. */
-export const K_C4_D = -1470;
+ * aby zeleny prechod ostal v 1950 ms klipu a vsetko po hodinach v rovnakom case.
+ * Kolo 12 (Samuel: 0:07-0:10 je teraz rozsekane): bez skoku casu, hodiny su hned za otaznikom cez `clockAt` (1400 ms sceny
+ * namiesto 2600), LinkedIn preskoci len 600 ms (kamera 1,55x ako v kole 10), d -2570 (d - preskok ostava -3170). */
+export const K_C4_D = -2570;
 export const K_C4_H = 3320;
-export const K_C4: React.FC = () => <C4_Cena d={K_C4_D} h={K_C4_H} brand={false} cost={false} />;
+export const K_C4_CLOCK = 1400;
+export const K_C4: React.FC = () => <C4_Cena d={K_C4_D} h={K_C4_H} brand={false} cost={false} clockAt={K_C4_CLOCK} />;
 /** Scena C4 konci po usadeni krabice a paticke (ako v hlavnej verzii: 8200 + d + h + 900 ms). */
 export const c4End = (d: number, h: number) => (8200 + d + h + 900) / 1000;
 

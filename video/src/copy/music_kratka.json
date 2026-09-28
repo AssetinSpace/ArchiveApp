@@ -12,6 +12,8 @@
         129.03
       ]
     ],
-    "_cuts": "Kolo 11 (film 76,3 s: dlhsia chodza v sklade, dlhsie vety v F24): 9 taktov (2-10) z pulzujucej casti, plna kapela (takt 12) ~9,25 s na doznení slova \"hodiny\", 0,3 s pred zelenym prechodom (9,55 s); 24 taktov (31-54) z plneho grooveu, prechodovy takt 55 (bez bicich) od ~54,4 s = zaciatok ponuky (54,37 s); tempo 0,97 (dolna hranica), skladba dozneje ~0,6 s pred koncom. Kolo 10: [[6.72, 27.49], [71.34, 129.03]] s tempom 0,97, kolo 7: [[9.03, 27.49], [69.03, 129.03]]."
+    "delay": 0.43,
+    "tempo": 0.9765,
+    "_cuts": "Kolo 12 (film 76,4 s: pomalsi navrat zloziek, C2 o 0,367 s dlhsie, F3 o 0,3 s kratsie): strihy ako v kole 11, hudba zacne o 0,43 s neskor (\"delay\") s tempom 0,9765 (\"tempo\"; auto by dalo 0,97 a prechodovy takt by bol 0,3 s neskoro): plna kapela (takt 12) ~9,62 s na doznení slova \"hodiny\", 0,3 s pred zelenym prechodom (9,92 s), prechodovy takt 55 od ~54,46 s = zaciatok ponuky (54,43 s); skladba dozneje ~1,5 s pred koncom. Kolo 11 (film 76,3 s: dlhsia chodza v sklade, dlhsie vety v F24): 9 taktov (2-10) z pulzujucej casti, plna kapela (takt 12) ~9,25 s na doznení slova \"hodiny\", 0,3 s pred zelenym prechodom (9,55 s); 24 taktov (31-54) z plneho grooveu, prechodovy takt 55 (bez bicich) od ~54,4 s = zaciatok ponuky (54,37 s); tempo 0,97 (dolna hranica), skladba dozneje ~0,6 s pred koncom. Kolo 10: [[6.72, 27.49], [71.34, 129.03]] s tempom 0,97, kolo 7: [[9.03, 27.49], [69.03, 129.03]]."
   }
 }
