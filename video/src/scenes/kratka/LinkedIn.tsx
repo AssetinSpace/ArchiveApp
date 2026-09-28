@@ -4,16 +4,15 @@ import { LogoMark, SceneFrameContext } from '../../components/Scene';
 import { voLines } from '../../components/Subtitles';
 import { FOOTAGE_PHONE, PHONE_BEZEL, PhoneFrame, Rect } from '../../components/Device';
 import { BrandMod, BrandSep, BrandStack, LOCKUP, LOCKUP_W } from '../../components/Brand';
-import { C2_Hladanie } from '../C2_Hladanie';
+import { Office, Warehouse } from '../C2_Hladanie';
 import { C5_Teren } from '../C5_Teren';
-import { Card } from '../C8_Pilot';
 import { DesktopFootageClip } from '../F2_Metadata';
-import { CTA, C5_STEPS, K_C4, K_C4_D, K_C4_H, K_F1_SECONDS, K_F1_TAPS, K_F24_MARKS, K_F24_SECONDS, K_F24_STEPS, K_F24_TAPS, K_F3_SECONDS, PHASE_ARCHIV, SOFTWARE_DESC, c4End, f3Marks, f3Steps } from './Kratka';
+import { C5_STEPS, SLOGAN, K_C4, K_C4_D, K_C4_H, K_F1_SECONDS, K_F1_TAPS, K_F24_MARKS, K_F24_SECONDS, K_F24_STEPS, K_F24_TAPS, K_F3_SECONDS, PHASE_ARCHIV, SOFTWARE_DESC, c4End, f3Marks, f3Steps } from './Kratka';
 import { K_C4_HOLDS, paced } from '../../kratkaList';
 import type { SceneDef } from '../../scenesList';
-import { easeInOut, pop, settle, tween } from '../../lib/anim';
+import { easeInOut, settle, tween } from '../../lib/anim';
 import { loadFonts } from '../../lib/fonts';
-import { captions, offer, phases, sk } from '../../copy/sk';
+import { offer, phases, sk } from '../../copy/sk';
 import { voAt } from '../../components/Subtitles';
 import { BRAND, FONT, FPS, INK, NAVY } from '../../theme';
 
@@ -50,6 +49,7 @@ type LiDef = {
   win?: Win; // okno pasu (predvolene BAND s makkymi okrajmi)
   overflow?: boolean; // obsah sceny smie presiahnut ramec 16:9 az po okraj okna (C5: veko krabice pri priblizeni)
   chrome?: boolean; // false = bez riadku znacky a webu (C9 ich ma vo vlastnom rozlozeni)
+  subs?: boolean; // false = bez titulkov (C9: hlas povie len nazov, ktory je v obraze)
 };
 /**
  * Okno, cez ktore vidno pas 16:9 (px ramca): hore/dole makky prechod `feather` px do pozadia ramca, aby obsah
@@ -238,47 +238,141 @@ const LI_F3: React.FC = () => {
   );
 };
 
-/** C8 na vysku: karty pod sebou, 1,3x (na sirku by na mobile mali nazov ~9 px, takto ~22 px). */
-const C8_K = 1.3;
-const LI_C8: React.FC = () => {
+/**
+ * Kolo 3 (Samuel): kratsi uvod, hladanie v kancelarii aj v archive naraz. Na vysku pod sebou, nie vedla seba: vedla seba
+ * by mala kazda diorama len 540 px (28 % sceny 16:9, panacik na mobile ~5 px), pod sebou 47 % (84 % pasu). Dioramy z C2
+ * (Office, Warehouse) s vlastnym casom: v kancelarii panacik vyhadzuje veci zo skrine, do archivu pride k regalu, obaja "?".
+ * Sklad sa zastavi pred vyblednutim (6,55 s jeho casu); kamera skladu sa nepriblizi (klip je kratsi ako jej 6,3 s).
+ * Pomaly najazd, aby obraz po otazke nestal. Strih do C4 (regal s "?").
+ */
+const C2_K = 0.47; // diorama ~900 x 460 px, obe medzi riadkom znacky (do 75 px) a titulkami (od 1080 px)
+const C2_PANELS = [
+  { top: 72, label: 'V kancelárii' },
+  { top: 562, label: 'V archíve' },
+];
+const LI_C2: React.FC = () => {
   const frame = useCurrentFrame();
-  const tw = (s: number, d: number) => tween(frame, s, d);
-  const soft = voAt('K-C8-Ponuka', 1);
-  const dimService = 0.45 * tw(soft + 100, 400) * (1 - tw(soft + 2500, 400));
-  const w = 680 * C8_K;
-  const x = (LI.w - w) / 2;
-  const card = (y: number, el: React.ReactNode) => (
-    <div style={{ position: 'absolute', left: x, top: y, width: w, height: 236 * C8_K }}>
-      <div style={{ position: 'absolute', left: 0, top: 0, width: 680, height: 236, transform: `scale(${C8_K})`, transformOrigin: '0 0' }}>{el}</div>
-    </div>
-  );
+  const ms = (frame / FPS) * 1000;
+  const f = (t: number) => (t / 1000) * FPS;
+  const officeF = f(Math.min(ms, 3550)); // "?" (3000) ostava, nevybledne (3600)
+  const whF = f(Math.min(ms + 1900, 6550)); // prichod 2,4-4,6 s, "?" 3,6 s
+  const push = 1 + 0.035 * tween(frame, 0, 5400);
+  const w = 1920 * C2_K,
+    h = 1080 * C2_K;
   return (
-    <AbsoluteFill style={{ background: '#fff' }}>
-      <div style={{ position: 'absolute', left: x, width: w, top: 226, display: 'flex', alignItems: 'center', gap: 18, opacity: settle(frame, 0) }}>
-        <div style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: 28, letterSpacing: '0.16em', textTransform: 'uppercase', color: BRAND[600], whiteSpace: 'nowrap' }}>{offer.kicker}</div>
-        <div style={{ flex: 1, height: 2, background: INK[200] }} />
-      </div>
-      {card(290, <Card x={0} y={0} t={settle(frame, 100)} dim={dimService} main icon="box" title={offer.service.title} desc={offer.service.desc} step={offer.service.step} stepT={pop(frame, voAt('K-C8-Ponuka', 0, 1) + 250)} />)}
-      {card(290 + 236 * C8_K + 44, <Card x={0} y={0} t={settle(frame, soft)} dim={0} icon="app" title={offer.software.title} desc={SOFTWARE_DESC} step={offer.software.step} stepT={pop(frame, soft + 1700)} />)}
+    <AbsoluteFill>
+      {C2_PANELS.map((p, i) => {
+        const a = settle(frame, i * 250);
+        return (
+          <React.Fragment key={p.label}>
+            <div style={{ position: 'absolute', left: (LI.w - w) / 2, top: p.top, width: w, height: h, opacity: a, transform: `scale(${push})` }}>
+              <div style={{ position: 'absolute', left: 0, top: 0, width: 1920, height: 1080, transform: `scale(${C2_K})`, transformOrigin: '0 0' }}>
+                {i === 0 ? <Office frame={officeF} /> : <Warehouse frame={whF} />}
+              </div>
+            </div>
+            <div style={{ position: 'absolute', left: 56, top: p.top + 36, opacity: a, fontFamily: FONT.body, fontWeight: 600, fontSize: 24, letterSpacing: '0.14em', textTransform: 'uppercase', color: BRAND[400] }}>{p.label}</div>
+          </React.Fragment>
+        );
+      })}
     </AbsoluteFill>
   );
 };
 
-/** C9 na vysku: lockup, slogan, vyzva a web vacsie (na mobile citatelne), firma mensia. */
+/** Ikony ponuky (obrys v kruhu, rovnaky jazyk ako karty C8): krabica, aplikacia, zamok. */
+type OfferIconKind = 'box' | 'app' | 'lock';
+const OfferIcon: React.FC<{ kind: OfferIconKind; on: boolean }> = ({ kind, on }) => (
+  <div style={{ width: 100, height: 100, borderRadius: 50, background: on ? BRAND[50] : '#fff', border: `2px solid ${on ? BRAND[300] : INK[200]}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
+    <svg width={54} height={54} viewBox="0 0 48 48" fill="none" stroke={on ? BRAND[600] : INK[400]} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+      {kind === 'box' ? (
+        <>
+          <rect x={6} y={10} width={36} height={9} rx={2} />
+          <path d="M9 19 V38 a2 2 0 0 0 2 2 H37 a2 2 0 0 0 2 -2 V19" />
+          <path d="M19 27 H29" />
+        </>
+      ) : kind === 'app' ? (
+        <>
+          <rect x={6} y={9} width={36} height={24} rx={3} />
+          <path d="M3 39 H45" />
+          <circle cx={22} cy={20} r={5} />
+          <path d="M26 24 L30 28" />
+        </>
+      ) : (
+        <>
+          <rect x={10} y={21} width={28} height={21} rx={3} />
+          <path d="M16 21 V15 a8 8 0 0 1 16 0 V21" />
+          <path d="M24 29 V34" />
+        </>
+      )}
+    </svg>
+  </div>
+);
+
+/**
+ * C8 na vysku (kolo 3): tri riadky podla viet (na kluc, vlastnymi silami v aplikacii, bezpecne u vas) a zelena vyzva
+ * (obhliadka a skuska na jednej krabici, zadarmo a nezavazne). Riadok, o ktorom sa prave hovori, ma zeleny okraj.
+ */
+const OFFER_ROWS: { icon: OfferIconKind; title: string; desc: string }[] = [
+  { icon: 'box', title: offer.service.title, desc: offer.service.desc },
+  { icon: 'app', title: offer.software.title, desc: SOFTWARE_DESC },
+  { icon: 'lock', title: 'Bezpečne u vás', desc: 'Podľa vašich bezpečnostných pravidiel.' },
+];
+const OFFER_CTA = { line: 'Obhliadka a skúška na jednej krabici', big: 'Zadarmo a nezáväzne' };
+const LI_C8: React.FC = () => {
+  const frame = useCurrentFrame();
+  const ms = (frame / FPS) * 1000;
+  const at = (i: number) => voAt('K-C8-Ponuka', i);
+  const W8 = 952,
+    X8 = (LI.w - W8) / 2,
+    RH = 164,
+    GAP = 22,
+    TOP = 196;
+  const cta = settle(frame, at(3) - 150);
+  return (
+    <AbsoluteFill style={{ background: '#fff' }}>
+      <div style={{ position: 'absolute', left: X8, width: W8, top: 136, display: 'flex', alignItems: 'center', gap: 18, opacity: settle(frame, 0) }}>
+        <div style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: 26, letterSpacing: '0.16em', textTransform: 'uppercase', color: BRAND[600], whiteSpace: 'nowrap' }}>{offer.kicker}</div>
+        <div style={{ flex: 1, height: 2, background: INK[200] }} />
+      </div>
+      {OFFER_ROWS.map((r, i) => {
+        const t = settle(frame, i === 0 ? 100 : at(i) - 150);
+        const on = ms >= (i === 0 ? 0 : at(i) - 150) && (i === OFFER_ROWS.length - 1 ? ms < at(3) - 150 : ms < at(i + 1) - 150);
+        return (
+          <div key={r.title} style={{ position: 'absolute', left: X8, top: TOP + i * (RH + GAP), width: W8, height: RH, boxSizing: 'border-box', borderRadius: 22, background: '#fff', border: `2px solid ${on ? BRAND[500] : INK[200]}`, boxShadow: on ? `0 0 0 2px ${BRAND[500]}, 0 16px 40px rgba(31,122,51,0.14)` : '0 10px 28px rgba(15,23,42,0.05)', opacity: t, transform: `translateY(${(1 - t) * 26}px)`, display: 'flex', alignItems: 'center', gap: 30, padding: '0 36px' }}>
+            <OfferIcon kind={r.icon} on={on} />
+            <div>
+              <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 46, lineHeight: 1.05, letterSpacing: '-0.02em', color: on ? BRAND[700] : INK[900], whiteSpace: 'nowrap' }}>{r.title}</div>
+              <div style={{ marginTop: 10, fontFamily: FONT.body, fontSize: 29, lineHeight: 1.2, color: INK[500], whiteSpace: 'nowrap' }}>{r.desc}</div>
+            </div>
+          </div>
+        );
+      })}
+      <div style={{ position: 'absolute', left: X8, top: TOP + 3 * (RH + GAP) + 18, width: W8, height: 196, boxSizing: 'border-box', borderRadius: 26, background: `linear-gradient(160deg, ${BRAND[700]} 0%, ${BRAND[600]} 100%)`, boxShadow: '0 18px 44px rgba(31,122,51,0.25)', opacity: cta, transform: `translateY(${(1 - cta) * 26}px) scale(${0.97 + 0.03 * cta})`, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 44px', color: '#fff' }}>
+        <div style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: 32, color: BRAND[100] }}>{OFFER_CTA.line}</div>
+        <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 18, fontFamily: FONT.display, fontWeight: 800, fontSize: 62, lineHeight: 1.05, letterSpacing: '-0.02em' }}>
+          <svg width={52} height={52} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4.5 12.5 L10 18 L19.5 6.5" />
+          </svg>
+          {OFFER_CTA.big}
+        </div>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+/** C9 (kolo 3, Samuel: posledny zaber bol prehusteny): len logo a slogan na zelenej, bez vyzvy, webu, firmy a titulkov. */
 const LI_C9: React.FC = () => {
   const frame = useCurrentFrame();
   React.useEffect(() => {
     loadFonts();
   }, []);
-  const logo = settle(frame, 200);
-  const tag = settle(frame, 700);
-  const firm = settle(frame, 1100);
-  const K = 0.66;
+  const logo = settle(frame, 100);
+  const tag = settle(frame, 500);
+  const K = 0.62; // lockup 838 px, okraje ~120 px
   const sepLeft = LOCKUP.stackW + LOCKUP.gap;
   const modLeft = sepLeft + LOCKUP.sepW + LOCKUP.gap;
   return (
-    <AbsoluteFill style={{ background: `linear-gradient(160deg, ${BRAND[800]} 0%, ${BRAND[600]} 100%)`, alignItems: 'center', fontFamily: FONT.body, color: '#fff' }}>
-      <div style={{ marginTop: 250, width: LOCKUP_W * K, height: LOCKUP.sepH * K, position: 'relative', opacity: logo, transform: `translateY(${(1 - logo) * 14}px) scale(${0.96 + 0.04 * logo})` }}>
+    <AbsoluteFill style={{ background: `linear-gradient(160deg, ${BRAND[800]} 0%, ${BRAND[600]} 100%)`, alignItems: 'center', justifyContent: 'center', fontFamily: FONT.body, color: '#fff' }}>
+      <div style={{ marginTop: -40, width: LOCKUP_W * K, height: LOCKUP.sepH * K, position: 'relative', opacity: logo, transform: `translateY(${(1 - logo) * 14}px) scale(${0.96 + 0.04 * logo})` }}>
         <div style={{ position: 'absolute', left: 0, top: 0, transform: `scale(${K})`, transformOrigin: '0 0', width: LOCKUP_W, height: LOCKUP.sepH }}>
           <div style={{ position: 'absolute', left: 0, top: -2 }}>
             <BrandStack inColor={BRAND[200]} />
@@ -291,16 +385,7 @@ const LI_C9: React.FC = () => {
           </div>
         </div>
       </div>
-      <div style={{ marginTop: 40, width: 900, textAlign: 'center', fontFamily: FONT.display, fontWeight: 600, fontSize: 44, lineHeight: 1.2, opacity: tag, transform: `translateY(${(1 - tag) * 14}px)` }}>{captions.C4brand}</div>
-      <div style={{ width: 70, height: 5, background: BRAND[300], borderRadius: 3, marginTop: 52, opacity: firm }} />
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 46, opacity: firm, transform: `translateY(${(1 - firm) * 14}px)` }}>
-        <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 64, lineHeight: 1.05, letterSpacing: '-0.015em' }}>{CTA}</div>
-        <div style={{ marginTop: 16, fontSize: 48, fontWeight: 700, lineHeight: 1.1, color: BRAND[100] }}>{sk.S12.web}</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 40, opacity: 0.85 }}>
-          <LogoMark size={40} color="#fff" />
-          <div style={{ fontFamily: FONT.display, fontWeight: 600, fontSize: 32, lineHeight: 1 }}>{sk.S12.company}</div>
-        </div>
-      </div>
+      <div style={{ marginTop: 56, width: 900, textAlign: 'center', fontFamily: FONT.display, fontWeight: 600, fontSize: 44, lineHeight: 1.2, color: BRAND[100], opacity: tag, transform: `translateY(${(1 - tag) * 12}px)` }}>{SLOGAN}</div>
     </AbsoluteFill>
   );
 };
@@ -314,15 +399,17 @@ const F1_STEPS = [
 const noSubs = { subtitles: false };
 const C5_BAND: React.FC = () => <C5_Teren steps={[]} />; // kroky su nad obrazom, nie v scene
 const LI_LIST: LiDef[] = [
-  { def: paced('K-C2-Hladanie', { scene: C2_Hladanie, seconds: 10, stills: [], ...noSubs }), band: true, tone: () => 'dark' },
+  // kolo 3: 5,4 s (otazka 0,4-3,8 s; nastup plnej kapely v hudbe padne na prechod do bielej v C4 ako v kole 2)
+  { def: paced('K-C2-Hladanie', { scene: LI_C2, seconds: 5.4, stills: [], ...noSubs }), tone: () => 'dark' },
   { def: paced('K-C4-Cena', { scene: K_C4, seconds: c4End(K_C4_D, K_C4_H), holds: K_C4_HOLDS, stills: [], ...noSubs }), band: true, tone: (ms) => (ms < 8450 ? 'dark' : 'light'), toWhite: 8200 },
   // okno od nadpisu kroku (spodok ~200 px) po titulky: veko krabice pri priblizeni kamery vyjde nad ramec 16:9
   { def: paced('K-C5-Teren', { scene: C5_BAND, seconds: 8.4, stills: [], ...noSubs }), band: true, tone: () => 'light', steps: C5_STEPS('K-C5-Teren'), phase: PHASE_ARCHIV, shift: c5Shift, win: { top: 206, bottom: 1040, feather: 18 }, overflow: true },
   { def: paced('K-F1-Sken', { scene: LI_F1, seconds: K_F1_SECONDS, vo: false, stills: [] }), tone: () => 'light', steps: F1_STEPS, phase: PHASE_ARCHIV },
   { def: paced('K-F24-Aplikacia', { scene: LI_F24, seconds: K_F24_SECONDS, stills: [], ...noSubs }), tone: () => 'light', steps: K_F24_STEPS, phase: phases.app },
   { def: paced('K-F3-Vyhladavanie', { scene: LI_F3, seconds: K_F3_SECONDS, stills: [], ...noSubs }), tone: () => 'light', steps: f3Steps(F3_CLIP), phase: phases.search },
-  { def: paced('K-C8-Ponuka', { scene: LI_C8, seconds: 10.2, stills: [], ...noSubs }), tone: () => 'light' },
-  { def: paced('K-C9-Outro', { scene: LI_C9, seconds: 6.5, stills: [], ...noSubs }), tone: () => 'dark', chrome: false },
+  { def: paced('K-C8-Ponuka', { scene: LI_C8, seconds: 16.2, stills: [], ...noSubs }), tone: () => 'light' },
+  // zaver: hlas "Assetin Archives." = logo v obraze, preto bez titulkov
+  { def: paced('K-C9-Outro', { scene: LI_C9, seconds: 3.6, stills: [], ...noSubs }), tone: () => 'dark', chrome: false, subs: false },
 ];
 
 /** Jeden klip v ramci 4:5: pozadie na celu plochu, obsah (pas 16:9 alebo nativne), znacka, krok, titulky, web. */
@@ -353,7 +440,7 @@ const LiFrame: React.FC<{ d: LiDef }> = ({ d }) => {
       )}
       {d.chrome !== false ? <BrandRow tone={tone} /> : null}
       {d.steps ? <StepLabel steps={d.steps} phase={d.phase} frame={frame} /> : null}
-      <BigSubtitles clip={id} tone={tone} />
+      {d.subs !== false ? <BigSubtitles clip={id} tone={tone} /> : null}
       {d.chrome !== false ? <Web tone={tone} /> : null}
     </AbsoluteFill>
   );

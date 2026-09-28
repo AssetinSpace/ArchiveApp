@@ -18,10 +18,10 @@ import { BRAND, FONT, INK, NAVY } from '../theme';
  * ms (casy slov): 400 sluzba · 3300 jej stitok · 6700 softver (sluzba stlmena) · 9740 jeho stitok · 12100 riadok rozsahu
  * (horny riadok stlmeny) · 15040 identifikacne strany · 17080 cele dokumenty · 20200 vsetko rovnako. 21 s.
  */
-export const COL = { w: 680, gap: 60 };
-export const LEFT = 960 - COL.gap / 2 - COL.w;
-export const RIGHT = 960 + COL.gap / 2;
-export const CARD_H = 236;
+const COL = { w: 680, gap: 60 };
+const LEFT = 960 - COL.gap / 2 - COL.w;
+const RIGHT = 960 + COL.gap / 2;
+const CARD_H = 236;
 const ROW1 = { kicker: 162, top: 206 }; // kolo 47: cely blok nizsie, na stred plochy nad titulkami
 const ROW2 = { kicker: 498, top: 542 };
 
@@ -70,7 +70,7 @@ const Icon: React.FC<{ kind: IconKind; tone: Tone }> = ({ kind, tone }) => (
   </div>
 );
 
-export const Card: React.FC<{ x: number; y: number; t: number; dim: number; main?: boolean; tone?: Tone; icon: IconKind; title: string; desc: string; step: string; stepT: number }> = ({ x, y, t, dim, main, tone = 'green', icon, title, desc, step, stepT }) => (
+const Card: React.FC<{ x: number; y: number; t: number; dim: number; main?: boolean; tone?: Tone; icon: IconKind; title: string; desc: string; step: string; stepT: number }> = ({ x, y, t, dim, main, tone = 'green', icon, title, desc, step, stepT }) => (
   <div
     style={{
       position: 'absolute',
@@ -103,7 +103,7 @@ export const Card: React.FC<{ x: number; y: number; t: number; dim: number; main
   </div>
 );
 
-export const Kicker: React.FC<{ y: number; t: number; text: string; note?: string; tone?: Tone }> = ({ y, t, text, note, tone = 'green' }) => (
+const Kicker: React.FC<{ y: number; t: number; text: string; note?: string; tone?: Tone }> = ({ y, t, text, note, tone = 'green' }) => (
   <div style={{ position: 'absolute', left: LEFT, width: 2 * COL.w + COL.gap, top: y, display: 'flex', alignItems: 'center', gap: 18, opacity: t }}>
     <div style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: 24, letterSpacing: '0.16em', textTransform: 'uppercase', color: TONE[tone].kicker, whiteSpace: 'nowrap' }}>{text}</div>
     {note ? <div style={{ fontFamily: FONT.body, fontSize: 24, color: INK[400], whiteSpace: 'nowrap' }}>{note}</div> : null}

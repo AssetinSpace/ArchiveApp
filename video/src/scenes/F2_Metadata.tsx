@@ -5,7 +5,7 @@ import { Step, StepsPanel } from '../components/Steps';
 import { phases } from '../copy/sk';
 import { cutDuration, cutTime, srcFrac } from '../lib/cuts';
 import { voAt } from '../components/Subtitles';
-import { easeInOut, settle, tween } from '../lib/anim';
+import { settle, tween } from '../lib/anim';
 import { loadFonts } from '../lib/fonts';
 import { BRAND } from '../theme';
 
@@ -25,25 +25,7 @@ export type Mark = { from: number; to: number; x: number; y: number; w: number; 
 
 const MARK_FILL = { green: 'rgba(79,168,90,0.28)', amber: 'rgba(245,158,11,0.34)' };
 
-/**
- * Experiment kratkej verzie: priblizenie zaznamu (ako kamera nad obrazovkou), aby bol text aplikacie citatelny aj na mobile.
- * t = s klipu, x/y = stred zaujmu (podiel obsahu okna), s = mierka; medzi klucmi ease-in-out, okraje zaznamu nevyjdu z okna.
- */
-export type ZoomKey = { t: number; x: number; y: number; s: number };
-const zoomAt = (keys: ZoomKey[], sec: number) => {
-  if (sec <= keys[0].t) return keys[0];
-  for (let i = 1; i < keys.length; i++) {
-    const a = keys[i - 1],
-      b = keys[i];
-    if (sec <= b.t) {
-      const u = easeInOut((sec - a.t) / Math.max(1e-6, b.t - a.t));
-      return { t: sec, x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u, s: a.s + (b.s - a.s) * u };
-    }
-  }
-  return keys[keys.length - 1];
-};
-
-export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps: Step[]; phase?: string; taps?: Tap[]; marks?: Mark[]; enter?: boolean; win?: Rect; panelLeft?: number; panelWidth?: number; zoom?: ZoomKey[] }> = ({ src, seconds, steps, phase = phases.app, taps = [], marks = [], enter = false, win = FOOTAGE_WINDOW, panelLeft, panelWidth, zoom }) => {
+export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps: Step[]; phase?: string; taps?: Tap[]; marks?: Mark[]; enter?: boolean; win?: Rect; panelLeft?: number; panelWidth?: number }> = ({ src, seconds, steps, phase = phases.app, taps = [], marks = [], enter = false, win = FOOTAGE_WINDOW, panelLeft, panelWidth }) => {
   const frame = useCurrentFrame();
   const tw = (s: number, d: number) => tween(frame, s, d);
   const winIn = enter ? tw(0, 400) : 1; // okno sa objavi z bielej (ked predchadzajuca scena nekonci oknom)
@@ -60,40 +42,28 @@ export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps:
       <div style={{ position: 'absolute', inset: 0, opacity: winIn, transform: `scale(${0.94 + 0.06 * winIn})`, transformOrigin: `${win.x + cw / 2}px ${win.y + win.h / 2}px` }}>
         <WindowFrame at={win}>
           <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#fff' }}>
-            {(() => {
-              const layer = (
-                <>
-                <OffthreadVideo src={staticFile(src)} muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                {/* zvyraznenie ako fixkou (polopriehladna plocha, nakresli sa zlava doprava) alebo ramik */}
-                {marks.map((m, i) => {
-                  const a = tw(m.from * 1000, 200) * (1 - tw(m.to * 1000 - 250, 250));
-                  if (a <= 0) return null;
-                  if (m.spot) {
-                    const p = m.pad ?? 8;
-                    return <div key={`m${i}`} style={{ position: 'absolute', left: m.x * cw - p, top: m.y * ch - p, width: m.w * cw + 2 * p, height: m.h * ch + 2 * p, borderRadius: p >= 8 ? 10 : 6, border: `${p >= 8 ? 4 : 3}px solid ${m.color === 'amber' ? '#F59E0B' : BRAND[400]}`, boxShadow: `0 0 0 4000px rgba(15,23,42,${0.38 * a})`, opacity: Math.min(1, a * 1.5), transform: `scale(${1.02 - 0.02 * a})`, pointerEvents: 'none' }} />;
-                  }
-                  if (m.outline) {
-                    return <div key={`m${i}`} style={{ position: 'absolute', left: m.x * cw - 6, top: m.y * ch - 6, width: m.w * cw + 12, height: m.h * ch + 12, borderRadius: 8, border: `4px solid ${BRAND[400]}`, boxShadow: '0 0 0 6px rgba(79,168,90,0.18)', opacity: a, transform: `scale(${1.03 - 0.03 * a})`, pointerEvents: 'none' }} />;
-                  }
-                  const sweep = m.sweep ? tw(m.from * 1000, m.sweep * 1000) : 1;
-                  return <div key={`m${i}`} style={{ position: 'absolute', left: m.x * cw - 4, top: m.y * ch, width: (m.w * cw + 8) * sweep, height: m.h * ch, borderRadius: 4, background: MARK_FILL[m.color ?? 'green'], opacity: a, pointerEvents: 'none', mixBlendMode: 'multiply' }} />;
-                })}
-                {/* kliky: jemny zeleny kruh ako pri mobilnom footage */}
-                {taps.map((tp, i) => {
-                  const t = tw(tp.t * 1000, 550);
-                  if (t <= 0 || t >= 1) return null;
-                  const r = 16 + 60 * t;
-                  return <div key={`t${i}`} style={{ position: 'absolute', left: tp.x * cw - r, top: tp.y * ch - r, width: 2 * r, height: 2 * r, borderRadius: '50%', border: `3px solid ${BRAND[400]}`, background: `rgba(79,168,90,${0.28 * (1 - t)})`, opacity: 1 - t * t, pointerEvents: 'none' }} />;
-                })}
-                </>
-              );
-              if (!zoom?.length) return layer;
-              // priblizenie: viditelny vysek obsahu [X0, X0 + cw/s] x [Y0, Y0 + ch/s], orezany na okraje zaznamu
-              const z = zoomAt(zoom, frame / 30);
-              const X0 = Math.min(Math.max(z.x * cw - cw / (2 * z.s), 0), cw - cw / z.s);
-              const Y0 = Math.min(Math.max(z.y * ch - ch / (2 * z.s), 0), ch - ch / z.s);
-              return <div style={{ position: 'absolute', left: 0, top: 0, width: cw, height: ch, transformOrigin: '0 0', transform: `translate(${-X0 * z.s}px, ${-Y0 * z.s}px) scale(${z.s})` }}>{layer}</div>;
-            })()}
+            <OffthreadVideo src={staticFile(src)} muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            {/* zvyraznenie ako fixkou (polopriehladna plocha, nakresli sa zlava doprava) alebo ramik */}
+            {marks.map((m, i) => {
+              const a = tw(m.from * 1000, 200) * (1 - tw(m.to * 1000 - 250, 250));
+              if (a <= 0) return null;
+              if (m.spot) {
+                const p = m.pad ?? 8;
+                return <div key={`m${i}`} style={{ position: 'absolute', left: m.x * cw - p, top: m.y * ch - p, width: m.w * cw + 2 * p, height: m.h * ch + 2 * p, borderRadius: p >= 8 ? 10 : 6, border: `${p >= 8 ? 4 : 3}px solid ${m.color === 'amber' ? '#F59E0B' : BRAND[400]}`, boxShadow: `0 0 0 4000px rgba(15,23,42,${0.38 * a})`, opacity: Math.min(1, a * 1.5), transform: `scale(${1.02 - 0.02 * a})`, pointerEvents: 'none' }} />;
+              }
+              if (m.outline) {
+                return <div key={`m${i}`} style={{ position: 'absolute', left: m.x * cw - 6, top: m.y * ch - 6, width: m.w * cw + 12, height: m.h * ch + 12, borderRadius: 8, border: `4px solid ${BRAND[400]}`, boxShadow: '0 0 0 6px rgba(79,168,90,0.18)', opacity: a, transform: `scale(${1.03 - 0.03 * a})`, pointerEvents: 'none' }} />;
+              }
+              const sweep = m.sweep ? tw(m.from * 1000, m.sweep * 1000) : 1;
+              return <div key={`m${i}`} style={{ position: 'absolute', left: m.x * cw - 4, top: m.y * ch, width: (m.w * cw + 8) * sweep, height: m.h * ch, borderRadius: 4, background: MARK_FILL[m.color ?? 'green'], opacity: a, pointerEvents: 'none', mixBlendMode: 'multiply' }} />;
+            })}
+            {/* kliky: jemny zeleny kruh ako pri mobilnom footage */}
+            {taps.map((tp, i) => {
+              const t = tw(tp.t * 1000, 550);
+              if (t <= 0 || t >= 1) return null;
+              const r = 16 + 60 * t;
+              return <div key={`t${i}`} style={{ position: 'absolute', left: tp.x * cw - r, top: tp.y * ch - r, width: 2 * r, height: 2 * r, borderRadius: '50%', border: `3px solid ${BRAND[400]}`, background: `rgba(79,168,90,${0.28 * (1 - t)})`, opacity: 1 - t * t, pointerEvents: 'none' }} />;
+            })}
             <div style={{ position: 'absolute', inset: 0, background: '#fff', opacity: 1 - screenIn, pointerEvents: 'none' }} />
           </div>
         </WindowFrame>

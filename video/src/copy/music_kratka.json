@@ -1,17 +1,17 @@
 {
-  "_": "Experiment kratkej verzie: strihy hudby public/music/bed.wav (Lyria, bez noveho generovania) pre kratku verziu K (~74 s, aj LinkedIn 4:5; teaser v kole 2 vypadol). Strihy na takt (104 BPM, takt 2,3077 s, zaciatky taktov 2,108 + n x 2,3077 s), prelinacka 60 ms. Nastup plnej kapely (29,8 s skladby) padne na prechod do bielej a znacku; tichsi zaver skladby (takty 56-64) pod ponuku a zaver. Pouzitie: node scripts/mix-music.mjs --list src/kratkaList.ts:K_LIST --clips out/kratka --out out/kratka/K_1080p.mp4 --cfg src/copy/music_kratka.json --variant K",
+  "_": "Experiment kratkej verzie: strihy hudby public/music/bed.wav (Lyria, bez noveho generovania) pre LinkedIn 4:5. Strihy na takt (104 BPM, takt 2,3077 s, zaciatky taktov 2,108 + n x 2,3077 s), prelinacka 60 ms. Nastup plnej kapely (29,8 s skladby = takt 12) padne na prechod do bielej a znacku; tichsi zaver skladby (takty 56-64) pod ponuku a zaver. Pouzitie: node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K",
   "end": 149.0,
   "K": {
     "cuts": [
       [
-        13.65,
-        25.19
+        6.72,
+        22.88
       ],
       [
-        66.72,
+        69.03,
         129.03
       ]
     ],
-    "_cuts": "5 taktov z pulzujucej casti problemu (znacka ~18,3 s filmu), 27 taktov z plneho grooveu (od 55 s filmu prechodovy takt 56 a pokojny zaver pod C8 a C9)"
+    "_cuts": "Kolo 3 (uvod 5,4 s namiesto 10 s, film 72,6 s): 7 taktov (2-8) z uvodu skladby, nastup plnej kapely ~13,5 s filmu tesne pred prechodom do bielej (13,6 s); 26 taktov (29-54) z plneho grooveu, od ~52,4 s filmu prechodovy takt 55 a pokojny zaver pod C8 a C9. Kolo 2: [[13.65, 25.19], [66.72, 129.03]]."
   }
 }

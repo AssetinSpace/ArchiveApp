@@ -1,5 +1,5 @@
 {
-  "_": "Experiment kratkej verzie (K ~74 s, LinkedIn 4:5; teaser v kole 2 vypadol). Povodny scenar src/copy/vo.json sa nemeni. Rovnaky format ako vo.json (at, text, parts, styleExtra); navyse `src` = veta vyrezana z existujucej nahravky (file, start, end v s), vyrobi ju scripts/kratka_lines.py, Gemini ju negeneruje. Hlas: node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --dir public/vo-kratka.",
+  "_": "Experiment kratkej verzie (K ~74 s, LinkedIn 4:5; teaser v kole 2 vypadol). Povodny scenar src/copy/vo.json sa nemeni. Rovnaky format ako vo.json (at, text, parts, styleExtra); navyse `src` = veta vyrezana z existujucej nahravky (file, start, end v s), vyrobi ju scripts/kratka_lines.py, Gemini ju negeneruje. Hlas: node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --dir public/vo-kratka. Kolo 3 (Samuel): kratsi uvod (len otazka, kancelaria a sklad naraz), v C8 bezpecnost a obhliadka so skuskou zadarmo a nezavazne (2 nove vety), zaver len \"Assetin Archives.\" z povodnej nahravky C9.",
   "_style": "pokojný, vecný firemný rozprávač; plynulý, súvislý prejav, o niečo svižnejšie tempo; pri čiarkach len krátky nádych, dlhšia pauza iba na konci vety; zreteľná výslovnosť; bez emócií navyše. Pace: fluent and connected, a bit brisker than a documentary narrator, no long pauses inside a sentence. Pronunciation: say the abbreviation QR in English, like 'cue are'. Codes like PL_01, KR_01, ZL_03 are read as Slovak letter names plus the plain number, without the underscore and without the leading zero (never say 'nula' or 'pomlčka'): 'pé el jedna, ká er jedna, zet el tri'.",
   "K-C2-Hladanie": [
     {
@@ -11,22 +11,6 @@
         "end": 3.4
       },
       "dur": 3400
-    },
-    {
-      "at": 4300,
-      "text": "Vy viete, že tam niekde je. V sklade, na polici, v krabici alebo v zložke.",
-      "parts": [
-        "Vy viete, že tam niekde je.",
-        "V sklade, na polici, v krabici alebo v zložke."
-      ],
-      "src": {
-        "file": "public/vo/lines/C2-Hladanie-1.wav"
-      },
-      "dur": 5520,
-      "partAt": [
-        0,
-        1960
-      ]
     }
   ],
   "K-C4-Cena": [
@@ -126,34 +110,56 @@
   "K-C8-Ponuka": [
     {
       "at": 400,
-      "text": "Archív vám spracujeme na kľúč. Začneme obhliadkou skladu a pilotom na jednej krabici.",
-      "parts": [
-        "Archív vám spracujeme na kľúč.",
-        "Začneme obhliadkou skladu a pilotom na jednej krabici."
-      ],
+      "text": "Archív vám spracujeme na kľúč.",
       "src": {
-        "file": "public/vo/lines/C8-Pilot-0.wav"
+        "file": "public/vo/lines/C8-Pilot-0.wav",
+        "start": 0,
+        "end": 2.05
       },
-      "dur": 6000,
+      "dur": 2050
+    },
+    {
+      "at": 2750,
+      "text": "Alebo ho spracujete sami v našej aplikácii.",
+      "dur": 2880
+    },
+    {
+      "at": 6000,
+      "text": "Aplikácia aj dáta môžu byť u vás, na vašich serveroch a zariadeniach.",
+      "parts": [
+        "Aplikácia aj dáta môžu byť u vás,",
+        "na vašich serveroch a zariadeniach."
+      ],
+      "dur": 4440,
       "partAt": [
         0,
-        2433
+        2380
       ]
     },
     {
-      "at": 6700,
-      "text": "Alebo ho spracujete sami v našej aplikácii.",
-      "dur": 2880
+      "at": 10800,
+      "text": "Začneme obhliadkou a skúškou na jednej krabici, zadarmo a nezáväzne.",
+      "parts": [
+        "Začneme obhliadkou a skúškou na jednej krabici,",
+        "zadarmo a nezáväzne."
+      ],
+      "dur": 4720,
+      "partAt": [
+        0,
+        3060
+      ]
     }
   ],
   "K-C9-Outro": [
     {
       "at": 400,
-      "text": "Assetin Archives. Zistíte, čo máte v archíve a kde presne to leží.",
+      "text": "Assetin Archives.",
       "src": {
-        "file": "public/vo/lines/C9-Outro-0.wav"
+        "file": "public/vo/lines/C9-Outro-0.wav",
+        "start": 0,
+        "end": 1.6
       },
-      "dur": 5680
+      "dur": 1600
     }
   ]
 }

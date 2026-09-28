@@ -42,8 +42,8 @@ import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
 const D_MAIN = 1300; // posun predelu, aby sa dal precitat text pod "2x"
 const H_MAIN = 3780; // drzanie znacky: kolo 40 znova veta "Predstavujeme vam softverove riesenie katalogizacie Assetin Archives." (15,5-20,1 s vystupu) + text pod lockupom
 const BOX = 860;
-/** Experiment kratkej verzie: `d` = posun predelu, `h` = drzanie znacky (ms); predvolene hlavna verzia. */
-export const C4_Cena: React.FC<{ d?: number; h?: number }> = ({ d: D = D_MAIN, h: H = H_MAIN }) => {
+/** Experiment kratkej verzie: `d` = posun predelu, `h` = drzanie znacky (ms), `tagline` = text pod lockupom; predvolene hlavna verzia. */
+export const C4_Cena: React.FC<{ d?: number; h?: number; tagline?: string }> = ({ d: D = D_MAIN, h: H = H_MAIN, tagline = captions.C4brand }) => {
   const frame = useCurrentFrame();
   const showCap = useCaptions(); // kolo 29: vety nesie nahovor + titulky (Paced)
   const tw = (s: number, d: number) => tween(frame, s, d);
@@ -154,7 +154,7 @@ export const C4_Cena: React.FC<{ d?: number; h?: number }> = ({ d: D = D_MAIN, h
           {/* kolo 36: popis pod lockupom (vetu uz nehovori nahovor) */}
           {/* kolo 47: slogan inym stylom ako titulky (zelene kapitalky s rozostupom), aby nesplyval s prepisom hlasu */}
           <div style={{ position: 'absolute', left: 0, right: 0, top: 600, textAlign: 'center', fontFamily: FONT.body, fontWeight: 600, fontSize: 30, color: BRAND[600], letterSpacing: '0.16em', textTransform: 'uppercase', opacity: settle(frame, 6750 + D), transform: `translateY(${(1 - settle(frame, 6750 + D)) * 12}px)` }}>
-            {captions.C4brand}
+            {tagline}
           </div>
         </div>
       ) : null}
