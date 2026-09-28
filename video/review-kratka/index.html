@@ -159,6 +159,7 @@
           <li>Problém je kratší: "Hľadanie trvá hodiny." s tikajúcimi hodinami a hneď prechod na logo. Vety "Niekedy je rýchlejšie dať dokument vyhotoviť nanovo. Platíte dvakrát za to isté." aj výkres a "2x €" vypadli (-4,3 s). Hookom je úvodná otázka, cena sa dá spomenúť v texte príspevku.</li>
           <li>Veta o prevádzke je kratšia: "Aplikácia beží u vás alebo u nás, vždy bezpečne." (4,3 s namiesto 7,2 s). Na karte ostáva "Vždy bezpečne a s rešpektom k vašim požiadavkám".</li>
           <li>Regál, otáznik a hodiny sú v strede obrazu (vpravo po výkrese neostalo prázdne miesto).</li>
+          <li>Logo naskočí hneď, ako biele svetlo zaplní obraz, a na konci hneď na strihu do zelenej (v teste pôsobila prázdna plocha pred logom ako chyba).</li>
           <li>Hudba znova strihaná na takt: pulz nastúpi s vetou o hľadaní, plná kapela tesne pred logom, pokojný záver presne od ponuky.</li>
           <li>Z kola 4 ostáva: postupný úvod s prechodom na policu, QR na polici, krabici, šanóne aj zložke, fotka bez náhľadu, ostré detaily, cesta k dokumentu, dve voľby v ponuke a logo domček | assetin | Archives.</li>
         </ul>
@@ -233,7 +234,7 @@
     </div>
     <div class="tablebox">
       <table>
-        <thead><tr><th></th><th>Pôvodná, 145 s</th><th>Kolo 4, 79 s</th></tr></thead>
+        <thead><tr><th></th><th>Pôvodná, 145 s</th><th>Kolo 5, 72 s</th></tr></thead>
         <tbody id="testtable"></tbody>
       </table>
     </div>
@@ -243,7 +244,7 @@
   <section id="otazky">
     <div class="sec-head">
       <h2>Rozhodnutia a otázky</h2>
-      <p>Čo som v kole 3 navrhol podľa tvojich odpovedí. Pri každom stačí krátka pripomienka, ak chceš inak.</p>
+      <p>Čo navrhujem po kole 5. Pri každom stačí krátka pripomienka, ak chceš inak.</p>
     </div>
     <div class="asks" id="asks"></div>
   </section>
@@ -257,17 +258,17 @@
 
   <footer>
     <p>Zdroj: <span class="mono">video/src/scenes/kratka/LinkedIn.tsx</span> (kompozícia K-LinkedIn), scenár <span class="mono">video/src/copy/vo_kratka.json</span>, hudba <span class="mono">video/src/copy/music_kratka.json</span>, postup v <span class="mono">video/EXPERIMENT-KRATKA.md</span>.</p>
-    <p>Kolo 1 (krátka verzia 16:9, teaser 31 s) je v gite v commite b8552d5, kolo 2 (74 s) v commite f88328b, kolo 3 (73 s) v commite c862b18.</p>
+    <p>Kolo 1 (krátka verzia 16:9, teaser 31 s) je v gite v commite b8552d5, kolo 2 (74 s) v commite f88328b, kolo 3 (73 s) v commite c862b18, kolo 4 (79 s) v commite e4cd18d.</p>
     <p>Pripomienky sa píšu cez okno komentára claude.ai (tlačidlo pri videu).</p>
   </footer>
 </div>
 <div class="tip" id="tip" hidden></div>
 
 <script>
-  const BUILD = { renderedAt: "2026-09-28T10:50:00Z" };
+  const BUILD = { renderedAt: "2026-09-28T10:57:00Z" };
   // id assetov (videa a plagaty); prazdne = este sa nahrava
   const VIDEOS = {
-    L: { cap: "729a9e504c11869494c8ded4a464fcee", poster: "c38b85a4c7a4fb534b9f5919225680e7", len: 72.1 },
+    L: { cap: "0ee480d186782e426a088fb57112c308", poster: "c38b85a4c7a4fb534b9f5919225680e7", len: 72.1 },
     FULL: { cap: "82122ce5cb36a031995136d89d2b36d1", poster: "b1dcf071776b4b4ea0079ec1cdb2ab89", len: 145.2 }
   };
   const PARTS = ["Úvod a problém", "Predstavenie", "Ako to funguje", "Hľadanie", "Ponuka a záver"];
@@ -294,17 +295,17 @@
     ["C9", "Assetin Archives. (Na obraze len logo a slogan.)", "old", "C9, začiatok vety"]
   ];
   const TEST = [
-    ["Pochopili podstatu", "Áno: QR, fotka, nájdem policu, spravia to za mňa. Že to urobíme my, však zaznie až v 1:57.", "Áno, obaja: QR na polici, krabici, šanóne aj zložke, fotka titulnej strany, aplikácia vyčíta údaje a ukáže presné miesto v sklade."],
-    ["Prvých 10 sekúnd", "netestované", "Obaja: súvislé a plynulé (laik: \"malo to jasný príbeh\", správca: \"presne toto riešim\"), pozerali by ďalej. V kole 3 (naraz pod sebou) to bolo chaotické."],
-    ["Ako nájdu dokument", "", "Obaja presne: slovo vo vyhľadávaní, potom Polica PL_01 -> Krabica KR_01 -> Zložka ZL_03 -> Dokument a ísť priamo na miesto."],
-    ["Aplikácia v mobile", "netestované na mobile (16:9)", "Zväčšené detaily prečítali (názov z fotky, \"vodovod\", cesta), celé okno aplikácie je na mobile drobné."],
-    ["Možnosti a bezpečnosť", "chýbala, pýtali sa na ňu", "Pochopili obe voľby (na kľúč alebo vlastnými silami, u vás alebo u nás). Pýtali sa na GDPR, šifrovanie a prístupové práva."],
+    ["Pochopili podstatu", "Áno: QR, fotka, nájdem policu, spravia to za mňa. Že to urobíme my, však zaznie až v 1:57.", "Áno, obaja: QR na polici, krabici, šanóne aj zložke, fotka titulnej strany, slovo vo vyhľadávaní a presné miesto v sklade."],
+    ["Prvých 10 sekúnd", "netestované", "Obaja: súvislé a zrozumiteľné. Správca: \"trafilo to môj každodenný problém\". Laikovi je to pomalé: sklad a hodiny 0:05-0:12 by ho na sieti nemuseli udržať."],
+    ["Ako nájdu dokument", "", "Obaja presne: slovo vo vyhľadávaní, potom Polica PL_01 -> Krabica KR_01 -> Zložka ZL_03 a ísť priamo na miesto."],
+    ["Aplikácia v mobile", "netestované na mobile (16:9)", "Zväčšené výrezy prečítali (text z fotky, \"vodovod\", cesta), celé okno aplikácie 0:32-0:52 je na mobile drobné a nečitateľné."],
+    ["Možnosti a bezpečnosť", "chýbala, pýtali sa na ňu", "Pochopili obe voľby (na kľúč alebo sami, u vás alebo u nás). \"Vždy bezpečne\" im je málo: správca by chcel zálohovanie, prístupové práva, šifrovanie a GDPR, laik kto z vašich ľudí vidí citlivé zmluvy a kde sú dáta."],
     ["Prvý krok a cena", "chýbala výzva aj cena", "Obaja: vyskúšať to na obmedzenom rozsahu, 0 €, nezáväzne."],
-    ["Posledný záber", "", "Logo výborne čitateľné, záber čistý. Obaja by na konci chceli web."],
-    ["Nerozumeli", "metadáta, fulltextové vyhľadávanie, katalogizácia, zaradiť do hierarchie", "Správca ničomu. Laikovi znie odborne \"na vašej infraštruktúre\" (navrhol \"u vás vo firme\")."],
-    ["Rušilo v obraze", "", "Sivý prechod z tmavej do bielej pred logom 0:17 a nadpis \"Polica a krabica\" sám na bielej 0:56 <span class=\"fixed\">(opravené)</span>; okno aplikácie drobné s bielymi okrajmi 0:36-0:48."],
-    ["Strácali pozornosť", "úvod 0:05-0:25, kontrola v aplikácii 1:05-1:28", "Laik: aplikácia 0:36-0:48 a voľby v ponuke 0:58-1:10. Správca: potvrdzovanie 0:43-0:48 a voľby 1:03-1:10."],
-    ["Dĺžka podľa nich", "60-90 s (laik), 60-75 s (správca)", "45-60 s (obaja); dĺžku si určil ty"]
+    ["Posledný záber", "", "Čistý a dobre čitateľný. Obaja by na ňom chceli web."],
+    ["Nerozumeli", "metadáta, fulltextové vyhľadávanie, katalogizácia, zaradiť do hierarchie", "Správca ničomu. Laikovi stále \"na vašej infraštruktúre\" na karte (nevie, či potrebuje vlastný server)."],
+    ["Rušilo v obraze", "", "Prázdna biela pred logom 0:13-0:15 a prázdna zelená 1:07-1:08 pred logom na konci <span class=\"fixed\">(opravené)</span>; okno aplikácie drobné s bielymi okrajmi 0:32-0:52."],
+    ["Strácali pozornosť", "úvod 0:05-0:25, kontrola v aplikácii 1:05-1:28", "Laik: úvod 0:05-0:12 a voľby v ponuke 0:53-1:05 (\"suchý formulár\"). Správca: prepis textu z fotky 0:32-0:44."],
+    ["Dĺžka podľa nich", "60-90 s (laik), 60-75 s (správca)", "35-45 s (laik), 45-60 s (správca); dĺžku si určil ty"]
   ];
   const ASKS = [
     ["Dvojité platenie", "Z videa vypadlo. Hookom je úvodná otázka a bolesť \"hľadanie trvá hodiny\" pozná každý, cenu nového vyhotovenia rieši skôr ten, kto rozhoduje o rozpočte. Odporúčam ju dať do textu LinkedIn príspevku, napríklad \"Koľkokrát ste už platili za dokument, ktorý máte niekde v archíve?\"."],
@@ -381,7 +382,7 @@
   // test (texty su nase, nie od divakov stranky)
   const tb = document.getElementById('testtable');
   for (const [k, ...cells] of TEST) { const tr = document.createElement('tr'); tr.innerHTML = `<th></th>` + cells.map((c) => `<td>${c}</td>`).join(''); tr.firstChild.textContent = k; tb.append(tr); }
-  document.getElementById('test2').textContent = 'Kolo 4 pozerali ako príspevok v mobile (video 432 x 540), verziu tesne pred dvoma poslednými opravami prechodov. Po teste som sivý prechod pred logom nahradil bielym svetlom zo stredu a nadpis na konci vyhľadávania teraz zmizne spolu s obrazom. Technická kontrola finálnej verzie: bez chýb v reči, hudbe aj obraze, prechod pri logu plynulý, hlas 5/5.';
+  document.getElementById('test2').textContent = 'Kolo 5 pozerali ako príspevok v mobile (video 432 x 540), verziu tesne pred poslednou opravou. Po teste som logo posunul: naskočí hneď, ako biele svetlo zaplní obraz, a na konci hneď na strihu do zelenej, takže prázdna biela ani zelená plocha už nie je. Technická kontrola: bez chýb v reči, hudbe aj obraze, prechod pri 0:14 plynulý, hlas 5/5.';
   const asks = document.getElementById('asks');
   for (const [q, a] of ASKS) { const d = document.createElement('div'); d.className = 'ask'; d.innerHTML = '<b></b><p></p>'; d.children[0].textContent = q; d.children[1].textContent = a; asks.append(d); }
 

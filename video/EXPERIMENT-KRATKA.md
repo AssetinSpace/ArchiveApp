@@ -27,6 +27,17 @@ Samuel: skrátiť vetu o infraštruktúre; posúdiť, či "Platíte dvakrát za 
   karty a pás "Vždy bezpečne a s rešpektom k vašim požiadavkám" ostávajú. C8 15,2 s namiesto 18,1 s.
 - Hudba: strihy `[[11.34, 27.49], [66.72, 129.03]]`, pulz (takt 11) s vetou o hľadaní, plná kapela ~13,8 s (predel do
   bielej 13,9 s), pokojný záver od ~53,7 s = začiatok ponuky (53,2 s). Film 72 s.
+- Po teste (obaja: prázdna biela pred logom 0:13-0:15 vyzerá ako chyba, laik: prázdna zelená 1:07-1:08 pred logom
+  na konci): logo v C4 naskočí 380 ms po predele (keď svetlo zaplní obraz), slogan o 320 ms neskôr; v C9 je logo
+  takmer hneď na strihu (`settle(frame, -250)`), slogan o 450 ms neskôr.
+- Výsledok: `out/kratka/K-LinkedIn_1080p.mp4` 72,1 s, -16 LUFS; technická kontrola bez chýb (prechod pri 0:14
+  plynulý, hlas 5/5), 20 snímok pôvodných klipov na pixel rovnakých ako `ea5550e` (aj po novom `cost` v `C4_Cena`).
+- Test na mobile (pred opravou loga): obaja pochopili podstatu, čo dostane QR, cestu PL_01 -> KR_01 -> ZL_03 ->
+  Dokument, obe voľby a že skúška je zadarmo. Úvod súvislý (správca: "trafilo to môj každodenný problém"), laikovi
+  pomalý (sklad a hodiny 0:05-0:12). Okno aplikácie 0:32-0:52 je na mobile drobné, čitateľné sú len zväčšené výrezy.
+  "Vždy bezpečne" im je málo (správca: zálohovanie, prístupové práva, šifrovanie, GDPR; laik: kto vidí citlivé
+  zmluvy, kde sú dáta). Laikovi znie "na vašej infraštruktúre" na karte odborne. Na poslednom zábere by chceli web.
+  Dĺžka podľa nich 35-45 s (laik), 45-60 s (správca).
 
 ## Kolo 4 (28. 9. 2026): úvod späť, hierarchia archívu, cesta k dokumentu, ostré detaily, dve voľby
 

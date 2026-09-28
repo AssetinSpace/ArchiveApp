@@ -592,8 +592,9 @@ const C4Brand: React.FC = () => {
   const frame = useCurrentFrame();
   const r = easeInOut(Math.min(1, Math.max(0, ((frame / FPS) * 1000 - C4_REVEAL) / 480)));
   const out = tween(frame, C4_BRAND_OUT, 300);
-  const logo = settle(frame, C4_WHITE + 800) * (1 - out);
-  const tag = settle(frame, C4_WHITE + 1150) * (1 - out);
+  // kolo 5 (test: prazdna biela pred logom vyzera ako chyba): logo hned, ako svetlo zaplni obraz
+  const logo = settle(frame, C4_WHITE + 380) * (1 - out);
+  const tag = settle(frame, C4_WHITE + 700) * (1 - out);
   const R = 980 * r; // polomer svetla (roh ramca je 865 px od stredu)
   return (
     <>
@@ -617,8 +618,8 @@ const LI_C9: React.FC = () => {
   React.useEffect(() => {
     loadFonts();
   }, []);
-  const logo = settle(frame, 100);
-  const tag = settle(frame, 500);
+  const logo = settle(frame, -250); // kolo 5 (test: prazdna zelena pred logom): logo je takmer hned na strihu
+  const tag = settle(frame, 200);
   return (
     <AbsoluteFill style={{ background: `linear-gradient(160deg, ${BRAND[800]} 0%, ${BRAND[600]} 100%)`, alignItems: 'center', justifyContent: 'center', fontFamily: FONT.body, color: '#fff' }}>
       <div style={{ marginTop: -40, opacity: logo, transform: `translateY(${(1 - logo) * 14}px) scale(${0.96 + 0.04 * logo})` }}>
