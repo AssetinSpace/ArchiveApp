@@ -6,12 +6,11 @@ import { PhoneFrame } from '../components/Device';
 import { StepsPanel } from '../components/Steps';
 import { ArchiveBox } from '../components/ArchiveBox';
 import { Camera } from '../lib/camera';
-import { Binder, Carton, IsoBox, QrOnLeftFace, ShelfFrame, iso, pts } from '../lib/iso';
+import { Binder, Carton, IsoBox, QrOnLeftFace, QrOnTopFace, ShelfFrame, iso, pts } from '../lib/iso';
 import { drawProps, pop, settle, tween } from '../lib/anim';
 import { Check } from '../components/Illustrations';
-import { captions } from '../copy/sk';
+import { captions, phases } from '../copy/sk';
 import { BRAND, FONT, INK, ISO, SAFE } from '../theme';
-import { C7_STEPS } from '../copy/steps';
 
 /**
  * C7 - Hierarchia + sken. Zacina tou istou krabicou ako C5 (zatvorena, s QR,
@@ -36,7 +35,11 @@ const SIB = 230;
 const SVG_AT = { x: 260, y: SAFE.illoTop };
 // stred police (v px stranky) pre priblizenie
 const SHELF_C = { x: SVG_AT.x + NODE_X - 3, y: SVG_AT.y + NODES_Y[0] + 20 - 47 };
-// Kroky vpravo (rovnaky jazyk ako v C5 a pri footage): src/copy/steps.ts
+/** Kroky vpravo (rovnaky jazyk ako v C5 a pri footage). */
+const C7_STEPS = [
+  { from: 600, title: 'Miesto v hierarchii' },
+];
+
 export const C7_Hierarchia: React.FC = () => {
   const frame = useCurrentFrame();
   const showCap = useCaptions();
@@ -118,7 +121,7 @@ export const C7_Hierarchia: React.FC = () => {
           ) : (
             <g>
               <IsoBox x={-10} y={-15} z={0} w={21} d={30} h={1} faces={{ top: '#fff', left: ISO.right, right: ISO.edge }} />
-              <QrOnLeftFace x={-4} y={15} z={-3} size={8} s={q} />
+              <QrOnTopFace x={-2} y={5} z={1.2} size={8} s={q} /> {/* kolo 31: QR plocho na liste, nie z boku */}
               {/* oznacenie dokumentu */}
               <text x={0} y={46} textAnchor="middle" fontFamily="ui-monospace, Menlo, monospace" fontSize={18} fill={INK[500]} opacity={q}>
                 {docId}
@@ -185,7 +188,7 @@ export const C7_Hierarchia: React.FC = () => {
         </div>
       </Camera>
 
-      <StepsPanel frame={frame} steps={C7_STEPS} left={1400} width={480} opacity={treeOut} />
+      <StepsPanel frame={frame} steps={C7_STEPS} phase={phases.teren} left={1400} width={480} opacity={treeOut} />
       <div style={{ position: 'absolute', inset: 0, opacity: 0 }}>
         <PhoneFrame at={PHONE_AT} rotate={-6}>
           <div style={{ position: 'absolute', inset: 0, background: '#fff' }}>
@@ -205,7 +208,6 @@ export const C7_Hierarchia: React.FC = () => {
         </PhoneFrame>
       </div>
 
-      {showCap ? <Caption text={captions.C7} t={settle(frame, 3000)} out={tw(6800, 300)} y={SAFE.captionY} /> : null}
     </Scene>
   );
 };

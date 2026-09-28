@@ -4,7 +4,7 @@ import { PNG } from 'pngjs';
 import { readFileSync, readdirSync } from 'node:fs';
 
 const dir = 'out/stills';
-// klipy bez caption (intro, outro) sa nekontroluju
+// klipy bez caption (intro, outro) sa nekontroluju; C8 od kola 42 (karty ponuky) znova kontrolovany
 const EXEMPT = ['C1-', 'C9-', 'F1-', 'F2-', 'F3-', 'F4-', 'contact-'];
 // tmave klipy s podlahou: hrana podlahy prechadza pasom, tolerancia vyssia
 const FLOOR = ['C2-', 'C3-'];

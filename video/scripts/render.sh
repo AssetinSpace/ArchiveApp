@@ -8,7 +8,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 ids=("$@")
 if [ ${#ids[@]} -eq 0 ]; then
-  mapfile -t ids < <(sed -n '/SCENE_LIST/,/^];/p' src/scenesList.ts | grep -o "^  \['[A-Za-z0-9-]*'" | tr -d "[' ")
+  mapfile -t ids < <(sed -n '/SCENE_LIST/,/^];/p' src/scenesList.ts | grep -o "^  \(\[\|paced(\)'[A-Za-z0-9-]*'" | sed "s/.*'\([A-Za-z0-9-]*\)'/\1/")
 fi
 for id in "${ids[@]}"; do
   if [ "${PREVIEW:-}" = "1" ]; then
