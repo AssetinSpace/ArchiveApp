@@ -11,6 +11,38 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 8 (28. 9. 2026): menej textu v obraze, kratší úvod, pokojnejšia veta o QR, väčší mobil, web na konci
+
+Samuel: vynechať "Vy viete, že tam niekde je."; sklad, keď tam panáčik hľadá, nie je dosť priblížený; web na konci určite
+áno; pri 0:26 povie vety strašne rýchlo; pri predstavení (prvá biela) je veľa priestoru, kde sa nič nedeje; mobil pri 0:31
+je zle orezaný a malý (titulky tam nie sú); v obraze je veľa textu, zjednodušiť na nadpis, obsah a prepis hlasu, značku
+dať malú dole pod titulky doprava; posúdiť.
+
+- Posúdenie rozloženia: súhlasím. Názov fázy s bodkami, štítky nad detailmi, značka hore a web dole opakovali to, čo
+  hovorí hlas a nadpis; na mobile to bolo päť vrstiev textu naraz. Ostal nadpis kroku (80 px od vrchu, bez fázy
+  a bodiek), obsah a titulky; značka je malá a tlmená v pravom dolnom rohu pod titulkami, web len na záverečnom zábere.
+  Pravý dolný roh pri zastavení videa prekryje lišta prehrávača LinkedIn, preto je značka len doplnok, nie výzva.
+- C2: "Vy viete, že tam niekde je." vystrihnutá (veta o sklade od 1,95 s pôvodnej nahrávky C2-Hladanie-1), otázka od
+  0,25 s, veta o sklade od 3,95 s. Scéna C2 v sklade rýchlejšie (`C2_FAST`, Freeze, scéna sa nemení): prestrih a chôdza
+  2,2x, kamera na policu 1,4x, prehľadávanie krabíc 1:1, zatváranie 1,9x. Priblíženie: sklad 1,5x, polica s krabicami
+  1,8x (predtým 1,3x), C4 z 1,8x na skupinu regál, otáznik, hodiny. C2 7,25 s namiesto 9,7 s.
+- C5: dve samostatné vety s pauzou 0,9 s pred "Mobilom", obe pokojnejšie (Gemini s pokynom na pokojné tempo a pauzy
+  v zozname, QR "kju ár" overené prepisom, vybrané z 6 a 3 pokusov): prvá 8,1 s namiesto 6,6 s. Scéna stojí dvakrát
+  (`K_C5_HOLDS`: 0,7 s po nálepke na krabici, 4,15 s po nálepkach na zložkách): nálepka na krabicu pri "krabica",
+  nálepky na zložky pri "zložka", mobil tesne pred "Mobilom". C5 13,25 s.
+- Logo: pod logom pri "Z vášho archívu urobíme prehľadný digitálny katalóg" Váš archív -> Digitálny katalóg (ikona pri
+  "archívu", šípka pri "urobíme", katalóg pri "prehľadný"), odíde s logom (`C4Promise`).
+- F1: mobil 575 x 1040 px (predtým 442 x 800), od nadpisu po značku dole. C9: web www.assetin.sk pod sloganom.
+- Hudba: strihy `[[6.72, 27.49], [71.34, 129.03]]`, pulz (takt 11) ~6,8 s, plná kapela ~9,2 s tesne pred zeleným
+  prechodom (9,32 s), pokojný záver ~54,1 s = začiatok ponuky (54,03 s). Film 72,5 s.
+- Test na mobile: technická kontrola bez chýb (hlas 5/5, plná kapela nameraná v 9,20 s). Obaja pochopili podstatu,
+  že štruktúra nie je pevne daná, aj cestu k položke; ponuka "prehľadná, jasné karty"; posledný záber s webom "čistý,
+  web výrazný". Nástup loga laik: "profesionálne, čisto a moderne, zelená príjemne predelila úvod od riešenia", správcovi
+  príde v 10. sekunde priskoro. Obaja: biely preblik pri prechode z mobilu do aplikácie (0:31-0:33); po teste mobil
+  vybledne za 0,25 s (predtým 0,5 s) a okno F24 je hneď bez vyblednutia z bielej (`enter` vypadol). Stále: polica
+  s hodinami 0:04-0:08 a potvrdzovanie údajov 0:36-0:45 im prídu pomalé, laikovi "infraštruktúra", bezpečnosť
+  konkrétnejšie (GDPR, servery, prístupové práva), dĺžka podľa nich 40-50 s.
+
 ## Kolo 7 (28. 9. 2026): "každá položka" a nie pevná štruktúra, údaje o položke, ponuka na troch slidoch
 
 Samuel: pri 0:22 povedať, že QR dostane každá položka, či polica, šanón alebo zložka, a že to nie je pevne dané; pri

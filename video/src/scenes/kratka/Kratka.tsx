@@ -39,16 +39,19 @@ export const c4End = (d: number, h: number) => (8200 + d + h + 900) / 1000;
 /** Nazov fazy pre pracu so skutocnymi krabicami: "V terene" divakom v teste evokovalo stavbu, "V archive" je jasne. */
 export const PHASE_ARCHIV = 'V archíve';
 
-/** C5: dva kroky podla jednej vety (QR na krabicu aj zlozky, fotka titulnej strany). Kolo 7: veta ma tri casti. */
+/** C5: dva kroky (QR na krabicu aj zlozky, fotka titulnej strany). Kolo 8: veta o foteni je samostatna (pauza pred nou). */
 export const C5_STEPS = (clip: string): C5Step[] => [
   { from: 600, title: 'Prilepiť QR kód' },
-  { from: voAt(clip, 0, 2), title: 'Odfotiť titulnú stranu' },
+  { from: voAt(clip, 1), title: 'Odfotiť titulnú stranu' },
 ];
 /**
  * Kolo 7 (Samuel: QR dostane kazda polozka, nie je to pevne dane): dlhsia prva veta, scena C5 stoji po dopade poslednej
  * nalepky (ako hlavna verzia v kole 32), kym zaznie "Mobilom potom odfotime..." a pride mobil.
  */
-export const K_C5_HOLDS: Hold[] = [{ at: 4000, hold: 2750 }]; // po dopade poslednej nalepky (3940), pred vytiahnutim zlozky a mobilom (4100, 4300)
+export const K_C5_HOLDS: Hold[] = [
+  { at: 2300, hold: 700 }, // kolo 8: nalepka na krabici pri slove "krabica", veko sa otvori pri "sanon"
+  { at: 4000, hold: 4150 }, // po dopade poslednej nalepky (pri "zlozka"), pred vytiahnutim zlozky a mobilom (4100, 4300)
+];
 
 /** F1: skutocny fotoaparat v aplikacii (spust), bez hlasu; obrazovka s vyvojarskym textom aj nahlad fotky vypadli. */
 export const KF1 = 'k-f1-sken';

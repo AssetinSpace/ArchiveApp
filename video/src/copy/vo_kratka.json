@@ -1,9 +1,9 @@
 {
-  "_": "Experiment kratkej verzie (K ~74 s, LinkedIn 4:5; teaser v kole 2 vypadol). Povodny scenar src/copy/vo.json sa nemeni. Rovnaky format ako vo.json (at, text, parts, styleExtra); navyse `src` = veta vyrezana z existujucej nahravky (file, start, end v s), vyrobi ju scripts/kratka_lines.py, Gemini ju negeneruje. Hlas: node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --dir public/vo-kratka. Kolo 3 (Samuel): kratsi uvod (len otazka, kancelaria a sklad naraz), v C8 bezpecnost a obhliadka so skuskou zadarmo a nezavazne (2 nove vety), zaver len \"Assetin Archives.\" z povodnej nahravky C9. Kolo 4 (Samuel): uvod znova ako v kole 2 (obe vety C2), v C5 nova veta o QR na polici, krabici, sanone aj zlozke, v C8 nove vety o infrastrukture (u vas alebo u nas, vzdy bezpecne) a skuske na obmedzenom rozsahu. Kolo 5 (Samuel): z problemu v C4 ostava len \"Hladanie trva hodiny.\" (vystrihnute z povodnej vety K-C4-Cena-0, cela je v K-C4-Cena-0.full.wav), veta o infrastrukture kratsia. Kolo 6 (Samuel): \"Hladanie moze trvat hodiny.\" (nova veta Gemini namiesto vystrihnutej \"Hladanie trva hodiny.\"), hned po C2 (menej prazdna okolo 0:11). Kolo 7 (Samuel): v C5 \"Kazda polozka, ci uz polica, krabica, sanon alebo zlozka, dostane QR kod, podla toho, ako mate archiv usporiadany.\" (struktura nie je pevne dana), v F3 \"aplikacia ukaze udaje o konkretnej polozke aj cestu k nej\" (nove vety Gemini, QR po anglicky overene prepisom).",
+  "_": "Experiment kratkej verzie (K ~74 s, LinkedIn 4:5; teaser v kole 2 vypadol). Povodny scenar src/copy/vo.json sa nemeni. Rovnaky format ako vo.json (at, text, parts, styleExtra); navyse `src` = veta vyrezana z existujucej nahravky (file, start, end v s), vyrobi ju scripts/kratka_lines.py, Gemini ju negeneruje. Hlas: node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --dir public/vo-kratka. Kolo 3 (Samuel): kratsi uvod (len otazka, kancelaria a sklad naraz), v C8 bezpecnost a obhliadka so skuskou zadarmo a nezavazne (2 nove vety), zaver len \"Assetin Archives.\" z povodnej nahravky C9. Kolo 4 (Samuel): uvod znova ako v kole 2 (obe vety C2), v C5 nova veta o QR na polici, krabici, sanone aj zlozke, v C8 nove vety o infrastrukture (u vas alebo u nas, vzdy bezpecne) a skuske na obmedzenom rozsahu. Kolo 5 (Samuel): z problemu v C4 ostava len \"Hladanie trva hodiny.\" (vystrihnute z povodnej vety K-C4-Cena-0, cela je v K-C4-Cena-0.full.wav), veta o infrastrukture kratsia. Kolo 6 (Samuel): \"Hladanie moze trvat hodiny.\" (nova veta Gemini namiesto vystrihnutej \"Hladanie trva hodiny.\"), hned po C2 (menej prazdna okolo 0:11). Kolo 7 (Samuel): v C5 \"Kazda polozka, ci uz polica, krabica, sanon alebo zlozka, dostane QR kod, podla toho, ako mate archiv usporiadany.\" (struktura nie je pevne dana), v F3 \"aplikacia ukaze udaje o konkretnej polozke aj cestu k nej\" (nove vety Gemini, QR po anglicky overene prepisom). Kolo 8 (Samuel): v C2 bez \"Vy viete, ze tam niekde je.\" (vystrihnute z povodnej nahravky od 1,95 s), veta v C5 pokojnejsie a ako dve vety s pauzou pred \"Mobilom\" (nove vety Gemini).",
   "_style": "pokojný, vecný firemný rozprávač; plynulý, súvislý prejav, o niečo svižnejšie tempo; pri čiarkach len krátky nádych, dlhšia pauza iba na konci vety; zreteľná výslovnosť; bez emócií navyše. Pace: fluent and connected, a bit brisker than a documentary narrator, no long pauses inside a sentence. Pronunciation: say the abbreviation QR in English, like 'cue are'. Codes like PL_01, KR_01, ZL_03 are read as Slovak letter names plus the plain number, without the underscore and without the leading zero (never say 'nula' or 'pomlčka'): 'pé el jedna, ká er jedna, zet el tri'.",
   "K-C2-Hladanie": [
     {
-      "at": 400,
+      "at": 250,
       "text": "Kedy ste naposledy nevedeli nájsť nejaký dokument?",
       "src": {
         "file": "public/vo/lines/C2-Hladanie-0.wav",
@@ -13,20 +13,13 @@
       "dur": 3400
     },
     {
-      "at": 4300,
-      "text": "Vy viete, že tam niekde je. V sklade, na polici, v krabici alebo v zložke.",
-      "parts": [
-        "Vy viete, že tam niekde je.",
-        "V sklade, na polici, v krabici alebo v zložke."
-      ],
+      "at": 3950,
+      "text": "V sklade, na polici, v krabici alebo v zložke.",
       "src": {
-        "file": "public/vo/lines/C2-Hladanie-1.wav"
+        "file": "public/vo/lines/C2-Hladanie-1.wav",
+        "start": 1.95
       },
-      "dur": 5520,
-      "partAt": [
-        0,
-        1960
-      ]
+      "dur": 3570
     }
   ],
   "K-C4-Cena": [
@@ -53,19 +46,23 @@
   "K-C5-Teren": [
     {
       "at": 300,
-      "text": "Každá položka, či už polica, krabica, šanón alebo zložka, dostane QR kód, podľa toho, ako máte archív usporiadaný. Mobilom potom odfotíme titulnú stranu dokumentu.",
+      "text": "Každá položka, či už polica, krabica, šanón alebo zložka, dostane QR kód, podľa toho, ako máte archív usporiadaný.",
       "parts": [
         "Každá položka, či už polica, krabica, šanón alebo zložka,",
-        "dostane QR kód, podľa toho, ako máte archív usporiadaný.",
-        "Mobilom potom odfotíme titulnú stranu dokumentu."
+        "dostane QR kód, podľa toho, ako máte archív usporiadaný."
       ],
-      "dur": 10280,
+      "styleExtra": "Pronunciation: the abbreviation 'QR' in 'QR kód' is English: say 'kju ár' (like 'cue are'), never the Slovak letter names 'kvé er'. Pace for this sentence: calm and unhurried, noticeably slower than a brisk narrator; a short clear pause after each item of the list (polica, krabica, šanón, zložka) and after 'QR kód'.",
+      "dur": 8640,
       "partAt": [
         0,
-        3840,
-        7260
-      ],
-      "styleExtra": "Pronunciation: the abbreviation 'QR' in 'QR kód' is English: say 'kju ár' (like 'cue are'), never the Slovak letter names 'kvé er'."
+        4680
+      ]
+    },
+    {
+      "at": 9500,
+      "text": "Mobilom potom odfotíme titulnú stranu dokumentu.",
+      "styleExtra": "Pace for this sentence: calm and unhurried.",
+      "dur": 3560
     }
   ],
   "K-F24-Aplikacia": [
