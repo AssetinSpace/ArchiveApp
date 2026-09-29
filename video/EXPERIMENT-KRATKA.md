@@ -11,6 +11,37 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 16 (29. 9. 2026): nová, profesionálnejšia hudba len pre LinkedIn verziu
+
+Samuel: hudbu v LinkedIn videu prispôsobiť, aby viac sedela; začiatok a "efekty iskier" vadia, skúsiť inú, profesionálnejšiu
+verziu vhodnú kvalitnému produktu.
+
+- Rozbor doterajšej hudby (skladba `bed.wav` z hlavnej verzie, v LinkedIn verzii zostrihaná): na začiatku šum a vzdušný
+  nádych s trblietkami (0-2,5 s filmu 70-90 % zvuku nad 5 kHz), pred zmenami stúpajúce šumy a obrátené činely, uprostred
+  zvonkohra; štýl akustická gitara, lúskanie a rovný beat (Gemini: "detská, magická ako z fotobanky").
+- Nová skladba len pre LinkedIn: `public/music/bed_kratka.wav` (Lyria, prompt v `src/copy/music_kratka.json`, `scripts/music.py
+  --prompt-file src/copy/music_kratka.json --out public/music/bed_kratka.wav`); pôvodná `bed.wav` a hlavná verzia sú bez zmeny.
+  Pokus 1 (prompt so zoznamom zakázaných zvukov) mal stále stúpajúce šumy a štýl lo-fi popu, pokus 2 (presný zoznam nástrojov,
+  zmeny len pridaním nástroja na dobu) má pokojný klavír v úvode, nástup kapely presne v 9,5 s, pravidelný groove, pokojnejšiu
+  pasáž a záverečný akord; stúpajúce šumy pred zmenami Lyria pridala aj tak (spektrum: pred taktmi 0, 8, 12, 20, 24, 32).
+- Strih na takty (`scripts/music_edit.py`, plán v `music_kratka.json` K.edit): 105,14 BPM, takt 2,2827 s zmeraný na kicku
+  (bez posunu v celej skladbe). Takty so šumom sú nahradené taktmi s rovnakým akordom (4-taktová fráza D, A, Hmi, G): úvod
+  D A D A (takty -4 a -3 dvakrát, A -> D do nástupu kapely), v groove namiesto 7, 11 a 19 takt 3, namiesto 12 (činel po nádychu)
+  takt 16, v pokojnej časti namiesto 23 znova 22, po druhom groove rovno záverečný akord (takt 32). Strih je vždy na dobe 1
+  a nový takt sedí presne v mriežke: kde je pred ním v skladbe čistý takt, prelínačka 60 ms končí na dobe (úder ostane celý),
+  kde bol pred ním šum, starý úsek dozvie 15 ms pred dobou a nový nabehne za 4 ms. Kontrola: žiadny takt so stúpajúcim šumom,
+  spektrálny skok na strihoch ako na tých istých dobách v nahrávke (bez lupnutí), úvod 1-2 % zvuku nad 5 kHz.
+- Zladenie s filmom: tempo 0,9891, začiatok 2 ms; nástup kapely 9,23 s (0,3 s pred zeleným prechodom), pokojná časť od 55,39 s
+  (začiatok prelínačky do ponuky), záverečný akord 73,85 s (záverečné logo). Mix `--range 6` (úvod o ~4 LU tichší ako groove,
+  nástup kapely pri logu je počuť) a `--gain -5` (nová skladba je pri rovnakom nastavení o 2 LU tichšia; groove pod ponukou
+  -17,7 LUFS ako doteraz, schválený pomer k hlasu).
+- Kontroly: film 76,8 s, -15,9 LUFS, true peak -1,6 dBFS; technická kontrola bez chýb, hlas 5/5, prepis hotového mixu zachytí
+  všetky vety. Kontrola hudby (Gemini): bez šumov, trblietok, zvonkov aj stúpaní, strihy nepočuť, "prémiové a zdržanlivé"
+  8,5/10. Slepé porovnanie starej a novej hudby v oboch poradiach: obakrát nová ("elegantná, teplý klavír, zdržanlivé
+  bicie"; stará "trblietavé zvonky a rušivé stúpania ako z fotobanky").
+- Kolo 15 (doterajšia hudba) je uložené v `out/kratka/verzie/K-LinkedIn_kolo15_77s_*.mp4` a v commite `1ccb9e3`
+  (mix: `--music public/music/bed.wav --variant K_kolo15`).
+
 ## Kolo 15 (28. 9. 2026): most "S nami ho nájdete za pár sekúnd.", pod logom "Prvé dokumenty zadarmo a nezáväzne", web pri výzve
 
 Samuel: namiesto hodín dať most, ktorý problém vyrieši, a v obraze ponuku zadarmo a nezáväzne; namiesto "Prvá krabica"
@@ -560,14 +591,15 @@ node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --d
 python3 scripts/vo_check.py --script src/copy/vo_kratka.json --dir public/vo-kratka K-C4-Cena-0 ...   # kontrola prepisom
 node scripts/cut-footage.mjs k-f1-sken k-f24-review k-f3-search   # VŽDY s id, bez nich sa prerobí aj pôvodné footage
 npx remotion render K-LinkedIn out/kratka/K-LinkedIn_voice.mp4     # LinkedIn 4:5 jedným renderom (hlas, titulky)
-node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K
+python3 scripts/music_edit.py                      # kolo 16: hudba LinkedIn poskladana z taktov public/music/bed_kratka.wav
+node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K --music public/music/bed_kratka_edit.wav --range 6 --gain -5
 ```
 
 Kontrolné stills `node scripts/kratka-stills.mjs [s ...]` (časy vo filme, do `out/kratka/stills`, nie sú v gite).
 
 ## Súbory
 
-- Nové: `src/scenes/kratka/LinkedIn.tsx` (kompozícia K-LinkedIn 4:5, jediná krátka verzia), `src/kratkaList.ts` (`paced`, pauzy C4), `src/scenes/kratka/Kratka.tsx` (spoločné dáta: C4 so sloganom, kroky, spoty, kliky), `src/copy/vo_kratka.json`, `src/copy/music_kratka.json`, `scripts/kratka_lines.py`, `scripts/kratka-stills.mjs`, `review-kratka/index.html`, `public/vo-kratka/`, `public/footage/k-*.mp4`, `out/kratka/`.
+- Nové: `src/scenes/kratka/LinkedIn.tsx` (kompozícia K-LinkedIn 4:5, jediná krátka verzia), `src/kratkaList.ts` (`paced`, pauzy C4), `src/scenes/kratka/Kratka.tsx` (spoločné dáta: C4 so sloganom, kroky, spoty, kliky), `src/copy/vo_kratka.json`, `src/copy/music_kratka.json` (kolo 16 aj prompt a plán strihu hudby), `scripts/kratka_lines.py`, `scripts/kratka-stills.mjs`, `scripts/music_edit.py` (kolo 16), `public/music/bed_kratka.*` (kolo 16), `review-kratka/index.html`, `public/vo-kratka/`, `public/footage/k-*.mp4`, `out/kratka/`.
 - Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`, `subtitles`), `Scene` (`SceneFrameContext`: jednofarebné pozadie, bez päty a bez orezania na rámec 16:9 len vnútri LinkedIn rámca), `Subtitles` (scenár K vedľa hlavného), `C4_Cena` (`d`, `h`, `brand`, `cost`, kolo 12 `clockAt`), `C5_Teren` (`steps`, `phase`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`, kolo 12 kľúč `delay` v cfg); kolo 9 až 11: `C2_Hladanie` (export `Office`, `Warehouse` a `PATH`, kolo 14 ich `floor`), `Device` (`PhoneFrame` `screenBg`).
 - Kontrola: 20 snímok pôvodných klipov (C2, C4, C5, C8, C9, F1, F4) z commitu `ea5550e` a z tejto vetvy je na pixel rovnakých; dĺžky kompozícií bez zmeny.
 - Jediná zmena správania pôvodnej cesty: `mix-music.mjs` dáva tichému klipu (C1) stopu v rozložení kanálov ostatných klipov (stereo namiesto mono). Zvuk je ticho, výsledok rovnaký.

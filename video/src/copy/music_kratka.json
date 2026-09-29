@@ -1,7 +1,70 @@
 {
   "_": "Experiment kratkej verzie: strihy hudby public/music/bed.wav (Lyria, bez noveho generovania) pre LinkedIn 4:5. Strihy na takt (104 BPM, takt 2,3077 s, zaciatky taktov 2,108 + n x 2,3077 s), prelinacka 60 ms. Nastup plnej kapely (29,8 s skladby = takt 12) padne na prechod do bielej a znacku; tichsi zaver skladby (takty 56-64) pod ponuku a zaver. Pouzitie: node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K",
-  "end": 149.0,
+  "_prompt": "Kolo 16 (Samuel: zaciatok a efekty iskier vadia, skusit inu, profesionalnejsiu hudbu vhodnu kvalitnemu produktu): vlastna skladba len pre LinkedIn verziu (public/music/bed_kratka.wav, scripts/music.py --prompt-file src/copy/music_kratka.json --out public/music/bed_kratka.wav), povodna bed.wav ostava. V skladbe kola 2 az 15 bol na zaciatku sum a vzdusny nadych (0-2 s filmu 70-90 % energie nad 5 kHz), pred zmenami stupajuce sumy a obratene cinely, uprostred zvonkohra (Gemini: detska, 'magicka' ako z fotobanky), styl akusticka gitara, luskanie a rovny beat. Pokus 1 (prompt so zoznamom zakazanych zvukov) mal stale stupajuce sumy pred zmenami (0:08, 0:36, 1:04, 1:23 aj v spektre) a styl lo-fi popu s Rhodes a praskanim platne; zakazane nastroje v prompte ich skor privolaju. Pokus 2: presny zoznam nastrojov a zmeny len pridanim alebo ubratim nastroja na dobu, bez akychkolvek prechodovych zvukov.",
+  "model": "lyria-3-pro-preview",
+  "prompt": "Minimal modern cinematic underscore, instrumental, no vocals. Calm, confident, elegant and spacious, with a warm, polished, high-end sound. It plays quietly under a spoken voice-over, so it stays simple and steady: sustained harmonies, a slow repeating piano figure, no lead melody.\nThe only instruments are: felt piano, warm analog synth pad, low strings (cello and viola), a soft deep bass, a soft muted kick drum and a light closed hi-hat. Nothing else.\nTempo 100 BPM, 4/4, steady. Major key, warm.\nChanges happen only by adding or removing instruments exactly on a downbeat; there are no transition sounds of any kind.\nStructure, total 92 seconds:\n0:00-0:12: felt piano and synth pad only, quiet and reflective; the piano plays from the very first beat.\n0:12-1:05: on the downbeat at 0:12 the bass, low strings, soft kick and hi-hat come in; steady, confident, even groove with the same energy throughout.\n1:05-1:25: kick and hi-hat drop out; piano, strings, pad and bass continue, warm and calm.\n1:25-1:32: a final warm chord on piano and strings, held and ringing out until 1:32.",
   "K": {
+    "_": "Kolo 16: nova skladba bed_kratka.wav (Lyria, pokus 2, 105,14 BPM, takt 2,2827 s zmerany na kicku, doba 1 taktu 0 = nastup kapely v 9,5239 s), poskladana scripts/music_edit.py z taktov bez stupajucich sumov a nadychov: uvod 4 takty D A D A (takty -4 a -3 dvakrat; takt -1 so sumom a koniec taktu -2, kde sum zacina, vypadli; A -> D do nastupu kapely), groove 20 taktov (namiesto 7, 11 a 19 so sumom takt 3, rovnaky akord 4. taktu frazy; namiesto 12 s cinelom po nadychu takt 16, rovnaky akord), pokojna cast 4 takty (namiesto 23 so sumom znova 22), druhy groove 24-27, potom rovno zaverecny akord (takt 32) a doznenie. Tempo a zaciatok tak, aby nastup kapely bol 0,3 s pred zelenym prechodom (9,23 s) a pokojna cast na zaciatku prelinacky do ponuky (55,39 s); zaverecny akord pripadne na zaverecne logo (73,85 s).",
+    "edit": {
+      "src": "public/music/bed_kratka.wav",
+      "out": "public/music/bed_kratka_edit.wav",
+      "downbeat": 9.5239,
+      "bar": 2.2827,
+      "bars": [
+        -4,
+        -3,
+        -4,
+        -3,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        3,
+        8,
+        9,
+        10,
+        3,
+        16,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        3,
+        20,
+        21,
+        22,
+        22,
+        24,
+        25,
+        26,
+        27,
+        32,
+        33,
+        34,
+        35
+      ],
+      "dirty": [
+        -1,
+        7,
+        11,
+        19,
+        23,
+        31
+      ],
+      "pre_ms": 60,
+      "cut_out_ms": 15,
+      "cut_in_ms": 4
+    },
+    "end": 82.18,
+    "delay": 0.0021,
+    "tempo": 0.98912
+  },
+  "K_kolo15": {
     "cuts": [
       [
         6.72,
@@ -14,6 +77,8 @@
     ],
     "delay": 0.25,
     "tempo": 0.9986,
-    "_cuts": "Kolo 15 (film 76,7 s: most \"S nami ho najdete za par sekund.\", zeleny prechod 0,38 s skor, ponuka 1,43 s neskor): druhy strih o takt neskor (skok z konca taktu 31 na takt 55, na hranici 4-taktovej frazy od nastupu kapely v takte 12), aby tempo ostalo takmer 1 (pri strihu z kola 14 by muselo byt 0,948 a hudba by zacala pred filmom): hudba od 0.25 s tempom 0.9986, plna kapela (takt 12) ~9,23 s, 0,3 s pred zelenym prechodom (9,53 s), prechodovy takt 55 od ~55,39 s = zaciatok prelinacky do ponuky (55,37 s); skladba dozneje ~1,3 s pred koncom. Kolo 13 (film 75,2 s: ponuka o 1,2 s kratsia, prelinacka z F3): strihy ako v kole 11, hudba od 0,532 s tempom 0,9875: plna kapela (takt 12) ~9,62 s, 0,3 s pred zelenym prechodom (9,92 s), prechodovy takt 55 od ~53,96 s = zaciatok prelinacky do ponuky (53,93 s); skladba dozneje ~1 s pred koncom. Kolo 12 (film 76,4 s: pomalsi navrat zloziek, C2 o 0,367 s dlhsie, F3 o 0,3 s kratsie): strihy ako v kole 11, hudba zacne o 0,43 s neskor (\"delay\") s tempom 0,9765 (\"tempo\"; auto by dalo 0,97 a prechodovy takt by bol 0,3 s neskoro): plna kapela (takt 12) ~9,62 s na doznení slova \"hodiny\", 0,3 s pred zelenym prechodom (9,92 s), prechodovy takt 55 od ~54,46 s = zaciatok ponuky (54,43 s); skladba dozneje ~1,5 s pred koncom. Kolo 11 (film 76,3 s: dlhsia chodza v sklade, dlhsie vety v F24): 9 taktov (2-10) z pulzujucej casti, plna kapela (takt 12) ~9,25 s na doznení slova \"hodiny\", 0,3 s pred zelenym prechodom (9,55 s); 24 taktov (31-54) z plneho grooveu, prechodovy takt 55 (bez bicich) od ~54,4 s = zaciatok ponuky (54,37 s); tempo 0,97 (dolna hranica), skladba dozneje ~0,6 s pred koncom. Kolo 10: [[6.72, 27.49], [71.34, 129.03]] s tempom 0,97, kolo 7: [[9.03, 27.49], [69.03, 129.03]]."
+    "_cuts": "Kolo 15 (film 76,7 s: most \"S nami ho najdete za par sekund.\", zeleny prechod 0,38 s skor, ponuka 1,43 s neskor): druhy strih o takt neskor (skok z konca taktu 31 na takt 55, na hranici 4-taktovej frazy od nastupu kapely v takte 12), aby tempo ostalo takmer 1 (pri strihu z kola 14 by muselo byt 0,948 a hudba by zacala pred filmom): hudba od 0.25 s tempom 0.9986, plna kapela (takt 12) ~9,23 s, 0,3 s pred zelenym prechodom (9,53 s), prechodovy takt 55 od ~55,39 s = zaciatok prelinacky do ponuky (55,37 s); skladba dozneje ~1,3 s pred koncom. Kolo 13 (film 75,2 s: ponuka o 1,2 s kratsia, prelinacka z F3): strihy ako v kole 11, hudba od 0,532 s tempom 0,9875: plna kapela (takt 12) ~9,62 s, 0,3 s pred zelenym prechodom (9,92 s), prechodovy takt 55 od ~53,96 s = zaciatok prelinacky do ponuky (53,93 s); skladba dozneje ~1 s pred koncom. Kolo 12 (film 76,4 s: pomalsi navrat zloziek, C2 o 0,367 s dlhsie, F3 o 0,3 s kratsie): strihy ako v kole 11, hudba zacne o 0,43 s neskor (\"delay\") s tempom 0,9765 (\"tempo\"; auto by dalo 0,97 a prechodovy takt by bol 0,3 s neskoro): plna kapela (takt 12) ~9,62 s na doznení slova \"hodiny\", 0,3 s pred zelenym prechodom (9,92 s), prechodovy takt 55 od ~54,46 s = zaciatok ponuky (54,43 s); skladba dozneje ~1,5 s pred koncom. Kolo 11 (film 76,3 s: dlhsia chodza v sklade, dlhsie vety v F24): 9 taktov (2-10) z pulzujucej casti, plna kapela (takt 12) ~9,25 s na doznení slova \"hodiny\", 0,3 s pred zelenym prechodom (9,55 s); 24 taktov (31-54) z plneho grooveu, prechodovy takt 55 (bez bicich) od ~54,4 s = zaciatok ponuky (54,37 s); tempo 0,97 (dolna hranica), skladba dozneje ~0,6 s pred koncom. Kolo 10: [[6.72, 27.49], [71.34, 129.03]] s tempom 0,97, kolo 7: [[9.03, 27.49], [69.03, 129.03]].",
+    "end": 149.0,
+    "_": "Kolo 15 (skladba bed.wav, mix-music.mjs --music public/music/bed.wav --variant K_kolo15), nahradene kolom 16."
   }
 }
