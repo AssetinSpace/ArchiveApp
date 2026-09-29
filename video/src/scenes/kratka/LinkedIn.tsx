@@ -869,15 +869,17 @@ const LI_C8: React.FC = () => {
  * (podklady/archives-logo, cesty v archivesLogo.ts): domcek | assetin nad ARCHIVES. Farebna verzia na bielej (C4),
  * inverzna na tmavomodrej (C9). `height` = vyska loga v px (sirka 3,96 x vyssia).
  * Kolo 27 (Samuel: finalne loga, zelene ARCHIVES prepisane na navy): farby z podklady/archives-logo-final, ARCHIVES je na
- * bielej tmavomodre (#121a2b ako asset), na tmavomodrej biele; tvary bez zmeny.
+ * bielej tmavomodre (#121a2b ako asset), na tmavomodrej biele; tvary bez zmeny. Kolo 28: `colors` = verzia loga
+ * (C9 znova na zelenej: verzia na zelenu, cele biele).
  */
 const OUT_EXPO = Easing.bezier(0.16, 1, 0.3, 1);
 const HOUSE_C = { x: 35.8, y: 38.4 }; // stred domceka v dvojriadkovom logu (x 0 az 71,7, y 0 az 76,85)
-const Lockup: React.FC<{ height: number; inverse?: boolean; build?: number }> = ({ height, inverse = false, build }) => {
+type LogoColors = 'color' | 'inverse' | 'onGreen'; // na bielej, na tmavomodrej, na zelenej (finalne podklady)
+const Lockup: React.FC<{ height: number; colors?: LogoColors; build?: number }> = ({ height, colors = 'color', build }) => {
   const frame = useCurrentFrame();
   const id = 'lk' + React.useId().replace(/[^a-zA-Z0-9]/g, '');
   const L = ARCHIVES_LOGO.two;
-  const c = inverse ? L.inverse : L.color;
+  const c = L[colors];
   const [VW, VH] = L.view;
   const k = height / VH;
   const b = (a: number, d: number) => (build === undefined ? 1 : tween(frame, build + a, d, OUT_EXPO));
@@ -1238,8 +1240,9 @@ const C4Top: React.FC = () => {
  * C9 (kolo 3, Samuel: posledny zaber bol prehusteny): len logo a slogan na zelenej. Kolo 4: logo bez .space.
  * Kolo 26: oficialne dvojriadkove logo v inverznej verzii na tmavomodrej (NAVY ako tmavy uvod): inverzne logo je urobene na
  * tmavomodre pozadie, zelene ARCHIVES a domcek by na zelenej zanikli a biela verzia loga v podkladoch nie je.
- * Kolo 27: finalne podklady maju aj verziu na zelenu (ARCHIVES_LOGO.two.onGreen, cele biele na #1a7431); zaver ostava
- * tmavomodry ako v kole 26, zelena by bola pozadie #1a7431 a farby onGreen.
+ * Kolo 27: finalne podklady maju aj verziu na zelenu (ARCHIVES_LOGO.two.onGreen, cele biele na #1a7431).
+ * Kolo 28 (Samuel: zaver zeleny ako bol): znova zeleny prechod BRAND[800] -> BRAND[600] a slogan BRAND[100] ako do kola 25,
+ * logo vo verzii na zelenu.
  */
 const LI_C9: React.FC = () => {
   const frame = useCurrentFrame();
@@ -1250,11 +1253,11 @@ const LI_C9: React.FC = () => {
   const tag = settle(frame, 200);
   const web = settle(frame, 500);
   return (
-    <AbsoluteFill style={{ background: `linear-gradient(160deg, ${NAVY[800]} 0%, ${NAVY[900]} 100%)`, alignItems: 'center', justifyContent: 'center', fontFamily: FONT.body, color: '#fff' }}>
+    <AbsoluteFill style={{ background: `linear-gradient(160deg, ${BRAND[800]} 0%, ${BRAND[600]} 100%)`, alignItems: 'center', justifyContent: 'center', fontFamily: FONT.body, color: '#fff' }}>
       <div style={{ marginTop: -40, opacity: logo, transform: `translateY(${(1 - logo) * 14}px) scale(${0.96 + 0.04 * logo})` }}>
-        <Lockup height={182} inverse />
+        <Lockup height={182} colors="onGreen" />
       </div>
-      <div style={{ marginTop: 64, width: 900, textAlign: 'center', fontFamily: FONT.display, fontWeight: 600, fontSize: 44, lineHeight: 1.2, color: NAVY[200], opacity: tag, transform: `translateY(${(1 - tag) * 12}px)` }}>{SLOGAN}</div>
+      <div style={{ marginTop: 64, width: 900, textAlign: 'center', fontFamily: FONT.display, fontWeight: 600, fontSize: 44, lineHeight: 1.2, color: BRAND[100], opacity: tag, transform: `translateY(${(1 - tag) * 12}px)` }}>{SLOGAN}</div>
       {/* kolo 8 (Samuel: web na konci urcite ano): web pod sloganom, pocas filmu uz nie je */}
       <div style={{ marginTop: 70, padding: '14px 34px', borderRadius: 40, border: '2px solid rgba(255,255,255,0.45)', fontFamily: FONT.display, fontWeight: 700, fontSize: 42, letterSpacing: '0.01em', color: '#fff', opacity: web, transform: `translateY(${(1 - web) * 12}px)` }}>{sk.S12.web}</div>
     </AbsoluteFill>

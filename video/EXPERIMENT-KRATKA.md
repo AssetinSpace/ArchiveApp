@@ -11,6 +11,16 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 28 (29. 9. 2026): zelený záver ako bol
+
+Samuel: záver zelený, ako bol.
+
+- Záver (C9, od 1:13,7) má znova zelený prechod `BRAND[800]` -> `BRAND[600]` a slogan `BRAND[100]` ako do kola 25.
+  Logo je finálne dvojriadkové vo verzii na zelené pozadie (domček, čiara, assetin aj ARCHIVES biele,
+  `ARCHIVES_LOGO.two.onGreen`); `Lockup` má namiesto `inverse` prop `colors` (`color`, `inverse`, `onGreen`).
+- Ostatné ako v kole 27: v 0:10 farebné logo s tmavomodrým ARCHIVES, v rohu domček | assetin. Hlas a hudba bez zmeny.
+- Kolo 27 je uložené v `out/kratka/verzie/K-LinkedIn_kolo27_77s_*.mp4` a v commite `1f60b17`.
+
 ## Kolo 27 (29. 9. 2026): finálne logá, ARCHIVES tmavomodré
 
 Samuel: posiela aktualizované logá, v podstate sa len zelené ARCHIVES prepísalo na navy.
