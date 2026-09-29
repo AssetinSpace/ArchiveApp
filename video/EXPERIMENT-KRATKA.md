@@ -11,6 +11,29 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 20 (29. 9. 2026): domček v logu vpravo dole, "archives" malým, hudba z kola 15
+
+Samuel: ostávame pri hudbe z kola 15 (hudbu teraz nemeníme). Posúdiť a zapracovať: v logu vpravo dole doplniť domček za
+čiarou ako v podpise mailu (domček | assetin) a či písať "archives" s malým a.
+
+- Posúdenie domčeka: dáva zmysel. Domček je jediný grafický znak, ktorý ľudia poznajú z avatara na LinkedIne a z podpisov,
+  v rohu sa spozná rýchlejšie ako samotné slovo a roh je teraz zmenšenina veľkého loga (domček | assetin | archives).
+  Jediná daň je šírka: znak je o 66 px širší (x 819-1030 namiesto 885-1030), v F1 preto mobil o 50 px vľavo.
+- Posúdenie "archives": v logu áno. Slovo assetin je logotyp malými písmenami, "Archives" s veľkým A pôsobilo ako logo
+  a k nemu popis; malé písmená robia z domčeka, assetin a archives jeden celok (ako pri iných značkách s logotypom malými
+  písmenami a menom produktu v logu, napr. amazon business). V bežnom texte (titulky, príspevky, web) ostáva
+  "Assetin Archives" s veľkými písmenami, lebo je to vlastné meno vo vete.
+- `LinkedIn.tsx`: `BrandRow` = domček (`LogoMark`, 0,9 F) | čiara 2 px vysoká ako písmo, rozostup 0,3 F (pomery veľkého
+  loga) | assetin; slovo assetin ostáva presne na mieste (účiara 57 px nad spodkom, 48 px od pravého okraja). Na svetlom
+  pozadí domček `BRAND[700]` a čiara `INK[300]` ako vo veľkom logu, na tmavom úvode domček `BRAND[400]` (ako "in") a čiara
+  biela 45 %. `Lockup`: "archives". `PHONE_TO.x` 100 -> 50 (ľavý okraj mobilu pri nadpise kroku), medzera mobil - domček 28 px.
+- Hudba: znova kolo 15 (`bed.wav`, `--variant K_kolo15`, predvolené `--gain -7 --range 0`); zvuk filmu sa s kolom 15 zhoduje
+  (rozdiel -104 dB), hlasová stopa renderu je zhodná bit po bite.
+- Kontroly: porovnanie snímok po 1,5 s s kolom 15: zmena len v rohu (domček a čiara, x 818-871), vo veľkom logu pri 0:10
+  a na konci a v polohe mobilu pri 0:32; stills všetkých scén bez kolízie s logom. Film 76,8 s, -15,9 LUFS, true peak -1,4 dBFS.
+  Kontrola cez Gemini nebola možná (vyčerpaný kredit projektu).
+- Kolo 18 je uložené v `out/kratka/verzie/K-LinkedIn_kolo18_77s_*.mp4` a v commite `b10d893`.
+
 ## Kolo 19 (29. 9. 2026): technická hudba (rozpracované, vyčerpaný kredit Gemini)
 
 Samuel: inú hudbu, viac profi a technickú, nie len výťahové piano; kolo 18 znie neprofesionálne ako z anime.
@@ -675,8 +698,9 @@ node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --d
 python3 scripts/vo_check.py --script src/copy/vo_kratka.json --dir public/vo-kratka K-C4-Cena-0 ...   # kontrola prepisom
 node scripts/cut-footage.mjs k-f1-sken k-f24-review k-f3-search   # VŽDY s id, bez nich sa prerobí aj pôvodné footage
 npx remotion render K-LinkedIn out/kratka/K-LinkedIn_voice.mp4     # LinkedIn 4:5 jedným renderom (hlas, titulky)
-python3 scripts/music_edit.py --variant K_kolo18    # kolo 16 az 18: hudba LinkedIn poskladana z taktov skladby Lyria (--variant K_kolo17 ...)
-node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K_kolo18 --music public/music/bed_kratka_kolo18_edit.wav --range 2 --gain -6.4   # kolo 18, aktualne (kolo 17: --variant K_kolo17, bed_kratka_kolo17_edit.wav, --range 6 --gain -5.5; kolo 16: --variant K_kolo16, bed_kratka_kolo16_edit.wav, --range 6 --gain -5)
+python3 scripts/music_edit.py --variant K_kolo18    # len pre kola 16 az 18 (hudba poskladana z taktov skladby Lyria); kolo 20 ma hudbu kola 15 bez tohto kroku
+node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K_kolo15   # kolo 20, aktualne: hudba kola 15 (public/music/bed.wav, --gain -7 --range 0)
+# node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K_kolo18 --music public/music/bed_kratka_kolo18_edit.wav --range 2 --gain -6.4   # kolo 18 (kolo 17: --variant K_kolo17, bed_kratka_kolo17_edit.wav, --range 6 --gain -5.5; kolo 16: --variant K_kolo16, bed_kratka_kolo16_edit.wav, --range 6 --gain -5)
 ```
 
 Kontrolné stills `node scripts/kratka-stills.mjs [s ...]` (časy vo filme, do `out/kratka/stills`, nie sú v gite).

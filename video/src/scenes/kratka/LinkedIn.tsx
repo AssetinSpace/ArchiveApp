@@ -54,6 +54,7 @@ import { BRAND, FONT, FPS, INK, ISO, NAVY } from '../../theme';
  * Kolo 15: namiesto chvile s otaznikom a hodinami most "S nami ho najdete za par sekund." so zelenym prechodom ("Hladanie moze
  * trvat hodiny." uz pri navrate zloziek, pomaly najazd na policu), pod logom pilulka "Prve dokumenty zadarmo a nezavazne",
  * web pod vyzvou.
+ * Kolo 20: znacka vpravo dole domcek | assetin ako v podpise mailu, v logu "archives" malym ako "assetin" (hudba kola 15).
  * Hlas a titulky: src/copy/vo_kratka.json, hudba mix-music.mjs --video.
  */
 export const LI = { w: 1080, h: 1350 };
@@ -129,14 +130,24 @@ const INTRO_WIN: Win = { top: 90, bottom: 1040, feather: 30 }; // kolo 11: podla
  * (Manrope 800, -0,02 em), 42 px, vpravo 48 px ako nadpis kroku zlava; uaziara je od spodku ramca tak daleko ako vrch
  * pismen nadpisu od vrchu (BRAND_BASE), takze nadpis a znacka su v protilahlych rohoch sumerne. Pod titulkami (koncia
  * ~1200 px), v F1 je mobil posunuty dolava.
+ * Kolo 20 (Samuel: domcek za ciarou ako v podpise mailu): domcek | assetin v pomeroch velkeho loga (domcek 0,9 F, ciara
+ * vysoka ako pismo, rozostup 0,3 F), slovo assetin ostava na mieste (uaziara BRAND_BASE, 48 px od praveho okraja).
  */
 const BRAND_SIZE = 42;
 const BRAND_BASE = 57; // px od spodku ramca po uaziaru (vrch pismen nadpisu kroku je ~57 px od vrchu)
-const BrandRow: React.FC<{ tone: Tone }> = ({ tone }) => (
-  <div style={{ position: 'absolute', right: 48, bottom: BRAND_BASE - 0.1175 * BRAND_SIZE, fontFamily: FONT.display, fontWeight: 800, fontSize: BRAND_SIZE, lineHeight: 1, letterSpacing: '-0.02em', whiteSpace: 'nowrap', color: tone === 'dark' ? '#fff' : INK[900] }}>
-    asset<span style={{ color: tone === 'dark' ? BRAND[400] : BRAND[600] }}>in</span>
-  </div>
-);
+const BrandRow: React.FC<{ tone: Tone }> = ({ tone }) => {
+  const F = BRAND_SIZE;
+  const dark = tone === 'dark';
+  return (
+    <div style={{ position: 'absolute', right: 48, bottom: BRAND_BASE - 0.1175 * F, height: F, display: 'flex', alignItems: 'center' }}>
+      <LogoMark size={F * 0.9} color={dark ? BRAND[400] : BRAND[700]} />
+      <div style={{ width: 2, height: F, margin: `0 ${F * 0.3}px`, borderRadius: 1, background: dark ? 'rgba(255,255,255,0.45)' : INK[300], flex: 'none' }} />
+      <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: F, lineHeight: 1, letterSpacing: '-0.02em', whiteSpace: 'nowrap', color: dark ? '#fff' : INK[900] }}>
+        asset<span style={{ color: dark ? BRAND[400] : BRAND[600] }}>in</span>
+      </div>
+    </div>
+  );
+};
 
 /**
  * Nazov kroku nad obrazom. Kolo 8 (Samuel: v obraze je prilis vela textu, staci nadpis, obsah a prepis hlasu): bez nazvu
@@ -404,7 +415,7 @@ const PHONE_FROM: Rect = { x: C5_SHIFT + FOOTAGE_PHONE.x * S169, y: BAND.y + C5_
  * 800 px (predtym 575), presahuje dolny okraj ramca; displej zacina tesne nad hladacikom (orez 250 px zaznamu namiesto
  * stavovej listy 115 px), dokument je ~1,4x vacsi a spust je stale v obraze.
  */
-const PHONE_TO: Rect = { x: 100, y: 138, w: 740, h: (740 * 1040) / 575 }; // kolo 14: 740 px, posunuty dolava (vpravo dole je znacka)
+const PHONE_TO: Rect = { x: 50, y: 138, w: 740, h: (740 * 1040) / 575 }; // kolo 14: 740 px, posunuty dolava (vpravo dole je znacka); kolo 20: x 50 (lavy okraj pri nadpise), znacka s domcekom je sirsia
 const REC_PHONE = { w: 884, h: 1920, cropTop: 250 / 1920 }; // zaznam mobilu, orez nad hladacikom fotoaparatu
 const LI_F1: React.FC = () => {
   const frame = useCurrentFrame();
@@ -837,6 +848,7 @@ const LI_C8: React.FC = () => {
 /**
  * Logo (kolo 4, Samuel): ako riadok znacky hore (domcek | assetin | Archives), bez .space, "Archives" rovnakym pismom
  * ako na zaverecnom zabere v kole 3 (Manrope 800). Rozostupy okolo ciar su rovnake (flex), ciary su na stred medzi textami.
+ * Kolo 20 (Samuel): "archives" malym, ako slovo assetin (logo ako jeden celok); v titulkoch ostava "Assetin Archives".
  * Kolo 6: `build` = ms klipu, od ktoreho sa logo posklada (ciary narastu, domcek dosadne, slova vyjdu zospodu z masky);
  * bez neho je logo hotove (C9).
  */
@@ -870,7 +882,7 @@ const Lockup: React.FC<{ size: number; onDark: boolean; build?: number }> = ({ s
         </div>,
       )}
       {sep}
-      {mask(w2, <div style={word}>Archives</div>)}
+      {mask(w2, <div style={word}>archives</div>)}
     </div>
   );
 };
