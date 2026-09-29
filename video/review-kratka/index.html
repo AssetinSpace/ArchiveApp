@@ -138,9 +138,9 @@
 
 <div class="wrap">
   <header>
-    <div class="eyebrow">Assetin Archives · experiment kratšieho videa · kolo 16</div>
+    <div class="eyebrow">Assetin Archives · experiment kratšieho videa · kolo 17</div>
     <h1>Krátke video pre LinkedIn</h1>
-    <p class="lede">LinkedIn verzia na výšku (4:5) má <b>77 s</b>. V 16. kole má <b>novú hudbu</b> len pre túto verziu: pokojný klavír v úvode, kapela nastúpi pri logu, bez trblietok, zvonkov a stúpajúcich šumov. Obraz a hlas sú rovnaké ako v kole 15, ktoré je hneď pod ním na porovnanie.</p>
+    <p class="lede">LinkedIn verzia na výšku (4:5) má <b>77 s</b>. V 17. kole má <b>optimistickejšiu hudbu</b> (hudba kola 16 bola príliš smutná): v úvode klavírne akordy, pri logu nastúpi kapela s čistou gitarou a bicími, bez trblietok, zvonkov a stúpajúcich šumov. Obraz a hlas sú rovnaké ako v kole 15, ktoré je pod ním s doterajšou hudbou na porovnanie.</p>
     <div class="meta-row"><span id="stamp"></span><span class="mono">vetva claude/video-assets-archives-exp-la1hts</span><span>Hlavná review stránka ostáva bez zmeny.</span></div>
     <div class="lengths two" aria-label="Dĺžky verzií">
       <div class="len-cell"><span class="k">Pôvodná verzia</span><span class="v">145<small>s</small></span><span class="d">250 slov, 16:9, 12 klipov</span></div>
@@ -151,17 +151,17 @@
   <section id="linkedin">
     <div class="sec-head">
       <h2>LinkedIn verzia</h2>
-      <p>Kolo 16 a kolo 15 sa líšia len hudbou. Pusti si ich so zvukom, hlavne začiatok (0:00 až 0:12) a ponuku na konci.</p>
+      <p>Kolá 17, 16 a 15 sa líšia len hudbou. Pusti si ich so zvukom, hlavne začiatok (0:00 až 0:12) a ponuku na konci. Kolo 16 (smutná hudba) je nižšie v zbalenej časti.</p>
     </div>
     <article class="film tallfilm" id="film-L">
       <div data-video="L" data-shape="v45"></div>
       <div class="info">
-        <div class="head"><h3>Kolo 16: nová hudba</h3><span class="len" data-len="L"></span></div>
+        <div class="head"><h3>Kolo 17: optimistickejšia hudba</h3><span class="len" data-len="L"></span></div>
         <ul>
-          <li>Doterajšia hudba mala na začiatku šum a vzdušný nádych s trblietkami (prvé 2 s videa takmer celý zvuk nad 5 kHz), pred každou zmenou stúpajúci šum a uprostred zvonkohru. To boli tie "iskry".</li>
-          <li>Nová skladba je len pre LinkedIn verziu (pôvodné video má hudbu bez zmeny). V úvode hrá pokojný klavír, kapela nastúpi 0,3 s pred zeleným prechodom na logo, pod ukážkou aplikácie je pravidelný pokojný groove, pod ponukou ľahšia pasáž a záverečný akord zaznie so záverečným logom.</li>
-          <li>Stúpajúce šumy pred zmenami pridal generátor aj napriek zákazu. Odstránil som ich strihom na takty: takt so šumom som nahradil taktom s rovnakým akordom. Strihy sú na dobe a nie je ich počuť (overené meraním aj kontrolou).</li>
-          <li>Hlasitosť hudby pod rečou je rovnaká ako doteraz, úvod je o niečo tichší, aby bol nástup kapely pri logu citeľný.</li>
+          <li>Nálada ako mala doterajšia hudba (optimistická, istá), ale bez trblietok na začiatku a bez prechodových efektov. Úvod hrajú len klavírne akordy. Kapela s čistou gitarou, basou a bicími nastúpi 0,3 s pred zeleným prechodom na logo.</li>
+          <li>Pod ponukou sa bicie postupne stíšia do pokojnej pasáže a pred výzvou sa vrátia. Záverečný akord zaznie so záverečným logom.</li>
+          <li>Generátor pri zmenách opäť pridal filtrové efekty a stúpajúci šum. Tieto miesta som obišiel strihom na takty s rovnakým akordom, strihy nie je počuť. Tempo je 104 BPM ako pri doterajšej hudbe, hlasitosť pod rečou je rovnaká.</li>
+          <li>Prvý pokus v tomto kole mal v úvode spievané "ooh" a tlieskanie, preto som ho nepoužil.</li>
         </ul>
         <div class="composer"><button type="button" data-role="compose" disabled>Pridať pripomienku</button><span class="result" aria-live="polite"></span></div>
       </div>
@@ -319,6 +319,11 @@
 
   <section id="povodna">
     <details>
+      <summary>Kolo 16 (77 s): pokojná hudba, podľa Samuela príliš smutná</summary>
+      <div data-video="L16" data-shape="v45"></div>
+      <p class="note">Klavír, pomalé akordy a sláčiky, bez efektov. Uložené v gite: commit 81d2f78 a video v <span class="mono">video/out/kratka/verzie/</span>.</p>
+    </details>
+    <details>
       <summary>Kolo 14 (uložená verzia, 75 s): pred prerobením úvodu</summary>
       <div data-video="L14" data-shape="v45"></div>
       <p class="note">S otáznikom a hodinami v úvode. Uložené v gite: commit 6eb819e a video v <span class="mono">video/out/kratka/verzie/</span>.</p>
@@ -331,17 +336,18 @@
 
   <footer>
     <p>Zdroj: <span class="mono">video/src/scenes/kratka/LinkedIn.tsx</span> (kompozícia K-LinkedIn), scenár <span class="mono">video/src/copy/vo_kratka.json</span>, hudba <span class="mono">video/src/copy/music_kratka.json</span>, postup v <span class="mono">video/EXPERIMENT-KRATKA.md</span>.</p>
-    <p>Kolo 1 (krátka verzia 16:9, teaser 31 s) je v gite v commite b8552d5, kolo 2 (74 s) v commite f88328b, kolo 3 (73 s) v commite c862b18, kolo 4 (79 s) v commite e4cd18d, kolo 5 (72 s) v commite 8f74123, kolo 6 (70 s) v commite 33fcd7c, kolo 7 (73 s) v commite e81eaa7, kolo 8 (73 s) v commite d53eaf7, kolo 9 (72 s) v commite 7e3512d, kolo 10 (74 s) v commite aa84284, kolo 11 (76 s) v commite e2dc6a6, kolo 12 (76 s) v commite 31bf874, kolo 13 (75 s) v commite 53518fe, kolo 14 (75 s) v commite 6eb819e, kolo 15 (77 s) v commite 1ccb9e3 (videá aj v <span class="mono">video/out/kratka/verzie/</span>).</p>
+    <p>Kolo 1 (krátka verzia 16:9, teaser 31 s) je v gite v commite b8552d5, kolo 2 (74 s) v commite f88328b, kolo 3 (73 s) v commite c862b18, kolo 4 (79 s) v commite e4cd18d, kolo 5 (72 s) v commite 8f74123, kolo 6 (70 s) v commite 33fcd7c, kolo 7 (73 s) v commite e81eaa7, kolo 8 (73 s) v commite d53eaf7, kolo 9 (72 s) v commite 7e3512d, kolo 10 (74 s) v commite aa84284, kolo 11 (76 s) v commite e2dc6a6, kolo 12 (76 s) v commite 31bf874, kolo 13 (75 s) v commite 53518fe, kolo 14 (75 s) v commite 6eb819e, kolo 15 (77 s) v commite 1ccb9e3, kolo 16 (77 s) v commite 81d2f78 (videá aj v <span class="mono">video/out/kratka/verzie/</span>).</p>
     <p>Pripomienky sa píšu cez okno komentára claude.ai (tlačidlo pri videu).</p>
   </footer>
 </div>
 <div class="tip" id="tip" hidden></div>
 
 <script>
-  const BUILD = { renderedAt: "2026-09-29T09:24:58Z" };
+  const BUILD = { renderedAt: "2026-09-29T09:53:40Z" };
   // id assetov (videa a plagaty); prazdne = este sa nahrava
   const VIDEOS = {
-    L: { cap: "861d7c5d2bb82730e877dc338a5e4cee", poster: "06ef33ee7534b2fa24918c3ee87dbc09", len: 76.7 },
+    L: { cap: "7cb00791d64f6ce35d23f5fcef06dd6f", poster: "d56d58312c9a6ba29b9c62951863224d", len: 76.7 },
+    L16: { cap: "861d7c5d2bb82730e877dc338a5e4cee", poster: "06ef33ee7534b2fa24918c3ee87dbc09", len: 76.7 },
     L15: { cap: "596b6659f07804bf05e071d1ec62c666", poster: "c3c5c8bbd07f616c04207fb13327dd86", len: 76.7 },
     L14: { cap: "99f766e96a39f0a07051c45a80b23f48", poster: "fcedf8c0a08f6abe51a1e4268394a91b", len: 75.3 },
     FULL: { cap: "82122ce5cb36a031995136d89d2b36d1", poster: "b1dcf071776b4b4ea0079ec1cdb2ab89", len: 145.2 }
@@ -376,7 +382,7 @@
     ["C9", "Assetin Archives. (Na obraze len logo a slogan.)", "old", "C9, začiatok vety"]
   ];
   const TEST = [
-    ["Hudba (kolo 16)", "", "Slepé porovnanie starej a novej hudby (Gemini, v oboch poradiach): obakrát nová, \"elegantná, teplý klavír, zdržanlivé bicie, dosť miesta pre hlas\"; stará \"trblietavé zvonky a rušivé stúpania ako z fotobanky\". Kontrola novej hudby: bez šumov, trblietok, zvonkov aj stúpaní, strihy nepočuť."],
+    ["Hudba (kolá 16 a 17)", "", "Nálada (Gemini, 1 = smutná, 10 = optimistická, vždy v dvoch poradiach): kolo 17 8/10 v každom porovnaní, kolo 15 7 až 8/10, kolo 16 4 až 7/10 (najčastejšie 5). Samostatná kontrola kola 17: bez šumov, trblietok, zvonkov aj stúpaní, strihy nepočuť, v úvode klavír bez bicích. Za \"prémiovosť\" dal Gemini v porovnaní vyššiu známku kolu 15 (po strihu ho dvakrát vybral ako najvhodnejšie), ale tieto porovnania si protirečia: tá istá skladba dostala podľa poradia 9 alebo 6 a zvonkohru, tlieskanie či vokálne útržky pripisuje raz jednej, raz inej skladbe. Rozhodne ucho."],
     ["Pochopili podstatu", "Áno: QR, fotka, nájdem policu, spravia to za mňa. Že to urobíme my, však zaznie až v 1:57.", "Áno, obaja: QR kódy na každej úrovni podľa vlastného usporiadania, fotka mobilom, aplikácia sama vyčíta údaje, vyhľadanie a cesta PL_01 -> KR_01 -> ZL_03."],
     ["Úvod (18 s)", "netestované", "Obaja: problém s hľadaním trafili presne a pozerali by ďalej. Zatváranie krabíc 0:07-0:09 je obom stále trochu pomalé (v kole 14 pri hodinách správca: \"tu by časť ľudí odišla\"). Zelený prechod pri 4 snímkach za sekundu vnímajú ako prudký skok."],
     ["Most", "", "Správca ho prevzal do vlastného zhrnutia (\"za pár sekúnd nájdete presnú policu aj zložku\"), nadväznosť na hodiny je jasná."],
@@ -388,7 +394,7 @@
     ["Dĺžka podľa nich", "60-90 s (laik), 60-75 s (správca)", "45-50 s (laik), 40-50 s (správca); návrh do minúty je vyššie"]
   ];
   const ASKS = [
-    ["Hudba", "Nová hudba je pokojnejšia a bez efektov. Ak by ste chceli ešte decentnejšiu (napríklad bez bicích len klavír a sláčiky) alebo naopak živšiu, dá sa vyrobiť ďalšia. Sedí vám táto?"],
+    ["Hudba", "Kolo 17 má náladu doterajšej hudby bez jej efektov. Ak by ani táto nesedela, istá cesta je doterajšia hudba (kolo 15), ktorú poznáte, len bez trblietok na začiatku a bez stúpajúcich šumov a zvonkohry (rovnakým strihom na takty). Ktorá je lepšia?"],
     ["Pilulka pod logom", "Obom testerom pôsobí v 0:12 predčasne (ešte nevedia, čo firma robí), na konci pri výzve pomáha. Nechal by som ju: cieľom je, aby ponuku videli aj tí, čo do konca nedopozerajú, a testeri pozerali celé video. Alternatívy: pilulka až po vete o katalógu (asi 0:16, video o 1,5 s dlhšie), alebo jemnejší vzhľad (zelený text s fajkou namiesto tlačidla). Ktorú chceš?"],
     ["Kontakt pri výzve", "Pri výzve je teraz web. Obaja testeri by chceli aj priamy kontakt (telefón alebo e-mail), prípadne výzvu na odkaz v príspevku. Chceš tam telefón alebo e-mail?"],
     ["Verzia do minúty", "Návrh je vyššie (59,8 s: bez slidu \"Kde to beží\", bez vety o overení, kratšia veta o QR). Povieš, či ju spraviť, a či ako druhý strih popri 77 s verzii."],
@@ -492,7 +498,7 @@
   // test (texty su nase, nie od divakov stranky)
   const tb = document.getElementById('testtable');
   for (const [k, ...cells] of TEST) { const tr = document.createElement('tr'); tr.innerHTML = `<th></th>` + cells.map((c) => `<td>${c}</td>`).join(''); tr.firstChild.textContent = k; tb.append(tr); }
-  document.getElementById('test2').textContent = 'Kolo 16 (len nová hudba): technická kontrola bez chýb, hlas 5/5, prepis hotového mixu zachytí všetky vety. Test divákov je z kola 15 (obraz a hlas sú rovnaké). Kolo 15 pozerali ako príspevok v mobile (video 432 x 540, 4 snímky za sekundu), s otázkami navyše na text pod logom a na opakovanie ponuky zadarmo (tie mohli ich pozornosť na ponuku naviesť). Technická kontrola: bez chýb v reči, hudbe aj obraze, hlas 5/5. Plynulé pohyby (zelený prechod, pomalý nájazd) pri 4 snímkach za sekundu vnímajú ako skoky, meranie v plnom videu je bez skokov.';
+  document.getElementById('test2').textContent = 'Kolá 16 a 17 (len nová hudba): technická kontrola bez chýb, hlas 5/5, prepis hotového mixu zachytí všetky vety. Test divákov je z kola 15 (obraz a hlas sú rovnaké). Kolo 15 pozerali ako príspevok v mobile (video 432 x 540, 4 snímky za sekundu), s otázkami navyše na text pod logom a na opakovanie ponuky zadarmo (tie mohli ich pozornosť na ponuku naviesť). Technická kontrola: bez chýb v reči, hudbe aj obraze, hlas 5/5. Plynulé pohyby (zelený prechod, pomalý nájazd) pri 4 snímkach za sekundu vnímajú ako skoky, meranie v plnom videu je bez skokov.';
   const asks = document.getElementById('asks');
   for (const [q, a] of ASKS) { const d = document.createElement('div'); d.className = 'ask'; d.innerHTML = '<b></b><p></p>'; d.children[0].textContent = q; d.children[1].textContent = a; asks.append(d); }
 

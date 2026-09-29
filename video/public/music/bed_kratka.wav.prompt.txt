@@ -1,10 +1,10 @@
 lyria-3-pro-preview
-Minimal modern cinematic underscore, instrumental, no vocals. Calm, confident, elegant and spacious, with a warm, polished, high-end sound. It plays quietly under a spoken voice-over, so it stays simple and steady: sustained harmonies, a slow repeating piano figure, no lead melody.
-The only instruments are: felt piano, warm analog synth pad, low strings (cello and viola), a soft deep bass, a soft muted kick drum and a light closed hi-hat. Nothing else.
-Tempo 100 BPM, 4/4, steady. Major key, warm.
-Changes happen only by adding or removing instruments exactly on a downbeat; there are no transition sounds of any kind.
+Strictly instrumental background music for a modern B2B software product video on LinkedIn. No human voice of any kind: no singing, no humming, no 'ooh' or 'aah', no choir, no vocal samples. Optimistic, confident, warm and positive, bright and forward-moving; polished, sophisticated and premium, never cheesy, never sad or melancholic. It sits under a voice-over, so the melody stays simple and the mid frequencies leave room for speech.
+Tempo 108 BPM, 4/4, steady. Major key.
+The only instruments are: acoustic piano playing bright rhythmic chords, clean electric guitar with a light muted rhythm, warm synth pad, electric bass, and a drum kit with kick, snare drum and closed hi-hat (no claps, no finger snaps, no cymbal swells).
+Changes happen only by adding or removing instruments exactly on a downbeat, with no transition sounds of any kind.
 Structure, total 92 seconds:
-0:00-0:12: felt piano and synth pad only, quiet and reflective; the piano plays from the very first beat.
-0:12-1:05: on the downbeat at 0:12 the bass, low strings, soft kick and hi-hat come in; steady, confident, even groove with the same energy throughout.
-1:05-1:25: kick and hi-hat drop out; piano, strings, pad and bass continue, warm and calm.
-1:25-1:32: a final warm chord on piano and strings, held and ringing out until 1:32.
+0:00-0:12: piano chords only, positive and gently moving, starting directly on the first beat.
+0:12-1:05: on the downbeat bass, guitar, pad and drums come in: confident, upbeat, positive groove with steady energy and no breaks.
+1:05-1:25: the drums reduce to kick and hi-hat, still bright and positive.
+1:25-1:32: end on a bright, resolved major chord that rings out until 1:32.
