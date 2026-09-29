@@ -44,7 +44,7 @@ const W = num('W');
 const H = num('H');
 const FPS = num('FPS');
 
-// --- klipy (src/scenesList.ts, len SCENE_LIST = jadro videa) ---
+// --- klipy (src/scenesList.ts: SCENE_LIST = jadro videa + WEB_EXTRA_LIST = klipy len pre web) ---
 // Zaznam je na jednom riadku: `['C1-Intro', { component: C1_Intro, ... stills: [..] }]`
 // alebo `paced('C2-Hladanie', { scene: C2_Hladanie, ... stills: [..] })`.
 const listSrc = readFileSync(join(ROOT, 'src/scenesList.ts'), 'utf8');
