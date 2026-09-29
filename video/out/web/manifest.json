@@ -1,0 +1,641 @@
+{
+  "$comment": "Generuje `npm run export:web` (video/scripts/export-web.mjs) - needitovat rucne.",
+  "schema": 1,
+  "updated": "2026-09-27",
+  "video": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "sound": true
+  },
+  "full": {
+    "seconds": 145.22,
+    "files": {
+      "1080p": {
+        "path": "out/mp4/Full_1080p.mp4",
+        "bytes": 15634372,
+        "sha256": "0ac4bb4e9b747877f5f16b93945c7c1437d8e0594374cddd431d766231155717",
+        "changed": "2026-09-27"
+      },
+      "540p": {
+        "path": "out/mp4/Full_preview_540p.mp4",
+        "bytes": 5063541,
+        "sha256": "6331c03ceee77c05128f0b2b705101aebd1d8cf5e833e73f29eae6b40b1130c7",
+        "changed": "2026-09-27"
+      }
+    }
+  },
+  "clips": [
+    {
+      "id": "C1-Intro",
+      "order": 1,
+      "title": "Intro",
+      "seconds": 3.6,
+      "file": {
+        "path": "out/mp4/C1-Intro.mp4",
+        "bytes": 283760,
+        "sha256": "c92af38937d37797a7c0d47222821c3e78f021a79efa19863f0f268a6f406d1b",
+        "changed": "2026-09-26"
+      },
+      "stills": [
+        {
+          "path": "out/stills/C1-Intro_1.png",
+          "bytes": 929688,
+          "sha256": "bb8324192c94d12b7d3992bac997ae9e6cf28ee96625770e3a65dbda090d6503",
+          "changed": "2026-09-26"
+        },
+        {
+          "path": "out/stills/C1-Intro_2.png",
+          "bytes": 932826,
+          "sha256": "15ce262ea521ed503a35837f6f1700b5d39135ae72374d0dd51a9d4f68b4ceb5",
+          "changed": "2026-09-22"
+        },
+        {
+          "path": "out/stills/C1-Intro_3.png",
+          "bytes": 964626,
+          "sha256": "404464987d9febe51ae7f5b1c34e5fad0aaefe08af67e4818f2e64f60ac0d207",
+          "changed": "2026-09-26"
+        }
+      ],
+      "steps": []
+    },
+    {
+      "id": "C2-Hladanie",
+      "order": 2,
+      "title": "Hľadanie",
+      "seconds": 12.99,
+      "file": {
+        "path": "out/mp4/C2-Hladanie.mp4",
+        "bytes": 1957694,
+        "sha256": "a957d8b57d827afbbec0d9725767938d527e3c1633ab523dc7f128d178eea12a",
+        "changed": "2026-09-27"
+      },
+      "stills": [
+        {
+          "path": "out/stills/C2-Hladanie_1.png",
+          "bytes": 642284,
+          "sha256": "de46fcd94c94c84da88ce3ee9fef7a3c9d92316e0b9d9c290637314c769b1e52",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/C2-Hladanie_2.png",
+          "bytes": 644996,
+          "sha256": "f18af0f0b00ee1d624edb6e5997731ff7831f58f1e0354010c0abf189cec1cda",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/C2-Hladanie_3.png",
+          "bytes": 675863,
+          "sha256": "7814e41dadaf0f968552a244e0214ca09f5474efa0a7e4d65869629d6d840f4c",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/C2-Hladanie_4.png",
+          "bytes": 897622,
+          "sha256": "bf455c0c72e4d2772c3e6d3725d79acbe41a779a59b5b23e316b08f60f342151",
+          "changed": "2026-09-27"
+        }
+      ],
+      "steps": []
+    },
+    {
+      "id": "C4-Cena",
+      "order": 3,
+      "title": "Cena problému",
+      "seconds": 18.52,
+      "file": {
+        "path": "out/mp4/C4-Cena.mp4",
+        "bytes": 2110141,
+        "sha256": "4e17a6deabe0915f058ff9175dc9e5d1b0653044135e19e68999ff7894f8bbb9",
+        "changed": "2026-09-27"
+      },
+      "stills": [
+        {
+          "path": "out/stills/C4-Cena_1.png",
+          "bytes": 925582,
+          "sha256": "200641da8702c0a7e11008e244283a85ee837b7b9f586335eedb8ee8d4288835",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/C4-Cena_2.png",
+          "bytes": 929867,
+          "sha256": "d0df0ad5858367ee90d1310aebd8e6e5d070fcbb28591c70ad1162d60654c55c",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/C4-Cena_3.png",
+          "bytes": 918327,
+          "sha256": "7b2e641fc888d9e45b5ec40a86984b84ec0cae876be35d37a978f901bd31a4c2",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/C4-Cena_4.png",
+          "bytes": 87340,
+          "sha256": "92803119d4d532a5d5114d14a27bc157ac96429ee7193d2a4ab5e174036ee4dd",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/C4-Cena_5.png",
+          "bytes": 101530,
+          "sha256": "c854f2350cf350ea78b85cbc43c9aa566bcccc0545f110d4e832e1e23af0368d",
+          "changed": "2026-09-27"
+        }
+      ],
+      "steps": []
+    },
+    {
+      "id": "C5-Teren",
+      "order": 4,
+      "title": "V teréne",
+      "seconds": 11.76,
+      "file": {
+        "path": "out/mp4/C5-Teren.mp4",
+        "bytes": 1606859,
+        "sha256": "1c7ad0106752854c818b158b3e37c803b8086d133a93fe0a7b86eb3ae5b9f057",
+        "changed": "2026-09-27"
+      },
+      "stills": [
+        {
+          "path": "out/stills/C5-Teren_1.png",
+          "bytes": 132485,
+          "sha256": "914157bf352d58f0548c5ecd7a6c2e945cc2677c1b34ed7b61532de4de344b58",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/C5-Teren_2.png",
+          "bytes": 147235,
+          "sha256": "b68cd2fdaf109d8a598d362cc14a2bca0ee4372a600e4132825ffd8cdb5e71b8",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/C5-Teren_3.png",
+          "bytes": 365514,
+          "sha256": "744bda8b2080f5146985c13f915ad2e10bc067a9cade4ac54cc6647b89a4befa",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/C5-Teren_4.png",
+          "bytes": 189723,
+          "sha256": "dd0fd73752d61543834683df120ed75e4fc4eb7056a9f0eb4643ec1e3740c9ac",
+          "changed": "2026-09-27"
+        }
+      ],
+      "steps": [
+        {
+          "title": "Fyzické dokumenty",
+          "line": ""
+        },
+        {
+          "title": "Prilepiť QR kód",
+          "line": ""
+        },
+        {
+          "title": "Odfotiť identifikačnú stranu",
+          "line": ""
+        }
+      ]
+    },
+    {
+      "id": "F1-Sken",
+      "order": 5,
+      "title": "V mobile",
+      "seconds": 14.76,
+      "file": {
+        "path": "out/mp4/F1-Sken.mp4",
+        "bytes": 2640719,
+        "sha256": "4472f2b112a2a82d4deb1fa6e8488009fa6b479660d8dba2c24b9bb5f9598cf2",
+        "changed": "2026-09-26"
+      },
+      "stills": [
+        {
+          "path": "out/stills/F1-Sken_1.png",
+          "bytes": 284295,
+          "sha256": "970b981a2f17cd5bf8b2b5fd6955cc6d6035b85da421f341a0b51f8e716829af",
+          "changed": "2026-09-25"
+        },
+        {
+          "path": "out/stills/F1-Sken_2.png",
+          "bytes": 296048,
+          "sha256": "c8c92c09882065cbec148d151ef1c709202d8cb4401abab5e96db17093b87a12",
+          "changed": "2026-09-26"
+        },
+        {
+          "path": "out/stills/F1-Sken_3.png",
+          "bytes": 469659,
+          "sha256": "eba901c3ed30f97a74bfa8777fec9c53b589b72568c9b2e8263d20507b790cb0",
+          "changed": "2026-09-25"
+        }
+      ],
+      "steps": [
+        {
+          "title": "Vybrať typ položky",
+          "line": ""
+        },
+        {
+          "title": "Zaradiť do hierarchie",
+          "line": ""
+        },
+        {
+          "title": "Odfotiť identifikačnú stranu",
+          "line": ""
+        },
+        {
+          "title": "Digitálny záznam",
+          "line": ""
+        }
+      ]
+    },
+    {
+      "id": "C6-Spracovanie",
+      "order": 6,
+      "title": "Spracovanie",
+      "seconds": 3.05,
+      "file": {
+        "path": "out/mp4/C6-Spracovanie.mp4",
+        "bytes": 365801,
+        "sha256": "7114068fc9467e117e66b6745171c6d64b35270eabdbbb4c6b403b87ef670a02",
+        "changed": "2026-09-27"
+      },
+      "stills": [
+        {
+          "path": "out/stills/C6-Spracovanie_1.png",
+          "bytes": 117692,
+          "sha256": "89ab335571e946a73f43e2ad98c35de2fa778e045565c425b4cdd0ddffc9df17",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/C6-Spracovanie_2.png",
+          "bytes": 148778,
+          "sha256": "85c5cc972b1c461131b9c779156bcce72468ccfd20835580234693eb4635846a",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/C6-Spracovanie_3.png",
+          "bytes": 94141,
+          "sha256": "52dfa77f94bc327970ee7e83afc48e99a3a00dd62f51c9b682ac1aefe2c48d45",
+          "changed": "2026-09-25"
+        }
+      ],
+      "steps": []
+    },
+    {
+      "id": "F2-Metadata",
+      "order": 7,
+      "title": "Návrh metadát",
+      "seconds": 8.26,
+      "file": {
+        "path": "out/mp4/F2-Metadata.mp4",
+        "bytes": 1117330,
+        "sha256": "b51443652481fe50e98008e883d642287d9101e893a2219e5460189a82cf565c",
+        "changed": "2026-09-25"
+      },
+      "stills": [
+        {
+          "path": "out/stills/F2-Metadata_1.png",
+          "bytes": 425931,
+          "sha256": "fd94c594b08c40364a8fba25f86a005e1e97b72f3586a7284c35ad32690f07ef",
+          "changed": "2026-09-25"
+        },
+        {
+          "path": "out/stills/F2-Metadata_2.png",
+          "bytes": 469484,
+          "sha256": "975cbdf37a5a66c73e7bd5f2f58d5f730297c0e896b72359b32c2d62a45032d1",
+          "changed": "2026-09-25"
+        },
+        {
+          "path": "out/stills/F2-Metadata_3.png",
+          "bytes": 317434,
+          "sha256": "05b27a91f1f2f3db793e9101c631dc57342af16ce90277a37bf2f628f8d0aec8",
+          "changed": "2026-09-25"
+        }
+      ],
+      "steps": [
+        {
+          "title": "Rozpoznať text",
+          "line": ""
+        },
+        {
+          "title": "Navrhnúť metadáta",
+          "line": ""
+        }
+      ]
+    },
+    {
+      "id": "F4-Kontrola",
+      "order": 8,
+      "title": "Kontrola",
+      "seconds": 18.65,
+      "file": {
+        "path": "out/mp4/F4-Kontrola.mp4",
+        "bytes": 3163200,
+        "sha256": "3230904c56ecb707bd8ffcd12d50bd483a2d71ccf564d7166a93003540fb3d90",
+        "changed": "2026-09-26"
+      },
+      "stills": [
+        {
+          "path": "out/stills/F4-Kontrola_1.png",
+          "bytes": 166049,
+          "sha256": "92fc27bfad3802d4fcf706a71dcdd049cfae74e164cce0edfd9782c479ec6047",
+          "changed": "2026-09-25"
+        },
+        {
+          "path": "out/stills/F4-Kontrola_2.png",
+          "bytes": 572397,
+          "sha256": "2a427fec0af2988bbb55a5a28c6480278db9cc4567cc7d97a16c9ef10f3741a1",
+          "changed": "2026-09-26"
+        },
+        {
+          "path": "out/stills/F4-Kontrola_3.png",
+          "bytes": 555907,
+          "sha256": "4ff113bc1033d05a22b195e7d11952e2b452c848fc62298c25d8e49e65d1eef7",
+          "changed": "2026-09-25"
+        }
+      ],
+      "steps": [
+        {
+          "title": "Návrh metadát",
+          "line": ""
+        },
+        {
+          "title": "Overiť a potvrdiť",
+          "line": ""
+        },
+        {
+          "title": "Opraviť v návrhu",
+          "line": ""
+        },
+        {
+          "title": "Overený záznam",
+          "line": ""
+        }
+      ]
+    },
+    {
+      "id": "C10-Databaza",
+      "order": 9,
+      "title": "Práca s databázou",
+      "seconds": 9.05,
+      "file": {
+        "path": "out/mp4/C10-Databaza.mp4",
+        "bytes": 734407,
+        "sha256": "cd6c12938cfc3514c6965b2cbd541e2a9d5f41a889170737d77560d9e13ef305",
+        "changed": "2026-09-26"
+      },
+      "stills": [
+        {
+          "path": "out/stills/C10-Databaza_1.png",
+          "bytes": 139104,
+          "sha256": "376ce3977747d4ab42be02201102e146a0072c40117b49dcc04304649b97f350",
+          "changed": "2026-09-26"
+        },
+        {
+          "path": "out/stills/C10-Databaza_2.png",
+          "bytes": 142727,
+          "sha256": "7525351a3b3f8ca5428e20784da3644a37464ff2e1b1d7ff9a5038d5fcefd473",
+          "changed": "2026-09-26"
+        },
+        {
+          "path": "out/stills/C10-Databaza_3.png",
+          "bytes": 124059,
+          "sha256": "8e5af52f9d5937087961297d7e6ed12fb300f12b0264d4ea9c4c3f4084eb496c",
+          "changed": "2026-09-26"
+        },
+        {
+          "path": "out/stills/C10-Databaza_4.png",
+          "bytes": 134608,
+          "sha256": "87e5552e94249e626565702a9bbefd4a6962ae1bc87763075a07ba96711a883d",
+          "changed": "2026-09-26"
+        }
+      ],
+      "steps": []
+    },
+    {
+      "id": "F3-Vyhladavanie",
+      "order": 10,
+      "title": "Vyhľadávanie",
+      "seconds": 16.15,
+      "file": {
+        "path": "out/mp4/F3-Vyhladavanie.mp4",
+        "bytes": 3016849,
+        "sha256": "01c363bbd325d3f3ae0bfecea51d0604da659a62b494559d87ac702d530b2f83",
+        "changed": "2026-09-27"
+      },
+      "stills": [
+        {
+          "path": "out/stills/F3-Vyhladavanie_1.png",
+          "bytes": 621487,
+          "sha256": "adb605e88b64ef9583979e0c757aa6ae1ea1e5d2937383ba97d68a209bce8e99",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/F3-Vyhladavanie_2.png",
+          "bytes": 421117,
+          "sha256": "24083664ab02083dff13735af43a6d331950a148431cd76253338f839e3d2666",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/F3-Vyhladavanie_3.png",
+          "bytes": 402193,
+          "sha256": "0da9dcc4792a49065c6b50c7f55326f6bd7aa4ef1756a14d730ac7d5146cc5cd",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/F3-Vyhladavanie_4.png",
+          "bytes": 393457,
+          "sha256": "5be9f91f64be5a7202d5e23bb2768d598177012daf3f869ffd9131f7034e7b7a",
+          "changed": "2026-09-27"
+        }
+      ],
+      "steps": [
+        {
+          "title": "Kľúčové slovo",
+          "line": ""
+        },
+        {
+          "title": "Záznam a podrobnosti",
+          "line": ""
+        },
+        {
+          "title": "Cesta v hierarchii",
+          "line": ""
+        },
+        {
+          "title": "Zvýraznené v metadátach",
+          "line": ""
+        }
+      ]
+    },
+    {
+      "id": "C8-Pilot",
+      "order": 11,
+      "title": "Ako začať",
+      "seconds": 21.06,
+      "file": {
+        "path": "out/mp4/C8-Pilot.mp4",
+        "bytes": 1834441,
+        "sha256": "c983d601f39fb076762cf3acc9585b38b91d92a63cf3e8ac12732dfaa3a25743",
+        "changed": "2026-09-27"
+      },
+      "stills": [
+        {
+          "path": "out/stills/C8-Pilot_1.png",
+          "bytes": 104826,
+          "sha256": "a6abdbb196e2210a80b32f931959d7c22b5107104cab653ef5df289c3f7f53d5",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/C8-Pilot_2.png",
+          "bytes": 118842,
+          "sha256": "fef9214277c73e6efb1662d3ed71521fc4ba474f60616f6cb42fc7794dc5d842",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/C8-Pilot_3.png",
+          "bytes": 144351,
+          "sha256": "9b35511632f8d49ecb2cb2332890c864b6a3e6bdf89455a1228838bd5b2c33f8",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/C8-Pilot_4.png",
+          "bytes": 191340,
+          "sha256": "e9184e9a5ccb311862e341256890b426e85a20668c549583fdbda11d7a4b4ae6",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/C8-Pilot_5.png",
+          "bytes": 190243,
+          "sha256": "166a8933aac11e5ca5caa4053ea9cadddd36bfbc647a988ed9d7d5e8823e3535",
+          "changed": "2026-09-27"
+        }
+      ],
+      "steps": []
+    },
+    {
+      "id": "C9-Outro",
+      "order": 12,
+      "title": "Záver",
+      "seconds": 7.36,
+      "file": {
+        "path": "out/mp4/C9-Outro.mp4",
+        "bytes": 685731,
+        "sha256": "7776caa8c8dd0dbdc97bc485d1333245b6ef2a86f541901118b1a4367eef068a",
+        "changed": "2026-09-27"
+      },
+      "stills": [
+        {
+          "path": "out/stills/C9-Outro_1.png",
+          "bytes": 1484402,
+          "sha256": "45087f11de645c7d94485d07d4e16bcd7a8a3576b144fd50997c7e428695d0e5",
+          "changed": "2026-09-27"
+        },
+        {
+          "path": "out/stills/C9-Outro_2.png",
+          "bytes": 1482451,
+          "sha256": "71a23dc47f9606ce7294dab12916c33c3698dd79c63916ca7aa425aca9f5cdad",
+          "changed": "2026-09-27"
+        }
+      ],
+      "steps": []
+    },
+    {
+      "id": "C7-Hierarchia",
+      "order": 13,
+      "title": "C7-Hierarchia",
+      "seconds": 8.43,
+      "file": {
+        "path": "out/mp4/C7-Hierarchia.mp4",
+        "bytes": 684013,
+        "sha256": "e9ba8d3faaac98fb32d92fa3eb133290baf0eb97d2a55f9781c977304a26ba15",
+        "changed": "2026-09-25"
+      },
+      "stills": [
+        {
+          "path": "out/stills/C7-Hierarchia_1.png",
+          "bytes": 66435,
+          "sha256": "e58fc19c114bcddc547f01f3140f7c3d8a76eadc4e33d60826e6f717172415e9",
+          "changed": "2026-09-23"
+        },
+        {
+          "path": "out/stills/C7-Hierarchia_2.png",
+          "bytes": 98205,
+          "sha256": "9011f38dc0d71b442dd4a5e425d354fa9e9ffc8452f2e05b96db95636b4530b8",
+          "changed": "2026-09-25"
+        },
+        {
+          "path": "out/stills/C7-Hierarchia_3.png",
+          "bytes": 131485,
+          "sha256": "9e0c85c15e1613186f01a38b93c153c98fcea346a126bb1f89d17fd656e27373",
+          "changed": "2026-09-25"
+        }
+      ],
+      "steps": [
+        {
+          "title": "Miesto v hierarchii",
+          "line": ""
+        }
+      ]
+    }
+  ],
+  "transcript": [
+    {
+      "clip": "C2-Hladanie",
+      "title": "Hľadanie",
+      "text": "Kedy ste naposledy nevedeli nájsť nejaký dokument? Či už správu, výkres alebo protokol? Vy viete, že tam niekde je. V sklade, na polici, v krabici alebo v zložke."
+    },
+    {
+      "clip": "C4-Cena",
+      "title": "Cena problému",
+      "text": "Bez jasného systému trvá hľadanie hodiny. Niekedy je rýchlejšie dať dokumentáciu vyhotoviť nanovo. A tak sa môže stať, že zaplatíte dvakrát za to isté. Predstavujeme vám softvérové riešenie katalogizácie Assetin Archives."
+    },
+    {
+      "clip": "C5-Teren",
+      "title": "V teréne",
+      "text": "Riešenie začína fyzickými dokumentami. Jedinečný QR kód sa prilepí na každú položku a mobilom sa odfotí jej identifikačná strana."
+    },
+    {
+      "clip": "F1-Sken",
+      "title": "V mobile",
+      "text": "V mobile vyberieme typ položky, ako napríklad zložka alebo dokument, a zaradíme ju do hierarchie podľa skutočnosti. Potom odfotíme jej identifikačnú stranu. Položka tým dostane svoj digitálny záznam."
+    },
+    {
+      "clip": "C6-Spracovanie",
+      "title": "Spracovanie",
+      "text": "Fotku ďalej spracuje aplikácia."
+    },
+    {
+      "clip": "F2-Metadata",
+      "title": "Návrh metadát",
+      "text": "Najprv aplikácia rozpozná text na identifikačnej strane, potom navrhne metadáta: autora, názov projektu, rok."
+    },
+    {
+      "clip": "F4-Kontrola",
+      "title": "Kontrola",
+      "text": "Návrh ale nie je finálny záznam. Človek každú hodnotu overí a potvrdí. Fotka je dôkaz a ostáva pri zázname. Prípadné opravy a doplnenia prebiehajú priamo v návrhu. Tým vznikne overený a dohľadateľný záznam fyzického dokumentu."
+    },
+    {
+      "clip": "C10-Databaza",
+      "title": "Práca s databázou",
+      "text": "Vytvorenú databázu katalógu archívu vieme exportovať, analyzovať alebo prehľadávať. Najjednoduchšie je vyhľadávanie."
+    },
+    {
+      "clip": "F3-Vyhladavanie",
+      "title": "Vyhľadávanie",
+      "text": "Stačí zadať kľúčové slovo. Aplikácia záznam nájde a zobrazí jeho podrobnosti. Ľudsky čitateľná cesta v hierarchii vás dovedie na správnu policu. Kľúčové slovo sa zvýrazní v metadátach záznamu."
+    },
+    {
+      "clip": "C8-Pilot",
+      "title": "Ako začať",
+      "text": "Archív vám spracujeme na kľúč. Začneme obhliadkou skladu a pilotom na jednej krabici. Alebo ho katalogizujete vlastnými silami a licenciu zaobstaráme podľa rozsahu. V oboch prípadoch určíte rozsah nasadenia: len identifikačné strany, alebo skenovanie celých dokumentov s fulltextovým vyhľadávaním."
+    },
+    {
+      "clip": "C9-Outro",
+      "title": "Záver",
+      "text": "Assetin Archives. Zistíte, čo máte v archíve a kde presne to leží."
+    },
+    {
+      "clip": "C7-Hierarchia",
+      "title": "C7-Hierarchia",
+      "text": "Každá položka má presné miesto v hierarchii, ako napríklad polica, krabica, zložka alebo dokument."
+    }
+  ]
+}
