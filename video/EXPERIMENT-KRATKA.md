@@ -11,6 +11,24 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 30 (29. 9. 2026): úvod bez prechodov, plošiny s rohom hore aj dole
+
+Samuel (snímka skladu): nemá zmysel horný prechod v sklade ani dolný v kancelárii pred ním, dá sa to spraviť
+prirodzenejšie? Po návrhu (scéna na celý obraz): logickejšie je, keď majú plošiny viditeľný roh hore aj dole nad textom.
+
+- Príčina prechodov: úvodné scény (C2 kancelária a sklad, C4 do bieleho prechodu) boli v okne `INTRO_WIN` 90 až 1040 px
+  s prechodom 30 px do pozadia. Hore okno odrezalo plošinu skladu, dole podlahu kancelárie. Okno vzniklo v kole 11, keď
+  bolo logo hore; od kola 14 stáli obe miestnosti na jednej spoločnej plošine, ktorá v kancelárii pokračovala dole
+  a v sklade hore, preto ju okno orezávalo.
+- `INTRO_WIN` je celý rámec bez prechodu. Každá miestnosť má znova vlastnú podlahu (`Floor` v `Office` a `Warehouse`,
+  rovnaké farby a hrúbka, `SharedFloor` vypadla): roh kancelárie je v obraze na 187 a 990 px, skladu na 111 a 1015 px,
+  titulky začínajú na 1060 px; bočné rohy sú za okrajom rámca.
+- Prechod dole (3,45 až 4,35 s): aby dve dosky nepôsobili ako polica nad skladom (kolo 14, boli ~50 px od seba), sú od
+  seba o `C2_GAP` 300 px plátne (posun 1380 namiesto 1080 px za rovnakých 900 ms) a prelínajú sa: kancelária pri posune
+  nahor zmizne (od 3,55 s, 450 ms), sklad sa zospodu vynorí (od 3,80 s, 450 ms), obe dosky nie sú nikdy naraz naplno.
+  Orez skladu siaha o 40 px vyššie (`WH_PAD`), lebo zadný roh jeho podlahy je 9 px nad plátnom.
+- Kolo 29 je uložené v `out/kratka/verzie/K-LinkedIn_kolo29_77s_*.mp4` a v commite `22ebba2`.
+
 ## Kolo 29 (29. 9. 2026): v rohu logo s ARCHIVES
 
 Samuel: logo vpravo dole by mohlo byť tiež to logo s archives.

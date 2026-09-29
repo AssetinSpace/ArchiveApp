@@ -6,7 +6,7 @@ import { FOOTAGE_PHONE, PHONE_BEZEL, PhoneFrame, Rect, WindowFrame } from '../..
 import { BrandMod, BrandSep, BrandStack, LOCKUP, LOCKUP_W } from '../../components/Brand';
 import { ArchiveBox } from '../../components/ArchiveBox';
 import { Office, PATH as WH_PATH, Warehouse } from '../C2_Hladanie';
-import { CAM_END, SV, VB } from '../C3_Sklad';
+import { CAM_END, SV } from '../C3_Sklad';
 import { iso } from '../../lib/iso';
 import { C5_Teren } from '../C5_Teren';
 import type { Mark, Tap } from '../F2_Metadata';
@@ -18,7 +18,7 @@ import { easeInOut, easeOut, pop, settle, tween } from '../../lib/anim';
 import { loadFonts } from '../../lib/fonts';
 import { offer, phases, sk } from '../../copy/sk';
 import { voAt } from '../../components/Subtitles';
-import { BRAND, FONT, FPS, INK, ISO, NAVY } from '../../theme';
+import { BRAND, FONT, FPS, INK, NAVY } from '../../theme';
 
 /**
  * Experiment: kratka verzia pre LinkedIn na vysku 4:5 (1080 x 1350). Kolo 2 (Samuel): jedina kratka verzia,
@@ -120,8 +120,13 @@ const camShift = (keys: [number, Cam][]) => (ms: number) => {
   const c = camAt(keys, ms);
   return { x: c.tx - S169 * c.z * c.fx, y: c.ty - BAND.y - S169 * c.z * c.fy, s: c.z };
 };
-/** Okno pasu v uvode (C2, C4): od riadku znacky po titulky, priblizeny obsah ma miesto nad aj pod pasom. */
-const INTRO_WIN: Win = { top: 90, bottom: 1040, feather: 30 }; // kolo 11: podlaha konci nad prechodom (nie je rozmazana)
+/**
+ * Okno pasu v uvode (C2, C4): od riadku znacky po titulky, priblizeny obsah ma miesto nad aj pod pasom (kolo 11: 90 az
+ * 1040 px s prechodom 30 px). Kolo 30 (Samuel: horny prechod v sklade a dolny v kancelarii nepusobia prirodzene): okno je
+ * cely ramec bez prechodu. Znacka uz nie je hore (od kola 14 vpravo dole), podlaha kancelarie ide pod titulky za dolny
+ * okraj a plosina skladu za horny okraj ako pri zabere kamerou; titulky su na tmavej podlahe citatelne (biele na #263246).
+ */
+const INTRO_WIN: Win = { top: 0, bottom: LI.h, feather: 0 };
 
 /**
  * Znacka. Kolo 8 (Samuel: znacku dat malu dole doprava): mala v pravom dolnom rohu. Kolo 11 (Samuel: v celom videu do
@@ -1084,61 +1089,39 @@ const c2Shift = (ms: number) => {
   return { x: band.x, y: band.y - BAND.y, s: band.s / S169 };
 };
 /**
- * Kolo 14 (Samuel: plosina skladu vyzera uplne inak ako v kancelarii a zda sa, ze z nej vypadne skrina so sanonmi):
- * pri prestrihu dole boli na obraze dve samostatne dosky nad sebou, kancelaria s vyhodenymi sanonmi pri hrane posobila
- * ako polica nad skladom. Teraz stoja kancelaria aj sklad na jednej spolocnej plosine a kamera ide po tej istej podlahe:
- * zadny roh = zadny roh podlahy kancelarie, predny roh = predny roh podlahy skladu, farby a hrubka hrany ako Floor.
- * Vlastne podlahy scen su vypnute (`floor={false}`), spolocna podlaha vybledne so skladom (ako jeho podlaha).
+ * Kolo 14 (Samuel: plosina skladu vyzera uplne inak ako v kancelarii a zda sa, ze z nej vypadne skrina so sanonmi): pri
+ * prestrihu dole boli dve samostatne dosky tesne nad sebou (medzera ~50 px), kancelaria posobila ako polica nad skladom;
+ * kancelaria aj sklad potom stali na jednej spolocnej plosine (SharedFloor).
+ * Kolo 30 (Samuel: logickejsie je, ked maju plosiny viditelny roh hore aj dole nad textom): kazda miestnost ma znova
+ * vlastnu podlahu (Floor v Office a Warehouse, rovnake farby a hrubka), roh kancelarie je v obraze na 187 a 990 px,
+ * skladu na 111 a 1015 px (titulky od 1060), bocne rohy su za okrajom ramca. Proti "polici nad skladom" su plosiny pri
+ * posune od seba o C2_GAP px platne a prelinaju sa: kancelaria pocas posunu nahor zmizne (C2_PAN_AT + 100, 450 ms),
+ * sklad sa zospodu vynori (C2_PAN_AT + 350, 450 ms), takze obe dosky nie su nikdy naraz naplno.
  */
-const OFFICE_VB = { x: -470, y: -80, w: 980, h: 551 }; // viewBox kancelarie (Office v C2_Hladanie)
-const OFFICE_K = Math.min(1920 / OFFICE_VB.w, 1080 / OFFICE_VB.h);
-const officePx = (p: [number, number]): [number, number] => [(p[0] - OFFICE_VB.x) * OFFICE_K, (p[1] - OFFICE_VB.y) * OFFICE_K + (1080 - OFFICE_VB.h * OFFICE_K) / 2];
-const whPx = (p: [number, number]): [number, number] => [WH_W.s * (p[0] - VB.x) * SV + WH_W.x, WH_W.s * (p[1] - VB.y) * SV + WH_W.y + 1080];
-const C2_FLOOR = (() => {
-  const B = officePx(iso(-40, -40, 0)); // zadny roh kancelarie (Floor x -40, y -40)
-  const F = whPx(iso(500, 500, 0)); // predny roh skladu (Floor x -60 + 560, y -60 + 560)
-  const dx = F[0] - B[0],
-    dy = F[1] - B[1];
-  const a = dy + dx / 2,
-    b = dy - dx / 2; // F = B + a (1, 0,5) + b (-1, 0,5)
-  const R: [number, number] = [B[0] + a, B[1] + a / 2];
-  const L: [number, number] = [B[0] - b, B[1] + b / 2];
-  return { B, R, F, L, th: 8 * SV * WH_K }; // hrubka dosky 8 cm ako Floor, v mierke skladu
-})();
-const SharedFloor: React.FC<{ opacity: number }> = ({ opacity }) => {
-  const { B, R, F, L, th } = C2_FLOOR;
-  const P = (list: [number, number][]) => list.map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
-  const down = (p: [number, number]): [number, number] => [p[0], p[1] + th];
-  if (opacity <= 0.001) return null;
-  return (
-    <svg width={1920} height={2160} style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible', opacity }}>
-      <polygon points={P([B, R, F, L])} fill="#263246" />
-      <polygon points={P([L, F, down(F), down(L)])} fill="#131F31" />
-      <polygon points={P([R, F, down(F), down(R)])} fill={ISO.edge} />
-    </svg>
-  );
-};
+const C2_GAP = 300; // px platne medzi kancelariou a skladom (predtym 0, dosky boli ~50 px od seba)
+const WH_PAD = 40; // zadny roh podlahy skladu je 9 px nad jeho platnou: orez skladu siaha o tolko vyssie
 const LI_C2: React.FC = () => {
   const frame = useCurrentFrame();
   const pan = tween(frame, C2_PAN_AT, C2_PAN_MS);
+  const offA = 1 - tween(frame, C2_PAN_AT + 100, 450); // kolo 30: kancelaria pri posune nahor zmizne
+  const whA = tween(frame, C2_PAN_AT + 350, 450); // sklad sa zospodu vynori
   const w = mapMs(C2_WMAP, (frame / FPS) * 1000);
   const fw = (w / 1000) * FPS;
   const un = simInv(whCam(w)); // zrusi vnutornu kameru skladu
   return (
     <Scene mode="dark">
-      <div style={{ position: 'absolute', inset: 0, transform: `translateY(${-1080 * pan}px)` }}>
-        <SharedFloor opacity={1 - tween(fw, 6600, 500)} />
+      <div style={{ position: 'absolute', inset: 0, transform: `translateY(${-(1080 + C2_GAP) * pan}px)` }}>
         {pan < 1 ? (
-          <div style={{ position: 'absolute', left: 0, top: 0, width: 1920, height: 1080, overflow: 'hidden' }}>
-            <Office frame={frame} floor={false} />
+          <div style={{ position: 'absolute', left: 0, top: 0, width: 1920, height: 1080, overflow: 'hidden', opacity: offA }}>
+            <Office frame={frame} />
           </div>
         ) : null}
         {pan > 0 ? (
-          <div style={{ position: 'absolute', left: 0, top: 1080, width: 1920, height: 1080, overflow: 'hidden' }}>
-            <div style={{ position: 'absolute', left: 0, top: 0, width: 1920, height: 1080, transformOrigin: '0 0', transform: `translate(${WH_W.x}px, ${WH_W.y}px) scale(${WH_W.s})` }}>
+          <div style={{ position: 'absolute', left: 0, top: 1080 + C2_GAP - WH_PAD, width: 1920, height: 1080 + WH_PAD, overflow: 'hidden', opacity: whA }}>
+            <div style={{ position: 'absolute', left: 0, top: WH_PAD, width: 1920, height: 1080, transformOrigin: '0 0', transform: `translate(${WH_W.x}px, ${WH_W.y}px) scale(${WH_W.s})` }}>
               <div style={{ position: 'absolute', left: 0, top: 0, width: 1920, height: 1080, transformOrigin: '0 0', transform: `translate(${un.x}px, ${un.y}px) scale(${un.s})` }}>
                 <Freeze frame={fw}>
-                  <Warehouse frame={fw} floor={false} />
+                  <Warehouse frame={fw} />
                 </Freeze>
               </div>
             </div>
