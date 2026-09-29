@@ -428,10 +428,9 @@ const LI_F1: React.FC = () => {
   };
   const screenIn = tween(frame, 0, 300);
   // kolo 8 (test: biely preblik pri prechode z mobilu do aplikacie): kratke vyblednutie do bielej na konci. Kolo 22 (Samuel:
-  // v 0:34 akoby sa dokument odfotil dvakrat): biele vyblednutie 0,8 s po blesku posobilo ako druha fotka, preto vypadlo;
-  // okno F24 sa cez mobil prelinie (F1_XFADE), blesk pri spusti je jediny.
-  const shot = K_F1_TAPS[0].t * 1000;
-  const flash = tween(frame, shot, 60) * (1 - tween(frame, shot + 60, 260));
+  // v 0:34 akoby sa dokument odfotil dvakrat): biele vyblednutie na konci vypadlo, okno F24 sa cez mobil prelinie (F1_XFADE).
+  // Kolo 23 (Samuel: stale dvakrat): druha fotka bol nas biely blesk 0,33 s po skutocnom bliknuti iOS v zazname, vypadol;
+  // jedina fotka je bliknutie v zazname, kruzok spuste (K_F1_TAPS) je tesne pred nim.
   const videoW = at.w * (1 - 2 * PHONE_BEZEL);
   const videoH = (videoW * REC_PHONE.h) / REC_PHONE.w;
   return (
@@ -448,7 +447,7 @@ const LI_F1: React.FC = () => {
               return <div key={i} style={{ position: 'absolute', left: tp.x * videoW - r, top: tp.y * videoH - r, width: 2 * r, height: 2 * r, borderRadius: '50%', border: `3px solid ${BRAND[400]}`, background: `rgba(79,168,90,${0.28 * (1 - t)})`, opacity: 1 - t * t }} />;
             })}
           </div>
-          <div style={{ position: 'absolute', inset: 0, background: '#fff', opacity: Math.max(1 - screenIn, 0.85 * flash) }} />
+          <div style={{ position: 'absolute', inset: 0, background: '#fff', opacity: 1 - screenIn }} />
         </div>
       </PhoneFrame>
     </AbsoluteFill>

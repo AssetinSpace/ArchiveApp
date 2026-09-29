@@ -15,8 +15,10 @@ presne na svojom mieste v mriezke (bez posunu):
   s nabehom `cut_in_ms` (co v skladbe hralo pred dobou, sa nepouzije).
 Zaciatok taktu pred zaciatkom skladby (prvy takt bez prvej doby) ostane ticho. Posledny usek ide az do konca skladby
 (akord doznie). Kolo 22: volitelne `mute_before` (s vysledku) a `mute_fade_ms`: vysledok je do tohto casu ticho, poslednych
-`mute_fade_ms` pred nim nabehne (napr. bez trblietaveho nadychu pred prvym akordom). Vysledok: WAV float 48 kHz stereo,
-potom scripts/mix-music.mjs --music <out>.
+`mute_fade_ms` pred nim nabehne (napr. bez trblietaveho nadychu pred prvym akordom). Kolo 23: volitelne `hf_cut`
+{from, to (s vysledku), fade_ms, lo_hz, hi_hz, db}: od `from` do `to` su vysky nad `hi_hz` o `db` tichsie (prechod
+`lo_hz`..`hi_hz`, nabeh a dobeh `fade_ms`), filter s nulovou fazou, nizsie pasma ostanu bez zmeny (napr. cinkave tony
+po prvom akorde). Vysledok: WAV float 48 kHz stereo, potom scripts/mix-music.mjs --music <out>.
 """
 import argparse
 import json
@@ -99,6 +101,20 @@ def main():
         y[:i0] = 0
         y[i0:i1] *= np.sin(np.linspace(0, np.pi / 2, i1 - i0))[:, None] ** 2
         print(f"ticho do {i0 / sr:.3f} s, nabeh do {mb:.3f} s")
+    hc = e.get("hf_cut")
+    if hc:  # kolo 23: vysky (cinkave tony) v useku stlmene, bez posunu nizsich pasiem (filter v spektre, nulova faza)
+        a0, a1, fade = float(hc["from"]), float(hc["to"]), hc.get("fade_ms", 400) / 1000
+        lo, hi = hc.get("lo_hz", 4000), hc.get("hi_hz", 6000)
+        i0, i1 = max(0, int((a0 - fade - 0.2) * sr)), min(len(y), int((a1 + fade + 0.2) * sr))
+        pad = sr // 5  # nuly okolo useku: kruhova konvolucia neprenesie koniec useku na zaciatok
+        seg = np.pad(y[i0:i1], ((pad, pad), (0, 0)))
+        f = np.fft.rfftfreq(len(seg), 1 / sr)
+        hp = np.sin(np.clip((f - lo) / (hi - lo), 0, 1) * np.pi / 2) ** 2
+        high = np.fft.irfft(np.fft.rfft(seg, axis=0) * hp[:, None], n=len(seg), axis=0)[pad:pad + i1 - i0]
+        t = np.arange(i0, i1) / sr
+        env = np.sin(np.minimum(np.clip((t - a0 + fade) / fade, 0, 1), np.clip((a1 + fade - t) / fade, 0, 1)) * np.pi / 2) ** 2
+        y[i0:i1] -= (1 - 10 ** (hc["db"] / 20)) * env[:, None] * high
+        print(f"vysky nad {hi} Hz (prechod od {lo} Hz) o {hc['db']} dB tichsie v {a0:.2f}-{a1:.2f} s, nabeh a dobeh {fade:.2f} s")
     y = y[:end_out]
     subprocess.run([ff, "-v", "error", "-y", "-f", "f32le", "-ar", str(sr), "-ac", "2", "-i", "-", "-c:a", "pcm_f32le", e["out"]], input=y.astype(np.float32).tobytes(), check=True)
     print(f"{e['out']}: {end_out / sr:.2f} s, {o / 4:g} taktov")

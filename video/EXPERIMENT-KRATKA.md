@@ -11,6 +11,23 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 23 (29. 9. 2026): naozaj jedno odfotenie v 0:33, stlmené iskry po prvom akorde
+
+Samuel: "nič sa nezmenilo, mám taký pocit" (po kole 22: dokument sa stále akoby odfotí dvakrát, iskry na začiatku).
+
+- Príčina dvojitej fotky: záznam mobilu `sken-1.mp4` má vlastné bliknutie iOS pri odfotení (8,583 s zdroja, obrazovka na
+  ~50 ms čierna a do 8,85 s sa vráti, tlačidlo spúšte sa zmenšuje od 8,567 s), vo filme 32,72 s. Náš zelený krúžok
+  spúšte a biely blesk boli pri 8,9 s zdroja (33,03 s), teda o 0,33 s neskôr: prst akoby stlačil spúšť ešte raz, druhá fotka.
+  Kolo 22 odstránilo iné zosvetlenie (vyblednutie na konci F1), preto sa nič nezmenilo.
+- Oprava: krúžok spúšte (`K_F1_TAPS`) pri 8,55 s zdroja (32,68 s filmu), tesne pred skutočným bliknutím; biely blesk
+  vypadol (`LI_F1`: prekrytie obrazovky len pri nábehu mobilu). Jediná fotka je bliknutie iOS v zázname, krúžok ho
+  ohlási. Dĺžky záberov, prelínačka do F1 -> F24 (`F1_XFADE`) aj hlas bez zmeny.
+- Iskry: kolo 22 umlčalo trblietavý nádych pred prvým akordom (0-2,2 s), ale po akorde ostali vysoké cinkavé tóny
+  (zostupné, 2,9-5 s, 8-14 kHz) a jasný šum nábehu akordu nad 6 kHz. `music_edit.py` má voliteľné `hf_cut`: v `K` sú
+  v 2,2-5,3 s výšky nad 6 kHz o 24 dB tichšie (prechod od 4 kHz, nábeh a dobeh 0,45 s, filter v spektre s nulovou fázou).
+  Pásma pod 4 kHz (akord) sa nezmenili, hudba od 5,75 s je bit po bite rovnaká ako v kole 22.
+- Kolo 22 je uložené v `out/kratka/verzie/K-LinkedIn_kolo22_77s_*.mp4` a v commite `4b69676`.
+
 ## Kolo 22 (29. 9. 2026): hudba bez iskier na začiatku, jedno odfotenie v 0:34
 
 Samuel: hudba je fajn, len na začiatku dať preč iskry, veľmi jemne; v 0:34 sa dokument akoby dvakrát odfotí, má raz.
@@ -740,8 +757,8 @@ node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --d
 python3 scripts/vo_check.py --script src/copy/vo_kratka.json --dir public/vo-kratka K-C4-Cena-0 ...   # kontrola prepisom
 node scripts/cut-footage.mjs k-f1-sken k-f24-review k-f3-search   # VŽDY s id, bez nich sa prerobí aj pôvodné footage
 npx remotion render K-LinkedIn out/kratka/K-LinkedIn_voice.mp4     # LinkedIn 4:5 jedným renderom (hlas, titulky)
-python3 scripts/music_edit.py                      # kolo 21: hudba kola 15 (bed.wav) poskladana z taktov na mriezke 105 BPM (kola 16 az 18: --variant K_kolo16, K_kolo17, K_kolo18)
-node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K --music public/music/bed_kratka_edit.wav   # kolo 21, aktualne (--gain -7 --range 0 ako kolo 15)
+python3 scripts/music_edit.py                      # kolo 21: hudba kola 15 (bed.wav) poskladana z taktov na mriezke 105 BPM, kolo 22 ticho do 2,27 s, kolo 23 stlmene vysky 2,2-5,3 s (kola 16 az 18: --variant K_kolo16, K_kolo17, K_kolo18)
+node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K --music public/music/bed_kratka_edit.wav   # kolo 21 az 23, aktualne (--gain -7 --range 0 ako kolo 15)
 # node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K_kolo15   # kolo 15 a 20: stare strihy bed.wav (104 BPM, spoj v 0:55 mimo dob)
 # node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K_kolo18 --music public/music/bed_kratka_kolo18_edit.wav --range 2 --gain -6.4   # kolo 18 (kolo 17: --variant K_kolo17, bed_kratka_kolo17_edit.wav, --range 6 --gain -5.5; kolo 16: --variant K_kolo16, bed_kratka_kolo16_edit.wav, --range 6 --gain -5)
 ```

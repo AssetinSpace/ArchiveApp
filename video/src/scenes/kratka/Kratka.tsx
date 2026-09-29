@@ -66,7 +66,10 @@ export const K_C5_HOLDS: Hold[] = [
 export const KF1 = 'k-f1-sken';
 export const K_F1_SECONDS = cutDuration(KF1);
 export const K_F1_TAPS: PhoneTap[] = [
-  { t: cutTime(KF1, 8.9), x: 0.5, y: 0.824 }, // spust (kolo 4: zaznam konci pred nahladom fotky, Use Photo vypadlo)
+  // spust (kolo 4: zaznam konci pred nahladom fotky, Use Photo vypadlo). Kolo 23 (Samuel: v 0:34 akoby sa dokument odfotil
+  // dvakrat): zaznam ma vlastne bliknutie iOS pri odfoteni (8,583 s, tlacidlo sa zmensuje od 8,567 s), kruzok pri 8,9 s
+  // s bielym bleskom prisiel o 0,33 s neskor ako druha fotka; kruzok je teraz tesne pred skutocnou spustou, biely blesk vypadol
+  { t: cutTime(KF1, 8.55), x: 0.5, y: 0.824 },
 ];
 
 /**
