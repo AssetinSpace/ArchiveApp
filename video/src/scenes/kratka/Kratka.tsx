@@ -98,7 +98,7 @@ export const KF3 = 'k-f3-search';
 export const K_F3_SECONDS = cutDuration(KF3);
 /** F3: kroky a zvyraznenia podla vety klipu (16:9 aj LinkedIn). */
 export const f3Steps = (clip: string): Step[] => [
-  { from: 0, title: 'Napísať slovo' },
+  { from: 0, title: 'Napísať kľúčové slovo' }, // kolo 21 (Samuel): "napísať kľúčové slovo"
   { from: voAt(clip, 0, 1), title: 'Údaje o položke' }, // kolo 7 (Samuel): "aplikacia ukaze udaje o konkretnej polozke aj cestu k nej"
   { from: voAt(clip, 1), title: 'Cesta k položke' }, // kolo 10: "aj cestu k nej." je samostatna veta po pauze
 ];

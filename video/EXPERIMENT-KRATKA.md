@@ -11,6 +11,31 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 21 (29. 9. 2026): "napísať kľúčové slovo" a plynulý spoj hudby pri 0:55
+
+Samuel: sedí to viac-menej; v 0:51 doplniť "Potom stačí napísať kľúčové slovo"; v 0:55 sa hudba nejako sekne, dvakrát
+zahrá to isté a nenaväzuje pekne.
+
+- Hlas: Gemini TTS je nedostupný (vyčerpaný kredit), preto je slovo "kľúčové" vystrihnuté z vety hlavnej verzie
+  `public/vo/lines/F3-Vyhladavanie-0.wav` ("Stačí zadať kľúčové slovo.", 0,8275-1,390 s: uzáver "ť", "kľúčové" a začiatok
+  "s", -1,7 dB) a vložené do `K-F3-Vyhladavanie-0.full.wav` medzi 1,230 s (ticho uzáveru "ť") a 1,280 s (vnútri "s"),
+  prelínačky 5 a 12 ms -> `public/vo-kratka/lines/K-F3-Vyhladavanie-0.kluc.full.wav` (+0,5 s). Ten istý hlas; výška "kľú"
+  173 -> 142 Hz (prízvuk na novom slove), okolie 145-157 Hz. Prepis vety bez chyby. "aj cestu k nej." o 0,5 s neskôr
+  (6,365 s klipu), klip F3 aj film majú rovnakú dĺžku. Nadpis kroku "Napísať kľúčové slovo" (`Kratka.tsx`).
+- Hudba, príčina: strihy `K_kolo15` rátali so 104 BPM (mriežka 2,108 + n x 2,3077 s), skladba má 105,00 BPM. Druhý skok
+  (75,95 -> 129,03 s skladby, vo filme 55,5 s) padol z 0,78 doby taktu 20, hneď po crashi na začiatku novej frázy, do 1,67
+  doby taktu 43, teda doprostred taktu a o necelú dobu posunutý: zaseknutie a opakovanie.
+- Hudba, oprava: `music_edit.py` (variant `K`) na skutočnej mriežke (takt 2,2856 s, doba 1 taktu 0 = 29,793 s, osemtaktové
+  frázy od taktov 4, 12, 20, ... 44): úvod ako v kole 15 (takty -13 až -11 so začiatkom skladby, potom -1), takty 0-19
+  (koniec frázy), rovno pokojná časť od taktu 44 (začiatok frázy) po záverečný akord (takt 51) a doznenie. Tempo 0,99037:
+  nástup kapely 9,23 s, pokojná časť presne na začiatku prelínačky do ponuky (55,39 s), záverečný akord 71,55 s (predtým
+  ~72,9 s). Mix ako v kole 15 (`--gain -7 --range 0`).
+- Kontroly: fáza dôb v edite je pred oboma spojmi aj za nimi rovnaká (do 7 ms), skok na spojoch 243 a 117 (bežná doba 1:
+  medián 130, max 383), bez lupnutí, pokojná časť od prvého taktu po spoji. Film 76,8 s, -16,0 LUFS, true peak -1,4 dBFS;
+  obraz sa od kola 20 líši len v zábere vyhľadávania, hlas len v 48-54 s; prepis finálneho mixu zachytí novú vetu celú.
+  Kontrola cez Gemini nebola možná (kredit).
+- Kolo 20 je uložené v `out/kratka/verzie/K-LinkedIn_kolo20_77s_*.mp4` a v commite `c69580d`.
+
 ## Kolo 20 (29. 9. 2026): domček v logu vpravo dole, "archives" malým, hudba z kola 15
 
 Samuel: ostávame pri hudbe z kola 15 (hudbu teraz nemeníme). Posúdiť a zapracovať: v logu vpravo dole doplniť domček za
@@ -698,8 +723,9 @@ node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --d
 python3 scripts/vo_check.py --script src/copy/vo_kratka.json --dir public/vo-kratka K-C4-Cena-0 ...   # kontrola prepisom
 node scripts/cut-footage.mjs k-f1-sken k-f24-review k-f3-search   # VŽDY s id, bez nich sa prerobí aj pôvodné footage
 npx remotion render K-LinkedIn out/kratka/K-LinkedIn_voice.mp4     # LinkedIn 4:5 jedným renderom (hlas, titulky)
-python3 scripts/music_edit.py --variant K_kolo18    # len pre kola 16 az 18 (hudba poskladana z taktov skladby Lyria); kolo 20 ma hudbu kola 15 bez tohto kroku
-node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K_kolo15   # kolo 20, aktualne: hudba kola 15 (public/music/bed.wav, --gain -7 --range 0)
+python3 scripts/music_edit.py                      # kolo 21: hudba kola 15 (bed.wav) poskladana z taktov na mriezke 105 BPM (kola 16 az 18: --variant K_kolo16, K_kolo17, K_kolo18)
+node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K --music public/music/bed_kratka_edit.wav   # kolo 21, aktualne (--gain -7 --range 0 ako kolo 15)
+# node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K_kolo15   # kolo 15 a 20: stare strihy bed.wav (104 BPM, spoj v 0:55 mimo dob)
 # node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K_kolo18 --music public/music/bed_kratka_kolo18_edit.wav --range 2 --gain -6.4   # kolo 18 (kolo 17: --variant K_kolo17, bed_kratka_kolo17_edit.wav, --range 6 --gain -5.5; kolo 16: --variant K_kolo16, bed_kratka_kolo16_edit.wav, --range 6 --gain -5)
 ```
 
