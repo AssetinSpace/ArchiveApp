@@ -868,6 +868,8 @@ const LI_C8: React.FC = () => {
  * Kolo 26 (Samuel: nove logá, do videa to, kde su assetin a archives nad sebou): oficialne dvojriadkove logo
  * (podklady/archives-logo, cesty v archivesLogo.ts): domcek | assetin nad ARCHIVES. Farebna verzia na bielej (C4),
  * inverzna na tmavomodrej (C9). `height` = vyska loga v px (sirka 3,96 x vyssia).
+ * Kolo 27 (Samuel: finalne loga, zelene ARCHIVES prepisane na navy): farby z podklady/archives-logo-final, ARCHIVES je na
+ * bielej tmavomodre (#121a2b ako asset), na tmavomodrej biele; tvary bez zmeny.
  */
 const OUT_EXPO = Easing.bezier(0.16, 1, 0.3, 1);
 const HOUSE_C = { x: 35.8, y: 38.4 }; // stred domceka v dvojriadkovom logu (x 0 az 71,7, y 0 az 76,85)
@@ -1236,6 +1238,8 @@ const C4Top: React.FC = () => {
  * C9 (kolo 3, Samuel: posledny zaber bol prehusteny): len logo a slogan na zelenej. Kolo 4: logo bez .space.
  * Kolo 26: oficialne dvojriadkove logo v inverznej verzii na tmavomodrej (NAVY ako tmavy uvod): inverzne logo je urobene na
  * tmavomodre pozadie, zelene ARCHIVES a domcek by na zelenej zanikli a biela verzia loga v podkladoch nie je.
+ * Kolo 27: finalne podklady maju aj verziu na zelenu (ARCHIVES_LOGO.two.onGreen, cele biele na #1a7431); zaver ostava
+ * tmavomodry ako v kole 26, zelena by bola pozadie #1a7431 a farby onGreen.
  */
 const LI_C9: React.FC = () => {
   const frame = useCurrentFrame();

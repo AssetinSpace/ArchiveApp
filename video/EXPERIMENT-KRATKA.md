@@ -11,6 +11,20 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 27 (29. 9. 2026): finálne logá, ARCHIVES tmavomodré
+
+Samuel: posiela aktualizované logá, v podstate sa len zelené ARCHIVES prepísalo na navy.
+
+- Finálny balík je v `podklady/archives-logo-final/` (21 súborov): na bielom (aj priehľadné), na navy (aj priehľadné), na
+  zelenom, jednofarebné biele a čierne, PNG 200 a 800 px. Tvary sú rovnaké ako v prvej verzii, zmenili sa farby:
+  ARCHIVES je na bielej #121a2b (ako asset), na navy biele, verzia na zelenú je celá biela.
+- `scripts/archives_logo.py` berie dvojriadkové logo z finálneho balíka (priehľadné na bielom a na navy, farby verzie na
+  zelenom ako `onGreen`) a z prvej verzie (`podklady/archives-logo/`, pozri README tam) už len tvar domček | assetin pre
+  roh (bez ARCHIVES; jednoriadkové logo vo finálnom balíku nie je).
+- Video: ARCHIVES je v 0:10 tmavomodré, na konci biele, všetko ostatné bez zmeny. Záver ostáva tmavomodrý ako v kole 26;
+  zelený by bol pozadie #1a7431 a farby `onGreen`.
+- Kolo 26 je uložené v `out/kratka/verzie/K-LinkedIn_kolo26_77s_*.mp4` a v commite `4bab401`.
+
 ## Kolo 26 (29. 9. 2026): oficiálne dvojriadkové logo
 
 Samuel poslal nové logá (zip: dvojriadkové a jednoriadkové logo, inverzné verzie, ikona aplikácie, favicon): do videa
@@ -807,7 +821,7 @@ node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --d
 python3 scripts/vo_check.py --script src/copy/vo_kratka.json --dir public/vo-kratka K-C4-Cena-0 ...   # kontrola prepisom
 node scripts/cut-footage.mjs k-f1-sken k-f24-review k-f3-search   # VŽDY s id, bez nich sa prerobí aj pôvodné footage
 npx remotion render K-LinkedIn out/kratka/K-LinkedIn_voice.mp4     # LinkedIn 4:5 jedným renderom (hlas, titulky)
-python3 scripts/archives_logo.py                   # kolo 26: cesty oficialneho loga z podklady/archives-logo -> src/scenes/kratka/archivesLogo.ts
+python3 scripts/archives_logo.py                   # kolo 26 a 27: cesty a farby oficialneho loga z podklady/archives-logo-final -> src/scenes/kratka/archivesLogo.ts
 python3 scripts/music_edit.py                      # kolo 21: hudba kola 15 (bed.wav) poskladana z taktov na mriezke 105 BPM, kolo 22 ticho do 2,27 s, kolo 23 stlmene vysky 2,2-5,3 s (kola 16 az 18: --variant K_kolo16, K_kolo17, K_kolo18)
 node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K --music public/music/bed_kratka_edit.wav   # kolo 21 az 23, aktualne (--gain -7 --range 0 ako kolo 15)
 # node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K_kolo15   # kolo 15 a 20: stare strihy bed.wav (104 BPM, spoj v 0:55 mimo dob)
@@ -818,7 +832,7 @@ Kontrolné stills `node scripts/kratka-stills.mjs [s ...]` (časy vo filme, do `
 
 ## Súbory
 
-- Nové: `src/scenes/kratka/LinkedIn.tsx` (kompozícia K-LinkedIn 4:5, jediná krátka verzia), `src/kratkaList.ts` (`paced`, pauzy C4), `src/scenes/kratka/Kratka.tsx` (spoločné dáta: C4 so sloganom, kroky, spoty, kliky), `src/copy/vo_kratka.json`, `src/copy/music_kratka.json` (kolo 16 aj prompt a plán strihu hudby), `scripts/kratka_lines.py`, `scripts/kratka-stills.mjs`, `scripts/music_edit.py` (kolo 16), `scripts/archives_logo.py` a `src/scenes/kratka/archivesLogo.ts` (kolo 26, oficiálne logo z `podklady/archives-logo/`), `public/music/bed_kratka.*` (kolo 16), `review-kratka/index.html`, `public/vo-kratka/`, `public/footage/k-*.mp4`, `out/kratka/`.
+- Nové: `src/scenes/kratka/LinkedIn.tsx` (kompozícia K-LinkedIn 4:5, jediná krátka verzia), `src/kratkaList.ts` (`paced`, pauzy C4), `src/scenes/kratka/Kratka.tsx` (spoločné dáta: C4 so sloganom, kroky, spoty, kliky), `src/copy/vo_kratka.json`, `src/copy/music_kratka.json` (kolo 16 aj prompt a plán strihu hudby), `scripts/kratka_lines.py`, `scripts/kratka-stills.mjs`, `scripts/music_edit.py` (kolo 16), `scripts/archives_logo.py` a `src/scenes/kratka/archivesLogo.ts` (kolo 26, oficiálne logo; od kola 27 z `podklady/archives-logo-final/`), `public/music/bed_kratka.*` (kolo 16), `review-kratka/index.html`, `public/vo-kratka/`, `public/footage/k-*.mp4`, `out/kratka/`.
 - Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`, `subtitles`), `Scene` (`SceneFrameContext`: jednofarebné pozadie, bez päty a bez orezania na rámec 16:9 len vnútri LinkedIn rámca), `Subtitles` (scenár K vedľa hlavného), `C4_Cena` (`d`, `h`, `brand`, `cost`, kolo 12 `clockAt`), `C5_Teren` (`steps`, `phase`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`, kolo 12 kľúč `delay` v cfg); kolo 9 až 11: `C2_Hladanie` (export `Office`, `Warehouse` a `PATH`, kolo 14 ich `floor`), `Device` (`PhoneFrame` `screenBg`).
 - Kontrola: 20 snímok pôvodných klipov (C2, C4, C5, C8, C9, F1, F4) z commitu `ea5550e` a z tejto vetvy je na pixel rovnakých; dĺžky kompozícií bez zmeny.
 - Jediná zmena správania pôvodnej cesty: `mix-music.mjs` dáva tichému klipu (C1) stopu v rozložení kanálov ostatných klipov (stereo namiesto mono). Zvuk je ticho, výsledok rovnaký.
