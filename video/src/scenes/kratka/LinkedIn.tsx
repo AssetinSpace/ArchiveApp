@@ -1,6 +1,6 @@
 import React from 'react';
 import { AbsoluteFill, Easing, Freeze, Img, OffthreadVideo, Series, staticFile, useCurrentFrame } from 'remotion';
-import { LogoMark, Scene, SceneFrameContext } from '../../components/Scene';
+import { Scene, SceneFrameContext } from '../../components/Scene';
 import { voLines } from '../../components/Subtitles';
 import { FOOTAGE_PHONE, PHONE_BEZEL, PhoneFrame, Rect, WindowFrame } from '../../components/Device';
 import { BrandMod, BrandSep, BrandStack, LOCKUP, LOCKUP_W } from '../../components/Brand';
@@ -12,6 +12,7 @@ import { C5_Teren } from '../C5_Teren';
 import type { Mark, Tap } from '../F2_Metadata';
 import { C5_STEPS, SLOGAN, K_C4, K_C4_D, K_C4_H, K_C5_HOLDS, K_F1_SECONDS, K_F1_TAPS, K_F24_END, K_F24_MARKS, K_F24_STEPS, K_F24_TAPS, K_F3_SECONDS, PHASE_ARCHIV, SOFTWARE_DESC, c4End, f3Marks, f3Steps } from './Kratka';
 import { paced } from '../../kratkaList';
+import { ARCHIVES_LOGO } from './archivesLogo';
 import type { SceneDef } from '../../scenesList';
 import { easeInOut, easeOut, pop, settle, tween } from '../../lib/anim';
 import { loadFonts } from '../../lib/fonts';
@@ -133,19 +134,32 @@ const INTRO_WIN: Win = { top: 90, bottom: 1040, feather: 30 }; // kolo 11: podla
  * Kolo 20 (Samuel: domcek za ciarou ako v podpise mailu): domcek | assetin v pomeroch velkeho loga (domcek 0,9 F, ciara
  * vysoka ako pismo, rozostup 0,3 F), slovo assetin ostava na mieste (uaziara BRAND_BASE, 48 px od praveho okraja).
  */
-const BRAND_SIZE = 42;
 const BRAND_BASE = 57; // px od spodku ramca po uaziaru (vrch pismen nadpisu kroku je ~57 px od vrchu)
+/**
+ * Kolo 26 (Samuel: nove logá): domcek | assetin presne z oficialneho jednoriadkoveho loga (asset hrubo, in tenko; video
+ * malo cele slovo Manrope 800). Vyska x ako predtym (23,7 px, k = 1,424 px na jednotku loga), sirka 211 px ako v kole 20,
+ * uaziara na BRAND_BASE, pravy okraj "in" 48 px od okraja. Na tmavom uvode inverzne farby loga.
+ */
+const BRAND_K = 1.424;
+const BRAND_VIEW = { w: 148.42, h: 22.3, base: 21.82 }; // domcek az "in" jednoriadkoveho loga, uaziara 21,82
 const BrandRow: React.FC<{ tone: Tone }> = ({ tone }) => {
-  const F = BRAND_SIZE;
-  const dark = tone === 'dark';
+  const L = ARCHIVES_LOGO.one;
+  const c = tone === 'dark' ? L.inverse : L.color;
+  const [dx, dy, dw, dh] = L.divider;
   return (
-    <div style={{ position: 'absolute', right: 48, bottom: BRAND_BASE - 0.1175 * F, height: F, display: 'flex', alignItems: 'center' }}>
-      <LogoMark size={F * 0.9} color={dark ? BRAND[400] : BRAND[700]} />
-      <div style={{ width: 2, height: F, margin: `0 ${F * 0.3}px`, borderRadius: 1, background: dark ? 'rgba(255,255,255,0.45)' : INK[300], flex: 'none' }} />
-      <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: F, lineHeight: 1, letterSpacing: '-0.02em', whiteSpace: 'nowrap', color: dark ? '#fff' : INK[900] }}>
-        asset<span style={{ color: dark ? BRAND[400] : BRAND[600] }}>in</span>
-      </div>
-    </div>
+    <svg
+      width={BRAND_VIEW.w * BRAND_K}
+      height={BRAND_VIEW.h * BRAND_K}
+      viewBox={`0 0 ${BRAND_VIEW.w} ${BRAND_VIEW.h}`}
+      style={{ position: 'absolute', right: 48, bottom: BRAND_BASE - (BRAND_VIEW.h - BRAND_VIEW.base) * BRAND_K, display: 'block' }}
+    >
+      <g transform={L.houseTransform} fill={c.house}>
+        <path d={ARCHIVES_LOGO.houseD} />
+      </g>
+      <rect x={dx} y={dy} width={dw} height={dh} fill={c.divider} />
+      <path d={L.asset} fill={c.asset} />
+      <path d={L.in} fill={c.in} />
+    </svg>
   );
 };
 
@@ -849,44 +863,56 @@ const LI_C8: React.FC = () => {
 };
 
 /**
- * Logo (kolo 4, Samuel): ako riadok znacky hore (domcek | assetin | Archives), bez .space, "Archives" rovnakym pismom
- * ako na zaverecnom zabere v kole 3 (Manrope 800). Rozostupy okolo ciar su rovnake (flex), ciary su na stred medzi textami.
- * Kolo 20 (Samuel): "archives" malym, ako slovo assetin (logo ako jeden celok); v titulkoch ostava "Assetin Archives".
- * Kolo 6: `build` = ms klipu, od ktoreho sa logo posklada (ciary narastu, domcek dosadne, slova vyjdu zospodu z masky);
- * bez neho je logo hotove (C9).
+ * Logo (kolo 4, Samuel): domcek | assetin | archives (kolo 20 "archives" malym). Kolo 6: `build` = ms klipu, od ktoreho sa
+ * logo posklada (ciara narastie, domcek dosadne, riadky vyjdu zospodu z masky); bez neho je logo hotove (C9).
+ * Kolo 26 (Samuel: nove logá, do videa to, kde su assetin a archives nad sebou): oficialne dvojriadkove logo
+ * (podklady/archives-logo, cesty v archivesLogo.ts): domcek | assetin nad ARCHIVES. Farebna verzia na bielej (C4),
+ * inverzna na tmavomodrej (C9). `height` = vyska loga v px (sirka 3,96 x vyssia).
  */
 const OUT_EXPO = Easing.bezier(0.16, 1, 0.3, 1);
-const Lockup: React.FC<{ size: number; onDark: boolean; build?: number }> = ({ size: F, onDark, build }) => {
+const HOUSE_C = { x: 35.8, y: 38.4 }; // stred domceka v dvojriadkovom logu (x 0 az 71,7, y 0 az 76,85)
+const Lockup: React.FC<{ height: number; inverse?: boolean; build?: number }> = ({ height, inverse = false, build }) => {
   const frame = useCurrentFrame();
+  const id = 'lk' + React.useId().replace(/[^a-zA-Z0-9]/g, '');
+  const L = ARCHIVES_LOGO.two;
+  const c = inverse ? L.inverse : L.color;
+  const [VW, VH] = L.view;
+  const k = height / VH;
   const b = (a: number, d: number) => (build === undefined ? 1 : tween(frame, build + a, d, OUT_EXPO));
   const sepK = b(0, 480);
   const markK = build === undefined ? 1 : pop(frame, build + 60, { damping: 18 });
-  const w1 = b(150, 650);
-  const w2 = b(270, 650);
-  const ink = onDark ? '#fff' : INK[900];
-  const sep = <div style={{ width: Math.max(3, F * 0.045), height: F * 1.02, margin: `0 ${F * 0.3}px`, borderRadius: 2, background: onDark ? 'rgba(255,255,255,0.5)' : INK[300], flex: 'none', transform: `scaleY(${sepK})` }} />;
-  const word: React.CSSProperties = { fontFamily: FONT.display, fontWeight: 800, fontSize: F, lineHeight: 1, letterSpacing: '-0.02em', color: ink, whiteSpace: 'nowrap' };
-  // maska s rezervou pre dotiahy pisma: slovo vyjde zospodu, v pokoji sa nic neoreze
-  const mask = (k: number, child: React.ReactNode) => (
-    <div style={{ overflow: 'hidden', padding: `${F * 0.16}px 0.04em`, margin: `${-F * 0.16}px -0.04em` }}>
-      <div style={{ transform: `translateY(${(1 - k) * 118}%)`, opacity: Math.min(1, k * 1.6) }}>{child}</div>
-    </div>
-  );
+  const w1 = b(150, 650); // assetin (y 0 az 41,6)
+  const w2 = b(300, 650); // ARCHIVES (y 56,3 az 77,3)
+  const [dx, dy, dw, dh] = L.divider;
+  const mid = dy + dh / 2;
   return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      <div style={{ opacity: Math.min(1, markK * 1.6), transform: `scale(${0.45 + 0.55 * markK})` }}>
-        <LogoMark size={F * 0.9} color={onDark ? '#fff' : BRAND[700]} />
-      </div>
-      {sep}
-      {mask(
-        w1,
-        <div style={word}>
-          asset<span style={{ color: onDark ? BRAND[200] : BRAND[600] }}>in</span>
-        </div>,
-      )}
-      {sep}
-      {mask(w2, <div style={word}>archives</div>)}
-    </div>
+    <svg width={VW * k} height={(VH + 0.6) * k} viewBox={`0 0 ${VW} ${VH + 0.6}`} style={{ display: 'block', overflow: 'visible' }}>
+      <defs>
+        <clipPath id={`${id}a`}>
+          <rect x={110} y={-6} width={VW - 104} height={52} />
+        </clipPath>
+        <clipPath id={`${id}b`}>
+          <rect x={110} y={50} width={VW - 104} height={32} />
+        </clipPath>
+      </defs>
+      <g opacity={Math.min(1, markK * 1.6)} transform={`translate(${HOUSE_C.x} ${HOUSE_C.y}) scale(${0.45 + 0.55 * markK}) translate(${-HOUSE_C.x} ${-HOUSE_C.y})`}>
+        <g transform={L.houseTransform} fill={c.house}>
+          <path d={ARCHIVES_LOGO.houseD} />
+        </g>
+      </g>
+      <rect x={dx} y={dy} width={dw} height={dh} fill={c.divider} transform={`translate(0 ${mid}) scale(1 ${sepK}) translate(0 ${-mid})`} />
+      <g clipPath={`url(#${id}a)`}>
+        <g transform={`translate(0 ${(1 - w1) * 50})`} opacity={Math.min(1, w1 * 1.6)}>
+          <path d={L.asset} fill={c.asset} />
+          <path d={L.in} fill={c.in} />
+        </g>
+      </g>
+      <g clipPath={`url(#${id}b)`}>
+        <g transform={`translate(0 ${(1 - w2) * 30})`} opacity={Math.min(1, w2 * 1.6)}>
+          <path d={L.archives} fill={c.archives} />
+        </g>
+      </g>
+    </svg>
   );
 };
 
@@ -1136,7 +1162,7 @@ const LI_C2: React.FC = () => {
  * Kolo 15: pod logom a sloganom je pilulka "Prve dokumenty zadarmo a nezavazne" (C4_Y.pill), ikony su nizsie (C4_Y.promise).
  */
 /** Kolo 15: rozlozenie pod logom (px ramca): logo so sloganom, pilulka, archiv -> katalog, pod nimi titulky (SUB_Y). */
-const C4_Y = { logo: 372, pill: 600, promise: 752 };
+const C4_Y = { logo: 300, pill: 600, promise: 752 }; // kolo 26: dvojriadkove logo 168 px (predtym riadok 88 px od 372)
 const C4_W1 = { archivu: 3.36, urobime: 3.88, prehladny: 4.44 };
 const C4Promise: React.FC<{ out: number }> = ({ out }) => {
   const frame = useCurrentFrame();
@@ -1191,8 +1217,9 @@ const C4Top: React.FC = () => {
       {w > 0 && panel > 0 ? <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: LI.h * w + WIPE_FEATHER, background: `linear-gradient(to top, #fff calc(100% - ${WIPE_FEATHER}px), rgba(255,255,255,0) 100%)`, opacity: panel }} /> : null}
       {ms >= C4_LOGO && out < 1 ? (
         <div style={{ position: 'absolute', left: 0, right: 0, top: C4_Y.logo, display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: 1 - out }}>
-          <Lockup size={88} onDark={false} build={C4_LOGO} />
-          <div style={{ marginTop: 40, fontFamily: FONT.body, fontWeight: 600, fontSize: 28, letterSpacing: `${0.16 + 0.22 * (1 - tag)}em`, textTransform: 'uppercase', color: BRAND[600], opacity: tag, whiteSpace: 'nowrap' }}>{SLOGAN}</div>
+          <Lockup height={168} build={C4_LOGO} />
+          {/* kolo 26: slogan vetou a sivo, verzalky s rozostupom by pod ARCHIVES posobili ako dalsi riadok loga */}
+          <div style={{ marginTop: 36, fontFamily: FONT.body, fontWeight: 500, fontSize: 34, color: INK[600], opacity: tag, transform: `translateY(${(1 - tag) * 10}px)`, whiteSpace: 'nowrap' }}>{SLOGAN}</div>
         </div>
       ) : null}
       {pill > 0 && out < 1 ? (
@@ -1205,7 +1232,11 @@ const C4Top: React.FC = () => {
   );
 };
 
-/** C9 (kolo 3, Samuel: posledny zaber bol prehusteny): len logo a slogan na zelenej. Kolo 4: logo bez .space. */
+/**
+ * C9 (kolo 3, Samuel: posledny zaber bol prehusteny): len logo a slogan na zelenej. Kolo 4: logo bez .space.
+ * Kolo 26: oficialne dvojriadkove logo v inverznej verzii na tmavomodrej (NAVY ako tmavy uvod): inverzne logo je urobene na
+ * tmavomodre pozadie, zelene ARCHIVES a domcek by na zelenej zanikli a biela verzia loga v podkladoch nie je.
+ */
 const LI_C9: React.FC = () => {
   const frame = useCurrentFrame();
   React.useEffect(() => {
@@ -1215,11 +1246,11 @@ const LI_C9: React.FC = () => {
   const tag = settle(frame, 200);
   const web = settle(frame, 500);
   return (
-    <AbsoluteFill style={{ background: `linear-gradient(160deg, ${BRAND[800]} 0%, ${BRAND[600]} 100%)`, alignItems: 'center', justifyContent: 'center', fontFamily: FONT.body, color: '#fff' }}>
+    <AbsoluteFill style={{ background: `linear-gradient(160deg, ${NAVY[800]} 0%, ${NAVY[900]} 100%)`, alignItems: 'center', justifyContent: 'center', fontFamily: FONT.body, color: '#fff' }}>
       <div style={{ marginTop: -40, opacity: logo, transform: `translateY(${(1 - logo) * 14}px) scale(${0.96 + 0.04 * logo})` }}>
-        <Lockup size={94} onDark />
+        <Lockup height={182} inverse />
       </div>
-      <div style={{ marginTop: 60, width: 900, textAlign: 'center', fontFamily: FONT.display, fontWeight: 600, fontSize: 44, lineHeight: 1.2, color: BRAND[100], opacity: tag, transform: `translateY(${(1 - tag) * 12}px)` }}>{SLOGAN}</div>
+      <div style={{ marginTop: 64, width: 900, textAlign: 'center', fontFamily: FONT.display, fontWeight: 600, fontSize: 44, lineHeight: 1.2, color: NAVY[200], opacity: tag, transform: `translateY(${(1 - tag) * 12}px)` }}>{SLOGAN}</div>
       {/* kolo 8 (Samuel: web na konci urcite ano): web pod sloganom, pocas filmu uz nie je */}
       <div style={{ marginTop: 70, padding: '14px 34px', borderRadius: 40, border: '2px solid rgba(255,255,255,0.45)', fontFamily: FONT.display, fontWeight: 700, fontSize: 42, letterSpacing: '0.01em', color: '#fff', opacity: web, transform: `translateY(${(1 - web) * 12}px)` }}>{sk.S12.web}</div>
     </AbsoluteFill>

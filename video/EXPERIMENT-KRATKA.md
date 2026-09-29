@@ -11,6 +11,29 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 26 (29. 9. 2026): oficiálne dvojriadkové logo
+
+Samuel poslal nové logá (zip: dvojriadkové a jednoriadkové logo, inverzné verzie, ikona aplikácie, favicon): do videa
+zahrnúť logo, kde sú assetin a archives nad sebou, vhodne zapracovať.
+
+- Logá sú v `podklady/archives-logo/` (14 súborov). `scripts/archives_logo.py` z nich zapíše cesty a farby do
+  `src/scenes/kratka/archivesLogo.ts` (farebná a inverzná verzia majú rovnaké cesty, líšia sa len farby), takže logo sa vo
+  videu kreslí presne podľa podkladov a dá sa animovať po častiach.
+- 0:10 (C4): `Lockup` je oficiálne dvojriadkové logo (domček | assetin nad ARCHIVES), farebná verzia, výška 168 px
+  (šírka 665 px), skladá sa ako doteraz (domček dosadne, čiara narastie, assetin a potom ARCHIVES vyjdú zospodu z masky).
+  Slogan pod ním je vetou a sivý (Inter 500, 34 px, `INK[600]`) namiesto zelených verzálok s rozostupom, ktoré by pod
+  ARCHIVES pôsobili ako tretí riadok loga. Logo od 300 px (predtým riadok 88 px od 372 px), pilulka a archív -> katalóg
+  na mieste.
+- Záver (C9): inverzná verzia dvojriadkového loga (182 px) na tmavomodrej (`NAVY[800]` -> `NAVY[900]`, ako tmavý úvod),
+  slogan `NAVY[200]`. Inverzné logo je robené na tmavomodrú (#121a2b); na zelenej by zelený domček a ARCHIVES zanikli
+  (kontrast zelenej loga #2f9e4f so zelenou záveru ~1,5 : 1) a biela verzia loga v podkladoch nie je.
+- Značka v rohu: domček | assetin presne z oficiálneho jednoriadkového loga (asset hrubo, in tenko; doteraz celé slovo
+  Manrope 800), výška x ako predtým (23,7 px), šírka 211 px ako v kole 20, účiara a pravý okraj na rovnakom mieste; na
+  tmavom úvode inverzné farby. Celé jednoriadkové logo s ARCHIVES by v rohu bolo na mobile nečitateľné (ARCHIVES ~5 bodov).
+- "archives" malým z kola 20 nahrádza oficiálne ARCHIVES v logu; v texte (titulky, príspevky) ostáva "Assetin Archives".
+  Ikona aplikácie a favicon sa vo videu nepoužili (sú pre aplikáciu a web).
+- Kolo 25 je uložené v `out/kratka/verzie/K-LinkedIn_kolo25_77s_*.mp4` a v commite `12930c7`.
+
 ## Kolo 25 (29. 9. 2026): nadpis "Spracovanie archívu"
 
 Samuel: "Spracovanie archívu" áno, daj to tam (návrh z kola 24 namiesto hovorového "Kto to spracuje").
@@ -784,6 +807,7 @@ node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --d
 python3 scripts/vo_check.py --script src/copy/vo_kratka.json --dir public/vo-kratka K-C4-Cena-0 ...   # kontrola prepisom
 node scripts/cut-footage.mjs k-f1-sken k-f24-review k-f3-search   # VŽDY s id, bez nich sa prerobí aj pôvodné footage
 npx remotion render K-LinkedIn out/kratka/K-LinkedIn_voice.mp4     # LinkedIn 4:5 jedným renderom (hlas, titulky)
+python3 scripts/archives_logo.py                   # kolo 26: cesty oficialneho loga z podklady/archives-logo -> src/scenes/kratka/archivesLogo.ts
 python3 scripts/music_edit.py                      # kolo 21: hudba kola 15 (bed.wav) poskladana z taktov na mriezke 105 BPM, kolo 22 ticho do 2,27 s, kolo 23 stlmene vysky 2,2-5,3 s (kola 16 az 18: --variant K_kolo16, K_kolo17, K_kolo18)
 node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K --music public/music/bed_kratka_edit.wav   # kolo 21 az 23, aktualne (--gain -7 --range 0 ako kolo 15)
 # node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K_kolo15   # kolo 15 a 20: stare strihy bed.wav (104 BPM, spoj v 0:55 mimo dob)
@@ -794,7 +818,7 @@ Kontrolné stills `node scripts/kratka-stills.mjs [s ...]` (časy vo filme, do `
 
 ## Súbory
 
-- Nové: `src/scenes/kratka/LinkedIn.tsx` (kompozícia K-LinkedIn 4:5, jediná krátka verzia), `src/kratkaList.ts` (`paced`, pauzy C4), `src/scenes/kratka/Kratka.tsx` (spoločné dáta: C4 so sloganom, kroky, spoty, kliky), `src/copy/vo_kratka.json`, `src/copy/music_kratka.json` (kolo 16 aj prompt a plán strihu hudby), `scripts/kratka_lines.py`, `scripts/kratka-stills.mjs`, `scripts/music_edit.py` (kolo 16), `public/music/bed_kratka.*` (kolo 16), `review-kratka/index.html`, `public/vo-kratka/`, `public/footage/k-*.mp4`, `out/kratka/`.
+- Nové: `src/scenes/kratka/LinkedIn.tsx` (kompozícia K-LinkedIn 4:5, jediná krátka verzia), `src/kratkaList.ts` (`paced`, pauzy C4), `src/scenes/kratka/Kratka.tsx` (spoločné dáta: C4 so sloganom, kroky, spoty, kliky), `src/copy/vo_kratka.json`, `src/copy/music_kratka.json` (kolo 16 aj prompt a plán strihu hudby), `scripts/kratka_lines.py`, `scripts/kratka-stills.mjs`, `scripts/music_edit.py` (kolo 16), `scripts/archives_logo.py` a `src/scenes/kratka/archivesLogo.ts` (kolo 26, oficiálne logo z `podklady/archives-logo/`), `public/music/bed_kratka.*` (kolo 16), `review-kratka/index.html`, `public/vo-kratka/`, `public/footage/k-*.mp4`, `out/kratka/`.
 - Zdieľané súbory dostali len voliteľné parametre s predvolenou hodnotou hlavnej verzie: `Paced` (`audio`, `subtitles`), `Scene` (`SceneFrameContext`: jednofarebné pozadie, bez päty a bez orezania na rámec 16:9 len vnútri LinkedIn rámca), `Subtitles` (scenár K vedľa hlavného), `C4_Cena` (`d`, `h`, `brand`, `cost`, kolo 12 `clockAt`), `C5_Teren` (`steps`, `phase`), `cuts.json` (nové kľúče `k-*`), skripty `vo.mjs`, `vo_check.py` (`--script`, `--dir`) a `mix-music.mjs` (`--list`, `--clips`, `--out`, `--cfg`, `--variant`, `--video`, kolo 12 kľúč `delay` v cfg); kolo 9 až 11: `C2_Hladanie` (export `Office`, `Warehouse` a `PATH`, kolo 14 ich `floor`), `Device` (`PhoneFrame` `screenBg`).
 - Kontrola: 20 snímok pôvodných klipov (C2, C4, C5, C8, C9, F1, F4) z commitu `ea5550e` a z tejto vetvy je na pixel rovnakých; dĺžky kompozícií bez zmeny.
 - Jediná zmena správania pôvodnej cesty: `mix-music.mjs` dáva tichému klipu (C1) stopu v rozložení kanálov ostatných klipov (stereo namiesto mono). Zvuk je ticho, výsledok rovnaký.
