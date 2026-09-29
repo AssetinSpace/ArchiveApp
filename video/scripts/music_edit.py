@@ -14,7 +14,9 @@ presne na svojom mieste v mriezke (bez posunu):
 - ak je pred nim sum (dirty) alebo je strih v `hard`: stary usek doznie `cut_out_ms` pred dobou a novy zacne na dobe
   s nabehom `cut_in_ms` (co v skladbe hralo pred dobou, sa nepouzije).
 Zaciatok taktu pred zaciatkom skladby (prvy takt bez prvej doby) ostane ticho. Posledny usek ide az do konca skladby
-(akord doznie). Vysledok: WAV float 48 kHz stereo, potom scripts/mix-music.mjs --music <out>.
+(akord doznie). Kolo 22: volitelne `mute_before` (s vysledku) a `mute_fade_ms`: vysledok je do tohto casu ticho, poslednych
+`mute_fade_ms` pred nim nabehne (napr. bez trblietaveho nadychu pred prvym akordom). Vysledok: WAV float 48 kHz stereo,
+potom scripts/mix-music.mjs --music <out>.
 """
 import argparse
 import json
@@ -90,6 +92,13 @@ def main():
         how = "zaciatok" if first else ("prelinacka pred dobou" if prev_clean else "tvrdy strih na dobe")
         lb, lbt = run["last"]
         print(f"usek {r}: {fb:+d}:{fbt:g} .. {lb:+d}:{lbt:g} zo skladby {max(0, run['s0']) / sr:6.3f}-{s1 / sr:6.3f} s -> od {run['o'] * beat:6.3f} s, {how}")
+    mb = e.get("mute_before")
+    if mb:  # kolo 22: ticho na zaciatku, kratky nabeh tesne pred `mute_before`
+        i1 = int(round(mb * sr))
+        i0 = max(0, i1 - ms(e.get("mute_fade_ms", 60)))
+        y[:i0] = 0
+        y[i0:i1] *= np.sin(np.linspace(0, np.pi / 2, i1 - i0))[:, None] ** 2
+        print(f"ticho do {i0 / sr:.3f} s, nabeh do {mb:.3f} s")
     y = y[:end_out]
     subprocess.run([ff, "-v", "error", "-y", "-f", "f32le", "-ar", str(sr), "-ac", "2", "-i", "-", "-c:a", "pcm_f32le", e["out"]], input=y.astype(np.float32).tobytes(), check=True)
     print(f"{e['out']}: {end_out / sr:.2f} s, {o / 4:g} taktov")

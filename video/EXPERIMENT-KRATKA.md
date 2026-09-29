@@ -11,6 +11,23 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 22 (29. 9. 2026): hudba bez iskier na začiatku, jedno odfotenie v 0:34
+
+Samuel: hudba je fajn, len na začiatku dať preč iskry, veľmi jemne; v 0:34 sa dokument akoby dvakrát odfotí, má raz.
+
+- Iskry: trblietavý nádych pred prvým akordom skladby (0-2,2 s, v prvej sekunde 93-98 % zvuku nad 5 kHz, spätný nádych do
+  akordu), vo filme asi 23 dB pod hlasom vo výškach. `music_edit.py` má voliteľné `mute_before` a `mute_fade_ms`: v `K` je
+  hudba do 2,21 s ticho, nábeh 60 ms do 2,27 s, prvý akord (doba 1 taktu -12) nabieha 2,24-2,30 s; od 2,27 s je upravená
+  skladba bit po bite rovnaká ako v kole 21.
+- 0:34: dva biele záblesky 0,8 s po sebe: blesk pri spúšti (33,1 s) a vyblednutie mobilu do bielej na konci F1 (33,8-34,0 s,
+  z kola 8 proti bielemu prebliknutiu pri prechode do aplikácie), ktoré pôsobilo ako druhá fotka. Vyblednutie vypadlo, okno
+  F24 sa cez mobil prelinie (`F1_XFADE` 400 ms = 12 snímok); záznam `k-f1-sken` drží posledný záber o 0,4 s dlhšie (`cuts.json`
+  after 1,3), takže F24 aj všetko za ním začína v rovnakom čase (hlasová stopa renderu je bit po bite zhodná s kolom 21).
+- Kontroly: obraz sa od kola 21 líši len v 33,8-34,3 s, jas ukazuje jediný záblesk; hlasitosť filmu v pásmach sa od kola 21
+  líši najviac o 0,6 dB (medián 0,08 dB), -16,0 LUFS, true peak -1,4 dBFS. Priebeh vzoriek sa líši v celej dĺžke, lebo
+  loudnorm a atempo reagujú na zmenený začiatok, počuteľný rozdiel to nie je. Kontrola cez Gemini nebola možná (kredit).
+- Kolo 21 je uložené v `out/kratka/verzie/K-LinkedIn_kolo21_77s_*.mp4` a v commite `23b5a20`.
+
 ## Kolo 21 (29. 9. 2026): "napísať kľúčové slovo" a plynulý spoj hudby pri 0:55
 
 Samuel: sedí to viac-menej; v 0:51 doplniť "Potom stačí napísať kľúčové slovo"; v 0:55 sa hudba nejako sekne, dvakrát

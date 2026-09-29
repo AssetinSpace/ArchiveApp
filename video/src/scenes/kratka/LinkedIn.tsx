@@ -427,8 +427,9 @@ const LI_F1: React.FC = () => {
     h: PHONE_FROM.h + (PHONE_TO.h - PHONE_FROM.h) * g,
   };
   const screenIn = tween(frame, 0, 300);
-  // kolo 8 (test: biely preblik pri prechode z mobilu do aplikacie 0:31-0:33): kratke vyblednutie na konci, okno F24 hned
-  const fadeOut = tween(frame, K_F1_SECONDS * 1000 - 250, 220);
+  // kolo 8 (test: biely preblik pri prechode z mobilu do aplikacie): kratke vyblednutie do bielej na konci. Kolo 22 (Samuel:
+  // v 0:34 akoby sa dokument odfotil dvakrat): biele vyblednutie 0,8 s po blesku posobilo ako druha fotka, preto vypadlo;
+  // okno F24 sa cez mobil prelinie (F1_XFADE), blesk pri spusti je jediny.
   const shot = K_F1_TAPS[0].t * 1000;
   const flash = tween(frame, shot, 60) * (1 - tween(frame, shot + 60, 260));
   const videoW = at.w * (1 - 2 * PHONE_BEZEL);
@@ -450,7 +451,6 @@ const LI_F1: React.FC = () => {
           <div style={{ position: 'absolute', inset: 0, background: '#fff', opacity: Math.max(1 - screenIn, 0.85 * flash) }} />
         </div>
       </PhoneFrame>
-      <AbsoluteFill style={{ background: '#fff', opacity: fadeOut }} />
     </AbsoluteFill>
   );
 };
@@ -738,6 +738,8 @@ const C8_W2 = { bezpecne: 1360, online: 4000, na: 5440 }; // kolo 13: nova veta,
 const C8_W3 = { krabicou: 1120, zadarmo: 2040 };
 /** Kolo 13: prvy slide je hotovy uz na zaciatku klipu, prelinacka z F3 (C8_XFADE) ho odhali naraz s nadpisom. */
 const C8_XFADE = 500;
+/** Kolo 22: prelinanie mobilu (F1) do okna aplikacie (F24), 12 snimok; F1 drzi posledny zaber o tolko dlhsie (cuts.json). */
+const F1_XFADE = 400;
 const C8_STEPS = [
   { from: -9999, title: 'Kto to spracuje' },
   { from: C8_SLIDE[0], title: 'Kde to beží' },
@@ -1241,7 +1243,7 @@ const LI_LIST: LiDef[] = [
   // okno od nadpisu kroku (spodok ~200 px) po titulky: veko krabice pri priblizeni kamery vyjde nad ramec 16:9
   { def: paced('K-C5-Teren', { scene: C5_BAND, seconds: 8.4, holds: K_C5_HOLDS, stills: [], ...noSubs }), band: true, tone: () => 'light', steps: C5_STEPS('K-C5-Teren'), phase: PHASE_ARCHIV, shift: c5Shift, win: { top: 138, bottom: 1030, feather: 18 }, overflow: true, overlay: C5Hierarchy },
   { def: paced('K-F1-Sken', { scene: LI_F1, seconds: K_F1_SECONDS, vo: false, stills: [] }), tone: () => 'light', steps: F1_STEPS, phase: PHASE_ARCHIV },
-  { def: paced('K-F24-Aplikacia', { scene: LI_F24, seconds: K_F24_END, stills: [], ...noSubs }), tone: () => 'light', steps: K_F24_STEPS, phase: phases.app },
+  { def: paced('K-F24-Aplikacia', { scene: LI_F24, seconds: K_F24_END, stills: [], ...noSubs }), tone: () => 'light', steps: K_F24_STEPS, phase: phases.app, xfadeIn: F1_XFADE },
   // kolo 13 (Samuel: prechod do ponuky prelinanim, nie prebliknutie): F3 nevybledne, ponuka sa cez neho 500 ms prelinie
   { def: paced('K-F3-Vyhladavanie', { scene: LI_F3, seconds: K_F3_SECONDS, stills: [], ...noSubs }), tone: () => 'light', steps: f3Steps(F3_CLIP), phase: phases.search },
   // kolo 7: tri slidy s nazvom nad obrazom; pri vyzve su jej slova v obraze, titulky by ich len opakovali

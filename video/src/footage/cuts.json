@@ -157,8 +157,8 @@
       {
         "from": 7.8,
         "to": 8.97,
-        "after": 0.9,
-        "note": "fotoaparat 1,6 s pred spustou (8,9 s), drzi posledny zaber fotoaparatu; v LinkedIn 4:5 mobil najprv narastie z pozicie na konci C5; kolo 10: od 7,8 s (1,1 s pred spustou), zaber mobilu o 0,5 s kratsi"
+        "after": 1.3,
+        "note": "fotoaparat 1,6 s pred spustou (8,9 s), drzi posledny zaber fotoaparatu; v LinkedIn 4:5 mobil najprv narastie z pozicie na konci C5; kolo 10: od 7,8 s (1,1 s pred spustou), zaber mobilu o 0,5 s kratsi; kolo 22: drzi o 0,4 s dlhsie, okno F24 sa cez posledny zaber prelinie (F1_XFADE 400 ms), dlzka filmu bez zmeny"
       }
     ]
   },

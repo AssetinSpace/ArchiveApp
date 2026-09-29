@@ -254,7 +254,7 @@
     "tempo": 0.99969
   },
   "K": {
-    "_": "Kolo 21 (Samuel: v 0:55 sa hudba sekne a dvakrat zahra to iste): hudba kola 15 (bed.wav) poskladana nanovo z taktov na skutocnej mriezke 105,00 BPM (doba 0,57140 s, takt 2,2856 s, doba 1 taktu 0 = nastup kapely v 29,793 s; stare strihy K_kolo15 rátali so 104 BPM a padli mimo dob: druhy skok bol z 0,78 doby taktu 20 hned po crashi do 1,67 doby taktu 43). Plan: uvod ako v kole 15 (takty -13 az -11 so zaciatkom skladby, potom -1), takty 0-19 (koniec osemtaktovej frazy), rovno pokojna cast od taktu 44 (zaciatok frazy) po zaverecny akord (takt 51) a doznenie. Tempo 0,99037: nastup kapely 9,23 s (0,3 s pred zelenym prechodom), pokojna cast presne na zaciatku prelinacky do ponuky (55,39 s), zaverecny akord 71,55 s. Mix ako v kole 15 (--gain -7, --range 0).",
+    "_": "Kolo 21 (Samuel: v 0:55 sa hudba sekne a dvakrat zahra to iste): hudba kola 15 (bed.wav) poskladana nanovo z taktov na skutocnej mriezke 105,00 BPM (doba 0,57140 s, takt 2,2856 s, doba 1 taktu 0 = nastup kapely v 29,793 s; stare strihy K_kolo15 rátali so 104 BPM a padli mimo dob: druhy skok bol z 0,78 doby taktu 20 hned po crashi do 1,67 doby taktu 43). Plan: uvod ako v kole 15 (takty -13 az -11 so zaciatkom skladby, potom -1), takty 0-19 (koniec osemtaktovej frazy), rovno pokojna cast od taktu 44 (zaciatok frazy) po zaverecny akord (takt 51) a doznenie. Tempo 0,99037: nastup kapely 9,23 s (0,3 s pred zelenym prechodom), pokojna cast presne na zaciatku prelinacky do ponuky (55,39 s), zaverecny akord 71,55 s. Mix ako v kole 15 (--gain -7, --range 0). Kolo 22 (Samuel: na zaciatku dat prec iskry, velmi jemne): trblietavy nadych pred prvym akordom (0-2,2 s, v prvej sekunde 93-98 % zvuku nad 5 kHz, spatny nadych do akordu) vypadol: ticho do 2,21 s, nabeh 60 ms do 2,27 s, prvy akord (doba 1 taktu -12) nabieha 2,24-2,30 s; zvysok hudby bez zmeny.",
     "edit": {
       "src": "public/music/bed.wav",
       "out": "public/music/bed_kratka_edit.wav",
@@ -297,7 +297,9 @@
       "dirty": [],
       "pre_ms": 60,
       "cut_out_ms": 15,
-      "cut_in_ms": 4
+      "cut_in_ms": 4,
+      "mute_before": 2.27,
+      "mute_fade_ms": 60
     },
     "end": 76.3,
     "delay": 0.0021,
