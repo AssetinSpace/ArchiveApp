@@ -11,6 +11,25 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 24 (29. 9. 2026): nadpis "Technické riešenie", posudok krabica alebo box
+
+Samuel (pripomienka na review stránke): nadpis "Kde to beží" pôsobí infantilne, zmeniť napríklad na "Technická
+špecifikácia" alebo podobne. Zároveň posúdiť, či slovo "krabica" nenahradiť slovom "box" (znelo by uhladenejšie), zatiaľ
+nič nemeniť.
+
+- Nadpis druhého slidu ponuky (`C8_STEPS` v `LinkedIn.tsx`, 1:01 až 1:09) je "Technické riešenie". Na slide sú
+  bezpečnosť a dve možnosti prevádzky (online u nás, na vašej infraštruktúre), nie parametre, preto nie "Technická
+  špecifikácia"; "Prevádzka a bezpečnosť" by dala "bezpeč-" na slide trikrát. Hlas, hudba a časovanie bez zmeny.
+- Krabica vo videu: hlas v 0:03 ("v krabici", pôvodná nahrávka hlavnej verzie), 0:22 ("polica, krabica, šanón alebo
+  zložka") a 1:08 ("Začnime jednou krabicou"); obraz v 0:22 (ikona Krabica), 0:53 (cesta Krabica KR_01) a 1:08 (slide).
+  Aplikácia má úroveň L4 "Krabica" (štítok, "Obsah krabice", "Otvoriť detail krabice"), kódy KR_ a mená krabica_12.
+- Posudok: nechať "krabica". Box znie o kúsok modernejšie a kancelárskejšie (archívny box z kancelárskych potrieb) a je
+  kratší, ale: v zozname polica, krabica, šanón, zložka by bol jediné cudzie slovo; tvary "v boxe" a "jedným boxom"
+  pripomínajú garážový box a šport; nesedel by s aplikáciou (Krabica, KR_01) ani s hlavnou verziou; "Začnime jednou
+  krabicou" testeri chválili ako konkrétnu, predstaviteľnú výzvu. Ak by mal byť box, tak všade naraz (tri vety hlasu
+  novou nahrávkou, tri miesta v obraze, aplikácia).
+- Kolo 23 je uložené v `out/kratka/verzie/K-LinkedIn_kolo23_77s_*.mp4` a v commite `fa62a2a`.
+
 ## Kolo 23 (29. 9. 2026): naozaj jedno odfotenie v 0:33, stlmené iskry po prvom akorde
 
 Samuel: "nič sa nezmenilo, mám taký pocit" (po kole 22: dokument sa stále akoby odfotí dvakrát, iskry na začiatku).

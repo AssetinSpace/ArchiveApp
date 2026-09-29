@@ -728,6 +728,8 @@ const OfferIcon: React.FC<{ kind: OfferIconKind; on: boolean; size?: number }> =
  * posudit "jednu krabicu"): slide Kde to bezi zacina kartou Bezpecne, volby pridu pri slove "online". Vyzva je konkretna
  * ("Zacnime jednou krabicou, zadarmo a nezavazne."): krabica z C5, nalepka QR na nu dopadne pri "krabicou" a zelena
  * pilulka pri "zadarmo". Ako prvy krok (nie cela ponuka) neznie amatersky a divak si ju vie predstavit.
+ * Kolo 24: nadpis druheho slidu "Technicke riesenie" namiesto "Kde to bezi" (na slide su bezpecnost a moznosti prevadzky,
+ * nie parametre, preto nie "Technicka specifikacia").
  */
 const C8_CLIP = 'K-C8-Ponuka';
 const C8L = (i: number, k = 0) => voAt(C8_CLIP, i, k);
@@ -741,7 +743,7 @@ const C8_XFADE = 500;
 const F1_XFADE = 400;
 const C8_STEPS = [
   { from: -9999, title: 'Kto to spracuje' },
-  { from: C8_SLIDE[0], title: 'Kde to beží' },
+  { from: C8_SLIDE[0], title: 'Technické riešenie' }, // kolo 24 (Samuel: nadpis "Kde to bezi" je infantilny, napr. technicka specifikacia)
   { from: C8_SLIDE[1], title: 'Prvý krok' },
 ];
 const C8W = 976,
