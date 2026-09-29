@@ -11,6 +11,27 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 19 (29. 9. 2026): technická hudba (rozpracované, vyčerpaný kredit Gemini)
+
+Samuel: inú hudbu, viac profi a technickú, nie len výťahové piano; kolo 18 znie neprofesionálne ako z anime.
+
+- Kolo 18 je uložené: `out/kratka/verzie/K-LinkedIn_kolo18_77s_*.mp4`, skladba `public/music/bed_kratka_kolo18.*`, strih
+  `K_kolo18` (pokojnejší strih `K_kolo18a`) v `src/copy/music_kratka.json`; zostavenie po premenovaní overené (rozdiel zvuku
+  -91 dB). Aktuálna hudba LinkedIn verzie ostáva kolo 18.
+- Pokus 1 (moderná minimalistická elektronika: syntetizátor v 16-tinách, pad, sub basa, bicie s rim clickom): afro pop
+  a dancehall, na začiatku vyhovorený podpis producenta "SK on the Beats" (4,0-8,5 s, potvrdený prepisom Whisper), Gemini
+  funky 6-7/10, profesionalita 3-7/10. Nepoužitý (odložený mimo gitu).
+- Pokus 2 (technologická hudba "ako video SaaS produktu", kick, snare, hi-hat v osminách): lo-fi chillhop s vokálnymi
+  útržkami a swingom (vo výškach 75 % nástupov na 16-tinách mimo osmín, oneskorené o 36 ms), Gemini funky 5-7/10. Nepoužitý.
+- Poučenie z kôl 16-19: pri elektronike s bicou súpravou Lyria skĺzne do popových žánrov (dance pop, afro pop, chillhop),
+  slová "minimal, elegant" s klavírom a sláčikmi dávajú neoklasickú baladu. Pripravený pokus 3 (v `prompt`): bez bicej
+  súpravy, pulzujúca sekvencia v osminách, pady, hlboká sub basa, tikajúca perkusia v 16-tinách ako hodiny, bez melódie.
+- Doterajšia hudba `bed.wav` má 105,00 BPM (doba 0,57140 s, doba v 57,220 s, plná kapela od 57,22 s), nie 104 BPM; stará
+  mriežka 2,108 + n x 2,3077 s sa od skutočnej rozchádza až o pol doby. Pre ďalší strih `bed.wav` treba novú mriežku.
+- Blokované: Gemini API vracia `402 RESOURCE_EXHAUSTED` (predplatený kredit projektu v AI Studio je vyčerpaný), nejde generovať
+  hudbu (Lyria) ani robiť kontroly cez Gemini. Po dobití kreditu: `python3 scripts/music.py --prompt-file
+  src/copy/music_kratka.json --out public/music/bed_kratka.wav`, potom rozbor, strih na takty a mix ako v kolách 16-18.
+
 ## Kolo 18 (29. 9. 2026): pokojná, pozitívna hudba bez funky rytmu (kolo 17 príliš funky)
 
 Samuel: kolo 17 je až moc funky a stráca profesionalitu; MP4 vraj nemá zvuk.
@@ -28,7 +49,7 @@ Samuel: kolo 17 je až moc funky a stráca profesionalitu; MP4 vraj nemá zvuk.
     `bed_kratka_kolo17.*`, variant `K_kolo17`);
   - pokus 3 (pulz: klavírne osminy, basa v osminách, kick na 1 a 3, bez činelov): znova dance pop (tlieskanie, 16-tiny mimo
     osmín 43-52 %), stúpajúce šumy, crashe a zvonkové arpeggio; nepoužitý (prvá požiadavka vrátila len text bez audia).
-- Strih pokusu 2 (`music_edit.py`, variant `K`): 104,03 BPM, takt 2,3071 s, doba 1 taktu 0 = nástup basy v 11,0069 s,
+- Strih pokusu 2 (`music_edit.py`, variant `K`, od kola 19 `K_kolo18`): 104,03 BPM, takt 2,3071 s, doba 1 taktu 0 = nástup basy v 11,0069 s,
   harmonický cyklus 8 taktov od taktu -4, na 7. a 8. mieste cyklu sú čisté len takty 10-11. Úvod -4 až -1 (klavír), nástup
   basy 0-1, 10-11 namiesto 2-3 (nábeh a crash), 4-11, bicie 28-33 (bez nábehu a crashu v taktoch 26-27) od ukážky aplikácie,
   10-11, pod ponukou pokojná časť s basou 20-23, bicie 28-31 a záverečný akord 34 (tvrdý strih, bez nábehu z taktu 33).
@@ -654,8 +675,8 @@ node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --d
 python3 scripts/vo_check.py --script src/copy/vo_kratka.json --dir public/vo-kratka K-C4-Cena-0 ...   # kontrola prepisom
 node scripts/cut-footage.mjs k-f1-sken k-f24-review k-f3-search   # VŽDY s id, bez nich sa prerobí aj pôvodné footage
 npx remotion render K-LinkedIn out/kratka/K-LinkedIn_voice.mp4     # LinkedIn 4:5 jedným renderom (hlas, titulky)
-python3 scripts/music_edit.py                      # kolo 16 az 18: hudba LinkedIn poskladana z taktov public/music/bed_kratka.wav (--variant K_kolo17 ...)
-node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K --music public/music/bed_kratka_edit.wav --range 2 --gain -6.4   # kolo 18 (kolo 17: --variant K_kolo17, bed_kratka_kolo17_edit.wav, --range 6 --gain -5.5; kolo 16: --variant K_kolo16, bed_kratka_kolo16_edit.wav, --range 6 --gain -5)
+python3 scripts/music_edit.py --variant K_kolo18    # kolo 16 az 18: hudba LinkedIn poskladana z taktov skladby Lyria (--variant K_kolo17 ...)
+node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K_kolo18 --music public/music/bed_kratka_kolo18_edit.wav --range 2 --gain -6.4   # kolo 18, aktualne (kolo 17: --variant K_kolo17, bed_kratka_kolo17_edit.wav, --range 6 --gain -5.5; kolo 16: --variant K_kolo16, bed_kratka_kolo16_edit.wav, --range 6 --gain -5)
 ```
 
 Kontrolné stills `node scripts/kratka-stills.mjs [s ...]` (časy vo filme, do `out/kratka/stills`, nie sú v gite).
