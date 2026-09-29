@@ -11,6 +11,14 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 25 (29. 9. 2026): nadpis "Spracovanie archívu"
+
+Samuel: "Spracovanie archívu" áno, daj to tam (návrh z kola 24 namiesto hovorového "Kto to spracuje").
+
+- Nadpis prvého slidu ponuky (`C8_STEPS` v `LinkedIn.tsx`, 0:55 až 1:01) je "Spracovanie archívu". Nadpisy ponuky sú
+  teraz Spracovanie archívu / Technické riešenie / Prvý krok. Hlas, hudba a časovanie bez zmeny.
+- Kolo 24 je uložené v `out/kratka/verzie/K-LinkedIn_kolo24_77s_*.mp4` a v commite `93feac2`.
+
 ## Kolo 24 (29. 9. 2026): nadpis "Technické riešenie", posudok krabica alebo box
 
 Samuel (pripomienka na review stránke): nadpis "Kde to beží" pôsobí infantilne, zmeniť napríklad na "Technická
