@@ -1,8 +1,8 @@
 {
   "_": "Experiment kratkej verzie: strihy hudby public/music/bed.wav (Lyria, bez noveho generovania) pre LinkedIn 4:5. Strihy na takt (104 BPM, takt 2,3077 s, zaciatky taktov 2,108 + n x 2,3077 s), prelinacka 60 ms. Nastup plnej kapely (29,8 s skladby = takt 12) padne na prechod do bielej a znacku; tichsi zaver skladby (takty 56-64) pod ponuku a zaver. Pouzitie: node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K",
-  "_prompt": "Kolo 16 (Samuel: zaciatok a efekty iskier vadia, skusit inu, profesionalnejsiu hudbu vhodnu kvalitnemu produktu): vlastna skladba len pre LinkedIn verziu (public/music/bed_kratka.wav, scripts/music.py --prompt-file src/copy/music_kratka.json --out public/music/bed_kratka.wav), povodna bed.wav ostava. V skladbe kola 2 az 15 bol na zaciatku sum a vzdusny nadych (0-2 s filmu 70-90 % energie nad 5 kHz), pred zmenami stupajuce sumy a obratene cinely, uprostred zvonkohra (Gemini: detska, 'magicka' ako z fotobanky), styl akusticka gitara, luskanie a rovny beat. Pokus 1 (prompt so zoznamom zakazanych zvukov) mal stale stupajuce sumy pred zmenami (0:08, 0:36, 1:04, 1:23 aj v spektre) a styl lo-fi popu s Rhodes a praskanim platne; zakazane nastroje v prompte ich skor privolaju. Pokus 2: presny zoznam nastrojov a zmeny len pridanim alebo ubratim nastroja na dobu, bez akychkolvek prechodovych zvukov. Pokus 2 bol pouzity v kole 16 (bed_kratka_kolo16.wav), Samuel: prilis smutne (slova reflective, cinematic, felt piano, low strings a pomale akordy tlacia do melancholie). Kolo 17: nalada doterajsej hudby (optimisticka, ista, uplifting), ale bez trblietok: jasne akordy klavira, cista gitara, pevne bicie, 108 BPM, durova tonina, zmeny len pridanim nastroja na dobu. Kolo 17 pokus 1 (108 BPM, durova tonina, jasne akordy klavira): nalada spravna (Gemini valence 8/10, kolo 16 5-6/10), ale v uvode spievane 'ooh', tlieskanie a stupajuce sumy (premium 4-5/10). Pokus 2: prisne bez ludskeho hlasu, bez tlieskania a cinelovych nabehov, v uvode len akordy klavira.",
+  "_prompt": "Kolo 16 (Samuel: zaciatok a efekty iskier vadia, skusit inu, profesionalnejsiu hudbu vhodnu kvalitnemu produktu): vlastna skladba len pre LinkedIn verziu (public/music/bed_kratka.wav, scripts/music.py --prompt-file src/copy/music_kratka.json --out public/music/bed_kratka.wav), povodna bed.wav ostava. V skladbe kola 2 az 15 bol na zaciatku sum a vzdusny nadych (0-2 s filmu 70-90 % energie nad 5 kHz), pred zmenami stupajuce sumy a obratene cinely, uprostred zvonkohra (Gemini: detska, 'magicka' ako z fotobanky), styl akusticka gitara, luskanie a rovny beat. Pokus 1 (prompt so zoznamom zakazanych zvukov) mal stale stupajuce sumy pred zmenami (0:08, 0:36, 1:04, 1:23 aj v spektre) a styl lo-fi popu s Rhodes a praskanim platne; zakazane nastroje v prompte ich skor privolaju. Pokus 2: presny zoznam nastrojov a zmeny len pridanim alebo ubratim nastroja na dobu, bez akychkolvek prechodovych zvukov. Pokus 2 bol pouzity v kole 16 (bed_kratka_kolo16.wav), Samuel: prilis smutne (slova reflective, cinematic, felt piano, low strings a pomale akordy tlacia do melancholie). Kolo 17: nalada doterajsej hudby (optimisticka, ista, uplifting), ale bez trblietok: jasne akordy klavira, cista gitara, pevne bicie, 108 BPM, durova tonina, zmeny len pridanim nastroja na dobu. Kolo 17 pokus 1 (108 BPM, durova tonina, jasne akordy klavira): nalada spravna (Gemini valence 8/10, kolo 16 5-6/10), ale v uvode spievane 'ooh', tlieskanie a stupajuce sumy (premium 4-5/10). Pokus 2: prisne bez ludskeho hlasu, bez tlieskania a cinelovych nabehov, v uvode len akordy klavira. Pokus 2 bol pouzity v kole 17 (bed_kratka_kolo17.wav, indie pop s cistou gitarou, basou a bicimi), Samuel: az moc funky, straca profesionalitu (gitara s tlmenym rytmom, basa a groove). Kolo 18: medzi kolom 16 (smutne) a 17 (funky): pozitivna, pokojne ista, elegantna hudba ako pri filme technologickej znacky; len klavir s pravidelnymi osminovymi akordmi, pad, hlboka basa s dlhymi tonmi, jemny kick a hi-hat v rovnych osminach, bez gitary, bez groove a synkop, 104 BPM ako doterajsia hudba, uvod 4 takty. Kolo 18 pokus 1 (klavir s osminovymi akordmi, pad, synth basa, kick na kazdu dobu a hi-hat): 104,06 BPM, ale styl dance popu (kick na kazdu dobu a synth basa), husta 16-tinova aktivita vo vyskach a strede (16-tiny mimo osmin 42-61 %, kolo 17 36-38 %, kolo 16 22-35 %), Gemini: funky 6/10, pripadny zbor 'ooh' v uvode, uvod 8 taktov so stupanim. Pokus 2: styl kola 16 (ten Samuel za neprofesionalny neoznacil, len za smutny), ale s pozitivnou naladou: jasny klavir namiesto felt, husle a violy namiesto cela, tlmeny kick a hi-hat ako v kole 16, 104 BPM, uvod 4 takty. Pokus 2 (verzia A, bed_kratka_kolo18a.wav): neoklasicka balada, rovny rytmus, ale hlavna cast len klavir a slacikove plochy (Gemini nalada 5-7/10, energia 2-3), bicie az v zavere skladby. Pokus 3: pravidelny pulz od nastupu basy (klavirne osminove akordy, basa v rovnych osminach, jemny kick na 1 a 3, bez cinelov a hi-hatu), aby bola hudba pozitivna a v pohybe, ale nie funky. Pokus 3 (pulz: klavirne osminove akordy, basa v osminach, kick na 1 a 3, bez cinelov): opat dance pop (kick na kazdu dobu, tlieskanie, husta 16-tinova aktivita 51-52 %, Gemini funky 6), stupajuce sumy, crashe a zvonkove arpeggio v zavere; nepouzity. Kolo 18 pouziva pokus 2 (bed_kratka.wav), strih K (bicie od ukazky aplikacie); pokojnejsi strih K_18A (len klavir az po ponuku) vysiel smutnejsi nez kolo 16.",
   "model": "lyria-3-pro-preview",
-  "prompt": "Strictly instrumental background music for a modern B2B software product video on LinkedIn. No human voice of any kind: no singing, no humming, no 'ooh' or 'aah', no choir, no vocal samples. Optimistic, confident, warm and positive, bright and forward-moving; polished, sophisticated and premium, never cheesy, never sad or melancholic. It sits under a voice-over, so the melody stays simple and the mid frequencies leave room for speech.\nTempo 108 BPM, 4/4, steady. Major key.\nThe only instruments are: acoustic piano playing bright rhythmic chords, clean electric guitar with a light muted rhythm, warm synth pad, electric bass, and a drum kit with kick, snare drum and closed hi-hat (no claps, no finger snaps, no cymbal swells).\nChanges happen only by adding or removing instruments exactly on a downbeat, with no transition sounds of any kind.\nStructure, total 92 seconds:\n0:00-0:12: piano chords only, positive and gently moving, starting directly on the first beat.\n0:12-1:05: on the downbeat bass, guitar, pad and drums come in: confident, upbeat, positive groove with steady energy and no breaks.\n1:05-1:25: the drums reduce to kick and hi-hat, still bright and positive.\n1:25-1:32: end on a bright, resolved major chord that rings out until 1:32.",
+  "prompt": "Strictly instrumental, minimal and modern background music for a premium B2B software product film on LinkedIn. No human voice of any kind: no singing, no humming, no 'ooh' or 'aah', no choir, no vocal samples.\nMood: positive, optimistic and hopeful, with calm confidence; bright, warm, elegant and polished, a high-end sound. Never sad or melancholic, never funky or bouncy, never cheesy. It plays under a spoken voice-over, so it stays simple and steady: a light repeating piano figure and sustained harmonies, no lead melody.\nThe only instruments are: bright grand piano, warm analog synth pad, strings (violins and violas) playing long sustained notes, a soft deep bass, a soft muted kick drum and a light closed hi-hat. Nothing else.\nTempo 104 BPM, 4/4, steady, with straight, even eighth notes. Major key, bright and warm.\nChanges happen only by adding or removing instruments exactly on a downbeat; there are no transition sounds of any kind.\nStructure, total 92 seconds:\n0:00-0:09: bright piano and synth pad only, light and hopeful; the piano plays from the very first beat.\n0:09-1:00: on the downbeat at 0:09 the bass, strings, soft kick and hi-hat come in; steady, confident and positive, with the same energy throughout.\n1:00-1:12: kick and hi-hat drop out; piano, strings, pad and bass continue, bright and warm.\n1:12-1:24: kick and hi-hat return on the downbeat.\n1:24-1:32: a final bright major chord on piano and strings, held and ringing out until 1:32.",
   "K_kolo15": {
     "cuts": [
       [
@@ -81,11 +81,11 @@
     "delay": 0.0021,
     "tempo": 0.98912
   },
-  "K": {
-    "_": "Kolo 17 (Samuel: kolo 16 prilis smutne): skladba bed_kratka.wav (Lyria, kolo 17 pokus 2: optimisticka, 110,04 BPM, takt 2,1810 s zmerany na kicku, doba 1 taktu 0 = nastup kapely v 8,5115 s; uvod len akordy klavira, bez hlasu). Filtrove efekty a stupajuci sum obidene strihom (scripts/music_edit.py): nastup kapely taktom 4 namiesto 0 (pri 0 sa vysky otvaraju filtrom, rovnaky akord, tvrdy strih na dobe), po takte 11 rovno druha cast s melodiou od taktu 20 namiesto 16 (takty 15 a 16 maju filtrovy vykyv, 12 ~ 20 harmonicky), pod ponukou mostik 24-31 (ubratie bicich 25-28, z taktu 28 so stupajucim sumom dvakrat jeho prva polovica), potom rovno zaverecny akord (takt 36). Tempo 0,945 (efektivne 104 BPM ako povodna hudba), aby 20 taktov groove presne vyplnilo cas od nastupu kapely (9,23 s) po ponuku (55,39 s) a zaverecny akord pripadol na logo (73,85 s).",
+  "K_kolo17": {
+    "_": "Kolo 17 (Samuel: kolo 16 prilis smutne): skladba bed_kratka.wav (Lyria, kolo 17 pokus 2: optimisticka, 110,04 BPM, takt 2,1810 s zmerany na kicku, doba 1 taktu 0 = nastup kapely v 8,5115 s; uvod len akordy klavira, bez hlasu). Filtrove efekty a stupajuci sum obidene strihom (scripts/music_edit.py): nastup kapely taktom 4 namiesto 0 (pri 0 sa vysky otvaraju filtrom, rovnaky akord, tvrdy strih na dobe), po takte 11 rovno druha cast s melodiou od taktu 20 namiesto 16 (takty 15 a 16 maju filtrovy vykyv, 12 ~ 20 harmonicky), pod ponukou mostik 24-31 (ubratie bicich 25-28, z taktu 28 so stupajucim sumom dvakrat jeho prva polovica), potom rovno zaverecny akord (takt 36). Tempo 0,945 (efektivne 104 BPM ako povodna hudba), aby 20 taktov groove presne vyplnilo cas od nastupu kapely (9,23 s) po ponuku (55,39 s) a zaverecny akord pripadol na logo (73,85 s). Samuel (kolo 18): az moc funky, strata profesionality. Mix kola 17: python3 scripts/music_edit.py --variant K_kolo17, potom mix-music.mjs --variant K_kolo17 --music public/music/bed_kratka_kolo17_edit.wav --range 6 --gain -5.5.",
     "edit": {
-      "src": "public/music/bed_kratka.wav",
-      "out": "public/music/bed_kratka_edit.wav",
+      "src": "public/music/bed_kratka_kolo17.wav",
+      "out": "public/music/bed_kratka_kolo17_edit.wav",
       "downbeat": 8.5115,
       "bar": 2.181,
       "bars": [
@@ -140,5 +140,117 @@
     "end": 71.99,
     "delay": 0.0021,
     "tempo": 0.94505
+  },
+  "K_18A": {
+    "_": "Kolo 18, pokojnejsia verzia A (nepouzita; Samuel: kolo 17 az moc funky, straca profesionalitu): skladba bed_kratka.wav (Lyria, kolo 18 pokus 2: styl kola 16 s pozitivnou naladou, 104,03 BPM, takt 2,3071 s zmerany na kicku, doba 1 taktu 0 = nastup basy v 11,0069 s; uvod takty -4 az -1 len klavir a pad, harmonicky cyklus 8 taktov od taktu -4). Rovny rytmus bez synkop (16-tiny mimo osmin 24-35 % ako kolo 16, kolo 17 36-38 % so swingom). Cinelove nabehy a crash na konci osemtaktovych fraz (takty 2-3, 18-19, 26-27) obidene strihom (scripts/music_edit.py): po nastupe basy (takty 0-1) namiesto 2-3 takty 10-11 (rovnake miesto v cykle), potom 4-17 a znova 10-11 namiesto 18-19; pod ponukou pokojna cast s basou 20-23, pred vyzvou bicie 28-31 (bez nabehu a crashu taktu 27), zaverecny akord (takt 34) tvrdym strihom bez nabehu z taktu 33. Tempo 0,9997 (skladba ma uz 104 BPM), 20 taktov od nastupu basy (9,23 s) po ponuku (55,39 s), zaverecny akord na logu (73,85 s). Gemini (jedna skladba, 5 merani): nalada 4-7/10, priemer 5, teda smutnejsia nez kolo 16 (6-7/10); preto sa pouzila verzia B (K). Mix: python3 scripts/music_edit.py --variant K_18A, potom mix-music.mjs --variant K_18A --music public/music/bed_kratka_18a_edit.wav --range 2 --gain -5.2.",
+    "edit": {
+      "src": "public/music/bed_kratka.wav",
+      "out": "public/music/bed_kratka_18a_edit.wav",
+      "downbeat": 11.0069,
+      "bar": 2.3071,
+      "bars": [
+        -4,
+        -3,
+        -2,
+        -1,
+        0,
+        1,
+        10,
+        11,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        10,
+        11,
+        20,
+        21,
+        22,
+        23,
+        28,
+        29,
+        30,
+        31,
+        34
+      ],
+      "dirty": [
+        3,
+        19,
+        27,
+        33
+      ],
+      "pre_ms": 60,
+      "cut_out_ms": 15,
+      "cut_in_ms": 4
+    },
+    "end": 76.58,
+    "delay": 0.0021,
+    "tempo": 0.99969
+  },
+  "K": {
+    "_": "Kolo 18 (Samuel: kolo 17 az moc funky, straca profesionalitu): skladba bed_kratka.wav (Lyria, kolo 18 pokus 2, 104,03 BPM, takt 2,3071 s, doba 1 taktu 0 = nastup basy v 11,0069 s, harmonicky cyklus 8 taktov od taktu -4; cinelove nabehy a crashe na konci osemtaktovych fraz v taktoch 2-3, 18-19, 26-27 obidene strihom, takty 10-11 su jedine ciste na 7. a 8. mieste cyklu): po nastupe basy a 10 taktoch klavira (0:14-0:37) hraju bicie (takty 28-33, crash taktu 27 a nabeh pred nim vypadli) od ukazky aplikacie (0:37) po vyhladavanie, pred ponukou 2 takty klavira (10-11), ponuka: pokojna cast s basou 20-23, bicie 28-31 a zaverecny akord 34. Tempo 0,9997, zaciatok 2 ms: nastup basy 9,23 s, ponuka 55,39 s, zaverecny akord 73,85 s. Mix: python3 scripts/music_edit.py, potom mix-music.mjs --variant K --music public/music/bed_kratka_edit.wav --range 2 --gain -6.4 (uvod -18,4, klavir -18,4, bicie -16,3, 10-50 s -17,7, ponuka -17,3 LUFS).",
+    "edit": {
+      "src": "public/music/bed_kratka.wav",
+      "out": "public/music/bed_kratka_edit.wav",
+      "downbeat": 11.0069,
+      "bar": 2.3071,
+      "bars": [
+        -4,
+        -3,
+        -2,
+        -1,
+        0,
+        1,
+        10,
+        11,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        10,
+        11,
+        20,
+        21,
+        22,
+        23,
+        28,
+        29,
+        30,
+        31,
+        34
+      ],
+      "dirty": [
+        3,
+        19,
+        27,
+        33
+      ],
+      "pre_ms": 60,
+      "cut_out_ms": 15,
+      "cut_in_ms": 4
+    },
+    "end": 76.58,
+    "delay": 0.0021,
+    "tempo": 0.99969
   }
 }

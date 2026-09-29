@@ -11,6 +11,40 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 18 (29. 9. 2026): pokojná, pozitívna hudba bez funky rytmu (kolo 17 príliš funky)
+
+Samuel: kolo 17 je až moc funky a stráca profesionalitu; MP4 vraj nemá zvuk.
+
+- Zvuk MP4: stopa je v poriadku (AAC LC stereo 48 kHz ako v kolách 15 a 16, okolo -18 dB RMS po celej dĺžke, kanály bez
+  protifázy, korelácia L/R 0,92). Pravdepodobne stlmený prehrávač (náhľad v aplikácii, tichý režim telefónu).
+- Príčina funky: v kole 17 gitara s tlmeným rytmom, basa a groove so swingom. Meranie nástupov (`onsets`, poloha v mriežke
+  16-tín): v kole 17 padá na 16-tiny mimo osmín 36-38 % nástupov a sú oneskorené o 36-43 ms (swing), v kole 16 22-35 %.
+- Tri pokusy Lyria (prompty a poznámky v `_prompt` v `src/copy/music_kratka.json`):
+  - pokus 1 (klavírne osminové akordy, pad, synth basa, kick na každú dobu, hi-hat): dance pop, 16-tiny mimo osmín 42-61 %,
+    Gemini funky 6/10, úvod 8 taktov so stúpaním; nepoužitý;
+  - pokus 2 (štýl kola 16 s pozitívnou náladou: jasný klavír, husle a violy, pad, basa, tlmený kick a hi-hat, 104 BPM):
+    neoklasická balada s rovným rytmom (16-tiny mimo osmín 21-35 %), bicie až v závere skladby, na konci osemtaktových fráz
+    (takty 2-3, 18-19, 26-27) činelový nábeh a crash; použitý ako `public/music/bed_kratka.wav` (skladba kola 17 je
+    `bed_kratka_kolo17.*`, variant `K_kolo17`);
+  - pokus 3 (pulz: klavírne osminy, basa v osminách, kick na 1 a 3, bez činelov): znova dance pop (tlieskanie, 16-tiny mimo
+    osmín 43-52 %), stúpajúce šumy, crashe a zvonkové arpeggio; nepoužitý (prvá požiadavka vrátila len text bez audia).
+- Strih pokusu 2 (`music_edit.py`, variant `K`): 104,03 BPM, takt 2,3071 s, doba 1 taktu 0 = nástup basy v 11,0069 s,
+  harmonický cyklus 8 taktov od taktu -4, na 7. a 8. mieste cyklu sú čisté len takty 10-11. Úvod -4 až -1 (klavír), nástup
+  basy 0-1, 10-11 namiesto 2-3 (nábeh a crash), 4-11, bicie 28-33 (bez nábehu a crashu v taktoch 26-27) od ukážky aplikácie,
+  10-11, pod ponukou pokojná časť s basou 20-23, bicie 28-31 a záverečný akord 34 (tvrdý strih, bez nábehu z taktu 33).
+  Kontrola: žiadny nábeh ani crash na strihoch, skoky na strihoch ako na rovnakých dobách v skladbe, bez lupnutí.
+- Pokojnejší strih (`K_18A`, bicie až pred výzvou) Gemini hodnotil ako smutnejší než kolo 16 (nálada 4-7/10, priemer 5,
+  "kontemplatívne"), preto bicie hrajú už od ukážky aplikácie (priemer 7).
+- Zladenie: tempo 0,9997, začiatok 2 ms: nástup basy 9,23 s (0,3 s pred zeleným prechodom), ponuka 55,39 s, záverečný akord
+  73,85 s na logu. Mix `--range 2 --gain -6.4`: úvod -18,4, klavír -18,4, bicie -16,3, 10-50 s -17,7 LUFS (ako doteraz),
+  ponuka -17,3.
+- Kontroly: film 76,8 s, -16,0 LUFS, true peak -1,8 dBFS; technická kontrola bez chýb, hlas 5/5, prepis zachytí všetky vety
+  (aj pod bicími). Kontrola hudby: bez šumov, trblietok, zvonkov aj stúpaní, strihy nepočuť, 9/10. Gemini, vždy jedna
+  skladba, 4 merania: kolo 18 nálada 6-8 (priemer 7), funky 1-2; kolo 17 nálada 7-8, funky 5-6; kolo 16 nálada 6-7, funky
+  1-3. Opis nástrojov si Gemini vymýšľa aj pri jednej skladbe (kolu 17 raz pripísal píšťalku, akustickú gitaru a zvonkohru),
+  rozhodujú merania a ucho.
+- Kolo 17 je uložené v `out/kratka/verzie/K-LinkedIn_kolo17_77s_*.mp4` a v commite `ff62227`.
+
 ## Kolo 17 (29. 9. 2026): optimistickejšia hudba (kolo 16 príliš smutné)
 
 Samuel: hudba kola 16 je až príliš smutná.
@@ -620,8 +654,8 @@ node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --d
 python3 scripts/vo_check.py --script src/copy/vo_kratka.json --dir public/vo-kratka K-C4-Cena-0 ...   # kontrola prepisom
 node scripts/cut-footage.mjs k-f1-sken k-f24-review k-f3-search   # VŽDY s id, bez nich sa prerobí aj pôvodné footage
 npx remotion render K-LinkedIn out/kratka/K-LinkedIn_voice.mp4     # LinkedIn 4:5 jedným renderom (hlas, titulky)
-python3 scripts/music_edit.py                      # kolo 16 a 17: hudba LinkedIn poskladana z taktov public/music/bed_kratka.wav
-node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K --music public/music/bed_kratka_edit.wav --range 6 --gain -5.5   # kolo 17 (kolo 16: --variant K_kolo16, bed_kratka_kolo16_edit.wav, --gain -5)
+python3 scripts/music_edit.py                      # kolo 16 az 18: hudba LinkedIn poskladana z taktov public/music/bed_kratka.wav (--variant K_kolo17 ...)
+node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K --music public/music/bed_kratka_edit.wav --range 2 --gain -6.4   # kolo 18 (kolo 17: --variant K_kolo17, bed_kratka_kolo17_edit.wav, --range 6 --gain -5.5; kolo 16: --variant K_kolo16, bed_kratka_kolo16_edit.wav, --range 6 --gain -5)
 ```
 
 Kontrolné stills `node scripts/kratka-stills.mjs [s ...]` (časy vo filme, do `out/kratka/stills`, nie sú v gite).

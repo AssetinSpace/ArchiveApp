@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Experiment kratkej verzie, kolo 16 a 17: hudba pre LinkedIn poskladana z taktov skladby Lyria (bez novej generacie).
+"""Experiment kratkej verzie, kolo 16 az 18: hudba pre LinkedIn poskladana z taktov skladby Lyria (bez novej generacie).
 
 Pouzitie: python3 scripts/music_edit.py [--cfg src/copy/music_kratka.json] [--variant K]
 Plan je v cfg[variant]["edit"]: src (skladba), out (vysledok), downbeat (s, doba 1 taktu 0 = nastup kapely), bar (dlzka
