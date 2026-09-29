@@ -11,6 +11,21 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kolo 29 (29. 9. 2026): v rohu logo s ARCHIVES
+
+Samuel: logo vpravo dole by mohlo byť tiež to logo s archives.
+
+- Posúdenie: áno. Meno produktu je v rohu počas celého videa, dôležité na LinkedIne, kde väčšina ľudí nedopozerá
+  do konca a veľké logo vidí len v 0:10. Daň je veľkosť: ARCHIVES je v rohu malé.
+- `BrandRow` je finálne dvojriadkové logo (`Lockup` bez skladania) vysoké 60 px: assetin je veľké ako predtým (výška x
+  24 px, predtým 23,7), ARCHIVES pod ním má verzálky 16 px (na mobile ~6 bodov, ako písmo ~8 bodov). Účiara ARCHIVES je na
+  `BRAND_BASE` (57 px od spodku, súmerne s vrchom nadpisu kroku), vpravo 48 px, šírka 237 px, vrch loga 1233 px (titulky
+  končia ~1200 px). Na tmavom úvode verzia na tmavomodrú, inak na bielu.
+- Mobil pri fotení (F1) je užší, 720 px namiesto 740 px (ľavý okraj ostáva pri nadpise), medzera k logu je 25 px.
+- Jednoriadkové logo z prvej verzie sa už nepoužíva: `scripts/archives_logo.py` berie len finálny balík
+  (`podklady/archives-logo-final/`), z prvej verzie ostávajú len ikona aplikácie a favicon (README tam).
+- Kolo 28 je uložené v `out/kratka/verzie/K-LinkedIn_kolo28_77s_*.mp4` a v commite `4ac78bf`.
+
 ## Kolo 28 (29. 9. 2026): zelený záver ako bol
 
 Samuel: záver zelený, ako bol.
@@ -831,7 +846,7 @@ node scripts/vo.mjs --engine gemini --reuse --script src/copy/vo_kratka.json --d
 python3 scripts/vo_check.py --script src/copy/vo_kratka.json --dir public/vo-kratka K-C4-Cena-0 ...   # kontrola prepisom
 node scripts/cut-footage.mjs k-f1-sken k-f24-review k-f3-search   # VŽDY s id, bez nich sa prerobí aj pôvodné footage
 npx remotion render K-LinkedIn out/kratka/K-LinkedIn_voice.mp4     # LinkedIn 4:5 jedným renderom (hlas, titulky)
-python3 scripts/archives_logo.py                   # kolo 26 a 27: cesty a farby oficialneho loga z podklady/archives-logo-final -> src/scenes/kratka/archivesLogo.ts
+python3 scripts/archives_logo.py                   # kolo 26 az 29: cesty a farby oficialneho loga z podklady/archives-logo-final -> src/scenes/kratka/archivesLogo.ts
 python3 scripts/music_edit.py                      # kolo 21: hudba kola 15 (bed.wav) poskladana z taktov na mriezke 105 BPM, kolo 22 ticho do 2,27 s, kolo 23 stlmene vysky 2,2-5,3 s (kola 16 az 18: --variant K_kolo16, K_kolo17, K_kolo18)
 node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K --music public/music/bed_kratka_edit.wav   # kolo 21 az 23, aktualne (--gain -7 --range 0 ako kolo 15)
 # node scripts/mix-music.mjs --video out/kratka/K-LinkedIn_voice.mp4 --out out/kratka/K-LinkedIn_1080p.mp4 --cfg src/copy/music_kratka.json --variant K_kolo15   # kolo 15 a 20: stare strihy bed.wav (104 BPM, spoj v 0:55 mimo dob)

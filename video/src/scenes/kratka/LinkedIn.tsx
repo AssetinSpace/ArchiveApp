@@ -136,30 +136,19 @@ const INTRO_WIN: Win = { top: 90, bottom: 1040, feather: 30 }; // kolo 11: podla
  */
 const BRAND_BASE = 57; // px od spodku ramca po uaziaru (vrch pismen nadpisu kroku je ~57 px od vrchu)
 /**
- * Kolo 26 (Samuel: nove logá): domcek | assetin presne z oficialneho jednoriadkoveho loga (asset hrubo, in tenko; video
- * malo cele slovo Manrope 800). Vyska x ako predtym (23,7 px, k = 1,424 px na jednotku loga), sirka 211 px ako v kole 20,
- * uaziara na BRAND_BASE, pravy okraj "in" 48 px od okraja. Na tmavom uvode inverzne farby loga.
+ * Kolo 26 (Samuel: nove logá): domcek | assetin presne z oficialneho jednoriadkoveho loga (asset hrubo, in tenko).
+ * Kolo 29 (Samuel: aj vpravo dole logo s archives): finalne dvojriadkove logo (domcek | assetin nad ARCHIVES), vysoke 60 px,
+ * takze assetin je velke ako predtym (vyska x 24 px, predtym 23,7) a ARCHIVES pod nim (verzalky 16 px, na mobile ~8 bodov).
+ * Uaziara ARCHIVES je na BRAND_BASE (spodok loga sumerne s vrchom nadpisu kroku), vpravo 48 px, sirka 237 px, vrch loga
+ * 1233 px (titulky koncia ~1200). Na tmavom uvode verzia na tmavomodru, inak na bielu. Mobil v F1 je preto uzsi (PHONE_TO).
  */
-const BRAND_K = 1.424;
-const BRAND_VIEW = { w: 148.42, h: 22.3, base: 21.82 }; // domcek az "in" jednoriadkoveho loga, uaziara 21,82
+const BRAND_H = 60;
 const BrandRow: React.FC<{ tone: Tone }> = ({ tone }) => {
-  const L = ARCHIVES_LOGO.one;
-  const c = tone === 'dark' ? L.inverse : L.color;
-  const [dx, dy, dw, dh] = L.divider;
+  const k = BRAND_H / ARCHIVES_LOGO.two.view[1];
   return (
-    <svg
-      width={BRAND_VIEW.w * BRAND_K}
-      height={BRAND_VIEW.h * BRAND_K}
-      viewBox={`0 0 ${BRAND_VIEW.w} ${BRAND_VIEW.h}`}
-      style={{ position: 'absolute', right: 48, bottom: BRAND_BASE - (BRAND_VIEW.h - BRAND_VIEW.base) * BRAND_K, display: 'block' }}
-    >
-      <g transform={L.houseTransform} fill={c.house}>
-        <path d={ARCHIVES_LOGO.houseD} />
-      </g>
-      <rect x={dx} y={dy} width={dw} height={dh} fill={c.divider} />
-      <path d={L.asset} fill={c.asset} />
-      <path d={L.in} fill={c.in} />
-    </svg>
+    <div style={{ position: 'absolute', right: 48, bottom: BRAND_BASE - 0.6 * k }}>
+      <Lockup height={BRAND_H} colors={tone === 'dark' ? 'inverse' : 'color'} />
+    </div>
   );
 };
 
@@ -429,7 +418,7 @@ const PHONE_FROM: Rect = { x: C5_SHIFT + FOOTAGE_PHONE.x * S169, y: BAND.y + C5_
  * 800 px (predtym 575), presahuje dolny okraj ramca; displej zacina tesne nad hladacikom (orez 250 px zaznamu namiesto
  * stavovej listy 115 px), dokument je ~1,4x vacsi a spust je stale v obraze.
  */
-const PHONE_TO: Rect = { x: 50, y: 138, w: 740, h: (740 * 1040) / 575 }; // kolo 14: 740 px, posunuty dolava (vpravo dole je znacka); kolo 20: x 50 (lavy okraj pri nadpise), znacka s domcekom je sirsia
+const PHONE_TO: Rect = { x: 50, y: 138, w: 720, h: (720 * 1040) / 575 }; // kolo 14: 740 px, posunuty dolava (vpravo dole je znacka); kolo 20: x 50 (lavy okraj pri nadpise), znacka s domcekom je sirsia; kolo 29: 720 px, logo s ARCHIVES v rohu je od 795 px (medzera 25 px)
 const REC_PHONE = { w: 884, h: 1920, cropTop: 250 / 1920 }; // zaznam mobilu, orez nad hladacikom fotoaparatu
 const LI_F1: React.FC = () => {
   const frame = useCurrentFrame();
