@@ -11,16 +11,15 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
-## Kde sme skončili (30. 9. 2026, kolo 30)
+## Kde sme skončili (30. 9. 2026, kolo 31)
 
 - Hotové video: `video/out/kratka/K-LinkedIn_1080p.mp4` (LinkedIn 4:5, 1080 x 1350, 76,8 s, -16 LUFS, true peak
-  -1,4 dBFS) a náhľad `K-LinkedIn_preview_540p.mp4`. To isté video je aj v `out/kratka/verzie/K-LinkedIn_kolo30_77s_*.mp4`,
-  staršie kolá 14 až 29 sú vedľa neho. Pôvodná dlhá verzia (145 s, 16:9) sa nemenila.
+  -1,4 dBFS) a náhľad `K-LinkedIn_preview_540p.mp4`. Staršie kolá 14 až 30 sú v `out/kratka/verzie/`. Pôvodná dlhá verzia (145 s, 16:9) sa nemenila.
 - Zdroj: kompozícia `K-LinkedIn` v `src/scenes/kratka/LinkedIn.tsx` (spoločné dáta `Kratka.tsx`, klipy `src/kratkaList.ts`),
   scenár `src/copy/vo_kratka.json`, hlas `public/vo-kratka/`, hudba `src/copy/music_kratka.json` (variant `K`: hudba
   z kola 15 poskladaná na mriežke 105 BPM, bez iskier na začiatku), logá z `podklady/archives-logo-final/` cez
   `scripts/archives_logo.py`. Render a mix: časť "Ako to zopakovať" nižšie.
-- Obsah: kancelária a sklad (každá na vlastnej plošine s rohom hore aj dole), most "S nami ho nájdete za pár sekúnd.",
+- Obsah: kancelária a sklad (každá na vlastnej plošine s rohom hore aj dole, police v sklade ďalej od okraja), most "S nami ho nájdete za pár sekúnd.",
   dvojriadkové logo s pilulkou "Prvé dokumenty zadarmo a nezáväzne", QR a fotka dokumentu, aplikácia prečíta text
   a človek overí, hľadanie "kľúčového slova" s cestou k položke, ponuka (Spracovanie archívu, Technické riešenie, Prvý
   krok "Začnime jednou krabicou, zadarmo a nezáväzne."), zelený záver s logom, sloganom a webom. V pravom dolnom rohu je
@@ -38,6 +37,18 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
   - Krabica alebo box: posúdené v kole 24, odporúčanie nechať "krabica".
 - Gemini API (hlas aj hudba) naposledy vracalo 402, vyčerpaný predplatený kredit; nové vety čakajú na jeho dobitie.
 - Review stránka experimentu (odkaz hore) je súkromná, ostatní ju uvidia, až keď ju vlastník zdieľa cez Share.
+
+## Kolo 31 (30. 9. 2026): police v sklade ďalej od okraja plošiny
+
+Samuel (snímka skladu): police posunúť viac od spodného okraja.
+
+- Príčina: tretí regál (x 380 až 510) presahoval hranu podlahy skladu (x 500) o 10 cm, stál priamo na pravom prednom
+  okraji plošiny.
+- Police (`SHELVES` v `C3_Sklad`) sú spoločné s pôvodnou verziou, preto sa nehýbu (inak by sa zmenila aj cesta panáčika,
+  otáznik a priblíženie na cieľovú policu). Krátka verzia kreslí vlastnú, o 60 cm širšiu podlahu skladu (`WH_FLOOR_DX`),
+  regál je od hrany 50 cm. Záber skladu je o 43 px vyššie (`WH_C` [1200, 470]), aby predný roh ostal nad titulkami:
+  predný roh 1021 px (s hranou 1034, titulky od 1060), zadný 68 px. Orez skladu siaha o 70 px nad plátno (`WH_PAD`).
+- Kolo 30 je uložené v `out/kratka/verzie/K-LinkedIn_kolo30_77s_*.mp4` a v commite `50d2854`.
 
 ## Kolo 30 (29. 9. 2026): úvod bez prechodov, plošiny s rohom hore aj dole
 

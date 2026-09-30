@@ -6,7 +6,8 @@ import { FOOTAGE_PHONE, PHONE_BEZEL, PhoneFrame, Rect, WindowFrame } from '../..
 import { BrandMod, BrandSep, BrandStack, LOCKUP, LOCKUP_W } from '../../components/Brand';
 import { ArchiveBox } from '../../components/ArchiveBox';
 import { Office, PATH as WH_PATH, Warehouse } from '../C2_Hladanie';
-import { CAM_END, SV } from '../C3_Sklad';
+import { CAM_END, SV, VB } from '../C3_Sklad';
+import { Floor } from '../../components/Illustrations';
 import { iso } from '../../lib/iso';
 import { C5_Teren } from '../C5_Teren';
 import type { Mark, Tap } from '../F2_Metadata';
@@ -1002,7 +1003,7 @@ const invert01 = (f: (x: number) => number, y: number) => {
   return (lo + hi) / 2;
 };
 const WH_K = 1.09;
-const WH_C: [number, number] = [1200, 425]; // stred zaberu skladu (ulicka, cielovy regal, palety) -> stred kancelarie
+const WH_C: [number, number] = [1200, 470]; // stred zaberu skladu (ulicka, cielovy regal, palety) -> stred kancelarie; kolo 31: o 45 vyssie (zaber skladu o 43 px hore)
 const WH_W: Sim = { s: WH_K, x: C2_CAM.fx - WH_K * WH_C[0], y: C2_CAM.fy - WH_K * WH_C[1] };
 /** Cesta panacika v sklade (Warehouse: walk = tw(4300, 2200), kazdy usek PATH 1/5 parametra), dlzky v px sceny skladu. */
 const WH_SEG = WH_PATH.slice(1).map((q, i) => {
@@ -1094,12 +1095,19 @@ const c2Shift = (ms: number) => {
  * kancelaria aj sklad potom stali na jednej spolocnej plosine (SharedFloor).
  * Kolo 30 (Samuel: logickejsie je, ked maju plosiny viditelny roh hore aj dole nad textom): kazda miestnost ma znova
  * vlastnu podlahu (Floor v Office a Warehouse, rovnake farby a hrubka), roh kancelarie je v obraze na 187 a 990 px,
- * skladu na 111 a 1015 px (titulky od 1060), bocne rohy su za okrajom ramca. Proti "polici nad skladom" su plosiny pri
+ * skladu na 111 a 1015 px (titulky od 1060; od kola 31 68 a 1021 px), bocne rohy su za okrajom ramca. Proti "polici nad skladom" su plosiny pri
  * posune od seba o C2_GAP px platne a prelinaju sa: kancelaria pocas posunu nahor zmizne (C2_PAN_AT + 100, 450 ms),
  * sklad sa zospodu vynori (C2_PAN_AT + 350, 450 ms), takze obe dosky nie su nikdy naraz naplno.
  */
 const C2_GAP = 300; // px platne medzi kancelariou a skladom (predtym 0, dosky boli ~50 px od seba)
-const WH_PAD = 40; // zadny roh podlahy skladu je 9 px nad jeho platnou: orez skladu siaha o tolko vyssie
+const WH_PAD = 70; // zadny roh podlahy skladu je nad jeho platnou (kolo 31: 58 px): orez skladu siaha o tolko vyssie
+/**
+ * Kolo 31 (Samuel: police v sklade posunut dalej od spodneho okraja): treti regal (x 380 az 510) presahoval hranu podlahy
+ * (x 500) o 10 cm. Police su spolocne s povodnou verziou (C3_Sklad), preto sa nehybu; kratka verzia kresli vlastnu,
+ * o WH_FLOOR_DX sirsiu podlahu skladu (regal 50 cm od hrany) a zaber skladu je o 43 px vyssie (WH_C): predny roh
+ * 1021 px (s hranou 1034, titulky od 1060), zadny 68 px. Cesta panacika, priblizenie na policu aj C4 bez zmeny.
+ */
+const WH_FLOOR_DX = 60;
 const LI_C2: React.FC = () => {
   const frame = useCurrentFrame();
   const pan = tween(frame, C2_PAN_AT, C2_PAN_MS);
@@ -1119,9 +1127,13 @@ const LI_C2: React.FC = () => {
         {pan > 0 ? (
           <div style={{ position: 'absolute', left: 0, top: 1080 + C2_GAP - WH_PAD, width: 1920, height: 1080 + WH_PAD, overflow: 'hidden', opacity: whA }}>
             <div style={{ position: 'absolute', left: 0, top: WH_PAD, width: 1920, height: 1080, transformOrigin: '0 0', transform: `translate(${WH_W.x}px, ${WH_W.y}px) scale(${WH_W.s})` }}>
+              {/* kolo 31: sirsia podlaha skladu (ako Floor vo Warehouse, vybledne s paletami a regalmi) */}
+              <svg width={1920} height={1080} viewBox={`${VB.x} ${VB.y} ${1920 / SV} ${1080 / SV}`} style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible', opacity: 1 - tween(fw, 6600, 500) }}>
+                <Floor x={-60} y={-60} w={560 + WH_FLOOR_DX} d={560} fill="#263246" edge="#131F31" />
+              </svg>
               <div style={{ position: 'absolute', left: 0, top: 0, width: 1920, height: 1080, transformOrigin: '0 0', transform: `translate(${un.x}px, ${un.y}px) scale(${un.s})` }}>
                 <Freeze frame={fw}>
-                  <Warehouse frame={fw} />
+                  <Warehouse frame={fw} floor={false} />
                 </Freeze>
               </div>
             </div>
