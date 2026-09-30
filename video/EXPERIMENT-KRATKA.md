@@ -11,6 +11,34 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
+## Kde sme skončili (30. 9. 2026, kolo 30)
+
+- Hotové video: `video/out/kratka/K-LinkedIn_1080p.mp4` (LinkedIn 4:5, 1080 x 1350, 76,8 s, -16 LUFS, true peak
+  -1,4 dBFS) a náhľad `K-LinkedIn_preview_540p.mp4`. To isté video je aj v `out/kratka/verzie/K-LinkedIn_kolo30_77s_*.mp4`,
+  staršie kolá 14 až 29 sú vedľa neho. Pôvodná dlhá verzia (145 s, 16:9) sa nemenila.
+- Zdroj: kompozícia `K-LinkedIn` v `src/scenes/kratka/LinkedIn.tsx` (spoločné dáta `Kratka.tsx`, klipy `src/kratkaList.ts`),
+  scenár `src/copy/vo_kratka.json`, hlas `public/vo-kratka/`, hudba `src/copy/music_kratka.json` (variant `K`: hudba
+  z kola 15 poskladaná na mriežke 105 BPM, bez iskier na začiatku), logá z `podklady/archives-logo-final/` cez
+  `scripts/archives_logo.py`. Render a mix: časť "Ako to zopakovať" nižšie.
+- Obsah: kancelária a sklad (každá na vlastnej plošine s rohom hore aj dole), most "S nami ho nájdete za pár sekúnd.",
+  dvojriadkové logo s pilulkou "Prvé dokumenty zadarmo a nezáväzne", QR a fotka dokumentu, aplikácia prečíta text
+  a človek overí, hľadanie "kľúčového slova" s cestou k položke, ponuka (Spracovanie archívu, Technické riešenie, Prvý
+  krok "Začnime jednou krabicou, zadarmo a nezáväzne."), zelený záver s logom, sloganom a webom. V pravom dolnom rohu je
+  počas celého videa logo s ARCHIVES.
+- Otvorené otázky (aj na review stránke v časti Rozhodnutia a otázky):
+  - Veta v 0:42 "Človek každú hodnotu overí a prípadne opraví alebo potvrdí.": pripomienka zameniť "človek" za
+    "pracovník". Posudok: nechať "človek" (kontrast so strojom, ktorý navrhne údaje; sedí na službu na kľúč aj na
+    spracovanie vlastnými silami), ale dať ho na koniec vety, kde je v slovenčine dôraz: "Každú hodnotu overí človek
+    a prípadne ju opraví alebo potvrdí." Takto nezaznie neurčité "človek si musí". "Pracovník" stráca kontrast so strojom,
+    znie ako práca navyše a otvára otázku, čí pracovník; "používateľ" znie technicky, "odborník" sedí len na službu.
+    Zmena znamená novú nahrávku jednej vety rovnakým hlasom a zladenie zeleného potvrdenia so slovom "potvrdí".
+  - Druhý nadpis ponuky "Technické riešenie", alebo presne "Technická špecifikácia".
+  - Pilulka pod logom v 0:12 (testerom pôsobí predčasne), priamy kontakt pri výzve (telefón alebo e-mail), verzia do
+    minúty (návrh 59,8 s nižšie), logo vpravo dole a ovládanie videa na LinkedIn (overiť skúšobným príspevkom).
+  - Krabica alebo box: posúdené v kole 24, odporúčanie nechať "krabica".
+- Gemini API (hlas aj hudba) naposledy vracalo 402, vyčerpaný predplatený kredit; nové vety čakajú na jeho dobitie.
+- Review stránka experimentu (odkaz hore) je súkromná, ostatní ju uvidia, až keď ju vlastník zdieľa cez Share.
+
 ## Kolo 30 (29. 9. 2026): úvod bez prechodov, plošiny s rohom hore aj dole
 
 Samuel (snímka skladu): nemá zmysel horný prechod v sklade ani dolný v kancelárii pred ním, dá sa to spraviť
