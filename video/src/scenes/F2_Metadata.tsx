@@ -109,8 +109,8 @@ export const markAt = (id: string, from: number, to: number, x: number, y: numbe
  */
 export const F2_SECONDS = cutDuration('f2-metadata');
 const F2_STEPS: Step[] = [
-  { from: 0, title: 'Rozpoznať text' },
-  { from: voAt('F2-Metadata', 0, 1), title: 'Navrhnúť metadáta' },
+  { from: 0, title: 'Prečítať text' }, // kolo 51: nazvy krokov ako v kratkej verzii
+  { from: voAt('F2-Metadata', 0, 1), title: 'Návrh údajov' },
 ];
 const F2_TAPS: Tap[] = [
   tapAt('f2-metadata', 11.3, 546, 972), // vyber prilohy (checkbox)

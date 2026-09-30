@@ -569,3 +569,25 @@ Pokračovanie plánu z kola 49 (rámec krátkej verzie prenesený na 16:9). Nov�
 - F1: čierne pozadie displeja mobilu (bez bielych rohov), ako v krátkej.
 - Úvod C2: plošiny kancelárie a skladu majú v dlhej verzii rohy v obraze už teraz (prechody boli len v krátkej), bez zmeny.
 - Zatiaľ neprenesené (na posúdenie): prekreslené karty údajov pod oknom (Názov projektu, hľadané slovo, cesta k položke) a výrezy ručne podľa hlasu (teraz automaticky podľa zvýraznení); zelená pilulka „Zadarmo a nezáväzne“ pri pilote v C8 (v hlase dlhej verzie „zadarmo“ nie je).
+
+
+## Kolo 51 (30. 9. 2026): vety a hudba ako v krátkej verzii
+
+Posledná časť plánu z kola 49 (Samuel: vety prevziať z krátkej, kde hovoria to isté, dlhá si nechá detaily; pojem „identifikačná strana“ ostáva). Nová je len jedna veta (Gemini, rovnaký hlas), ostatné sú vystrihnuté z hotových nahrávok krátkej a dlhej verzie (`src` vo `vo.json`, `scripts/kratka_lines.py --script src/copy/vo.json --dir public/vo`, pôvodné vety dlhej v `public/vo/orig51/`).
+
+| Klip | Predtým | Teraz |
+|---|---|---|
+| C2 | „Vy viete, že tam niekde je. V sklade, na polici, v krabici alebo v zložke.“ | „V sklade, na polici, v krabici alebo v zložke.“ (na tom istom mieste) |
+| C4 | „Bez jasného systému trvá hľadanie hodiny. ...“ | „Hľadanie môže trvať hodiny.“ + veta o novom vyhotovení a platení dvakrát (detail dlhej) |
+| C4 | – | pred logom „S nami ho nájdete za pár sekúnd.“ (10,35 s) |
+| C4 | „Predstavujeme vám softvérové riešenie katalogizácie Assetin Archives.“ | „Predstavujeme vám Assetin Archives. Z vášho archívu urobíme prehľadný digitálny katalóg.“ (prepis „aset in árchajvs“ ako v kole 47); logo drží o 2,47 s dlhšie (`H_MAIN` 6250) |
+| C5 | „Riešenie začína fyzickými dokumentami. Jedinečný QR kód sa prilepí na každú položku a mobilom sa odfotí jej identifikačná strana.“ | „Riešenie začína fyzickými dokumentami. Každá položka, či už polica, krabica, šanón alebo zložka, dostane QR kód, podľa toho, ako máte archív usporiadaný. Mobilom potom odfotíme jej identifikačnú stranu.“ (posledná veta nová); pauzy 3800 a 4350 ms, nálepky letia pri „šanón alebo zložka“, mobil pri „Mobilom“ |
+| C6 | „Fotku ďalej spracuje aplikácia.“ | bez vety (F2 hneď povie, čo aplikácia s fotkou urobí) |
+| F2 | „Najprv aplikácia rozpozná text ..., potom navrhne metadáta: autora, názov projektu, rok.“ | „Aplikácia z fotky sama prečíta text a navrhne údaje, ktoré na nej nájde, napríklad názov projektu, autora alebo rok.“ (pauza 900 ms na konci) |
+| F3 | „Stačí zadať kľúčové slovo.“ + „Aplikácia záznam nájde ...“ + „Ľudsky čitateľná cesta ...“ | „Potom stačí napísať kľúčové slovo a aplikácia ukáže údaje o konkrétnej položke... aj cestu k nej.“ + „Kľúčové slovo sa zvýrazní v metadátach záznamu.“ (detail dlhej); nový spot na nájdenom zázname ZL_03 |
+| F4 | bez zmeny (vety o overení, dôkaze a opravách sú detail dlhej) | |
+
+- Kroky: F2 „Prečítať text / Návrh údajov“, F4 „Návrh údajov“, F3 „Napísať kľúčové slovo / Údaje o položke / Cesta k položke / Zvýraznené v metadátach“. Nadpis v C5 a F1 o 100 px ďalej vpravo (dotýkal sa veka krabice).
+- Hudba: `bed.wav` poskladaný `scripts/music_edit.py` (variant `D` v `src/copy/music.json`) na mriežke 105 BPM z krátkej verzie: bez taktov -4 a -3 ako doteraz, polfráza 8-11 dvakrát (+9,1 s pod dlhší film), na začiatku bez iskier ako v krátkej (ticho do 2,27 s, výšky 2,2 až 5,3 s o 24 dB tichšie). Full: `node scripts/mix-music.mjs --variant D --music public/music/bed_dlha_edit.wav`, tempo 0,9974, nástup kapely 25,2 s (2,6 s pred zeleným prechodom na logo ako doteraz).
+- Film 154,3 s (predtým 145,2), -16 LUFS. Krátka verzia overená, 8 kontrolných snímok pixelovo zhodných.
+- Otvorené na posúdenie: prekreslené karty údajov pod oknom a pilulka „Zadarmo a nezáväzne“ v C8 (z kola 50); slide o bezpečnosti a infraštruktúre z krátkej („Technické riešenie“) v dlhej nie je.

@@ -15,7 +15,7 @@ const ID = 'f4-review';
 export const F4_SECONDS = cutDuration(ID);
 const vo = (i: number, k = 0) => voAt('F4-Kontrola', i, k);
 const F4_STEPS: Step[] = [
-  { from: 0, title: 'Návrh metadát' },
+  { from: 0, title: 'Návrh údajov' }, // kolo 51: "udaje" ako v kratkej verzii
   { from: vo(1), title: 'Overiť a potvrdiť' },
   { from: vo(2), title: 'Opraviť v návrhu' },
   { from: vo(3), title: 'Overený záznam' },

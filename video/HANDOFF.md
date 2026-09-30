@@ -7,6 +7,12 @@ od 27. 9. 2026 (po kole 48) aj so všetkými podkladmi: zdrojové záznamy `publ
 
 Stačí checkout vetvy (alebo `main`), `cd video && npm install`, potom hneď `bash scripts/render.sh <klip>` a `node scripts/mix-music.mjs` (Full s hudbou). Hlas netreba generovať (`vo.mjs --engine gemini --reuse` vezme vety z `public/vo/lines`), hudbu netreba generovať (`public/music/bed.wav` je v gite). Staršie poznámky nižšie o obnove podkladov „mimo gitu“ platia len pre stav pred 27. 9. 2026.
 
+## Dlhá verzia zjednotená s krátkou (kolá 49 až 51, 30. 9. 2026)
+
+- Vetva `claude/magical-davinci-j440nt` (na hlave experimentu krátkej verzie). Značka `src/components/ArchivesBrand.tsx`, rámec 16:9 `src/components/Frame16.tsx`, vety so `src` vo `vo.json` (výroba `python3 scripts/kratka_lines.py --script src/copy/vo.json --dir public/vo`, potom `node scripts/vo.mjs --engine gemini --reuse`).
+- **Full od kola 51:** `python3 scripts/music_edit.py --cfg src/copy/music.json --variant D` (raz, vyrobí `public/music/bed_dlha_edit.wav`) a `node scripts/mix-music.mjs --variant D --music public/music/bed_dlha_edit.wav`. Bez `--variant D` by hudba nesedela na dĺžku filmu.
+- Rýchle stills viacerých klipov: `node scripts/stills-fast.mjs C4-Cena:330,420 C9-Outro:40`.
+
 ## Checkpoint
 
 - **Kolo 47 (27. 9. 2026)**: commit `068edd1` na `claude/progress-preview-vo1ocm`, film `out/checkpoints/Full_kolo47_1080p.mp4` (145,2 s). Ďalšie kolá pokračujú od neho; podrobnosti v FEEDBACK.md (sekcia CHECKPOINT kolo 47).

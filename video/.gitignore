@@ -8,6 +8,9 @@ public/music/bed_level.wav
 # kolo 16 (LinkedIn): upravena skladba a jej vyrovnanie sa generuju scripts/music_edit.py a music_level.py
 public/music/bed_kratka*_edit.wav
 public/music/bed_kratka*_level.wav
+# kolo 51 (dlha verzia): upravena skladba (music_edit.py --variant D) a jej vyrovnanie sa generuju
+public/music/bed_dlha_edit.wav
+public/music/bed_dlha_edit_level.wav
 out/tmp/
 # experiment kratkej verzie: medzikroky (LinkedIn bez hudby, kontrolne stills; kontaktne harky su v gite)
 out/kratka/*_voice.mp4

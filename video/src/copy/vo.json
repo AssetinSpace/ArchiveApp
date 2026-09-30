@@ -1,5 +1,5 @@
 {
-  "_": "Scenar nahovoru (kolo 33). Kazdy zaznam = jedno generovanie hlasu (souvisla veta alebo niekolko viet), at = zaciatok v ms od zaciatku klipu (vystupny cas, po pauzach). parts = titulky po castiach (jedna cast = jeden riadok); ich casy (partAt, ms od at) dopise scripts/vo.mjs podla pauz v nahravke, rovnako dur. `say` = foneticky prepis len pre Piper/edge/espeak, Gemini cita `text` (vyslovnost riesi _style). Z tohto suboru sa robi zvuk (public/vo/<klip>.wav) aj titulky (components/Subtitles.tsx).",
+  "_": "Scenar nahovoru (kolo 33). Kazdy zaznam = jedno generovanie hlasu (souvisla veta alebo niekolko viet), at = zaciatok v ms od zaciatku klipu (vystupny cas, po pauzach). parts = titulky po castiach (jedna cast = jeden riadok); ich casy (partAt, ms od at) dopise scripts/vo.mjs podla pauz v nahravke, rovnako dur. `say` = foneticky prepis len pre Piper/edge/espeak, Gemini cita `text` (vyslovnost riesi _style). Z tohto suboru sa robi zvuk (public/vo/<klip>.wav) aj titulky (components/Subtitles.tsx). Kolo 51 (dlha verzia zjednotena s kratkou): vety so `src` su vyrezane z hotovych nahravok (public/vo-kratka/lines, povodne vety dlhej v public/vo/orig51), vyrobi ich scripts/kratka_lines.py --script src/copy/vo.json --dir public/vo; Gemini ich negeneruje.",
   "_style": "pokojný, vecný firemný rozprávač; plynulý, súvislý prejav, o niečo svižnejšie tempo; pri čiarkach len krátky nádych, dlhšia pauza iba na konci vety; zreteľná výslovnosť; bez emócií navyše. Pace: fluent and connected, a bit brisker than a documentary narrator, no long pauses inside a sentence. Pronunciation: say the abbreviation QR in English, like 'cue are'. Codes like PL_01, KR_01, ZL_03 are read as Slovak letter names plus the plain number, without the underscore and without the leading zero (never say 'nula' or 'pomlčka'): 'pé el jedna, ká er jedna, zet el tri'.",
   "C2-Hladanie": [
     {
@@ -16,58 +16,104 @@
       ]
     },
     {
-      "at": 7000,
-      "text": "Vy viete, že tam niekde je. V sklade, na polici, v krabici alebo v zložke.",
-      "parts": [
-        "Vy viete, že tam niekde je.",
-        "V sklade, na polici, v krabici alebo v zložke."
-      ],
-      "dur": 5520,
-      "partAt": [
-        0,
-        1960
-      ]
+      "at": 8950,
+      "text": "V sklade, na polici, v krabici alebo v zložke.",
+      "src": {
+        "file": "public/vo/orig51/C2-Hladanie-1.wav",
+        "start": 1.95,
+        "end": 5.28
+      },
+      "dur": 3330
     }
   ],
   "C4-Cena": [
     {
       "at": 400,
-      "text": "Bez jasného systému trvá hľadanie hodiny. Niekedy je rýchlejšie dať dokumentáciu vyhotoviť nanovo. A tak sa môže stať, že zaplatíte dvakrát za to isté.",
+      "text": "Hľadanie môže trvať hodiny.",
+      "src": {
+        "file": "public/vo-kratka/lines/K-C2-Hladanie-2.full.wav",
+        "start": 0.18,
+        "end": 1.96
+      },
+      "dur": 1780
+    },
+    {
+      "at": 3350,
+      "text": "Niekedy je rýchlejšie dať dokumentáciu vyhotoviť nanovo. A tak sa môže stať, že zaplatíte dvakrát za to isté.",
       "parts": [
-        "Bez jasného systému trvá hľadanie hodiny.",
         "Niekedy je rýchlejšie dať dokumentáciu vyhotoviť nanovo.",
         "A tak sa môže stať, že zaplatíte dvakrát za to isté."
       ],
-      "dur": 9700,
+      "src": {
+        "file": "public/vo/orig51/C4-Cena-0.wav",
+        "start": 2.95
+      },
+      "dur": 6750,
       "partAt": [
         0,
-        3080,
-        6380
+        3617
       ]
     },
     {
-      "at": 12150,
-      "text": "Predstavujeme vám softvérové riešenie katalogizácie Assetin Archives.",
-      "dur": 4960,
-      "styleExtra": "Pronunciation: the brand name 'Assetin' is Slovak, read it the Slovak way exactly as written, 'a-se-tin' with a soft Slovak 'a' at the start (like 'asetyn'), never the English 'esetin'. Only 'Archives' is English: 'árkajvs'."
+      "at": 10350,
+      "text": "S nami ho nájdete za pár sekúnd.",
+      "src": {
+        "file": "public/vo-kratka/lines/K-C4-Cena-0.most.wav",
+        "start": 0.16,
+        "end": 2.25
+      },
+      "dur": 2090
+    },
+    {
+      "at": 12750,
+      "text": "Predstavujeme vám Assetin Archives. Z vášho archívu urobíme prehľadný digitálny katalóg.",
+      "parts": [
+        "Predstavujeme vám Assetin Archives.",
+        "Z vášho archívu urobíme prehľadný digitálny katalóg."
+      ],
+      "styleExtra": "Pronunciation: the brand name 'Assetin' is Slovak, read it the Slovak way exactly as written, 'a-se-tin' with a soft Slovak 'a' at the start (like 'asetyn'), never the English 'esetin'. Only 'Archives' is English: 'árkajvs'.",
+      "src": {
+        "file": "public/vo-kratka/lines/K-C4-Cena-1.wav"
+      },
+      "dur": 6520,
+      "partAt": [
+        0,
+        2720
+      ]
     }
   ],
   "C5-Teren": [
     {
       "at": 300,
-      "text": "Riešenie začína fyzickými dokumentami. Jedinečný QR kód sa prilepí na každú položku a mobilom sa odfotí jej identifikačná strana.",
+      "text": "Riešenie začína fyzickými dokumentami.",
+      "src": {
+        "file": "public/vo/orig51/C5-Teren-0.wav",
+        "start": 0,
+        "end": 2.72
+      },
+      "dur": 2720
+    },
+    {
+      "at": 3200,
+      "text": "Každá položka, či už polica, krabica, šanón alebo zložka, dostane QR kód, podľa toho, ako máte archív usporiadaný.",
       "parts": [
-        "Riešenie začína fyzickými dokumentami.",
-        "Jedinečný QR kód sa prilepí na každú položku",
-        "a mobilom sa odfotí jej identifikačná strana."
+        "Každá položka, či už polica, krabica, šanón alebo zložka,",
+        "dostane QR kód, podľa toho, ako máte archív usporiadaný."
       ],
-      "say": "Riešenie začína fyzickými dokumentami. Jedinečný kjúár kód sa prilepí na každú položku a mobilom sa odfotí jej identifikačná strana.",
-      "dur": 9640,
+      "src": {
+        "file": "public/vo-kratka/lines/K-C5-Teren-0.wav"
+      },
+      "dur": 8640,
       "partAt": [
         0,
-        2940,
-        5840
+        4680
       ]
+    },
+    {
+      "at": 12640,
+      "text": "Mobilom potom odfotíme jej identifikačnú stranu.",
+      "styleExtra": "Pace for this sentence: calm and unhurried.",
+      "dur": 3280
     }
   ],
   "F1-Sken": [
@@ -115,16 +161,21 @@
   ],
   "F2-Metadata": [
     {
-      "at": 400,
-      "text": "Najprv aplikácia rozpozná text na identifikačnej strane, potom navrhne metadáta: autora, názov projektu, rok.",
+      "at": 300,
+      "text": "Aplikácia z fotky sama prečíta text a navrhne údaje, ktoré na nej nájde, napríklad názov projektu, autora alebo rok.",
       "parts": [
-        "Najprv aplikácia rozpozná text na identifikačnej strane,",
-        "potom navrhne metadáta: autora, názov projektu, rok."
+        "Aplikácia z fotky sama prečíta text",
+        "a navrhne údaje, ktoré na nej nájde,",
+        "napríklad názov projektu, autora alebo rok."
       ],
-      "dur": 7480,
+      "src": {
+        "file": "public/vo-kratka/lines/K-F24-Aplikacia-0.wav"
+      },
+      "dur": 7840,
       "partAt": [
         0,
-        3520
+        2180,
+        4500
       ]
     }
   ],
@@ -176,22 +227,37 @@
   "F3-Vyhladavanie": [
     {
       "at": 400,
-      "text": "Stačí zadať kľúčové slovo.",
-      "dur": 2040
-    },
-    {
-      "at": 2700,
-      "text": "Aplikácia záznam nájde a zobrazí jeho podrobnosti.",
-      "dur": 3600
+      "text": "Potom stačí napísať kľúčové slovo a aplikácia ukáže údaje o konkrétnej položke",
+      "parts": [
+        "Potom stačí napísať kľúčové slovo",
+        "a aplikácia ukáže údaje o konkrétnej položke"
+      ],
+      "src": {
+        "file": "public/vo-kratka/lines/K-F3-Vyhladavanie-0.kluc.full.wav",
+        "start": 0,
+        "end": 5.755
+      },
+      "dur": 5750,
+      "partAt": [
+        0,
+        2120
+      ]
     },
     {
       "at": 6450,
-      "text": "Ľudsky čitateľná cesta v hierarchii vás dovedie na správnu policu.",
-      "dur": 4080
+      "text": "aj cestu k nej.",
+      "src": {
+        "file": "public/vo-kratka/lines/K-F3-Vyhladavanie-0.kluc.full.wav",
+        "start": 5.755
+      },
+      "dur": 1180
     },
     {
       "at": 10700,
       "text": "Kľúčové slovo sa zvýrazní v metadátach záznamu.",
+      "src": {
+        "file": "public/vo/orig51/F3-Vyhladavanie-3.wav"
+      },
       "dur": 3320
     }
   ],

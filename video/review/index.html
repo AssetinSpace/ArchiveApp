@@ -136,21 +136,20 @@
 <script>
   // Stav stranky: BUILD sa meni pri kazdom publikovani (kolo, cas renderu), zivy stav cita db dokument status/current.
   const BUILD = {
- "round": 50,
- "renderedAt": "2026-09-30T10:00:00Z"
+ "round": 51,
+ "renderedAt": "2026-09-30T11:45:00Z"
 };
   const FULL = {
- "len": 145.2,
- "cap": "1103a20bed5250a50b1f8e958002c6d2",
- "poster": "658982f9ebcda95cb916beae6695eac4",
+ "len": 154.3,
+ "cap": "36be6bec153cab3a223fb4c3ceeba629",
+ "poster": "8866897d8864d912f9b85c33a1aad5c9",
  "desc": "Tvrdé strihy medzi klipmi, hlas Gemini TTS (Velvet 1), titulky a od kola 37 hudba (Lyria, pod hlasom stíšená)."
 };
   const NEWS = [
- "Kolo 50: rámec obrazu ako v krátkej LinkedIn verzii. Nadpis kroku hore vľavo (bez názvu fázy a bodiek), pod ním obsah, titulky a logo v rohu.",
- "Okno aplikácie na celú šírku (zarovnané s nadpisom a logom); pri každom zvýraznení sa záznam plynulo priblíži na zvýraznené miesto a potom sa vráti na celok (F2, F3, F4).",
- "Väčšie titulky (Manrope 700), logo v rohu zarovnané s oknom. C8: hore nadpis „Ako začať“, riadky „Spracovanie archívu“ a „Rozsah nasadenia“.",
- "Kolo 49: oficiálne logo Assetin Archives v intre, v C4 a v závere, logo v rohu počas filmu, slogan „Digitálny poriadok v papierovom archíve“.",
- "Ďalej kolo 51: vety a hlas podľa krátkej verzie (s detailmi dlhej). Film 145,2 s."
+ "Kolo 51: vety ako v krátkej LinkedIn verzii, s detailmi dlhej. C2 bez „Vy viete, že tam niekde je.“, C4 „Hľadanie môže trvať hodiny.“ a pred logom „S nami ho nájdete za pár sekúnd.“, pri logu „Predstavujeme vám Assetin Archives. Z vášho archívu urobíme prehľadný digitálny katalóg.“",
+ "C5: „Každá položka, či už polica, krabica, šanón alebo zložka, dostane QR kód, podľa toho, ako máte archív usporiadaný. Mobilom potom odfotíme jej identifikačnú stranu.“ F2: „Aplikácia z fotky sama prečíta text a navrhne údaje...“ F3: „Potom stačí napísať kľúčové slovo a aplikácia ukáže údaje o konkrétnej položke... aj cestu k nej.“ C6 bez vety.",
+ "Hudba: rovnaká skladba, na začiatku bez iskier (ako v krátkej) a o 4 takty dlhšia v pokojnej časti. Názvy krokov „údaje“ namiesto „metadáta“.",
+ "Kolá 49 a 50: oficiálne logo, logo v rohu, slogan, nadpis kroku hore vľavo, okno aplikácie na celú šírku s priblížením. Film 154,3 s (o 9 s dlhší kvôli novým vetám)."
 ];
   const CLIPS = [
  {
@@ -165,57 +164,57 @@
   "id": "C2-Hladanie",
   "name": "Hľadanie (kancelária → sklad)",
   "len": 13.0,
-  "desc": "Kolo 50: väčšie titulky, logo v rohu zarovnané s obsahom. Kolo 43: „V sklade, na polici, v krabici alebo v zložke.“ (doplnené „v“, veta nanovo). Kolo 42: zložky nepresvitajú, druhý otáznik rovnako dlho ako prvý.",
-  "cap": "0a747002b775bbec5d41c0e23be55398",
-  "poster": "4882aa9c7454e4f4a828235dd6b97bbe"
+  "desc": "Kolo 51: bez vety „Vy viete, že tam niekde je.“ (ako v krátkej). Kolo 50: väčšie titulky, logo v rohu zarovnané s obsahom. Kolo 43: „V sklade, na polici, v krabici alebo v zložke.“ (doplnené „v“, veta nanovo). Kolo 42: zložky nepresvitajú, druhý otáznik rovnako dlho ako prvý.",
+  "cap": "f5ceb8652be8446394e57c3dda04611a",
+  "poster": "7d61b442c052f308ad5e47819c271e0a"
  },
  {
   "id": "C4-Cena",
   "name": "Cena → predel",
-  "len": 18.5,
-  "desc": "Kolo 50: väčšie titulky, logo v rohu zarovnané s obsahom. Kolo 49: prechod na logo zeleným a bielym pásom zdola, oficiálne logo sa poskladá, pod ním slogan „Digitálny poriadok v papierovom archíve“ sivou vetou; logo v rohu počas tmavej časti vo verzii na tmavomodrú. Kolo 47: Assetin v hlase po slovensky (asetin), Archives po anglicky; slogan pod logom zelenými kapitálkami, odlíšený od titulkov. Kolo 42: jemnejšie obrysy. Kolo 41: bez vety o kondícii dokumentácie. Kolo 40: pri logu hlas „Predstavujeme vám softvérové riešenie katalogizácie Assetin Archives.“, pod logom text.",
-  "cap": "8ec9a492ecd989f6711bbd913ef654ff",
-  "poster": "01c3a2700b9657bc74ca207599c74098"
+  "len": 21.0,
+  "desc": "Kolo 51: „Hľadanie môže trvať hodiny.“, pred logom „S nami ho nájdete za pár sekúnd.“, pri logu „Predstavujeme vám Assetin Archives. Z vášho archívu urobíme prehľadný digitálny katalóg.“ (vety z krátkej verzie), logo drží o 2,5 s dlhšie. Kolo 50: väčšie titulky, logo v rohu zarovnané s obsahom. Kolo 49: prechod na logo zeleným a bielym pásom zdola, oficiálne logo sa poskladá, pod ním slogan „Digitálny poriadok v papierovom archíve“ sivou vetou; logo v rohu počas tmavej časti vo verzii na tmavomodrú. Kolo 47: Assetin v hlase po slovensky (asetin), Archives po anglicky; slogan pod logom zelenými kapitálkami, odlíšený od titulkov. Kolo 42: jemnejšie obrysy. Kolo 41: bez vety o kondícii dokumentácie. Kolo 40: pri logu hlas „Predstavujeme vám softvérové riešenie katalogizácie Assetin Archives.“, pod logom text.",
+  "cap": "ab2e8264f0fe50bad4f2045c96f27538",
+  "poster": "7cf65e0df32b95c21af55522c65242ea"
  },
  {
   "id": "C5-Teren",
   "name": "V sklade",
-  "len": 11.8,
-  "desc": "Kolo 50: nadpis kroku hore nad stĺpcom vpravo (bez názvu fázy a bodiek). Kolo 48: „Riešenie začína fyzickými dokumentami.“ (veta nanovo). Kolo 42: hrany zložiek a krabice jemnejšie (tenšie a svetlejšie čiary), rovnako v celom videu. Kolo 37: končí hneď po dosadnutí mobilu do rámika F1.",
-  "cap": "439f83505c6e6fdac12bb7d9c0ba6ff9",
-  "poster": "fabdb099f6a6db3f164ba0e639d1a18b"
+  "len": 17.5,
+  "desc": "Kolo 51: „Riešenie začína fyzickými dokumentami. Každá položka, či už polica, krabica, šanón alebo zložka, dostane QR kód, podľa toho, ako máte archív usporiadaný. Mobilom potom odfotíme jej identifikačnú stranu.“; nálepky letia pri „šanón alebo zložka“. Kolo 50: nadpis kroku hore nad stĺpcom vpravo (bez názvu fázy a bodiek). Kolo 48: „Riešenie začína fyzickými dokumentami.“ (veta nanovo). Kolo 42: hrany zložiek a krabice jemnejšie (tenšie a svetlejšie čiary), rovnako v celom videu. Kolo 37: končí hneď po dosadnutí mobilu do rámika F1.",
+  "cap": "64a95c9a121abb467d3e646c37286b19",
+  "poster": "abe848a5c29b6e0ed075073ce4c1263b"
  },
  {
   "id": "F1-Sken",
   "name": "Footage: sken štítku",
   "len": 14.8,
-  "desc": "Kolo 50: nadpis kroku hore nad stĺpcom titulkov, čierny displej mobilu, titulok končí pred logom. Kolo 36: zvýraznenia Zložka (ZL) a „Pridáva sa jednotka pod KR_01“ ako rámik so stmaveným okolím displeja.",
-  "cap": "29cf0617a4bb5004075eef5aa0a3538f",
-  "poster": "abbfb3449875f74b595dc6a38b8c9944"
+  "desc": "Kolo 51: nadpis kroku o 100 px ďalej vpravo (ako v C5). Kolo 50: nadpis kroku hore nad stĺpcom titulkov, čierny displej mobilu, titulok končí pred logom. Kolo 36: zvýraznenia Zložka (ZL) a „Pridáva sa jednotka pod KR_01“ ako rámik so stmaveným okolím displeja.",
+  "cap": "df5af1df92fb9b150b0951e00d6fbf7d",
+  "poster": "ffe2efdaae353aec37ab84d467e9db39"
  },
  {
   "id": "C6-Spracovanie",
   "name": "Fotka → aplikácia",
   "len": 3.0,
-  "desc": "Kolo 50: okno na celú šírku (ako F2), nadpis „Fotka je v aplikácii“ hore vľavo. Kolo 42: okno aplikácie je od začiatku v rozmere okna záznamu F2 (nezväčšuje sa), fotka v jeho strede.",
-  "cap": "5eb5cbdb73a7f19b01c891abfb827fd6",
-  "poster": "b02dd4818c465d2f90d2af6518679c35"
+  "desc": "Kolo 51: bez vety, F2 hneď hovorí, čo aplikácia s fotkou urobí. Kolo 50: okno na celú šírku (ako F2), nadpis „Fotka je v aplikácii“ hore vľavo. Kolo 42: okno aplikácie je od začiatku v rozmere okna záznamu F2 (nezväčšuje sa), fotka v jeho strede.",
+  "cap": "44c72685a57cdf7160f6fb6569c2afad",
+  "poster": "6fef85aebb03b4c251f3f0e4964ea0ab"
  },
  {
   "id": "F2-Metadata",
   "name": "Footage: extrakcia metadát",
-  "len": 8.3,
-  "desc": "Kolo 50: záznam v okne na celú šírku, výrez s fotkou a priebehom spracovania, nadpis kroku hore vľavo. Kolo 33: hlas od 0,4 s, načítavanie zrýchlené (čakanie na 60 % vystrihnuté, spolu ~2 s namiesto ~6 s), kliky premerané (zaškrtnutie, Extrahovať metadáta, spustenie), prelínačky. Klip 8,3 s namiesto 13,7 s.",
-  "cap": "a457a2667893c402dff507dd5b8ee35e",
-  "poster": "e38c0a8d8c027b38ef168983e86624b8"
+  "len": 9.2,
+  "desc": "Kolo 51: „Aplikácia z fotky sama prečíta text a navrhne údaje, ktoré na nej nájde, napríklad názov projektu, autora alebo rok.“, kroky „Prečítať text“ a „Návrh údajov“. Kolo 50: záznam v okne na celú šírku, výrez s fotkou a priebehom spracovania, nadpis kroku hore vľavo. Kolo 33: hlas od 0,4 s, načítavanie zrýchlené (čakanie na 60 % vystrihnuté, spolu ~2 s namiesto ~6 s), kliky premerané (zaškrtnutie, Extrahovať metadáta, spustenie), prelínačky. Klip 8,3 s namiesto 13,7 s.",
+  "cap": "faa39571baf8269e81b34e1bffbfb0e2",
+  "poster": "4142f743a79a4aee1127fc9479fc6d8d"
  },
  {
   "id": "F4-Kontrola",
   "name": "Footage: kontrola metadát",
-  "len": 18.6,
-  "desc": "Kolo 50: okno na celú šírku, pri každom zvýraznení (hodnota, fotka, oprava) priblíženie na to miesto, nadpis kroku hore vľavo. Kolo 40: jantárový rámik opravy končí pred kliknutím na „Prijať úpravu“ (48,2 s záznamu), kruh kliknutia na správnom mieste. Kolo 36: zvýraznenia ako rámik so stmaveným okolím.",
-  "cap": "029ae92e8549a6a1e8220a00b88a85d6",
-  "poster": "7eab264237d26e1fff0c29896249e7ad"
+  "len": 18.7,
+  "desc": "Kolo 51: krok „Návrh údajov“ (predtým „Návrh metadát“). Kolo 50: okno na celú šírku, pri každom zvýraznení (hodnota, fotka, oprava) priblíženie na to miesto, nadpis kroku hore vľavo. Kolo 40: jantárový rámik opravy končí pred kliknutím na „Prijať úpravu“ (48,2 s záznamu), kruh kliknutia na správnom mieste. Kolo 36: zvýraznenia ako rámik so stmaveným okolím.",
+  "cap": "15e61fb4d00d2ce8d8b1fb8119fc0844",
+  "poster": "3171edcca3cdcfb2fa819d8c882348e5"
  },
  {
   "id": "C10-Databaza",
@@ -228,10 +227,10 @@
  {
   "id": "F3-Vyhladavanie",
   "name": "Footage: vyhľadávanie",
-  "len": 16.1,
-  "desc": "Kolo 50: okno na celú šírku, priblíženie na pole vyhľadávania, cestu PL_01 / KR_01 / ZL_03 a zvýraznenie v metadátach, nadpis kroku hore vľavo. Kolo 42: rámik okolo kľúčového slova v metadátach tesne okolo zvýraznenia. Kolo 41: bez QR kódu a bez vety o pôvodnom texte.",
-  "cap": "d0ecbdf7c4a951261cb4336b915d665c",
-  "poster": "41a1f7dc73e275cd38e12d7e2bc4671a"
+  "len": 16.2,
+  "desc": "Kolo 51: „Potom stačí napísať kľúčové slovo a aplikácia ukáže údaje o konkrétnej položke... aj cestu k nej.“, zvýraznený nájdený záznam ZL_03, kroky „Napísať kľúčové slovo“, „Údaje o položke“, „Cesta k položke“. Kolo 50: okno na celú šírku, priblíženie na pole vyhľadávania, cestu PL_01 / KR_01 / ZL_03 a zvýraznenie v metadátach, nadpis kroku hore vľavo. Kolo 42: rámik okolo kľúčového slova v metadátach tesne okolo zvýraznenia. Kolo 41: bez QR kódu a bez vety o pôvodnom texte.",
+  "cap": "e47497682d176b4629ae58ebfb162140",
+  "poster": "3c541cd7171c9f7a4561d20927ed2916"
  },
  {
   "id": "C8-Pilot",

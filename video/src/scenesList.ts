@@ -38,12 +38,14 @@ const paced = (id: string, d: PacedDef): [string, SceneDef] => {
 export const SCENE_LIST: [string, SceneDef][] = [
   ['C1-Intro', { component: C1_Intro, seconds: 3.6, stills: [30, 55, 95] }],
   paced('C2-Hladanie', { scene: C2_Hladanie, seconds: 10, vo: true, dark: true, brand: { dark: true }, holds: [{ at: 1700, hold: 2420 }, { at: 3600, hold: 500 }], stills: [80, 150, 260, 380] }),
-  paced('C4-Cena', { scene: C4_Cena, seconds: 14.18, vo: true, darkUntil: 11400, brand: { darkUntil: C4_WIPE_AT, hide: [C4_WIPE_AT, C4_BRAND_END] }, holds: [{ at: 3000, hold: 2500 }, { at: 4390, hold: 1770 }], stills: [80, 170, 280, 370, 500] }),
-  paced('C5-Teren', { scene: C5_Teren, seconds: 8.4, vo: true, brand: {}, holds: [{ at: 1400, hold: 2400 }, { at: 6700, hold: 900 }], stills: [70, 150, 230, 240] }),
+  paced('C4-Cena', { scene: C4_Cena, seconds: 16.65, vo: true, darkUntil: 11400, brand: { darkUntil: C4_WIPE_AT, hide: [C4_WIPE_AT, C4_BRAND_END] }, holds: [{ at: 3000, hold: 2500 }, { at: 4390, hold: 1770 }], stills: [80, 170, 280, 370, 500] }),
+  paced('C5-Teren', { scene: C5_Teren, seconds: 8.4, vo: true, brand: {}, holds: [{ at: 1400, hold: 3800 }, { at: 4300, hold: 4350 }, { at: 6700, hold: 900 }], stills: [70, 200, 300, 400] }), // kolo 51: dlhsia veta o QR (nalepky pri "sanon alebo zlozka, dostane QR kod"), mobil pri "Mobilom potom odfotime"
   paced('F1-Sken', { scene: F1_Sken, seconds: F1_SECONDS, vo: true, brand: {}, subtitleLeft: 900, stills: [20, 170, 310] }),
   // kolo 41: C7-Hierarchia vypadlo (Samuel: navyse; hierarchiu povie F1 "zaradime ju do hierarchie" a ukaze F3 cesta v hierarchii)
-  paced('C6-Spracovanie', { scene: C6_Spracovanie, seconds: 3, vo: true, brand: {}, stills: [20, 45, 85] }),
-  paced('F2-Metadata', { scene: F2_Metadata, seconds: F2_SECONDS, vo: true, brand: {}, stills: [10, 100, 240] }),
+  paced('C6-Spracovanie', { scene: C6_Spracovanie, seconds: 3, vo: false, // kolo 51: bez vety (F2 hned "Aplikacia z fotky sama precita text...")
+    brand: {}, stills: [20, 45, 85] }),
+  paced('F2-Metadata', { scene: F2_Metadata, seconds: F2_SECONDS, vo: true, holds: [{ at: 7400, hold: 900 }], // kolo 51: veta z kratkej verzie je o 0,3 s dlhsia
+    brand: {}, stills: [10, 100, 240] }),
   paced('F4-Kontrola', { scene: F4_Kontrola, seconds: F4_SECONDS, vo: true, brand: {}, stills: [10, 150, 400] }),
   paced('C10-Databaza', { scene: C10_Databaza, seconds: 9.0, vo: true, brand: {}, stills: [60, 150, 200, 230] }),
   paced('F3-Vyhladavanie', { scene: F3_Vyhladavanie, seconds: F3_SECONDS, vo: true, brand: {}, stills: [30, 170, 330, 440] }),

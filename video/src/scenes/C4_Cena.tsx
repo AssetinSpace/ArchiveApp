@@ -53,7 +53,7 @@ const WIPE_EASE = Easing.bezier(0.45, 0, 0.25, 1);
 const LOGO_H = 200; // vyska loga (sirka ~790 px)
 const LOGO_TOP = 350;
 const D_MAIN = 1300; // posun predelu, aby sa dal precitat text pod "2x"
-const H_MAIN = 3780; // drzanie znacky: kolo 40 znova veta "Predstavujeme vam softverove riesenie katalogizacie Assetin Archives." (15,5-20,1 s vystupu) + text pod lockupom
+const H_MAIN = 6250; // kolo 51: premostenie "S nami ho najdete za par sekund." pred logom a pri logu "Predstavujeme vam Assetin Archives. Z vasho archivu urobime prehladny digitalny katalog." (12,75-19,3 s vystupu); predtym 3780 // drzanie znacky: kolo 40 znova veta "Predstavujeme vam softverove riesenie katalogizacie Assetin Archives." (15,5-20,1 s vystupu) + text pod lockupom
 const BOX = 860;
 /** ms sceny (hlavna verzia): zaciatok prechodu do loga, biela zakryje obraz, logo odide (pre logo v rohu v scenesList). */
 export const C4_WIPE_AT = 5600 + D_MAIN;

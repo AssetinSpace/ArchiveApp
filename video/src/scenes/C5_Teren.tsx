@@ -31,7 +31,7 @@ const BOX = 860;
 /** Krabica vlavo (vpravo je priestor na kroky), rovnaka poloha na konci C4. */
 export const C5_BOX_LEFT = 200;
 /** Kolo 50: lava hrana nadpisu kroku v C5 a F1 (stlpec vpravo od mobilu, ako titulky F1). */
-export const C5_TITLE_LEFT = 900;
+export const C5_TITLE_LEFT = 1000; // kolo 51: o 100 px dalej od veka krabice
 const PX = archiveBoxPxPerCm(BOX); // ~9.4 px/cm
 const SHEET = { w: CM.sheet.w * PX, h: CM.sheet.h * PX };
 const PHONE = { w: CM.phone.w * PX * 1.4, h: CM.phone.h * PX * 1.4 };
