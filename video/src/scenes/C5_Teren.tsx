@@ -114,7 +114,7 @@ export const C5_Teren: React.FC<{ steps?: C5Step[]; phase?: string }> = ({ steps
   const used = (r: number, c: number) => FLIGHTS.some((f) => f.cell[0] === r && f.cell[1] === c && frame >= (f.start / 1000) * 30);
 
   return (
-    <Scene mode="light" footer footerOpacity={1 - move}>
+    <Scene mode="light">
       <Camera keys={[{ ms: 5200, x: 0, y: 0, scale: 1 }, { ms: 6600, ...CAM_END }]}>
       <div style={{ position: 'absolute', inset: 0, opacity: others }}>
         {/* harok nalepiek A4: 4 x 5 bielych QR */}

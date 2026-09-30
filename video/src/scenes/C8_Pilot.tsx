@@ -124,7 +124,7 @@ export const C8_Pilot: React.FC = () => {
   const dimSoftware = 0.35 * scopeFocus;
   const [o1, o2] = offer.scope.options;
   return (
-    <Scene mode="light" footer>
+    <Scene mode="light">
       <Kicker y={ROW1.kicker} t={k1} text={offer.kicker} />
       <Card x={LEFT} y={ROW1.top} t={service} dim={dimService} main icon="box" title={offer.service.title} desc={offer.service.desc} step={offer.service.step} stepT={pop(frame, 3300)} />
       <Card x={RIGHT} y={ROW1.top} t={software} dim={dimSoftware} icon="app" title={offer.software.title} desc={offer.software.desc} step={offer.software.step} stepT={pop(frame, 9740)} />

@@ -1,11 +1,11 @@
 import React, { useContext, useEffect } from 'react';
 import { AbsoluteFill, getInputProps } from 'remotion';
-import { BRAND, FONT, Mode, modeColors, W } from '../theme';
+import { BRAND, Mode, modeColors, W } from '../theme';
 import { loadFonts } from '../lib/fonts';
 
 /**
- * Spolocny obal scen: pozadie podla rezimu, patka s logom a www ako
- * v brozure (na svetlych stranach), zeleny pas dole na tmavych.
+ * Spolocny obal scen: pozadie podla rezimu, zeleny pas dole na tmavych.
+ * Kolo 49: patka (domcek, assetin, Archives, web) vypadla, znacku nesie logo v rohu (CornerBrand cez Paced).
  */
 /** Render bez textu: `npx remotion render <ID> --props='{"captions":false}'` */
 export const useCaptions = (defaultOn = false) => {
@@ -17,58 +17,20 @@ export const useCaptions = (defaultOn = false) => {
 
 /**
  * Experiment LinkedIn 4:5: scena 16:9 vlozena do vysokeho ramca. `flatBg` = jednofarebne pozadie (ramec ho natiahne
- * na celu plochu bez viditelneho okraja pasu), `hideFooter` = bez paticky (ramec ma vlastnu znacku a web),
- * `overflowVisible` = obsah smie presiahnut ramec 16:9 (orezava az okno ramca, napr. veko krabice v C5).
+ * na celu plochu bez viditelneho okraja pasu), `overflowVisible` = obsah smie presiahnut ramec 16:9 (orezava az okno ramca, napr. veko krabice v C5).
  * Bez Providera (hlavna verzia) sa nic nemeni.
  */
 export const SceneFrameContext = React.createContext<{ flatBg?: boolean; hideFooter?: boolean; overflowVisible?: boolean }>({});
 
-export const Scene: React.FC<{ mode?: Mode; footer?: boolean; footerOpacity?: number; footerMode?: Mode; band?: boolean; children: React.ReactNode }> = ({
-  mode = 'light',
-  footer = false,
-  footerOpacity = 1,
-  footerMode,
-  band = false,
-  children,
-}) => {
+export const Scene: React.FC<{ mode?: Mode; band?: boolean; children: React.ReactNode }> = ({ mode = 'light', band = false, children }) => {
   useEffect(() => {
     loadFonts();
   }, []);
   const fx = useContext(SceneFrameContext);
   const c = modeColors(mode);
-  const fm = footerMode ?? mode; // paticka moze mat iny rezim (C4: navy scena, biela paticka na konci)
-  const fc = modeColors(fm);
   return (
     <AbsoluteFill style={{ background: mode === 'dark' && !fx.flatBg ? `linear-gradient(135deg, ${c.bg} 0%, ${c.bg2} 100%)` : c.bg, overflow: fx.overflowVisible ? 'visible' : 'hidden' }}>
       {children}
-      {footer && !fx.hideFooter ? (
-        <div
-          style={{
-            position: 'absolute',
-            left: 120,
-            right: 120,
-            bottom: 56,
-            opacity: footerOpacity,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            fontFamily: FONT.body,
-            fontSize: 24,
-            color: fc.muted,
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <LogoMark size={34} color={fm === 'dark' ? '#ffffff' : BRAND[700]} />
-            <span style={{ width: 1, height: 28, background: fc.rule }} />
-            <span style={{ fontFamily: FONT.display, fontWeight: 700, color: fm === 'dark' ? '#fff' : '#0F172A' }}>
-              asset<span style={{ color: BRAND[600] }}>in</span>
-            </span>
-            <span style={{ width: 1, height: 28, background: fc.rule }} />
-            <span>Archives</span>
-          </div>
-          <div>www.assetin.sk</div>
-        </div>
-      ) : null}
       {band ? (
         <div style={{ position: 'absolute', left: 0, bottom: 0, width: W * 0.42, height: 10, background: BRAND[600] }} />
       ) : null}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Audio, Freeze, Sequence, getInputProps, staticFile, useCurrentFrame } from 'remotion';
 import { Subtitles } from './Subtitles';
+import { CornerBrand } from './ArchivesBrand';
 import { FPS } from '../theme';
 
 export type Hold = { at: number; hold: number }; // ms v case sceny; obraz sa v `at` zastavi na `hold` ms
@@ -53,9 +54,20 @@ export const useOutputFrame = () => {
  * Prop voice: false vypne zvuk, subtitles: false titulky.
  * `audio`: ina stopa hlasu (cesta v public/), experiment kratkej verzie ma vlastny priecinok vo-kratka/.
  * `subtitles`: false vypne titulky len tomuto klipu (LinkedIn 4:5 ma vlastne velke titulky pod obrazom).
+ * `brand` (kolo 49, dlha verzia): logo v pravom dolnom rohu nad scenou; `darkUntil` a `hide` su v ms casu sceny
+ * (verzia na tmavomodru do darkUntil, v okne `hide` logo zmizne, napr. pocas velkeho loga v C4). Bez neho ziadne logo.
  */
-export const Paced: React.FC<{ id: string; holds?: Hold[]; skip?: number; vo?: boolean; dark?: boolean; darkUntil?: number; subtitleLeft?: number; audio?: string; subtitles?: boolean; children: React.ReactNode }> = ({ id, holds = [], skip = 0, vo = false, dark, darkUntil, subtitleLeft, audio, subtitles = true, children }) => {
+export type BrandDef = { dark?: boolean; darkUntil?: number; hide?: [number, number] };
+const BRAND_FADE = 300;
+const brandOpacity = (ms: number, hide?: [number, number]) => {
+  if (!hide) return 1;
+  const [a, b] = hide; // zmizne za BRAND_FADE od a, vrati sa za BRAND_FADE od b
+  if (ms <= a || ms >= b + BRAND_FADE) return 1;
+  return ms < a + BRAND_FADE ? 1 - (ms - a) / BRAND_FADE : ms <= b ? 0 : (ms - b) / BRAND_FADE;
+};
+export const Paced: React.FC<{ id: string; holds?: Hold[]; skip?: number; vo?: boolean; dark?: boolean; darkUntil?: number; subtitleLeft?: number; audio?: string; subtitles?: boolean; brand?: BrandDef; children: React.ReactNode }> = ({ id, holds = [], skip = 0, vo = false, dark, darkUntil, subtitleLeft, audio, subtitles = true, brand, children }) => {
   const frame = useCurrentFrame();
+  const sceneMs = ((holds.length ? sceneFrame(frame, holds) : frame) / FPS) * 1000 + skip;
   const p = getInputProps() as { voice?: boolean; subtitles?: boolean };
   // skip: scena zacne o `skip` ms neskor vo svojom case (preskoci sa jej uvod, napr. najazd kamery v C4)
   const skipped = skip ? <Sequence from={-Math.round((skip / 1000) * FPS)} layout="none">{children}</Sequence> : <>{children}</>;
@@ -63,6 +75,7 @@ export const Paced: React.FC<{ id: string; holds?: Hold[]; skip?: number; vo?: b
   return (
     <OutputFrameContext.Provider value={frame}>
       {inner}
+      {brand ? <CornerBrand dark={brand.darkUntil !== undefined ? sceneMs < brand.darkUntil : brand.dark} opacity={brandOpacity(sceneMs, brand.hide)} /> : null}
       {vo && p.voice !== false ? <Audio src={staticFile(audio ?? `vo/${id}.wav`)} /> : null}
       {vo && subtitles && p.subtitles !== false ? <Subtitles clip={id} dark={dark} darkUntil={darkUntil} left={subtitleLeft} /> : null}
     </OutputFrameContext.Provider>

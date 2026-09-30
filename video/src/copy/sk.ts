@@ -8,7 +8,7 @@ export const captions = {
   C3b: 'Je to niekde tam.',
   C4a: 'Hľadanie trvá dlhšie než nové vyhotovenie.',
   C4: 'Zaplatené dvakrát za tú istú dokumentáciu.',
-  C4brand: 'Digitálna katalogizácia archivovanej dokumentácie',
+  C4brand: 'Digitálny poriadok v papierovom archíve', // kolo 49: slogan z kratkej verzie (predtym 'Digitálna katalogizácia archivovanej dokumentácie')
   C5: 'Nalepiť QR, odfotiť. Celá práca v teréne.',
   C6: 'Text z fotky rozpozná a navrhne údaje.',
   C7: 'Každá položka má svoje miesto.',

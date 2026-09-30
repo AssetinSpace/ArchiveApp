@@ -68,7 +68,7 @@ export const C10_Databaza: React.FC = () => {
   };
   const rowW = CARDS.length * CARD.w + (CARDS.length - 1) * CARD.gap;
   return (
-    <Scene mode="light" footer footerOpacity={1 - fill}>
+    <Scene mode="light">
       <WindowFrame at={at} chrome={chrome}>
         <div style={{ position: 'absolute', left: (at.w - rowW) / 2, top: (at.h - 44 - CARD.h) / 2, display: 'flex', gap: CARD.gap, opacity: content }}>
           {CARDS.map((c, i) => {

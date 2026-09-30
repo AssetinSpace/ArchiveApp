@@ -540,3 +540,19 @@ Samuel: Marek po pridaní nevie pridávať pripomienky („Pripomienky sa z toht
 
 - Príčina: plná verzia `comments` (vlastné pole a odoslanie zo stránky) sa hosťom pozvaným e-mailom a návštevníkom cez odkaz nedáva, `claude.use("comments")` im vráti `null`.
 - Oprava: `comments: {"composer_only": true}`; pri klipe aj pri celom filme je tlačidlo „Pridať pripomienku“, ktoré otvorí okno komentára claude.ai ukotvené na klip. Ak ani to nejde (hosť nemá prístup komentovať), stránka povie, že treba prístup s komentovaním v Share. Hodinová kontrola číta vlákna ako doteraz.
+
+
+## Kolo 49 (30. 9. 2026): značka ako v krátkej LinkedIn verzii
+
+Samuel: dlhú verziu spraviť obdobne ako krátku LinkedIn verziu (vetva `claude/video-assets-archives-exp-la1hts`, `EXPERIMENT-KRATKA.md`), len dlhšiu a s presnejšími detailmi; preniesť logá, farby, písmo, orezania a upravené slovosledy, aby boli obe verzie značkovo konzistentné. Rozhodnutia: slogan z krátkej, vety z krátkej s detailmi dlhej, rámec obrazu krátkej na 16:9, pojem ostáva „identifikačná strana“. Plán v troch kolách: 49 značka, 50 rámec obrazu a orezy, 51 vety a hlas.
+
+Vetva `claude/magical-davinci-j440nt` stojí na hlave experimentu (kolo 30 krátkej), takže logá, `scenes/kratka/archivesLogo.ts` a hotové vety krátkej sú k dispozícii; `scenes/kratka/*` sa nemení. Kontrola: 8 snímok K-LinkedIn je po zmenách pixelovo zhodných s hlavou experimentu.
+
+- Nový `src/components/ArchivesBrand.tsx`: `Lockup` (oficiálne dvojriadkové logo domček | assetin nad ARCHIVES z `podklady/archives-logo-final`, verzie `color` / `inverse` / `onGreen`, skladanie `build` ako v krátkej), `CornerBrand` (logo v rohu), `FreePill` (pre C8 v kole 50).
+- Logo v pravom dolnom rohu počas celého filmu okrem intra, veľkého loga v C4 a záveru (`brand` v `paced`, vykresľuje `Paced`): 60 px, účiara ARCHIVES 40 px od spodku, 72 px od pravého okraja; na tmavom (C2, začiatok C4) verzia na tmavomodrú. Nahrádza pätu (domček, assetin, Archives, web), ktorá z `Scene` vypadla.
+- Titulky o 10 px vyššie (916 px), v F1 končia pred stĺpcom loga (vpravo 330 px), aby sa nebili s logom.
+- C1: namiesto textového lockupu (assetin/.space | Archives) oficiálne logo na tmavomodrej, skladá sa, potom priblíženie do navy ako doteraz. 3,6 s.
+- C4: prechod do loga zelený a za ním biely pás zdola nahor (800 ms, mäkká hrana) namiesto bielej prelínačky; oficiálne logo (200 px) sa poskladá, keď biela prejde jeho miesto; slogan „Digitálny poriadok v papierovom archíve“ sivou vetou (Inter 500, 40 px) namiesto zelených kapitálok. Titulky svetlé do 11,4 s (biela zdola). Krátka verzia (`brand = false`) má bielu prelínačku ako doteraz.
+- C9: logo vo verzii na zelenú (celé biele, 210 px), slogan Manrope 600 `BRAND[100]`, web v obrysovej pilulke ako v krátkej, pod ňou firma; malá značka a čiara vypadli (domček je v logu).
+- Slogan (`captions.C4brand`) je „Digitálny poriadok v papierovom archíve“ (predtým „Digitálna katalogizácia archivovanej dokumentácie“).
+- `scripts/stills-fast.mjs`: stills viacerých klipov jedným bundlom (`node scripts/stills-fast.mjs C4-Cena:330,420 C9-Outro:40`).

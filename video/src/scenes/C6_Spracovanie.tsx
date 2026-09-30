@@ -34,7 +34,7 @@ export const C6_Spracovanie: React.FC = () => {
   const at = FOOTAGE_WINDOW;
   const bar = tw(750, 400); // progress "nahravanie" (kratke)
   return (
-    <Scene mode="light" footer footerOpacity={1 - fill}>
+    <Scene mode="light">
       <WindowFrame at={at} chrome={chrome}>
         <div style={{ position: 'absolute', left: (at.w - PH.w) / 2, top: (at.h - 44 - PH.h - 40) / 2 - upload * 16, opacity: 1 - tw(2300, 400) }}>
           <PhotoCard w={PH.w} h={PH.h} t={photo} />

@@ -26,7 +26,7 @@ export const useSubtitles = () => {
 };
 
 /**
- * Titulky nahovoru: jedna veta dole v strede (y 926, jeden riadok), biela na tmavych
+ * Titulky nahovoru: jedna veta dole v strede (y 916, jeden riadok), biela na tmavych
  * klipoch, ink na svetlych. Casy a trvanie z vo.json (dur dopise scripts/vo.mjs),
  * takze titulok drzi presne pokial znie veta (+ 250 ms), min. 1,2 s.
  * `darkUntil`: klip je tmavy do daneho ms (C4 prechadza do bielej), potom svetly. `left`: posun titulku doprava (F1).
@@ -48,8 +48,8 @@ export const Subtitles: React.FC<{ clip: string; dark?: boolean; darkUntil?: num
       style={{
         position: 'absolute',
         left, // F1: 900 (mobil vlavo siaha az dole, titulok je v pravom stlpci)
-        right: 200 - Math.max(0, left - 200) / 4,
-        top: 926, // pod oknom footage (konci na 898) a nad patickou (od ~990)
+        right: left > 200 ? 330 : 200, // kolo 49: pri posunutom titulku (F1) mimo stlpca loga v rohu (od x 1611)
+        top: 916, // pod oknom footage (konci na 898); kolo 49: o 10 px vyssie, pod titulkom je logo v rohu (od 980)
         textAlign: 'center',
         fontFamily: FONT.display,
         fontWeight: 600,

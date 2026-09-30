@@ -1,7 +1,7 @@
 import React from 'react';
-import { useCurrentFrame } from 'remotion';
+import { Easing, useCurrentFrame } from 'remotion';
 import { Scene, useCaptions } from '../components/Scene';
-import { BrandMod, BrandSep, BrandStack, LOCKUP, LOCKUP_W } from '../components/Brand';
+import { Lockup } from '../components/ArchivesBrand';
 import { ArchiveBox, archiveBoxClosed } from '../components/ArchiveBox';
 import { C5_BOX_LEFT } from './C5_Teren';
 import { Caption } from '../components/Text';
@@ -39,9 +39,26 @@ import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
  * Kolo 28: texty v obraze (2500 "Hladanie trva...", 4700 "Zaplatene dvakrat..."),
  * predel posunuty o D, znacka drzi o H dlhsie a pod lockupom je popis. 11,1 s.
  */
+/**
+ * Kolo 49 (Samuel: dlhu verziu znackovo zjednotit s kratkou LinkedIn verziou): prechod do loga ako v kratkej (kolo 13
+ * tam): zdola nahor najprv zeleny pas znacky, WHITE_AFTER ms za nim biely (WIPE_MS, makka horna hrana WIPE_FEATHER),
+ * namiesto bielej prelinacky. Logo je oficialne dvojriadkove (Lockup) a posklada sa, ked biela prejde jeho miesto;
+ * slogan "Digitalny poriadok v papierovom archive" pod nim ako siva veta (Inter 500), nie zelene verzalky.
+ * Plati len s `brand` (hlavna verzia); kratka verzia (brand = false) ma bielu prelinacku ako doteraz.
+ */
+const WIPE_MS = 800;
+const WIPE_FEATHER = 110;
+const WHITE_AFTER = 220;
+const WIPE_EASE = Easing.bezier(0.45, 0, 0.25, 1);
+const LOGO_H = 200; // vyska loga (sirka ~790 px)
+const LOGO_TOP = 350;
 const D_MAIN = 1300; // posun predelu, aby sa dal precitat text pod "2x"
 const H_MAIN = 3780; // drzanie znacky: kolo 40 znova veta "Predstavujeme vam softverove riesenie katalogizacie Assetin Archives." (15,5-20,1 s vystupu) + text pod lockupom
 const BOX = 860;
+/** ms sceny (hlavna verzia): zaciatok prechodu do loga, biela zakryje obraz, logo odide (pre logo v rohu v scenesList). */
+export const C4_WIPE_AT = 5600 + D_MAIN;
+export const C4_WHITE_FULL = C4_WIPE_AT + WHITE_AFTER + WIPE_MS;
+export const C4_BRAND_END = 7900 + D_MAIN + H_MAIN + 300;
 /**
  * Experiment kratkej verzie: `d` = posun predelu, `h` = drzanie znacky (ms), `brand` = false: bez lockupu a textu pod nim
  * (LinkedIn 4:5 kresli vlastne logo na vysku), `cost` = false: bez sipky, vykresu, cenoviek a "2x EUR" (len regal,
@@ -62,17 +79,20 @@ export const C4_Cena: React.FC<{ d?: number; h?: number; brand?: boolean; cost?:
   const s = TARGET_SHELF;
   // predel problem -> riesenie
   const out = 1 - tw(5600 + D, 500); // cenovky, hodiny, vykres, "?" vyblednu
-  const light = tw(5600 + D, 600); // kolo 34: po "2x" rovno prelinacka do bielej (bez navratu kamery na policu)
-  const mark = settle(frame, 6300 + D); // znacka sa objavi (bez kreslenia)
-  const lockup = settle(frame, 6450 + D);
+  const light = brand ? 0 : tw(5600 + D, 600); // kolo 34: po "2x" rovno prelinacka do bielej (kratka verzia)
+  const ms = (frame / 30) * 1000;
+  const wipe = (at: number) => WIPE_EASE(Math.min(1, Math.max(0, (ms - at) / WIPE_MS)));
+  const g = brand ? wipe(5600 + D) : 0; // kolo 49: zeleny pas zdola
+  const w = brand ? wipe(5600 + D + WHITE_AFTER) : 0; // biely za nim
+  const build = 5600 + D + WHITE_AFTER + Math.round(0.55 * WIPE_MS); // logo sa zacne skladat, ked biela prejde jeho miesto
+  const tag = tween(frame, build + 650, 900, Easing.bezier(0.16, 1, 0.3, 1));
   const brandOut = tw(7900 + D + H, 300);
   const box = settle(frame, 8100 + D + H);
-  const footer = tw(8200 + D + H, 400);
   const CAM_MID = { x: CAM_END.x + 590 / CAM_END.scale, y: CAM_END.y + 70 / CAM_END.scale, scale: 1.5 };
   const boxLeft = C5_BOX_LEFT; // rovnaka poloha ako v C5 (krabica vlavo, vpravo kroky)
   const boxTop = SAFE.illoTop - 40;
   return (
-    <Scene mode="dark" footer footerMode="light" footerOpacity={footer}>
+    <Scene mode="dark">
       <Camera keys={[{ ms: 0, ...CAM_END }, { ms: 1700, ...CAM_MID }]}>
         <svg width={1920} height={1080} viewBox={`${VB.x} ${VB.y} ${1920 / SV} ${1080 / SV}`} style={{ position: 'absolute', left: 0, top: 0 }}>
           <ShelfFrame x={s.x} y={s.y} w={CM.shelf.w} d={CM.shelf.d} levels={2} levelH={CM.shelf.level} topBoard={false}>
@@ -130,40 +150,16 @@ export const C4_Cena: React.FC<{ d?: number; h?: number; brand?: boolean; cost?:
         </>
       ) : null}
 
-      {/* prechod do bielej: cista prelinacka (bez svetelneho efektu) */}
+      {/* prechod do bielej: cista prelinacka (kratka verzia), v hlavnej zeleny a biely pas zdola (kolo 49) */}
       {light > 0 ? <div style={{ position: 'absolute', inset: 0, background: '#fff', opacity: light, pointerEvents: 'none' }} /> : null}
+      {g > 0 && w < 1 ? <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 1080 * g + WIPE_FEATHER, background: `linear-gradient(to top, ${BRAND[600]} calc(100% - ${WIPE_FEATHER}px), rgba(31,122,51,0) 100%)`, pointerEvents: 'none' }} /> : null}
+      {w > 0 ? <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: w < 1 ? 1080 * w + WIPE_FEATHER : 1080, background: w < 1 ? `linear-gradient(to top, #fff calc(100% - ${WIPE_FEATHER}px), rgba(255,255,255,0) 100%)` : '#fff', pointerEvents: 'none' }} /> : null}
 
-      {/* znacka Assetin + lockup z design kitu (assetin / .space | Archives), svetla verzia */}
-      {brand && mark > 0 ? (
-        <div style={{ position: 'absolute', inset: 0, opacity: (1 - brandOut) * Math.min(1, mark * 1.2), transform: `scale(${(1 - 0.06 * brandOut) * (0.97 + 0.03 * mark)})`, transformOrigin: '50% 50%' }}>
-          {(() => {
-            const k = 0.6;
-            const left = 960 - (LOCKUP_W * k) / 2;
-            const top = 420;
-            const stackLeft = 0,
-              sepLeft = LOCKUP.stackW + LOCKUP.gap,
-              modLeft = sepLeft + LOCKUP.sepW + LOCKUP.gap;
-            return (
-              <div style={{ position: 'absolute', left, top, width: LOCKUP_W * k, height: LOCKUP.sepH * k, opacity: lockup, transform: `translateY(${(1 - lockup) * 10}px)` }}>
-                <div style={{ position: 'absolute', left: 0, top: 0, transform: `scale(${k})`, transformOrigin: '0 0', width: LOCKUP_W, height: LOCKUP.sepH }}>
-                  <div style={{ position: 'absolute', left: stackLeft, top: -2 }}>
-                    <BrandStack light />
-                  </div>
-                  <div style={{ position: 'absolute', left: sepLeft, top: 0 }}>
-                    <BrandSep light />
-                  </div>
-                  <div style={{ position: 'absolute', left: modLeft, top: -30 }}>
-                    <BrandMod light />
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
-          {/* kolo 36: popis pod lockupom (vetu uz nehovori nahovor) */}
-          {/* kolo 47: slogan inym stylom ako titulky (zelene kapitalky s rozostupom), aby nesplyval s prepisom hlasu */}
-          <div style={{ position: 'absolute', left: 0, right: 0, top: 600, textAlign: 'center', fontFamily: FONT.body, fontWeight: 600, fontSize: 30, color: BRAND[600], letterSpacing: '0.16em', textTransform: 'uppercase', opacity: settle(frame, 6750 + D), transform: `translateY(${(1 - settle(frame, 6750 + D)) * 12}px)` }}>
-            {captions.C4brand}
-          </div>
+      {/* kolo 49: oficialne dvojriadkove logo Assetin Archives (sklada sa) a slogan pod nim */}
+      {brand && ms >= build && brandOut < 1 ? (
+        <div style={{ position: 'absolute', left: 0, right: 0, top: LOGO_TOP, display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: 1 - brandOut, transform: `scale(${1 - 0.06 * brandOut})` }}>
+          <Lockup height={LOGO_H} build={build} />
+          <div style={{ marginTop: 44, fontFamily: FONT.body, fontWeight: 500, fontSize: 40, color: INK[600], opacity: tag, transform: `translateY(${(1 - tag) * 10}px)`, whiteSpace: 'nowrap' }}>{captions.C4brand}</div>
         </div>
       ) : null}
 
