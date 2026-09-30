@@ -136,115 +136,118 @@
 <script>
   // Stav stranky: BUILD sa meni pri kazdom publikovani (kolo, cas renderu), zivy stav cita db dokument status/current.
   const BUILD = {
- "round": 48,
- "renderedAt": "2026-09-27T14:55:00Z"
+ "round": 49,
+ "renderedAt": "2026-09-30T08:42:00Z"
 };
   const FULL = {
  "len": 145.2,
- "cap": "e4a9c3985db5e32dc694cfc72eb600ac",
- "poster": "837a5d4d8235ae6d9c38ab9b4b62cabb",
+ "cap": "5e7521012c8d8afcf9ad8408accdb496",
+ "poster": "ee1556ccfb931d71269d149f5abe2cd1",
  "desc": "Tvrdé strihy medzi klipmi, hlas Gemini TTS (Velvet 1), titulky a od kola 37 hudba (Lyria, pod hlasom stíšená)."
 };
   const NEWS = [
- "C5: „Riešenie začína fyzickými dokumentami.“ (celá prvá veta vygenerovaná nanovo, časovanie ako predtým).",
- "Od kola 47 checkpoint (commit 068edd1). Film 145,2 s."
+ "Kolo 49: značka ako v krátkej LinkedIn verzii. Oficiálne logo Assetin Archives (domček | assetin nad ARCHIVES) v intre, pri predstavení (C4) a v závere (C9).",
+ "Logo s ARCHIVES v pravom dolnom rohu počas celého filmu (okrem intra, veľkého loga a záveru), namiesto spodnej lišty s domčekom a webom.",
+ "Slogan „Digitálny poriadok v papierovom archíve“ (z krátkej verzie) pod logom sivou vetou a v závere.",
+ "C4: prechod na logo zeleným a bielym pásom zdola nahor (ako v krátkej) namiesto bielej prelínačky.",
+ "Ďalej: kolo 50 rámec obrazu a orezy (nadpis kroku, titulky, priblížené záznamy aplikácie), kolo 51 vety a hlas. Film 145,2 s."
 ];
   const CLIPS = [
  {
   "id": "C1-Intro",
   "name": "Intro",
   "len": 3.6,
-  "desc": "Kolo 36: assetin a .space vyplávajú naraz (bez oddeleného nástupu .space), celé intro o 0,4 s kratšie.",
-  "cap": "a18ffd15ef1f542f48f247c899b25b1d",
-  "poster": "3e7390d59b19ef05e6fcab19c5bbcd2b"
+  "desc": "Kolo 49: oficiálne logo Assetin Archives na tmavomodrej, skladá sa (čiara, domček, assetin, ARCHIVES), potom priblíženie do navy. Kolo 36: assetin a .space vyplávajú naraz (bez oddeleného nástupu .space), celé intro o 0,4 s kratšie.",
+  "cap": "a413519e4dbe6d4a7304f35f0dc18607",
+  "poster": "a3a08f895fac16a4d147da0782a6038e"
  },
  {
   "id": "C2-Hladanie",
   "name": "Hľadanie (kancelária → sklad)",
   "len": 13.0,
-  "desc": "Kolo 43: „V sklade, na polici, v krabici alebo v zložke.“ (doplnené „v“, veta nanovo). Kolo 42: zložky nepresvitajú, druhý otáznik rovnako dlho ako prvý.",
-  "cap": "10ca5703138fcb2778a48cb09206edef",
-  "poster": "4e43e6a7feaea38b3aa21e8b132c2e49"
+  "desc": "Kolo 49: logo Assetin Archives v pravom dolnom rohu (namiesto spodnej lišty). Kolo 43: „V sklade, na polici, v krabici alebo v zložke.“ (doplnené „v“, veta nanovo). Kolo 42: zložky nepresvitajú, druhý otáznik rovnako dlho ako prvý.",
+  "cap": "a21392c5cce66950c38c5cff7042392f",
+  "poster": "1282af0dba0ab5d83bee3826bb2818e4"
  },
  {
   "id": "C4-Cena",
   "name": "Cena → predel",
   "len": 18.5,
-  "desc": "Kolo 47: Assetin v hlase po slovensky (asetin), Archives po anglicky; slogan pod logom zelenými kapitálkami, odlíšený od titulkov. Kolo 42: jemnejšie obrysy. Kolo 41: bez vety o kondícii dokumentácie. Kolo 40: pri logu hlas „Predstavujeme vám softvérové riešenie katalogizácie Assetin Archives.“, pod logom text.",
-  "cap": "d135143dc985ac51bff67e1ac9dd684e",
-  "poster": "22858c4044352da2ee7fcb18f8fb25e3"
+  "desc": "Kolo 49: prechod na logo zeleným a bielym pásom zdola, oficiálne logo sa poskladá, pod ním slogan „Digitálny poriadok v papierovom archíve“ sivou vetou; logo v rohu počas tmavej časti vo verzii na tmavomodrú. Kolo 47: Assetin v hlase po slovensky (asetin), Archives po anglicky; slogan pod logom zelenými kapitálkami, odlíšený od titulkov. Kolo 42: jemnejšie obrysy. Kolo 41: bez vety o kondícii dokumentácie. Kolo 40: pri logu hlas „Predstavujeme vám softvérové riešenie katalogizácie Assetin Archives.“, pod logom text.",
+  "cap": "8facf30023fbe91a0f4526321703bd7c",
+  "poster": "e80b8413cee0b5d9655a5ccf12afb375"
  },
  {
   "id": "C5-Teren",
   "name": "V sklade",
   "len": 11.8,
-  "desc": "Kolo 48: „Riešenie začína fyzickými dokumentami.“ (veta nanovo). Kolo 42: hrany zložiek a krabice jemnejšie (tenšie a svetlejšie čiary), rovnako v celom videu. Kolo 37: končí hneď po dosadnutí mobilu do rámika F1.",
-  "cap": "2470844f89e66aa577be1b7fc87e31b1",
-  "poster": "09ddc7fcf4f2799c5afa21f745385226"
+  "desc": "Kolo 49: logo Assetin Archives v pravom dolnom rohu (namiesto spodnej lišty). Kolo 48: „Riešenie začína fyzickými dokumentami.“ (veta nanovo). Kolo 42: hrany zložiek a krabice jemnejšie (tenšie a svetlejšie čiary), rovnako v celom videu. Kolo 37: končí hneď po dosadnutí mobilu do rámika F1.",
+  "cap": "66dfd0290430f2d4022ce0beac5ebc2f",
+  "poster": "c226e7b6929d6b90f862419d7ba1d19d"
  },
  {
   "id": "F1-Sken",
   "name": "Footage: sken štítku",
   "len": 14.8,
-  "desc": "Kolo 36: zvýraznenia Zložka (ZL) a „Pridáva sa jednotka pod KR_01“ ako rámik so stmaveným okolím displeja.",
-  "cap": "88619ba8150709c3ab97c4420b3f189b",
-  "poster": "c1a5c41b8660f0e2e15c62a533c05187"
+  "desc": "Kolo 49: logo Assetin Archives v pravom dolnom rohu (namiesto spodnej lišty). Kolo 36: zvýraznenia Zložka (ZL) a „Pridáva sa jednotka pod KR_01“ ako rámik so stmaveným okolím displeja.",
+  "cap": "0df57bcfd1cea6e8aef0c4af3e4c798d",
+  "poster": "7119a555d023815d5648b72725f4bd2c"
  },
  {
   "id": "C6-Spracovanie",
   "name": "Fotka → aplikácia",
   "len": 3.0,
-  "desc": "Kolo 42: okno aplikácie je od začiatku v rozmere okna záznamu F2 (nezväčšuje sa), fotka v jeho strede.",
-  "cap": "a2814da5472e4ac19205e9cdc05004b6",
-  "poster": "78fdadc2e561988a9cb03bb3946f9373"
+  "desc": "Kolo 49: logo Assetin Archives v pravom dolnom rohu (namiesto spodnej lišty). Kolo 42: okno aplikácie je od začiatku v rozmere okna záznamu F2 (nezväčšuje sa), fotka v jeho strede.",
+  "cap": "9af4bb326e4fc48630a67f72e486fc14",
+  "poster": "54700668fd03a6092a57a8cc95106944"
  },
  {
   "id": "F2-Metadata",
   "name": "Footage: extrakcia metadát",
   "len": 8.3,
-  "desc": "Kolo 33: hlas od 0,4 s, načítavanie zrýchlené (čakanie na 60 % vystrihnuté, spolu ~2 s namiesto ~6 s), kliky premerané (zaškrtnutie, Extrahovať metadáta, spustenie), prelínačky. Klip 8,3 s namiesto 13,7 s.",
-  "cap": "911cb2726791afb17b31926d3a95aea8",
-  "poster": "1a9e36d7cd57e77dc0d3af9575627ab6"
+  "desc": "Kolo 49: logo Assetin Archives v pravom dolnom rohu (namiesto spodnej lišty). Kolo 33: hlas od 0,4 s, načítavanie zrýchlené (čakanie na 60 % vystrihnuté, spolu ~2 s namiesto ~6 s), kliky premerané (zaškrtnutie, Extrahovať metadáta, spustenie), prelínačky. Klip 8,3 s namiesto 13,7 s.",
+  "cap": "29f7f92a8a78b2802b96727ca3d50226",
+  "poster": "5aebec721bccc33bcfb162f0f2957951"
  },
  {
   "id": "F4-Kontrola",
   "name": "Footage: kontrola metadát",
   "len": 18.6,
-  "desc": "Kolo 40: jantárový rámik opravy končí pred kliknutím na „Prijať úpravu“ (48,2 s záznamu), kruh kliknutia na správnom mieste. Kolo 36: zvýraznenia ako rámik so stmaveným okolím.",
-  "cap": "3de11dc0fd96d58d3ec765ec8ce7f6e8",
-  "poster": "edb0e841249a83d40e0dbb0aea6db86e"
+  "desc": "Kolo 49: logo Assetin Archives v pravom dolnom rohu (namiesto spodnej lišty). Kolo 40: jantárový rámik opravy končí pred kliknutím na „Prijať úpravu“ (48,2 s záznamu), kruh kliknutia na správnom mieste. Kolo 36: zvýraznenia ako rámik so stmaveným okolím.",
+  "cap": "0123bc6f1aca43918b372deda0b23cba",
+  "poster": "3ed85c39551db21a95787423e42521b2"
  },
  {
   "id": "C10-Databaza",
   "name": "Práca s databázou",
   "len": 9.1,
-  "desc": "Kolo 40: „Vytvorenú databázu katalógu archívu vieme exportovať, analyzovať alebo prehľadávať. Najjednoduchšie je vyhľadávanie.“ Karty Export, Analýza, Vyhľadávanie sa rozsvietia so slovami, ostane Vyhľadávanie a okno prejde do F3.",
-  "cap": "6afbf22dbcc9fd70a5aa0f651eaf0289",
-  "poster": "2bc41407ab19baf40e29071707a65151"
+  "desc": "Kolo 49: logo Assetin Archives v pravom dolnom rohu (namiesto spodnej lišty). Kolo 40: „Vytvorenú databázu katalógu archívu vieme exportovať, analyzovať alebo prehľadávať. Najjednoduchšie je vyhľadávanie.“ Karty Export, Analýza, Vyhľadávanie sa rozsvietia so slovami, ostane Vyhľadávanie a okno prejde do F3.",
+  "cap": "864756a350804f074d6cab88192b13c7",
+  "poster": "1799253def7cc848b790953b869f647b"
  },
  {
   "id": "F3-Vyhladavanie",
   "name": "Footage: vyhľadávanie",
   "len": 16.1,
-  "desc": "Kolo 42: rámik okolo kľúčového slova v metadátach tesne okolo zvýraznenia. Kolo 41: bez QR kódu a bez vety o pôvodnom texte.",
-  "cap": "0a177b4323e30122b445cd16020937de",
-  "poster": "655630dfabb04e41bef634df3da46129"
+  "desc": "Kolo 49: logo Assetin Archives v pravom dolnom rohu (namiesto spodnej lišty). Kolo 42: rámik okolo kľúčového slova v metadátach tesne okolo zvýraznenia. Kolo 41: bez QR kódu a bez vety o pôvodnom texte.",
+  "cap": "05ebd825d7492af0eb7596fd1d75ee3c",
+  "poster": "fbfa8b69c58c1379e03f2ba75f879ee8"
  },
  {
   "id": "C8-Pilot",
   "name": "Ako začať (ponuka)",
   "len": 21.1,
-  "desc": "Kolo 47: celý blok posunutý na stred plochy nad titulkami. Kolo 46: riadky farebne odlíšené - Ako začať biele karty so zelenou, Rozsah nasadenia svetlomodré karty s tmavomodrou. Kolo 45: dva riadky rovnakých kariet v tých istých stĺpcoch. Hore Ako začať: Služba na kľúč (obhliadka a pilot na krabici) a Softvér (licencia podľa rozsahu). Dole Rozsah nasadenia (v oboch prípadoch): Identifikačné strany (metadáta a poloha v archíve) a Celé dokumenty (skenovanie, fulltextové vyhľadávanie). Hlas: „V oboch prípadoch určíte rozsah nasadenia: len identifikačné strany, alebo skenovanie celých dokumentov s fulltextovým vyhľadávaním.“",
-  "cap": "aa3d8db3f186317ff981568dbbf32ee1",
-  "poster": "432e6b4808d999feed10cdb589f57c18"
+  "desc": "Kolo 49: logo Assetin Archives v pravom dolnom rohu (namiesto spodnej lišty). Kolo 47: celý blok posunutý na stred plochy nad titulkami. Kolo 46: riadky farebne odlíšené - Ako začať biele karty so zelenou, Rozsah nasadenia svetlomodré karty s tmavomodrou. Kolo 45: dva riadky rovnakých kariet v tých istých stĺpcoch. Hore Ako začať: Služba na kľúč (obhliadka a pilot na krabici) a Softvér (licencia podľa rozsahu). Dole Rozsah nasadenia (v oboch prípadoch): Identifikačné strany (metadáta a poloha v archíve) a Celé dokumenty (skenovanie, fulltextové vyhľadávanie). Hlas: „V oboch prípadoch určíte rozsah nasadenia: len identifikačné strany, alebo skenovanie celých dokumentov s fulltextovým vyhľadávaním.“",
+  "cap": "34bae59d3f5fd8af13f4923f7f3d5088",
+  "poster": "3500af7bae30f97cfd7798db7107d794"
  },
  {
   "id": "C9-Outro",
   "name": "Outro",
   "len": 7.3,
-  "desc": "Kolo 43: značka, Assetin, s. r. o. a web pod sebou (v jednom riadku splývali). Kolo 42: lockup Assetin Archives a slogan.",
-  "cap": "7912f9aa847cc3463e563f12499f1673",
-  "poster": "424fa8c644f3ca84810ce5567362c341"
+  "desc": "Kolo 49: oficiálne logo vo verzii na zelenú (celé biele), slogan „Digitálny poriadok v papierovom archíve“, web v obrysovej pilulke, pod ním firma. Kolo 43: značka, Assetin, s. r. o. a web pod sebou (v jednom riadku splývali). Kolo 42: lockup Assetin Archives a slogan.",
+  "cap": "4fc0196b6c414d002479c77d73d40b60",
+  "poster": "0888079b3d0cfe8120999c2881a4a332"
  }
 ];
 
