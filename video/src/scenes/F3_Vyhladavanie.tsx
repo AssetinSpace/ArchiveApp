@@ -1,9 +1,7 @@
 import React from 'react';
 import { Step } from '../components/Steps';
-import { FOOTAGE_WINDOW_WIDE } from '../components/Device';
 import { voAt } from '../components/Subtitles';
 import { DesktopFootageClip, Mark, Tap, markAt } from './F2_Metadata';
-import { phases } from '../copy/sk';
 import { cutDuration, segStart } from '../lib/cuts';
 
 /**
@@ -34,4 +32,4 @@ const F3_MARKS: Mark[] = [
   markAt(ID, segStart(ID, 4) + 0.1, F3_SECONDS - 0.4, 998, 632, 496, 24, { ...spot, pad: 4 }), // kolo 41: zvyraznena zhoda v metadatach (Popis zmeny); kolo 42: tesne okolo zltej zhody (ramik bol privelky)
 ];
 /** F3 nadvazuje na okno z C10 (kolo 36), obsah okna nabehne z bielej. */
-export const F3_Vyhladavanie: React.FC = () => <DesktopFootageClip src="footage/f3-search.mp4" seconds={F3_SECONDS} steps={F3_STEPS} phase={phases.search} taps={F3_TAPS} marks={F3_MARKS} win={FOOTAGE_WINDOW_WIDE} panelLeft={1460} panelWidth={430} />;
+export const F3_Vyhladavanie: React.FC = () => <DesktopFootageClip src="footage/f3-search.mp4" seconds={F3_SECONDS} steps={F3_STEPS} taps={F3_TAPS} marks={F3_MARKS} />;

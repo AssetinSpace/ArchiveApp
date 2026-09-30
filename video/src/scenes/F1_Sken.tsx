@@ -6,7 +6,9 @@ import { loadFonts } from '../lib/fonts';
 import { phases } from '../copy/sk';
 import { cutDuration, cutTime } from '../lib/cuts';
 import { voAt } from '../components/Subtitles';
-import { BRAND, FONT, INK } from '../theme';
+import { BRAND } from '../theme';
+import { StepLabel } from '../components/Frame16';
+import { C5_TITLE_LEFT } from './C5_Teren';
 
 /**
  * F1 - Footage: sken prveho stitku v appke (screen recording z mobilu).
@@ -69,12 +71,11 @@ export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[];
   const videoW = screenW;
   const videoH = (videoW * SRC_H) / SRC_W;
   const videoLeft = 0;
-  const stepIdx = Math.max(0, steps.findIndex((s, i) => ms / 1000 >= s.from && (i === steps.length - 1 || ms / 1000 < steps[i + 1].from)));
 
   return (
     <AbsoluteFill style={{ background: '#fff' }}>
       {panelOnly ? null : (
-      <PhoneFrame at={PHONE}>
+      <PhoneFrame at={PHONE} screenBg="#000">{/* kolo 50: cierne pozadie displeja (bez bielych rohov), ako v kratkej */}
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#fff' }}>
           {/* footage orezane o systemove listy: video sirsie o crop, posunute hore */}
           <div style={{ position: 'absolute', left: videoLeft, top: -crop.top * videoH, width: videoW, height: videoH }}>
@@ -100,28 +101,8 @@ export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[];
       </PhoneFrame>
       )}
 
-      {/* sprievodny text vpravo */}
-      <div style={{ position: 'absolute', left: 960, top: 0, width: 800, height: 1080, display: 'flex', flexDirection: 'column', justifyContent: 'center', opacity: textIn, transform: `translateX(${(1 - textIn) * 40}px)` }}>
-        {steps.map((s, i) => {
-          const on = i === stepIdx ? 1 : 0;
-          const inT = settle(frame, s.from * 1000);
-          return (
-            <div key={i} style={{ position: 'absolute', left: 0, right: 0, opacity: on * inT, transform: `translateY(${(1 - inT) * 16}px)` }}>
-              <div style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: 24, letterSpacing: '0.14em', textTransform: 'uppercase', color: BRAND[600], marginBottom: 18 }}>
-                {phases.teren}
-              </div>
-              <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 64, lineHeight: 1.05, color: INK[900], letterSpacing: '-0.02em', marginBottom: 18 }}>{s.title}</div>
-              {s.line ? <div style={{ fontFamily: FONT.body, fontWeight: 400, fontSize: 34, lineHeight: 1.35, color: INK[500], maxWidth: 640 }}>{s.line}</div> : null}
-              {/* body krokov */}
-              <div style={{ display: 'flex', gap: 10, marginTop: 36 }}>
-                {steps.map((_, k) => (
-                  <div key={k} style={{ width: k <= i ? 34 : 12, height: 12, borderRadius: 6, background: k <= i ? BRAND[500] : INK[200] }} />
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      {/* kolo 50: nadpis kroku hore nad stlpcom titulkov (StepLabel, ako v celom filme), bez nazvu fazy a bodiek */}
+      <StepLabel frame={frame} steps={steps.map((s) => ({ from: s.from * 1000, title: s.title }))} left={C5_TITLE_LEFT} opacity={textIn} />
 
       <AbsoluteFill style={{ background: '#fff', opacity: fadeOut, pointerEvents: 'none' }} />
     </AbsoluteFill>

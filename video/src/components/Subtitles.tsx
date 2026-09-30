@@ -26,13 +26,13 @@ export const useSubtitles = () => {
 };
 
 /**
- * Titulky nahovoru: jedna veta dole v strede (y 916, jeden riadok), biela na tmavych
+ * Titulky nahovoru (kolo 50: 50 px, Manrope 700, y 900): jedna veta dole v strede (predtym y 926, jeden riadok), biela na tmavych
  * klipoch, ink na svetlych. Casy a trvanie z vo.json (dur dopise scripts/vo.mjs),
  * takze titulok drzi presne pokial znie veta (+ 250 ms), min. 1,2 s.
  * `darkUntil`: klip je tmavy do daneho ms (C4 prechadza do bielej), potom svetly. `left`: posun titulku doprava (F1).
  * Kolo 33: zaznam s `parts` sa ukazuje po castiach (jeden riadok), casy casti `partAt` (ms od `at`) dopise vo.mjs.
  */
-export const Subtitles: React.FC<{ clip: string; dark?: boolean; darkUntil?: number; left?: number }> = ({ clip, dark = false, darkUntil, left = 200 }) => {
+export const Subtitles: React.FC<{ clip: string; dark?: boolean; darkUntil?: number; left?: number }> = ({ clip, dark = false, darkUntil, left = 120 }) => {
   const frame = useCurrentFrame();
   const ms = (frame / 30) * 1000;
   const lines = voLines(clip);
@@ -48,12 +48,12 @@ export const Subtitles: React.FC<{ clip: string; dark?: boolean; darkUntil?: num
       style={{
         position: 'absolute',
         left, // F1: 900 (mobil vlavo siaha az dole, titulok je v pravom stlpci)
-        right: left > 200 ? 330 : 200, // kolo 49: pri posunutom titulku (F1) mimo stlpca loga v rohu (od x 1611)
-        top: 916, // pod oknom footage (konci na 898); kolo 49: o 10 px vyssie, pod titulkom je logo v rohu (od 980)
+        right: left > 120 ? 360 : 120, // kolo 50: okraj ramca (FRAME.side); posunuty titulok (F1) ma dva riadky, konci pred stlpcom loga v rohu (od x 1578)
+        top: 900, // kolo 50: pod oknom aplikacie (APP_WIN konci na 880), nad logom v rohu (od 988)
         textAlign: 'center',
         fontFamily: FONT.display,
-        fontWeight: 600,
-        fontSize: 44,
+        fontWeight: 700, // kolo 50: ako velke titulky kratkej verzie (Manrope 700), vacsie
+        fontSize: 50,
         lineHeight: 1.25,
         letterSpacing: '-0.01em',
         color: isDark ? '#fff' : INK[900],

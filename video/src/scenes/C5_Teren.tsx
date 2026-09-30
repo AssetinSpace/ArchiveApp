@@ -4,6 +4,7 @@ import { Scene, useCaptions } from '../components/Scene';
 import { Caption } from '../components/Text';
 import { ArchiveBox, archiveBoxPxPerCm, QR_SCALE } from '../components/ArchiveBox';
 import { FOOTAGE_PHONE, PhoneFrame } from '../components/Device';
+import { StepLabel } from '../components/Frame16';
 import { Camera } from '../lib/camera';
 import { pop, settle, tween } from '../lib/anim';
 import { captions, phases } from '../copy/sk';
@@ -29,6 +30,8 @@ import { BRAND, CM, FONT, INK, ISO, SAFE } from '../theme';
 const BOX = 860;
 /** Krabica vlavo (vpravo je priestor na kroky), rovnaka poloha na konci C4. */
 export const C5_BOX_LEFT = 200;
+/** Kolo 50: lava hrana nadpisu kroku v C5 a F1 (stlpec vpravo od mobilu, ako titulky F1). */
+export const C5_TITLE_LEFT = 900;
 const PX = archiveBoxPxPerCm(BOX); // ~9.4 px/cm
 const SHEET = { w: CM.sheet.w * PX, h: CM.sheet.h * PX };
 const PHONE = { w: CM.phone.w * PX * 1.4, h: CM.phone.h * PX * 1.4 };
@@ -98,7 +101,6 @@ export const C5_Teren: React.FC<{ steps?: C5Step[]; phase?: string }> = ({ steps
     w: PHONE_NOW.w + (PHONE_END.w - PHONE_NOW.w) * move,
     h: PHONE_NOW.h + (PHONE_END.h - PHONE_NOW.h) * move,
   };
-  const stepIdx = Math.max(0, steps.findIndex((s, i) => frame * 1000 / 30 >= s.from && (i === steps.length - 1 || frame * 1000 / 30 < steps[i + 1].from)));
 
   // pozicia bunky harku v px: harok lezi naplocho (izometria 2:1 ako krabica), os x harku ide vpravo dole, os y vlavo dole
   const sheetCx = 250,
@@ -281,29 +283,9 @@ export const C5_Teren: React.FC<{ steps?: C5Step[]; phase?: string }> = ({ steps
       <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 60% 45%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 55%)', opacity: flash, pointerEvents: 'none' }} />
       </Camera>
 
-      {/* kroky vpravo: nas pristup (rovnaky jazyk ako pri footage); mimo kamery, nehybe sa pri najazde */}
-      <div style={{ position: 'absolute', left: 1380, top: 0, width: 500, height: 1080, display: 'flex', flexDirection: 'column', justifyContent: 'center', opacity: others }}>
-        {steps.map((s, i) => {
-          const on = i === stepIdx ? 1 : 0;
-          const inT = settle(frame, s.from);
-          return (
-            <div key={i} style={{ position: 'absolute', left: 0, right: 0, top: 320, opacity: on * inT, transform: `translateY(${(1 - inT) * 16}px)` }}>
-              <div style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: 22, letterSpacing: '0.14em', textTransform: 'uppercase', color: BRAND[600], marginBottom: 14 }}>
-                {phase}
-              </div>
-              <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 56, lineHeight: 1.05, color: INK[900], letterSpacing: '-0.02em', marginBottom: 14 }}>{s.title}</div>
-              {s.line ? <div style={{ fontFamily: FONT.body, fontWeight: 400, fontSize: 30, lineHeight: 1.35, color: INK[500] }}>{s.line}</div> : null}
-              <div style={{ display: 'flex', gap: 10, marginTop: 28 }}>
-                {steps.map((_, k) => (
-                  <div key={k} style={{ width: k <= i ? 34 : 12, height: 12, borderRadius: 6, background: k <= i ? BRAND[500] : INK[200] }} />
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-
+      {/* kroky: kolo 50 nadpis kroku hore (StepLabel) nad stlpcom titulkov F1, bez nazvu fazy a bodiek (predtym vpravo);
+          mimo kamery, nehybe sa pri najazde */}
+      <StepLabel frame={frame} steps={steps} left={C5_TITLE_LEFT} opacity={others} />
     </Scene>
   );
 };

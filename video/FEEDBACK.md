@@ -556,3 +556,16 @@ Vetva `claude/magical-davinci-j440nt` stojí na hlave experimentu (kolo 30 krát
 - C9: logo vo verzii na zelenú (celé biele, 210 px), slogan Manrope 600 `BRAND[100]`, web v obrysovej pilulke ako v krátkej, pod ňou firma; malá značka a čiara vypadli (domček je v logu).
 - Slogan (`captions.C4brand`) je „Digitálny poriadok v papierovom archíve“ (predtým „Digitálna katalogizácia archivovanej dokumentácie“).
 - `scripts/stills-fast.mjs`: stills viacerých klipov jedným bundlom (`node scripts/stills-fast.mjs C4-Cena:330,420 C9-Outro:40`).
+
+
+## Kolo 50 (30. 9. 2026): rámec obrazu ako v krátkej verzii
+
+Pokračovanie plánu z kola 49 (rámec krátkej verzie prenesený na 16:9). Nový `src/components/Frame16.tsx` (`FRAME`, `APP_WIN`, `StepLabel`, `footViewAt`, `autoViews`).
+
+- Nadpis kroku hore vľavo (Manrope 800, 56 px, 44 px od vrchu, vľavo 120 px) namiesto pravého panelu s názvom fázy, nadpisom a bodkami postupu (F2, F3, F4, C6, C10). V C5 a F1 je nad stĺpcom vpravo od mobilu (vľavo 900 px, ako titulky F1). C8 má hore nadpis „Ako začať“, prvý riadok kariet sa volá „Spracovanie archívu“ (ako nadpis v krátkej), druhý „Rozsah nasadenia“ bez zmeny.
+- Okno aplikácie `APP_WIN` na celú šírku rámca (120 až 1800 px, 128 až 880 px), zarovnané s nadpisom a s logom v rohu. C6 aj C10 prechádzajú presne do neho.
+- Priblížený záznam ako `LiFootage` v krátkej: záznam je v okne ako výrez zdroja, pri každom zvýraznení (spot) sa okno plynulo priblíži na jeho oblasť (najviac na 1000 px zdroja, ~1,7x) a potom sa vráti na celkový pohľad (`autoViews`). Rámik spotu a kliky sú v px okna. F2 má výrez nižšie (fotka a priebeh spracovania).
+- Titulky 50 px, Manrope 700 (ako veľké titulky krátkej), y 900 px; logo v rohu 56 px, vpravo 120 px (zarovnané s oknom), účiara ARCHIVES 36 px od spodku. V F1 titulok končí pred stĺpcom loga.
+- F1: čierne pozadie displeja mobilu (bez bielych rohov), ako v krátkej.
+- Úvod C2: plošiny kancelárie a skladu majú v dlhej verzii rohy v obraze už teraz (prechody boli len v krátkej), bez zmeny.
+- Zatiaľ neprenesené (na posúdenie): prekreslené karty údajov pod oknom (Názov projektu, hľadané slovo, cesta k položke) a výrezy ručne podľa hlasu (teraz automaticky podľa zvýraznení); zelená pilulka „Zadarmo a nezáväzne“ pri pilote v C8 (v hlase dlhej verzie „zadarmo“ nie je).

@@ -1,7 +1,8 @@
 import React from 'react';
 import { useCurrentFrame } from 'remotion';
 import { Scene } from '../components/Scene';
-import { FOOTAGE_WINDOW_WIDE, WindowFrame } from '../components/Device';
+import { WindowFrame } from '../components/Device';
+import { APP_WIN, StepLabel } from '../components/Frame16';
 import { pop, settle, tween } from '../lib/anim';
 import { phases } from '../copy/sk';
 import { BRAND, FONT, INK } from '../theme';
@@ -18,8 +19,9 @@ import { BRAND, FONT, INK } from '../theme';
  *
  * ms (nahovor od 300, casy slov + 300): 0 okno · 300 karty stlmene · 700 text vpravo · 2800 Vyhladavanie ·
  * 3850 Zoskupovanie · 4600 Export · 6800 zostane Vyhladavanie · 7600-8400 okno do okna F3 · 8300-8550 obsah zmizne.
+ * Kolo 50: okno do APP_WIN (okno F3 na celu sirku), nadpis kroku hore vlavo.
  */
-const WIN = { x: 380, y: 150, w: 900, h: 640 };
+const WIN = { x: 510, y: 170, w: 900, h: 640 }; // kolo 50: v strede (nadpis je hore vlavo, nie vpravo)
 const CARD = { w: 230, h: 250, gap: 36 };
 
 const Icon: React.FC<{ kind: 'search' | 'chart' | 'export' }> = ({ kind }) => (
@@ -58,13 +60,12 @@ export const C10_Databaza: React.FC = () => {
   const focus = tw(7100, 400); // zostane vyhladavanie (slovo "vyhladavanie" 7,2 s)
   const content = 1 - tw(8700, 250);
   const fill = tw(8000, 800); // okno prejde do okna F3 (hlas konci 8,3 s)
-  const note = settle(frame, 700) * (1 - tw(7900, 300));
   const dim = settle(frame, 300); // karty su v okne od zaciatku, stlmene
   const at = {
-    x: WIN.x + (FOOTAGE_WINDOW_WIDE.x - WIN.x) * fill,
-    y: WIN.y + (FOOTAGE_WINDOW_WIDE.y - WIN.y) * fill,
-    w: WIN.w + (FOOTAGE_WINDOW_WIDE.w - WIN.w) * fill,
-    h: WIN.h + (FOOTAGE_WINDOW_WIDE.h - WIN.h) * fill,
+    x: WIN.x + (APP_WIN.x - WIN.x) * fill,
+    y: WIN.y + (APP_WIN.y - WIN.y) * fill,
+    w: WIN.w + (APP_WIN.w - WIN.w) * fill,
+    h: WIN.h + (APP_WIN.h - WIN.h) * fill,
   };
   const rowW = CARDS.length * CARD.w + (CARDS.length - 1) * CARD.gap;
   return (
@@ -100,12 +101,8 @@ export const C10_Databaza: React.FC = () => {
           })}
         </div>
       </WindowFrame>
-      {/* vpravo nadpis ako pri footage (StepsPanel) */}
-      <div style={{ position: 'absolute', left: 1460, top: 0, width: 430, height: 1080, display: 'flex', flexDirection: 'column', justifyContent: 'center', opacity: note, transform: `translateX(${(1 - note) * 24}px)` }}>
-        <div style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: 22, letterSpacing: '0.14em', textTransform: 'uppercase', color: BRAND[600], marginBottom: 14 }}>{phases.app}</div>
-        <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 56, lineHeight: 1.05, color: INK[900], letterSpacing: '-0.02em', marginBottom: 14 }}>Práca s databázou</div>
-        <div style={{ fontFamily: FONT.body, fontWeight: 400, fontSize: 30, lineHeight: 1.35, color: INK[500] }}>Export, analýza aj vyhľadávanie.</div>
-      </div>
+      {/* kolo 50: nadpis kroku hore vlavo (predtym vpravo s nazvom fazy a riadkom) */}
+      <StepLabel frame={frame} steps={[{ from: 700, title: 'Práca s databázou' }]} opacity={1 - tw(7900, 300)} />
     </Scene>
   );
 };

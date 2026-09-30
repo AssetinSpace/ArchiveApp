@@ -64,10 +64,10 @@ export const Lockup: React.FC<{ height: number; colors?: LogoColors; build?: num
 
 /**
  * Logo v pravom dolnom rohu pocas celeho filmu (ako v kratkej verzii od kola 29, nahradza patu s domcekom, assetin,
- * Archives a webom). 60 px vysoke, uaziara ARCHIVES 40 px od spodku a 72 px od praveho okraja: pod riadkom titulkov
- * (926 az 981 px). Na tmavom verzia na tmavomodru, inak na bielu.
+ * Archives a webom). Kolo 50: 56 px vysoke, uaziara ARCHIVES 36 px od spodku, vpravo 120 px ako okno aplikacie a nadpis
+ * vlavo; pod riadkom titulkov (900 az 963 px). Na tmavom verzia na tmavomodru, inak na bielu.
  */
-export const CORNER = { h: 60, right: 72, base: 40 };
+export const CORNER = { h: 56, right: 120, base: 36 }; // kolo 50: vpravo zarovnane s oknom aplikacie (FRAME.side)
 export const CornerBrand: React.FC<{ dark?: boolean; opacity?: number }> = ({ dark = false, opacity = 1 }) => {
   if (opacity <= 0) return null;
   const k = CORNER.h / ARCHIVES_LOGO.two.view[1];

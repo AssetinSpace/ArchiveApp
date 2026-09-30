@@ -1,6 +1,5 @@
 import React from 'react';
 import { Step } from '../components/Steps';
-import { FOOTAGE_WINDOW_WIDE } from '../components/Device';
 import { voAt } from '../components/Subtitles';
 import { DesktopFootageClip, Mark, Tap, markAt, tapAt } from './F2_Metadata';
 import { cutDuration, cutTime, segStart } from '../lib/cuts';
@@ -33,4 +32,4 @@ const F4_MARKS: Mark[] = [
   markAt(ID, cutTime(ID, 44.0), cutTime(ID, 48.2), 828, 668, 967, 40, { spot: true, color: 'amber' }), // oprava: pole Hodnota pri Cislo zmeny (1 -> 2); kolo 40: konci pred prijatim (48,23 s), inak ostal zlty ramik po prekliknuti
 ];
 /** F4 zacina z bielej (F2 konci fade-om), sirsie okno sa objavi. */
-export const F4_Kontrola: React.FC = () => <DesktopFootageClip src="footage/f4-review.mp4" seconds={F4_SECONDS} steps={F4_STEPS} taps={F4_TAPS} marks={F4_MARKS} win={FOOTAGE_WINDOW_WIDE} panelLeft={1460} panelWidth={430} enter />;
+export const F4_Kontrola: React.FC = () => <DesktopFootageClip src="footage/f4-review.mp4" seconds={F4_SECONDS} steps={F4_STEPS} taps={F4_TAPS} marks={F4_MARKS} enter />;

@@ -32,7 +32,8 @@ export const pilot = {
 
 /** C8 (kolo 42): dve ponuky - sluzba na kluc (hlavna) a softver. */
 export const offer = {
-  kicker: 'Ako začať',
+  heading: 'Ako začať', // kolo 50: nadpis kroku hore vlavo (StepLabel)
+  kicker: 'Spracovanie archívu', // kolo 50: riadok sluzba / softver (nazov ako nadpis v kratkej verzii), predtym 'Ako začať'
   // kolo 44: karty s rovnakou stavbou (ikona, nazov, popis, jeden krok); kolo 45: pod nimi rovnaky riadok "Rozsah nasadenia"
   service: { title: 'Služba na kľúč', desc: 'Celý archív spracujeme za vás.', step: 'Obhliadka a pilot na krabici' },
   software: { title: 'Softvér', desc: 'Katalogizujete vlastnými silami.', step: 'Licencia podľa rozsahu' },

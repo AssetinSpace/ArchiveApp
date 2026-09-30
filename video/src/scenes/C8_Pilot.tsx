@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCurrentFrame } from 'remotion';
 import { Scene } from '../components/Scene';
+import { StepLabel } from '../components/Frame16';
 import { pop, settle, tween } from '../lib/anim';
 import { offer } from '../copy/sk';
 import { BRAND, FONT, INK, NAVY } from '../theme';
@@ -125,6 +126,8 @@ export const C8_Pilot: React.FC = () => {
   const [o1, o2] = offer.scope.options;
   return (
     <Scene mode="light">
+      {/* kolo 50: nadpis kroku hore vlavo ako v celom filme; riadky ostavaju s vlastnymi nazvami */}
+      <StepLabel frame={frame} steps={[{ from: 200, title: offer.heading }]} />
       <Kicker y={ROW1.kicker} t={k1} text={offer.kicker} />
       <Card x={LEFT} y={ROW1.top} t={service} dim={dimService} main icon="box" title={offer.service.title} desc={offer.service.desc} step={offer.service.step} stepT={pop(frame, 3300)} />
       <Card x={RIGHT} y={ROW1.top} t={software} dim={dimSoftware} icon="app" title={offer.software.title} desc={offer.software.desc} step={offer.software.step} stepT={pop(frame, 9740)} />
