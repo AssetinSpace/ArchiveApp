@@ -1,0 +1,626 @@
+<title>Krátke video Archives</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* rovnake tokeny ako hlavna review stranka (review/index.html), aby experiment vyzeral ako jej sestra */
+  :root {
+    --bg: #F6F8F7; --surface: #FFFFFF; --ink: #0F1A14; --ink-2: #33423A; --muted: #607068;
+    --rule: #DDE5E0; --accent: #1F7A33; --accent-soft: #DCEEDB; --accent-ink: #0F4E1B;
+    --warn: #B45309; --warn-soft: #FEF3C7; --warn-ink: #7A3E06; --navy: #08111F; --focus: #1F7A33;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --grid: #E6ECE8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0B1310; --surface: #121D18; --ink: #EEF4F0; --ink-2: #C9D6CE; --muted: #93A59B;
+      --rule: #25332C; --accent: #4FA85A; --accent-soft: #163620; --accent-ink: #B6DDB4;
+      --warn: #F59E0B; --warn-soft: #3A2A08; --warn-ink: #FCD34D; --focus: #6CC377;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --grid: #1E2A24;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0B1310; --surface: #121D18; --ink: #EEF4F0; --ink-2: #C9D6CE; --muted: #93A59B;
+    --rule: #25332C; --accent: #4FA85A; --accent-soft: #163620; --accent-ink: #B6DDB4;
+    --warn: #F59E0B; --warn-soft: #3A2A08; --warn-ink: #FCD34D; --focus: #6CC377;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --grid: #1E2A24;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: Inter, system-ui, sans-serif; font-size: 15px; line-height: 1.55; padding-block: 28px 72px; padding-inline: 16px; margin: 0; }
+  .wrap { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+  h1, h2, h3 { font-family: Manrope, Inter, system-ui, sans-serif; letter-spacing: -0.015em; text-wrap: balance; margin: 0; }
+  h1 { font-size: clamp(30px, 4.6vw, 44px); font-weight: 800; line-height: 1.08; }
+  h2 { font-size: 22px; font-weight: 800; }
+  h3 { font-size: 17px; font-weight: 700; }
+  p { margin: 0; }
+  .muted { color: var(--muted); }
+  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  section { display: flex; flex-direction: column; gap: 16px; }
+  .sec-head { display: flex; flex-direction: column; gap: 6px; max-width: 70ch; }
+  .sec-head p { color: var(--ink-2); }
+
+  header { display: flex; flex-direction: column; gap: 16px; }
+  .lede { font-size: 17px; color: var(--ink-2); max-width: 68ch; }
+  .lede b { color: var(--ink); }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+  /* dlzky: pôvodna -> LinkedIn verzia */
+  .lengths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border: 1px solid var(--rule); border-radius: 12px; background: var(--surface); overflow: hidden; }
+  .len-cell { padding: 16px 20px; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid var(--rule); }
+  .len-cell:first-child { border-left: 0; }
+  .len-cell .k { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .len-cell .v { font-family: Manrope, Inter, sans-serif; font-weight: 800; font-size: clamp(28px, 4vw, 40px); line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .len-cell .v small { font-size: 0.5em; font-weight: 700; color: var(--muted); margin-left: 2px; }
+  .len-cell .d { font-size: 13px; color: var(--ink-2); }
+  .len-cell.new .v { color: var(--accent); }
+  .lengths.two { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 720px; }
+  .film.tallfilm { grid-template-columns: minmax(0, 440px) minmax(0, 1fr); align-items: start; }
+  @media (max-width: 640px) { .lengths, .lengths.two { grid-template-columns: 1fr; } .len-cell { border-left: 0; border-top: 1px solid var(--rule); } .len-cell:first-child { border-top: 0; } }
+
+  /* videa */
+  video { width: 100%; max-width: 100%; display: block; background: var(--navy); border-radius: 10px; }
+  .v169 { aspect-ratio: 16 / 9; }
+  .v45 { aspect-ratio: 4 / 5; }
+  .pending { display: grid; place-items: center; color: #C9D6CE; font-size: 14px; background: var(--navy); border-radius: 10px; }
+  .film { display: grid; grid-template-columns: minmax(0, 3fr) minmax(260px, 2fr); gap: 20px; padding: 20px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; }
+  .film .info { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .film .head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .len { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; }
+  .film ul { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+  .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .tall { display: flex; flex-direction: column; gap: 12px; padding: 20px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; }
+  .tall video, .tall .pending { max-width: 420px; width: 100%; margin: 0 auto; }
+  @media (max-width: 760px) { .film, .pair, .film.tallfilm { grid-template-columns: 1fr; } }
+
+  .composer { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: auto; }
+  button { font: inherit; font-weight: 600; font-size: 14px; padding: 8px 14px; border-radius: 8px; cursor: pointer; border: 0; background: var(--accent); color: #fff; }
+  button:disabled { opacity: 0.5; cursor: default; }
+  button:focus-visible, summary:focus-visible, .seg:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .result { font-size: 13px; color: var(--muted); }
+  .result.ok { color: var(--accent); font-weight: 600; }
+  .result.err { color: var(--warn); }
+
+  /* casova os: tri pruhy v jednej mierke (sekundy) */
+  .chart { padding: 20px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; display: flex; flex-direction: column; gap: 14px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .rows { display: grid; grid-template-columns: 108px minmax(0, 1fr); gap: 10px 12px; align-items: center; }
+  .rows .lab { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.25; }
+  .rows .lab small { display: block; font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .track { position: relative; height: 34px; }
+  .grid-lines { position: absolute; inset: 0; pointer-events: none; }
+  .grid-lines b { position: absolute; top: -4px; bottom: -4px; width: 1px; background: var(--grid); }
+  .bar { position: relative; display: flex; gap: 2px; height: 100%; }
+  .seg { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #fff; font-variant-numeric: tabular-nums; overflow: hidden; white-space: nowrap; }
+  .seg:last-child { border-radius: 0 4px 4px 0; }
+  .seg.ink { color: #0F1A14; }
+  .axis { display: grid; grid-template-columns: 108px minmax(0, 1fr); gap: 12px; }
+  .ticks { position: relative; height: 16px; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .ticks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+  .ticks span:first-child { transform: none; }
+  .tip { position: fixed; z-index: 5; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 12px; padding: 6px 8px; border-radius: 6px; max-width: 240px; }
+  @media (max-width: 520px) { .rows, .axis { grid-template-columns: 76px minmax(0, 1fr); } .seg { font-size: 11px; } }
+
+  /* tabulky */
+  .tablebox { overflow-x: auto; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-top: 1px solid var(--rule); }
+  thead th { border-top: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: var(--bg); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td .tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+  .tag.new { background: var(--accent-soft); color: var(--accent-ink); }
+  .tag.old { background: var(--bg); color: var(--ink-2); border: 1px solid var(--rule); }
+  .tag.none { background: transparent; color: var(--muted); border: 1px dashed var(--rule); }
+  td.clip { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .fixed { color: var(--accent); font-weight: 600; }
+  .tag.ok { background: var(--accent-soft); color: var(--accent-ink); }
+  .tag.warn { background: var(--warn-soft); color: var(--warn-ink); }
+
+  .cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .panel { padding: 18px 20px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .panel ul { margin: 0; padding-left: 18px; color: var(--ink-2); display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+  @media (max-width: 760px) { .cols { grid-template-columns: 1fr; } }
+
+  .asks { display: flex; flex-direction: column; gap: 0; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; }
+  .ask { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 16px; padding: 14px 20px; border-top: 1px solid var(--rule); }
+  .ask:first-child { border-top: 0; }
+  .ask b { display: block; font-family: Manrope, Inter, sans-serif; font-weight: 700; }
+  .ask p { color: var(--ink-2); font-size: 14px; }
+  @media (max-width: 640px) { .ask { grid-template-columns: 1fr; gap: 6px; } }
+
+  .note { padding: 12px 16px; border: 1px solid var(--rule); background: var(--surface); border-radius: 8px; color: var(--ink-2); font-size: 14px; }
+  details summary { cursor: pointer; color: var(--ink-2); font-weight: 600; }
+  details[open] summary { margin-bottom: 12px; }
+  footer { color: var(--muted); font-size: 13px; display: flex; flex-direction: column; gap: 6px; }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Assetin Archives · experiment kratšieho videa · kolo 31</div>
+    <h1>Krátke video pre LinkedIn</h1>
+    <p class="lede">LinkedIn verzia na výšku (4:5) má <b>77 s</b>. V 31. kole sú <b>police v sklade ďalej od okraja plošiny</b>. Kancelária aj sklad majú v úvode vlastnú plošinu s rohom hore aj dole nad titulkami. Inak je video ako v kole 30.</p>
+    <div class="meta-row"><span id="stamp"></span><span class="mono">vetva claude/video-assets-archives-exp-la1hts</span><span>Hlavná review stránka ostáva bez zmeny.</span></div>
+    <div class="lengths two" aria-label="Dĺžky verzií">
+      <div class="len-cell"><span class="k">Pôvodná verzia</span><span class="v">145<small>s</small></span><span class="d">250 slov, 16:9, 12 klipov</span></div>
+      <div class="len-cell new"><span class="k">LinkedIn verzia</span><span class="v">77<small>s</small></span><span class="d">139 slov, 4:5, 8 klipov, -47 %</span></div>
+    </div>
+  </header>
+
+  <section id="linkedin">
+    <div class="sec-head">
+      <h2>LinkedIn verzia</h2>
+      <p>Kolo 31 sa od kola 30 líši len skladom (0:04 až 0:07). Kolo 15 pod ním má ešte pôvodnú hudbu s iskrami, dvojité odfotenie aj starý spoj hudby pri 0:55. Staršie kolá sú nižšie v zbalenej časti.</p>
+    </div>
+    <article class="film tallfilm" id="film-L">
+      <div data-video="L" data-shape="v45"></div>
+      <div class="info">
+        <div class="head"><h3>Kolo 31: police ďalej od okraja plošiny</h3><span class="len" data-len="L"></span></div>
+        <ul>
+          <li>0:04 až 0:07: tretí regál v sklade presahoval hranu plošiny o 10 cm a stál priamo na jej okraji. Plošina skladu je teraz o 60 cm širšia, takže regál je od hrany 50 cm.</li>
+          <li>Police sa neposúvajú, aby ostala cesta panáčika, otáznik aj priblíženie na policu. Záber skladu je o 43 px vyššie, aby predný roh plošiny ostal nad titulkami a zadný roh v obraze.</li>
+          <li>Ostatné ako v kole 30: kancelária a sklad na vlastných plošinách s rohom hore aj dole, v rohu logo s ARCHIVES, zelený záver, hlas a hudba bez zmeny.</li>
+        </ul>
+        <div class="composer"><button type="button" data-role="compose" disabled>Pridať pripomienku</button><span class="result" aria-live="polite"></span></div>
+      </div>
+    </article>
+    <article class="film tallfilm" id="film-L15">
+      <div data-video="L15" data-shape="v45"></div>
+      <div class="info">
+        <div class="head"><h3>Kolo 15 (logo bez domčeka)</h3><span class="len" data-len="L15"></span></div>
+        <ul>
+          <li>Na porovnanie: logo bez domčeka, veta "napísať slovo", hudba s iskrami na začiatku, dvojité odfotenie pri 0:33 a starý spoj hudby pri 0:55. Uložené v gite: commit 1ccb9e3 a video v <span class="mono">video/out/kratka/verzie/</span>.</li>
+          <li>Kolo 15: most "S nami ho nájdete za pár sekúnd." so zeleným prechodom na logo, pod logom "Prvé dokumenty zadarmo a nezáväzne", pri výzve web.</li>
+        </ul>
+      </div>
+    </article>
+  </section>
+
+  <section id="minuta">
+    <div class="sec-head">
+      <h2>Verzia do minúty (návrh, nič nie je zmenené)</h2>
+      <p>Treba vyhodiť asi 17 s (po kole 15, ktoré pridalo 1,4 s za most). Navrhujem brať tam, kde testeri strácali pozornosť a kde ide o detail, od ktorého nezávisí rozhodnutie vyskúšať jednu krabicu. Ostáva celý príbeh: otázka a hľadanie, most a logo so sľubom a pilulkou zadarmo, QR a fotka, aplikácia sama prečíta text, hľadanie s cestou, kto to spracuje a prvý krok zadarmo.</p>
+    </div>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>Čo vyhodiť</th><th class="num">Ušetrí</th><th>Prečo</th></tr></thead>
+        <tbody>
+          <tr><td>Slide "Technické riešenie" (bezpečne, online u nás alebo na vašej infraštruktúre)</td><td class="num">7,9 s</td><td>Otázka pre IT, rieši sa až pri nasadení. Obom testerom bola ponuka 0:55-1:05 statická. Veta sa presunie do textu príspevku.</td></tr>
+          <tr><td>Veta "Človek každú hodnotu overí a prípadne opraví alebo potvrdí."</td><td class="num">4,4 s</td><td>Jadro je, že aplikácia údaje prečíta sama. Potvrdenie ostane obrazom (karta zozelenie s fajkou už pri konci prvej vety). Správca mal v kole 13 úsek 0:36-0:44 za zdĺhavý, laik v kole 14 za zbytočne dvakrát (klik aj fajku vidieť). Cena: slabší signál, že nad dátami má kontrolu človek.</td></tr>
+          <tr><td>Kratšia veta o QR: "Každá položka dostane QR kód, podľa toho, ako máte archív usporiadaný." (nová veta tým istým hlasom)</td><td class="num">3,5 s</td><td>Polica, krabica, šanón a zložka ostanú v obraze ako ikony, hlas ich nemusí vymenúvať. Pozor: túto vetu si v kole 7 chcel práve kvôli vymenovaniu.</td></tr>
+          <tr><td>Drobnosti: fotenie bez hlasu 2,1 -> 1,5 s, záverečné logo 3,0 -> 2,5 s</td><td class="num">1,1 s</td><td>Najdlhšie ticho vo videu a záver, kde už nič nepribúda.</td></tr>
+          <tr><td><b>Spolu</b></td><td class="num"><b>16,9 s</b></td><td>Film 59,8 s, hudba sa znova zladí so strihom.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Čo by som nechal: chôdzu v sklade a most s logom a pilulkou (ponuku vidí najviac divákov), hľadanie s cestou PL_01 -> KR_01 -> ZL_03 (hlavná hodnota) a slide "Spracovanie archívu" (na kľúč je pre zaneprázdneného správcu najsilnejší argument). Ak by bezpečnosť musela ostať, dá sa namiesto "Technické riešenie" vyhodiť "Spracovanie archívu" (5,7 s), ale potom bude film tesne nad minútou.</p>
+  </section>
+
+  <section id="plynulost">
+    <div class="sec-head">
+      <h2>Plynulosť 0:07 až 0:10</h2>
+      <p>Oprava z kola 12: zmena obrazu medzi dvoma susednými snímkami (30 za sekundu, bez titulkov), po zelený prechod. Hladká krivka je plynulý pohyb, osamotený hrot je skok. Testovací diváci vidia len 4 snímky za sekundu, takže plynulosť je vidieť len tu alebo okom. V kole 13 pribudlo od 0:09 pomalé priblíženie pri hodinách (namiesto rovnej čiary na konci). V kole 15 sa zložky vracajú v 0:08 (1:1) a strih zo skladu do zeleného prechodu je v 0:09,5: zmena obrazu medzi susednými snímkami je na strihu 0,18, rovnako ako pred ním a za ním (0,17 až 0,21, pomalý nájazd na policu), bez skoku.</p>
+    </div>
+    <div class="chart">
+      <div class="legend"><span><i style="background:var(--warn)"></i>Kolo 11</span><span><i style="background:var(--accent)"></i>Kolo 12</span><span class="muted">čiarkovane: strih zo skladu na hľadanie</span></div>
+      <svg id="motion" viewBox="0 0 640 243" role="img" aria-label="Zmena obrazu medzi snímkami v kole 11 a 12" style="width:100%;height:auto;display:block"></svg>
+    </div>
+  </section>
+
+  <section id="cas">
+    <div class="sec-head">
+      <h2>Kam išiel čas</h2>
+      <p>Všetky verzie v jednej mierke. Oproti pôvodnej najviac ubudlo z vysvetľovania aplikácie (C6, F2, F4 a databáza C10). V kole 8 ubudla veta "Vy viete, že tam niekde je.", v kole 9 veta o fotke (kontrola v aplikácii o 2,8 s kratšia), ponuka je o 2 s dlhšia (kde aplikácia beží). V kole 10 pribudli krátke pauzy na čítanie pri karte zložky a v ponuke (+3 s), v kole 11 dlhšia chôdza v sklade (+0,3 s) a dlhšie vety v kontrole údajov (+2,2 s), v kole 12 pokojnejší návrat zložiek (+0,37 s) a kratšia pauza vo vyhľadávaní (-0,3 s), v kole 13 prelínanie do ponuky a kratšie pauzy v nej (film -1,1 s), pomalší zelený prechod (predstavenie začína o 0,3 s neskôr). V kole 15 vypadla chvíľa s hodinami a pribudol most (+1,4 s): úvod po zelený prechod je o 0,4 s kratší, predstavenie o 1,8 s dlhšie (most, logo a pilulka).</p>
+    </div>
+    <div class="chart" id="chart">
+      <div class="legend" id="legend"></div>
+      <div class="rows" id="rows"></div>
+      <div class="axis"><span></span><div class="ticks" id="ticks"></div></div>
+    </div>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>Časť filmu</th><th class="num">Pôvodná</th><th class="num">Kolo 13 a 14</th><th class="num">Kolo 15</th><th class="num">Do 1 min (návrh)</th></tr></thead>
+        <tbody id="timetable"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="citanie">
+    <div class="sec-head">
+      <h2>Čas na čítanie</h2>
+      <p>Pri každom zábere text v obraze (bez titulkov), ako dlho ho vidno a koľko času ostane po dohovorení vety. Orientačne treba 0,8 s a k tomu 1 s na každé 3 slová (číta sa popri počúvaní) a po dohovorení aspoň pol sekundy, kým sa obraz zmení. V kole 9 sa ponuka menila hneď po dohovorení (preto 1:02 pôsobilo prikrátko) a karta nájdenej zložky bola vidieť len 2,4 s.</p>
+    </div>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>Záber</th><th class="num">Slov</th><th class="num">Vidno</th><th class="num">Po dohovorení</th><th>Hodnotenie</th></tr></thead>
+        <tbody>
+          <tr><td>Karta nájdenej zložky (0:49)</td><td class="num">19</td><td class="num">2,4 -&gt; 3,6 s</td><td class="num">0 -&gt; 0,7 s</td><td><span class="tag warn">bolo krátko</span> karta skôr a pauza 0,7 s pred "aj cestu k nej" (v kolách 10 a 11 1,2 s so strihom v slove); stačí zvýraznený riadok a názov</td></tr>
+          <tr><td>Technické riešenie, všetky tri karty (1:03)</td><td class="num">15</td><td class="num">3,8 s</td><td class="num">0,9 s</td><td><span class="tag ok">v poriadku</span> kolo 13: po vete 0,9 s namiesto 1,3 s (ponuka kratšia), karty vidno už počas vety</td></tr>
+          <tr><td>Spracovanie archívu, obe karty</td><td class="num">11</td><td class="num">3,1 s</td><td class="num">0,4 s</td><td><span class="tag ok">tesne</span> kolo 13: po vete 0,4 s namiesto 0,6 s; karta "Vlastnými silami" je vidieť celú vetu</td></tr>
+          <tr><td>Mobil pri fotení (bez hlasu)</td><td class="num">0</td><td class="num">2,6 -&gt; 2,1 s</td><td class="num">ticho 3,2 -&gt; 2,7 s</td><td><span class="tag warn">bolo dlho</span> najdlhšie ticho vo videu, skrátené o 0,5 s</td></tr>
+          <tr><td>Záver: logo, slogan, web</td><td class="num">8</td><td class="num">3,3 -&gt; 3,0 s</td><td class="num">1,0 s</td><td><span class="tag ok">v poriadku</span> nový je len web, logo a slogan divák pozná</td></tr>
+          <tr><td>Text na fotke</td><td class="num">7</td><td class="num">2,2 s</td><td class="num">0,1 s</td><td><span class="tag ok">tesne</span> ten istý názov hneď nasleduje veľkým písmom</td></tr>
+          <tr><td>Návrh údajov (názov, autor, rok) a potvrdenie</td><td class="num">9 -&gt; 14</td><td class="num">7,6 s</td><td class="num">0,1 s</td><td><span class="tag warn">bolo dlho</span> autor a rok pribudnú pri slovách "autora, rok", úsek už nie je statický</td></tr>
+          <tr><td>Prilepiť QR kód a štyri položky</td><td class="num">7</td><td class="num">9,7 s</td><td class="num">1,4 s</td><td><span class="tag ok">v poriadku</span> nesie ho hlas a príklady usporiadania</td></tr>
+          <tr><td>Logo, slogan, archív -&gt; katalóg</td><td class="num">11</td><td class="num">5,6 -&gt; 7,5 s</td><td class="num">hlas pokračuje</td><td><span class="tag ok">v poriadku</span> kolo 15: logo príde už počas mosta</td></tr>
+          <tr><td>Pilulka "Prvé dokumenty zadarmo a nezáväzne" (0:12)</td><td class="num">5</td><td class="num">5,3 s</td><td class="num">bez hlasu</td><td><span class="tag ok">v poriadku</span> kolo 15: príde, keď logo a slogan stoja, hlas medzitým predstaví firmu</td></tr>
+          <tr><td>Cesta PL_01 -&gt; KR_01 -&gt; ZL_03</td><td class="num">6</td><td class="num">2,7 s</td><td class="num">2,0 s</td><td><span class="tag ok">v poriadku</span></td></tr>
+          <tr><td>Prvý krok (krabica a štítok)</td><td class="num">8 -&gt; 9</td><td class="num">4,8 s</td><td class="num">0,6 s</td><td><span class="tag ok">v poriadku</span> kolo 15: pod pilulkou web (vidieť 1,9 s, hneď potom aj na záverečnom logu)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="scenar">
+    <div class="sec-head">
+      <h2>Scenár</h2>
+      <p>Štyri vety sú vystrihnuté z pôvodných nahrávok (v pauze medzi vetami), dvanásť je nových tým istým hlasom (v F3 je jedna nahrávka rozdelená pauzou). V kole 15 pribudol most "S nami ho nájdete za pár sekúnd." (šesť pokusov) a veta o hodinách sa presunula do úvodu. V kole 9 sú nové obe posledné vety ponuky (vybrané zo štyroch pokusov), v kole 10 je veta vo vyhľadávaní rozdelená pauzou pred "aj cestu k nej", v kole 12 je nahovorená znova s prirodzenou pauzou (strih v tichu, nie v slove). Výslovnosť je overená prepisom.</p>
+    </div>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>Klip</th><th>Veta</th><th>Nahrávka</th></tr></thead>
+        <tbody id="script"></tbody>
+      </table>
+    </div>
+    <div class="cols">
+      <div class="panel">
+        <h3>Laické slová namiesto odborných</h3>
+        <ul>
+          <li>metadáta -&gt; údaje (názov projektu, autor, rok)</li>
+          <li>identifikačná strana -&gt; titulná strana</li>
+          <li>softvérové riešenie katalogizácie -&gt; z vášho archívu urobíme prehľadný digitálny katalóg</li>
+          <li>cesta v hierarchii -&gt; na ktorej polici a v ktorej krabici</li>
+          <li>kroky "V teréne" -&gt; "V archíve"</li>
+          <li>pilot na jednej krabici -&gt; začnime jednou krabicou (v kolách 4-8 "vyskúšajme to na obmedzenom rozsahu")</li>
+          <li>Digitálna katalogizácia archivovanej dokumentácie -&gt; Digitálny poriadok v papierovom archíve</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Čo vypadlo oproti pôvodnej verzii</h3>
+        <ul>
+          <li>Intro s logom (háčik je prvá veta).</li>
+          <li>C6 prechod do aplikácie a F2 so spracovaním, návrh ukáže F4.</li>
+          <li>V F4 montáž potvrdení, oprava čísla zmeny a odoslanie.</li>
+          <li>C10 export a analýza, v F3 zvýraznenie v metadátach.</li>
+          <li>V F1 výber typu položky, zaradenie do hierarchie a obrazovka s textom z vývoja.</li>
+          <li>V C8 riadok Rozsah nasadenia (identifikačné strany alebo celé dokumenty).</li>
+          <li>V F1 náhľad fotky (Retake / Use Photo).</li>
+          <li>Na poslednej obrazovke výzva, web, firma a titulky (ostalo logo a slogan).</li>
+          <li>V probléme nové vyhotovenie dokumentu a "Platíte dvakrát za to isté" (výkres, cenovky, "2x €").</li>
+          <li>Veta "Fotka je dôkaz a ostáva pri zázname." (fotku vidieť pri vete o čítaní textu).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="test">
+    <div class="sec-head">
+      <h2>Test divákov</h2>
+      <p>Simulovaní diváci (Gemini s celým videom a zvukom): laik a zaneprázdnený správca budov. LinkedIn verziu pozerali ako príspevok v mobile. Je to orientačný test, nie prieskum.</p>
+    </div>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th></th><th>Pôvodná, 145 s</th><th>Kolo 15 a 16, 77 s</th></tr></thead>
+        <tbody id="testtable"></tbody>
+      </table>
+    </div>
+    <p class="note" id="test2"></p>
+  </section>
+
+  <section id="otazky">
+    <div class="sec-head">
+      <h2>Rozhodnutia a otázky</h2>
+      <p>Otvorené otázky z predchádzajúcich kôl. Pri každom stačí krátka pripomienka, ak chceš inak.</p>
+    </div>
+    <div class="asks" id="asks"></div>
+  </section>
+
+  <section id="povodna">
+    <details>
+      <summary>Kolo 30 (77 s): plošiny s rohmi, regál ešte na okraji</summary>
+      <div data-video="L30" data-shape="v45"></div>
+      <p class="note">Úvod na celý obraz, kancelária a sklad na vlastných plošinách; tretí regál ešte presahuje hranu. Uložené v gite: commit 50d2854 a video v <span class="mono">video/out/kratka/verzie/</span>.</p>
+    </details>
+    <details>
+      <summary>Kolo 29 (77 s): úvod ešte vo výreze s prechodmi a spoločnou plošinou</summary>
+      <div data-video="L29" data-shape="v45"></div>
+      <p class="note">V rohu logo s ARCHIVES, úvod vo výreze 90 až 1040 px s prechodom hore aj dole. Uložené v gite: commit 22ebba2 a video v <span class="mono">video/out/kratka/verzie/</span>.</p>
+    </details>
+    <details>
+      <summary>Kolo 28 (77 s): zelený záver, v rohu domček | assetin</summary>
+      <div data-video="L28" data-shape="v45"></div>
+      <p class="note">V rohu ešte domček | assetin bez ARCHIVES. Uložené v gite: commit 4ac78bf a video v <span class="mono">video/out/kratka/verzie/</span>.</p>
+    </details>
+    <details>
+      <summary>Kolo 27 (77 s): finálne logá, tmavomodrý záver</summary>
+      <div data-video="L27" data-shape="v45"></div>
+      <p class="note">ARCHIVES v 0:10 tmavomodré, záver tmavomodrý s bielym ARCHIVES. Uložené v gite: commit 1f60b17 a video v <span class="mono">video/out/kratka/verzie/</span>.</p>
+    </details>
+    <details>
+      <summary>Kolo 26 (77 s): prvé logá, ARCHIVES zelené</summary>
+      <div data-video="L26" data-shape="v45"></div>
+      <p class="note">Prvá verzia dvojriadkového loga (ARCHIVES zelené na bielej aj na tmavomodrej). Uložené v gite: commit 4bab401 a video v <span class="mono">video/out/kratka/verzie/</span>.</p>
+    </details>
+    <details>
+      <summary>Kolo 25 (77 s): pôvodné logo, zelený záver</summary>
+      <div data-video="L25" data-shape="v45"></div>
+      <p class="note">Logo domček | assetin | archives písmom videa, zelený záver, nadpisy ponuky Spracovanie archívu a Technické riešenie. Uložené v gite: commit 12930c7 a video v <span class="mono">video/out/kratka/verzie/</span>.</p>
+    </details>
+    <details>
+      <summary>Kolo 24 (77 s): nadpis Technické riešenie, prvý slide ešte "Kto to spracuje"</summary>
+      <div data-video="L24" data-shape="v45"></div>
+      <p class="note">Uložené v gite: commit 93feac2 a video v <span class="mono">video/out/kratka/verzie/</span>.</p>
+    </details>
+    <details>
+      <summary>Kolo 23 (77 s): jedno odfotenie v 0:33, bez iskier, ešte s nadpisom "Kde to beží"</summary>
+      <div data-video="L23" data-shape="v45"></div>
+      <p class="note">Krúžok na spúšti v tej istej snímke ako bliknutie fotoaparátu, biely blesk preč; cinkavé tóny po prvom akorde o 24 dB tichšie. Uložené v gite: commit fa62a2a a video v <span class="mono">video/out/kratka/verzie/</span>.</p>
+    </details>
+    <details>
+      <summary>Kolo 22 (77 s): bez nádychu pred akordom, ešte s dvojitým odfotením</summary>
+      <div data-video="L22" data-shape="v45"></div>
+      <p class="note">Nádych pred prvým akordom preč, prelínanie mobilu do aplikácie; bliknutie fotoaparátu a náš biely blesk stále 0,33 s po sebe. Uložené v gite: commit 4b69676 a video v <span class="mono">video/out/kratka/verzie/</span>.</p>
+    </details>
+    <details>
+      <summary>Kolo 21 (77 s): "kľúčové slovo", nový spoj hudby, ešte s iskrami a dvoma zábleskami</summary>
+      <div data-video="L21" data-shape="v45"></div>
+      <p class="note">Uložené v gite: commit 23b5a20 a video v <span class="mono">video/out/kratka/verzie/</span>.</p>
+    </details>
+    <details>
+      <summary>Kolo 20 (77 s): domček v logu, starý spoj hudby pri 0:55</summary>
+      <div data-video="L20" data-shape="v45"></div>
+      <p class="note">Logo domček | assetin, "archives" malým, hudba z kola 15 so starým spojom. Uložené v gite: commit c69580d a video v <span class="mono">video/out/kratka/verzie/</span>.</p>
+    </details>
+    <details>
+      <summary>Kolo 18 (77 s): klavír a sláčiky, podľa Samuela ako z anime</summary>
+      <div data-video="L18" data-shape="v45"></div>
+      <p class="note">Klavír, sláčiky a basa, bicie v druhej polovici. Uložené v gite: commit b10d893 a video v <span class="mono">video/out/kratka/verzie/</span>.</p>
+    </details>
+    <details>
+      <summary>Kolo 17 (77 s): optimistickejšia hudba, podľa Samuela príliš funky</summary>
+      <div data-video="L17" data-shape="v45"></div>
+      <p class="note">Klavír, čistá gitara, basa a bicie (indie pop). Uložené v gite: commit ff62227 a video v <span class="mono">video/out/kratka/verzie/</span>.</p>
+    </details>
+    <details>
+      <summary>Kolo 16 (77 s): pokojná hudba, podľa Samuela príliš smutná</summary>
+      <div data-video="L16" data-shape="v45"></div>
+      <p class="note">Klavír, pomalé akordy a sláčiky, bez efektov. Uložené v gite: commit 81d2f78 a video v <span class="mono">video/out/kratka/verzie/</span>.</p>
+    </details>
+    <details>
+      <summary>Kolo 14 (uložená verzia, 75 s): pred prerobením úvodu</summary>
+      <div data-video="L14" data-shape="v45"></div>
+      <p class="note">S otáznikom a hodinami v úvode. Uložené v gite: commit 6eb819e a video v <span class="mono">video/out/kratka/verzie/</span>.</p>
+    </details>
+    <details>
+      <summary>Pôvodná verzia (kolo 48, 145 s) na porovnanie</summary>
+      <div data-video="FULL" data-shape="v169"></div>
+    </details>
+  </section>
+
+  <footer>
+    <p>Zdroj: <span class="mono">video/src/scenes/kratka/LinkedIn.tsx</span> (kompozícia K-LinkedIn), scenár <span class="mono">video/src/copy/vo_kratka.json</span>, hudba <span class="mono">video/src/copy/music_kratka.json</span>, postup v <span class="mono">video/EXPERIMENT-KRATKA.md</span>.</p>
+    <p>Kolo 1 (krátka verzia 16:9, teaser 31 s) je v gite v commite b8552d5, kolo 2 (74 s) v commite f88328b, kolo 3 (73 s) v commite c862b18, kolo 4 (79 s) v commite e4cd18d, kolo 5 (72 s) v commite 8f74123, kolo 6 (70 s) v commite 33fcd7c, kolo 7 (73 s) v commite e81eaa7, kolo 8 (73 s) v commite d53eaf7, kolo 9 (72 s) v commite 7e3512d, kolo 10 (74 s) v commite aa84284, kolo 11 (76 s) v commite e2dc6a6, kolo 12 (76 s) v commite 31bf874, kolo 13 (75 s) v commite 53518fe, kolo 14 (75 s) v commite 6eb819e, kolo 15 (77 s) v commite 1ccb9e3, kolo 16 (77 s) v commite 81d2f78, kolo 17 (77 s) v commite ff62227, kolo 18 (77 s) v commite b10d893, kolo 20 (77 s) v commite c69580d, kolo 21 (77 s) v commite 23b5a20, kolo 22 (77 s) v commite 4b69676, kolo 23 (77 s) v commite fa62a2a, kolo 24 (77 s) v commite 93feac2, kolo 25 (77 s) v commite 12930c7, kolo 26 (77 s) v commite 4bab401, kolo 27 (77 s) v commite 1f60b17, kolo 28 (77 s) v commite 4ac78bf, kolo 29 (77 s) v commite 22ebba2, kolo 30 (77 s) v commite 50d2854 (videá aj v <span class="mono">video/out/kratka/verzie/</span>).</p>
+    <p>Pripomienky sa píšu cez okno komentára claude.ai (tlačidlo pri videu).</p>
+  </footer>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+  const BUILD = { renderedAt: "2026-09-30T08:09:07Z" };
+  // id assetov (videa a plagaty); prazdne = este sa nahrava
+  const VIDEOS = {
+    L: { cap: "59e35212118bffaeb5460ac519a80cc2", poster: "ef8e11ceb4068fec1fed8a7658fd8ab7", len: 76.7 },
+    L30: { cap: "97ebc6d90859d654fb51f17238fbdc74", poster: "ef8e11ceb4068fec1fed8a7658fd8ab7", len: 76.7 },
+    L29: { cap: "82fdae7923851d0575da6a8566520fa7", poster: "9fe1360463d53f08b7938559c2476618", len: 76.7 },
+    L28: { cap: "5feefebbe20cff2881771697690ab4e3", poster: "c988c438d6f3c6845a82da7239237adf", len: 76.7 },
+    L27: { cap: "3d7d9431516de113c04ed4e8e5b194c6", poster: "c988c438d6f3c6845a82da7239237adf", len: 76.7 },
+    L26: { cap: "6a891cf9a508c375cad1eb3e25c07685", poster: "c988c438d6f3c6845a82da7239237adf", len: 76.7 },
+    L25: { cap: "7c17cbaccd130756c51ccfb982dc24d2", poster: "3ba07bc613e4a8dc84b31ff0dbf54b74", len: 76.7 },
+    L24: { cap: "17123829391a7688588345166dd493da", poster: "3ba07bc613e4a8dc84b31ff0dbf54b74", len: 76.7 },
+    L23: { cap: "51c79ba2b128f7a66aa0f493c7db7373", poster: "3ba07bc613e4a8dc84b31ff0dbf54b74", len: 76.7 },
+    L22: { cap: "2f9cc5f33a4632dcc108ae4e7c049eed", poster: "aec60f44f3e93a0994f0879e29706521", len: 76.7 },
+    L21: { cap: "e11c1d050b68b0722edafefc3d5203b6", poster: "e85484659dc21bdee0a01fef2a6b8e4c", len: 76.7 },
+    L20: { cap: "a8d72b905e47dfa0c4f39272bf94f453", poster: "2e23541ad1b0bbfc006b7e0be4fab243", len: 76.7 },
+    L18: { cap: "b23d4d922b34c7a2ce65445a1718b216", poster: "13dfe39c4357aefb8dd0d000c81a4087", len: 76.7 },
+    L17: { cap: "7cb00791d64f6ce35d23f5fcef06dd6f", poster: "d56d58312c9a6ba29b9c62951863224d", len: 76.7 },
+    L16: { cap: "861d7c5d2bb82730e877dc338a5e4cee", poster: "06ef33ee7534b2fa24918c3ee87dbc09", len: 76.7 },
+    L15: { cap: "596b6659f07804bf05e071d1ec62c666", poster: "c3c5c8bbd07f616c04207fb13327dd86", len: 76.7 },
+    L14: { cap: "99f766e96a39f0a07051c45a80b23f48", poster: "fcedf8c0a08f6abe51a1e4268394a91b", len: 75.3 },
+    FULL: { cap: "82122ce5cb36a031995136d89d2b36d1", poster: "b1dcf071776b4b4ea0079ec1cdb2ab89", len: 145.2 }
+  };
+  // zmena obrazu medzi susednymi snimkami (priemer 0-255, bez titulkov), 6,9-9,43 s, snimka i je v case 6,9 + (i + 1) / 30
+  const MOTION = { k11: [4.2, 1.14, 0.79, 0.68, 0.51, 0.29, 0.18, 0.13, 0.0, 0.55, 1.83, 2.03, 1.97, 5.58, 9.31, 7.4, 3.18, 1.61, 1.72, 0.81, 0.14, 0.9, 2.35, 3.33, 4.08, 4.6, 4.92, 5.12, 5.24, 5.18, 5.15, 5.01, 4.83, 4.86, 4.4, 3.84, 3.35, 2.24, 2.28, 2.07, 1.99, 2.06, 1.93, 1.97, 2.41, 7.6, 0.08, 0.0, 0.03, 0.08, 0.17, 0.26, 0.35, 0.4, 0.4, 0.4, 0.36, 0.29, 0.28, 0.24, 0.21, 0.18, 0.16, 0.14, 0.13, 0.09, 0.09, 0.08, 0.1, 0.1, 0.1, 0.1, 0.1, 0.09, 0.09, 0.1], k12: [4.2, 1.14, 0.79, 0.68, 0.51, 0.29, 0.18, 0.12, 0.0, 0.0, 0.0, 0.0, 0.24, 0.81, 1.35, 1.56, 1.38, 0.94, 2.12, 3.34, 5.31, 5.73, 5.09, 3.4, 2.11, 1.41, 1.23, 1.19, 0.99, 0.56, 0.28, 0.05, 0.6, 1.6, 2.37, 2.95, 3.41, 3.76, 4.0, 4.2, 4.31, 4.39, 4.42, 4.45, 4.41, 4.32, 4.25, 4.16, 4.1, 3.61, 3.26, 2.93, 2.63, 2.36, 2.29, 2.65, 3.03, 2.69, 1.96, 1.64, 1.57, 1.5, 1.37, 1.06, 0.8, 0.49, 0.33, 0.29, 0.23, 0.21, 0.17, 0.18, 0.14, 0.12, 0.11, 0.1] };
+  const PARTS = ["Úvod a problém", "Predstavenie", "Ako to funguje", "Hľadanie", "Ponuka a záver"];
+  // sekundy casti (podla klipov a predelu v C4: prechod do bielej)
+  const TIMES = {
+    "Pôvodná": [28.4, 6.6, 56.5, 25.2, 28.5],
+    "Kolo 13 a 14": [10.94, 6.3, 28.1, 8.6, 21.37],
+    "Kolo 15": [10.55, 8.11, 28.1, 8.6, 21.37],
+    "Do 1 min (návrh)": [10.55, 8.11, 19.6, 8.6, 12.97]
+  };
+  const SCRIPT = [
+    ["C2", "Kedy ste naposledy nevedeli nájsť nejaký dokument?", "old", "C2, prvá veta"],
+    ["C2", "V sklade, na polici, v krabici alebo v zložke.", "old", "kolo 8: bez \"Vy viete, že tam niekde je.\""],
+    ["C2", "Hľadanie môže trvať hodiny.", "new", "kolo 15: pri návrate zložiek (tá istá nahrávka z kola 6)"],
+    ["C4", "S nami ho nájdete za pár sekúnd.", "new", "kolo 15: most so zeleným prechodom (namiesto otáznika a hodín)"],
+    ["C4", "Predstavujeme vám Assetin Archives. Z vášho archívu urobíme prehľadný digitálny katalóg.", "new", "pri logu"],
+    ["C5", "Každá položka, či už polica, krabica, šanón alebo zložka, dostane QR kód, podľa toho, ako máte archív usporiadaný.", "new", "kolo 8: pokojnejšie"],
+    ["C5", "Mobilom potom odfotíme titulnú stranu dokumentu.", "new", "kolo 8: samostatne, po pauze"],
+    ["F1", "(skutočný fotoaparát v aplikácii, 2,6 s bez hlasu)", "none", ""],
+    ["F24", "Aplikácia z fotky sama prečíta text a navrhne údaje, ktoré na nej nájde, napríklad názov projektu, autora alebo rok.", "new", "kolo 11: \"napríklad\", nie len tieto údaje"],
+    ["F24", "Človek každú hodnotu overí a prípadne opraví alebo potvrdí.", "new", "kolo 11: \"prípadne opraví\" (predtým vystrihnutá z F4)"],
+    ["F3", "Potom stačí napísať kľúčové slovo a aplikácia ukáže údaje o konkrétnej položke", "new", "kolo 12: nová nahrávka, \"položke\" doznie celé; kolo 21: \"kľúčové\" z vety hlavnej verzie (ten istý hlas)"],
+    ["F3", "aj cestu k nej.", "new", "kolo 12: po pauze 0,7 s (tá istá nahrávka, strih v tichu)"],
+    ["C8", "Archív vám spracujeme na kľúč.", "old", "C8, prvá veta"],
+    ["C8", "Alebo ho spracujete sami v našej aplikácii.", "new", "vlastnými silami"],
+    ["C8", "Aplikácia funguje v súlade s vašimi bezpečnostnými požiadavkami, online u nás alebo na vašej infraštruktúre.", "new", "kolo 13: \"v súlade s vašimi bezpečnostnými požiadavkami\" (predtým \"bezpečne podľa vašich požiadaviek\")"],
+    ["C8", "Začnime jednou krabicou, zadarmo a nezáväzne.", "new", "kolo 9: výzva (predtým \"Vyskúšajme to na obmedzenom rozsahu\")"],
+    ["C9", "Assetin Archives. (Na obraze len logo a slogan.)", "old", "C9, začiatok vety"]
+  ];
+  const TEST = [
+    ["Kolo 31 (sklad)", "", "Obraz sa od kola 30 líši len v 0:03,8 až 0:07,8 (širšia plošina skladu, záber o 43 px vyššie), hlasová stopa renderu je bit po bite rovnaká. Tretí regál je od hrany plošiny 50 cm (predtým ju presahoval o 10 cm), predný roh skladu 1021 px (titulky od 1060), zadný 68 px. -16,0 LUFS, true peak -1,4 dBFS."],
+    ["Kolo 30 (úvod)", "", "Obraz sa od kola 29 líši len v úvode do 0:06,4 (plošiny a prechod do skladu), ďalej sú rozdiely len na úrovni kódovania (priemer pod 0,1 z 255). Rohy plošín: kancelária 187 a 990 px, sklad 111 a 1015 px, titulky od 1060 px. Hlasová stopa renderu je bit po bite rovnaká. -16,0 LUFS, true peak -1,4 dBFS."],
+    ["Kolo 29 (logo v rohu)", "", "Obraz sa od kola 28 líši len v rohu (0:00 až 0:09,7 a 0:17,8 až 1:13,7) a užším mobilom pri fotení, logo v 0:10 a záver sú rovnaké. Vrch loga v rohu je 1233 px, titulky končia ~1200 px, mobil je od loga 25 px. Hlasová stopa renderu je bit po bite rovnaká. -16,0 LUFS, true peak -1,4 dBFS."],
+    ["Kolo 28 (zelený záver)", "", "Obraz sa od kola 27 líši len v závere od 1:13,7 (zelené pozadie a logo vo verzii na zelené pozadie), hlasová stopa renderu je bit po bite rovnaká. -16,0 LUFS, true peak -1,4 dBFS."],
+    ["Kolo 27 (finálne logá)", "", "Tvary loga sú vo finálnych podkladoch rovnaké, zmenila sa len farba ARCHIVES (na bielej #121a2b, na tmavomodrej biela). Obraz sa od kola 26 líši len v 0:10,5 až 0:17,7 a od 1:13,7 (logo), hlasová stopa renderu je bit po bite rovnaká. -16,0 LUFS, true peak -1,4 dBFS."],
+    ["Kolo 26 (logo)", "", "Logo sa kreslí priamo z oficiálnych SVG (cesty aj farby), v 0:10 farebná verzia, na konci inverzná, v rohu domček | assetin z jednoriadkového loga. Značka v rohu má rovnakú šírku (211 px) aj miesto ako predtým, mobil pri fotení ostáva 31 px od nej. Hlasová stopa renderu je bit po bite rovnaká, zvuk filmu sa líši o -112 dB (zaokrúhlenie). -16,0 LUFS, true peak -1,4 dBFS."],
+    ["Kolo 25 (nadpis)", "", "Obraz sa od kola 24 líši len v 0:55,2 až 1:01,1 (nadpis prvého slidu ponuky vrátane prelínačky z vyhľadávania), hlasová stopa renderu je bit po bite rovnaká. -16,0 LUFS, true peak -1,4 dBFS."],
+    ["Kolo 24 (nadpis)", "", "Obraz sa od kola 23 líši len v 1:01,1 až 1:09,0 (nadpis druhého slidu ponuky), hlasová stopa renderu je bit po bite rovnaká, zvuk filmu sa líši o -117 dB (zaokrúhlenie). -16,0 LUFS, true peak -1,4 dBFS."],
+    ["Kolo 23 (fotenie a začiatok hudby)", "", "Jas snímok v 31,9 až 35 s: jediné stmavnutie (bliknutie fotoaparátu v zázname, 32,73 až 32,97 s), krúžok na spúšti sa objaví v tej istej snímke; biele zosvetlenie 33,07 až 33,33 s (v kole 22 až na 215 z 255) je preč. Obraz sa od kola 22 líši len v 32,7 až 33,4 s, hlas je bit po bite rovnaký. Hudba: výšky nad 6 kHz v 2,2 až 5,3 s o 24 dB tichšie, vo filme tam, kde nehovorí hlas, o 23,6 až 23,9 dB menej výšok (cinkavé tóny); pásma pod 4 kHz sa zmenili najviac o 0,4 dB, hlasitosť filmu po 5 s najviac o 0,05 dB. -16,0 LUFS, true peak -1,4 dBFS. Kontrola cez Gemini nebola možná (kredit)."],
+    ["Kolo 22 (úvod a 0:34)", "", "Hudba: do 2,21 s ticho, nábeh 60 ms do prvého akordu, od 2,27 s rovnaká ako v kole 21; iskry boli vo filme asi 23 dB pod hlasom vo výškach, teda počuteľné. 0:34: jas snímok ukazuje jediný záblesk (33,1 s), potom mobil stojí a od 34,0 s sa za 0,4 s prelinie do aplikácie (predtým druhé zosvetlenie do bielej 33,8 až 34,0 s). Hlas je bit po bite ako v kole 21, obraz sa líši len v 33,8 až 34,3 s, hlasitosť v pásmach sa líši najviac o 0,6 dB."],
+    ["Kolo 21 (hlas a hudba)", "", "Prepis finálneho mixu: \"Potom stačí napísať kľúčové slovo a aplikácia ukáže údaje o konkrétnej položke. Aj cestu k nej.\" Spoje vloženého slova sú v tichu uzáveru a vnútri hlásky s, v spektre bez skoku. Hudba: fáza dôb pred oboma spojmi aj za nimi rovnaká (do 7 ms), skok na spojoch ako na bežnej dobe 1, bez lupnutí, pokojná časť od prvého taktu po spoji. Obraz a hlas sa od kola 20 líšia len v zábere vyhľadávania. Kontrola cez Gemini nebola možná (vyčerpaný kredit)."],
+    ["Kolo 20 (logo)", "", "Zvuk filmu je zhodný s kolom 15 (rozdiel -104 dB). Porovnanie snímok po 1,5 s s kolom 15: zmenené je len logo vpravo dole (domček a čiara), veľké logo pri 0:10 a na konci a poloha mobilu pri 0:32. Medzera medzi mobilom a domčekom je 28 px. Kontrola cez Gemini tentoraz nebola možná (vyčerpaný kredit projektu)."],
+    ["Hudba (kolá 16 až 18)", "", "Gemini, vždy jedna skladba, 4 merania (nálada 1 = smutná, 10 = optimistická; funky 1 = rovný rytmus, 10 = funky): kolo 18 nálada 6 až 8 (priemer 7), funky 1 až 2; kolo 17 nálada 7 až 8, funky 5 až 6; kolo 16 nálada 6 až 7, funky 1 až 3. Meranie rytmu: v kole 18 padá na 16-tiny mimo osmín 21 až 35 % nástupov (kolo 16 22 až 35 %, kolo 17 36 až 38 % a so swingom). Samostatná kontrola hudby kola 18: bez šumov, trblietok, zvonkov aj stúpaní, strihy nepočuť. Známky Gemini medzi meraniami kolíšu o 1 až 2 body, rozhodne ucho."],
+    ["Pochopili podstatu", "Áno: QR, fotka, nájdem policu, spravia to za mňa. Že to urobíme my, však zaznie až v 1:57.", "Áno, obaja: QR kódy na každej úrovni podľa vlastného usporiadania, fotka mobilom, aplikácia sama vyčíta údaje, vyhľadanie a cesta PL_01 -> KR_01 -> ZL_03."],
+    ["Úvod (18 s)", "netestované", "Obaja: problém s hľadaním trafili presne a pozerali by ďalej. Zatváranie krabíc 0:07-0:09 je obom stále trochu pomalé (v kole 14 pri hodinách správca: \"tu by časť ľudí odišla\"). Zelený prechod pri 4 snímkach za sekundu vnímajú ako prudký skok."],
+    ["Most", "", "Správca ho prevzal do vlastného zhrnutia (\"za pár sekúnd nájdete presnú policu aj zložku\"), nadväznosť na hodiny je jasná."],
+    ["Pilulka pod logom (0:12)", "", "Obaja ju prečítali. Obom však v 0:12 pôsobí predčasne a trochu reklamne (\"ešte neviem, o čo ide\"), na konci pri výzve im naopak veľmi pomáha. Pozor: pozerali celé video, na LinkedIn väčšina ľudí do 1:08 nedopozerá."],
+    ["Aplikácia v mobile", "netestované na mobile (16:9)", "Okno je drobné, zväčšené karty pod ním sú výborne čitateľné."],
+    ["Ponuka a prvý krok", "chýbala výzva aj cena", "Prehľadná, jedna krabica zadarmo znižuje riziko (správca: \"pragmatické, presvedčivé\"). Web pri výzve vidia, chýba im priamy kontakt (telefón, e-mail alebo odkaz v príspevku)."],
+    ["Opakovanie", "", "Obaja: \"zadarmo a nezáväzne\" je dvakrát (0:12 a 1:11)."],
+    ["Posledný záber", "", "Čistý, logo aj web výborne čitateľné (obaja)."],
+    ["Dĺžka podľa nich", "60-90 s (laik), 60-75 s (správca)", "45-50 s (laik), 40-50 s (správca); návrh do minúty je vyššie"]
+  ];
+  const ASKS = [
+    ["Človek alebo pracovník", "Pripomienka: v 0:42 zameniť \"Človek každú hodnotu overí...\" za \"pracovník\". Odporúčam nechať \"človek\" (kontrast so strojom, sedí na službu na kľúč aj na spracovanie vlastnými silami), ale dať ho na koniec, kde je dôraz: \"Každú hodnotu overí človek a prípadne ju opraví alebo potvrdí.\" \"Pracovník\" stráca kontrast so strojom a otvára otázku, čí pracovník. Zmena je nová nahrávka jednej vety. Chceš ju?"],
+    ["Nadpisy ponuky", "Spracovanie archívu, Technické riešenie, Prvý krok. Ak by druhý mal byť presne \"Technická špecifikácia\" (tvoj pôvodný návrh), je to výmena jedného nadpisu."],
+    ["Krabica alebo box", "Odporúčam nechať \"krabica\". Box znie o kúsok modernejšie (archívny box z kancelárskych potrieb), ale v zozname polica, krabica, šanón, zložka by jediný trčal, tvary \"v boxe\" a \"jedným boxom\" pripomínajú garážový box a šport a aplikácia má úroveň \"Krabica\" a kódy KR_01. \"Začnime jednou krabicou\" testeri chválili ako konkrétnu výzvu. Ak by mal byť box, tak všade naraz: tri vety hlasu (nové nahrávky), tri miesta v obraze aj aplikácia."],
+    ["Fotenie a začiatok hudby", "Pôsobí fotenie v 0:33 teraz ako jedna fotka? A je začiatok hudby bez iskier, alebo tam ešte niečo cinká?"],
+    ["Pilulka pod logom", "Obom testerom pôsobí v 0:12 predčasne (ešte nevedia, čo firma robí), na konci pri výzve pomáha. Nechal by som ju: cieľom je, aby ponuku videli aj tí, čo do konca nedopozerajú, a testeri pozerali celé video. Alternatívy: pilulka až po vete o katalógu (asi 0:16, video o 1,5 s dlhšie), alebo jemnejší vzhľad (zelený text s fajkou namiesto tlačidla). Ktorú chceš?"],
+    ["Kontakt pri výzve", "Pri výzve je teraz web. Obaja testeri by chceli aj priamy kontakt (telefón alebo e-mail), prípadne výzvu na odkaz v príspevku. Chceš tam telefón alebo e-mail?"],
+    ["Verzia do minúty", "Návrh je vyššie (59,8 s: bez slidu \"Technické riešenie\", bez vety o overení, kratšia veta o QR). Povieš, či ju spraviť, a či ako druhý strih popri 77 s verzii."],
+    ["Výsledok hľadania", "Správca v kole 13 pridal by karte nájdenej zložky (0:49-0:52) sekundu. Dá sa to bez dlhšej pauzy v hlase: karta príde už po zadaní \"vodovod\". Chceš?"],
+    ["Logo a ovládanie LinkedIn", "Laik upozornil, že vpravo dole môže logo v mobile prekryť ovládanie videa na LinkedIn (napr. tlačidlo zvuku). Logo s ARCHIVES je od kola 29 vyššie (60 px). Ak sa to pri skúšobnom príspevku potvrdí, posuniem ho vyššie."],
+  ];
+  const blob = (id) => '/_blob/' + id;
+  const fmtS = (s) => String(Math.round(s * 10) / 10).replace('.', ',') + ' s';
+  document.getElementById('stamp').textContent = 'Vyrenderované ' + new Date(BUILD.renderedAt).toLocaleString('sk-SK', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  for (const box of document.querySelectorAll('[data-video]')) {
+    const v = VIDEOS[box.dataset.video];
+    const shape = box.dataset.shape;
+    if (v && v.cap) {
+      const el = document.createElement('video');
+      el.controls = true; el.preload = 'metadata'; el.playsInline = true; el.className = shape;
+      if (v.poster) el.poster = blob(v.poster);
+      el.src = blob(v.cap);
+      box.replaceWith(el);
+    } else {
+      box.className = 'pending ' + shape;
+      box.textContent = 'Video sa nahráva';
+    }
+  }
+  for (const el of document.querySelectorAll('[data-len]')) { const v = VIDEOS[el.dataset.len]; if (v) el.textContent = fmtS(v.len); }
+
+  // graf plynulosti (prekresli sa podla sirky, text je vzdy 13 px)
+  {
+    const svg = document.getElementById('motion');
+    const NS = 'http://www.w3.org/2000/svg';
+    const draw = () => {
+      const W = Math.max(280, Math.round(svg.getBoundingClientRect().width) || 640);
+      const H = Math.round(Math.min(280, Math.max(210, W * 0.38)));
+      svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      svg.replaceChildren();
+      const L = 30, R = W - 8, T = 22, B = H - 26, T0 = 6.9, T1 = 9.45, Y1 = 10;
+      const X = (t) => L + (t - T0) / (T1 - T0) * (R - L), Y = (v) => B - Math.min(v, Y1) / Y1 * (B - T);
+      const el = (tag, attrs, text) => { const e = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); if (text) e.textContent = text; svg.append(e); return e; };
+      for (const v of [0, 5, 10]) { el('line', { x1: L, x2: R, y1: Y(v), y2: Y(v), stroke: 'var(--grid)' }); el('text', { x: L - 6, y: Y(v) + 4, 'text-anchor': 'end', 'font-size': 12, fill: 'var(--muted)' }, String(v)); }
+      for (const t of [7, 8, 9]) el('text', { x: X(t), y: B + 18, 'text-anchor': 'middle', 'font-size': 12, fill: 'var(--muted)' }, '0:0' + t);
+      for (const [t, c] of [[7.6, 'var(--warn)'], [7.967, 'var(--accent)']]) el('line', { x1: X(t), x2: X(t), y1: T, y2: B, stroke: c, 'stroke-dasharray': '4 4', opacity: 0.7 });
+      const line = (d, c, w) => el('polyline', { points: d.map((v, i) => X(T0 + (i + 1) / 30).toFixed(1) + ',' + Y(v).toFixed(1)).join(' '), fill: 'none', stroke: c, 'stroke-width': w, 'stroke-linejoin': 'round' });
+      line(MOTION.k11, 'var(--warn)', 2);
+      line(MOTION.k12, 'var(--accent)', 3);
+      const note = (t, v, text, c) => el('text', { x: X(t) + 6, y: Y(v) - 6, 'text-anchor': 'start', 'font-size': 13, 'font-weight': 600, fill: c }, text);
+      note(7.4, 9.31, 'zložky späť 3x', 'var(--warn)');
+      note(8.43, 7.6, 'skok 12,5x', 'var(--warn)');
+      note(7.66, 5.73, 'zložky späť 1,75x', 'var(--accent)');
+    };
+    draw();
+    let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(draw, 120); });
+  }
+
+  // casova os
+  const SCALE = 150;
+  const legend = document.getElementById('legend');
+  PARTS.forEach((p, i) => { const s = document.createElement('span'); s.innerHTML = `<i style="background:var(--s${i + 1})"></i>`; s.append(p); legend.append(s); });
+  const rows = document.getElementById('rows');
+  const tip = document.getElementById('tip');
+  const showTip = (e, text) => { tip.textContent = text; tip.hidden = false; const x = Math.min(window.innerWidth - 250, e.clientX + 12); tip.style.left = x + 'px'; tip.style.top = (e.clientY + 14) + 'px'; };
+  for (const [name, t] of Object.entries(TIMES)) {
+    const total = t.reduce((a, b) => a + b, 0);
+    const lab = document.createElement('div'); lab.className = 'lab'; lab.innerHTML = `${name}<small>${fmtS(total)}</small>`;
+    const track = document.createElement('div'); track.className = 'track';
+    const grid = document.createElement('div'); grid.className = 'grid-lines';
+    for (let s = 30; s <= SCALE; s += 30) { const b = document.createElement('b'); b.style.left = (s / SCALE * 100) + '%'; grid.append(b); }
+    const bar = document.createElement('div'); bar.className = 'bar'; bar.style.width = (total / SCALE * 100) + '%';
+    t.forEach((sec, i) => {
+      const seg = document.createElement('div');
+      seg.className = 'seg' + (i === 3 || i === 4 || i === 2 ? ' ink' : '');
+      seg.style.flex = `${sec} 0 0`; seg.style.background = `var(--s${i + 1})`;
+      seg.tabIndex = 0;
+      const text = `${name}: ${PARTS[i]} ${fmtS(sec)}`;
+      seg.setAttribute('aria-label', text);
+      if (sec / SCALE > 0.045) seg.textContent = Math.round(sec);
+      seg.addEventListener('mousemove', (e) => showTip(e, text));
+      seg.addEventListener('mouseleave', () => (tip.hidden = true));
+      seg.addEventListener('focus', () => { const r = seg.getBoundingClientRect(); showTip({ clientX: r.left, clientY: r.bottom }, text); });
+      seg.addEventListener('blur', () => (tip.hidden = true));
+      bar.append(seg);
+    });
+    track.append(grid, bar);
+    rows.append(lab, track);
+  }
+  const ticks = document.getElementById('ticks');
+  for (let s = 0; s <= SCALE; s += 30) { const sp = document.createElement('span'); sp.style.left = (s / SCALE * 100) + '%'; sp.textContent = s + ' s'; if (s === SCALE) sp.style.transform = 'translateX(-100%)'; ticks.append(sp); }
+  const tt = document.getElementById('timetable');
+  PARTS.forEach((p, i) => { const tr = document.createElement('tr'); tr.innerHTML = `<td></td>` + Object.values(TIMES).map((t) => `<td class="num">${fmtS(t[i])}</td>`).join(''); tr.firstChild.textContent = p; tt.append(tr); });
+  { const tr = document.createElement('tr'); tr.innerHTML = '<th>Spolu</th>' + Object.values(TIMES).map((t) => `<th class="num">${fmtS(t.reduce((a, b) => a + b, 0))}</th>`).join(''); tt.append(tr); }
+
+  // scenar
+  const sb = document.getElementById('script');
+  const TAG = { old: ['old', 'existujúca'], new: ['new', 'nová'], none: ['none', 'bez hlasu'] };
+  for (const [clip, text, kind, note] of SCRIPT) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="clip"></td><td></td><td><span class="tag ${TAG[kind][0]}">${TAG[kind][1]}</span> <span class="muted"></span></td>`;
+    tr.children[0].textContent = clip; tr.children[1].textContent = text; tr.children[2].lastChild.textContent = note;
+    sb.append(tr);
+  }
+  // test (texty su nase, nie od divakov stranky)
+  const tb = document.getElementById('testtable');
+  for (const [k, ...cells] of TEST) { const tr = document.createElement('tr'); tr.innerHTML = `<th></th>` + cells.map((c) => `<td>${c}</td>`).join(''); tr.firstChild.textContent = k; tb.append(tr); }
+  document.getElementById('test2').textContent = 'Kolá 16 až 18 (len nová hudba): technická kontrola bez chýb, hlas 5/5, prepis hotového mixu zachytí všetky vety. Test divákov je z kola 15 (obraz a hlas sú rovnaké). Kolo 15 pozerali ako príspevok v mobile (video 432 x 540, 4 snímky za sekundu), s otázkami navyše na text pod logom a na opakovanie ponuky zadarmo (tie mohli ich pozornosť na ponuku naviesť). Technická kontrola: bez chýb v reči, hudbe aj obraze, hlas 5/5. Plynulé pohyby (zelený prechod, pomalý nájazd) pri 4 snímkach za sekundu vnímajú ako skoky, meranie v plnom videu je bez skokov.';
+  const asks = document.getElementById('asks');
+  for (const [q, a] of ASKS) { const d = document.createElement('div'); d.className = 'ask'; d.innerHTML = '<b></b><p></p>'; d.children[0].textContent = q; d.children[1].textContent = a; asks.append(d); }
+
+  // pripomienky: okno komentara claude.ai ukotvene na video (composer_only, ako hlavna stranka)
+  const composers = [...document.querySelectorAll('.composer')];
+  let comments = null;
+  const deny = 'Z tohto zobrazenia komentovať nemôžeš. Potrebuješ prístup s možnosťou komentovať (nastaví ho Samuel v Share).';
+  async function compose(box) {
+    const out = box.querySelector('.result');
+    const btn = box.querySelector('button');
+    const target = box.closest('.film, .tall');
+    out.className = 'result'; out.textContent = '';
+    try {
+      const r = await comments.openComposer({ element: target });
+      if (!r.opened) { out.textContent = 'Okno komentára sa neotvorilo, klikni do stránky a skús znova.'; return; }
+      out.className = 'result ok'; out.textContent = 'Napíš pripomienku do okna komentára a odošli ju.';
+    } catch (e) {
+      const code = e && e.code;
+      out.className = 'result err';
+      if (code === 'rate_limited') out.textContent = 'Priveľa pokusov naraz, skús o chvíľu.';
+      else if (code === 'unavailable' || code === 'not_granted' || code === 'forbidden') { out.textContent = deny; btn.disabled = true; }
+      else out.textContent = 'Okno komentára sa nepodarilo otvoriť, skús znova.';
+    }
+  }
+  for (const box of composers) box.querySelector('button').addEventListener('click', () => comments && compose(box));
+  (async () => {
+    const use = window.claude && window.claude.use;
+    if (!use) { composers.forEach((b) => (b.hidden = true)); return; }
+    const cm = await use('comments').catch(() => null);
+    if (!cm) { composers.forEach((b) => (b.hidden = true)); return; }
+    comments = cm;
+    composers.forEach((b) => (b.querySelector('button').disabled = false));
+  })();
+</script>

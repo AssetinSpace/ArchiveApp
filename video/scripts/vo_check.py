@@ -10,6 +10,7 @@ Pouzitie:
   python3 scripts/vo_check.py F3-Vyhladavanie-2   # vybrane (klip-index od 0)
   python3 scripts/vo_check.py --regen 5           # zle vety zmaze, vygeneruje znova (vo.mjs --engine gemini --reuse)
                                                   # a skontroluje, najviac 5 kol
+  python3 scripts/vo_check.py --script src/copy/vo_kratka.json --dir public/vo-kratka   # experiment kratkej verzie
 Kluc: GEMINI_API_KEY v prostredi (v cloud session ho vklada proxy, staci lubovolna hodnota).
 """
 import argparse
@@ -66,7 +67,7 @@ def check(text: str, heard: str) -> list[str]:
     return why
 
 
-def run(client, vo, keys) -> list[str]:
+def run(client, vo, keys, vdir="public/vo") -> list[str]:
     bad = []
     for clip, lines in vo.items():
         if not isinstance(lines, list):
@@ -75,7 +76,7 @@ def run(client, vo, keys) -> list[str]:
             key = f"{clip}-{i}"
             if keys and key not in keys:
                 continue
-            path = f"public/vo/lines/{key}.wav"
+            path = f"{vdir}/lines/{key}.wav"
             if not os.path.exists(path):
                 print(f"{key:20} CHYBA  subor {path} neexistuje")
                 bad.append(key)
@@ -92,21 +93,23 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("keys", nargs="*")
     ap.add_argument("--regen", type=int, default=0)
+    ap.add_argument("--script", default="src/copy/vo.json")
+    ap.add_argument("--dir", default="public/vo")
     a = ap.parse_args()
     client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY") or "proxy-injected")
-    vo = json.load(open("src/copy/vo.json"))
-    bad = run(client, vo, set(a.keys))
+    vo = json.load(open(a.script))
+    bad = run(client, vo, set(a.keys), a.dir)
     for n in range(a.regen):
         if not bad:
             break
         print(f"\nKolo {n + 1}: znova generujem {' '.join(bad)}", flush=True)
         for key in bad:
-            for f in (f"public/vo/lines/{key}.wav", f"public/vo/lines/{key}.wav.raw.wav"):
+            for f in (f"{a.dir}/lines/{key}.wav", f"{a.dir}/lines/{key}.wav.raw.wav"):
                 if os.path.exists(f):
                     os.remove(f)
-        subprocess.run(["node", "scripts/vo.mjs", "--engine", "gemini", "--reuse"], check=True, stdout=subprocess.DEVNULL)
-        vo = json.load(open("src/copy/vo.json"))
-        bad = run(client, vo, set(bad))
+        subprocess.run(["node", "scripts/vo.mjs", "--engine", "gemini", "--reuse", "--script", a.script, "--dir", a.dir], check=True, stdout=subprocess.DEVNULL)
+        vo = json.load(open(a.script))
+        bad = run(client, vo, set(bad), a.dir)
     print("ZLE:", " ".join(bad))
     sys.exit(1 if bad else 0)
 

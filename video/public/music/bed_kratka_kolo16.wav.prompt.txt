@@ -1,0 +1,10 @@
+lyria-3-pro-preview
+Minimal modern cinematic underscore, instrumental, no vocals. Calm, confident, elegant and spacious, with a warm, polished, high-end sound. It plays quietly under a spoken voice-over, so it stays simple and steady: sustained harmonies, a slow repeating piano figure, no lead melody.
+The only instruments are: felt piano, warm analog synth pad, low strings (cello and viola), a soft deep bass, a soft muted kick drum and a light closed hi-hat. Nothing else.
+Tempo 100 BPM, 4/4, steady. Major key, warm.
+Changes happen only by adding or removing instruments exactly on a downbeat; there are no transition sounds of any kind.
+Structure, total 92 seconds:
+0:00-0:12: felt piano and synth pad only, quiet and reflective; the piano plays from the very first beat.
+0:12-1:05: on the downbeat at 0:12 the bass, low strings, soft kick and hi-hat come in; steady, confident, even groove with the same energy throughout.
+1:05-1:25: kick and hi-hat drop out; piano, strings, pad and bass continue, warm and calm.
+1:25-1:32: a final warm chord on piano and strings, held and ringing out until 1:32.

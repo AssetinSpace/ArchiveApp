@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { AbsoluteFill, getInputProps } from 'remotion';
 import { BRAND, FONT, Mode, modeColors, W } from '../theme';
 import { loadFonts } from '../lib/fonts';
@@ -15,6 +15,14 @@ export const useCaptions = (defaultOn = false) => {
   return p.captions ?? defaultOn;
 };
 
+/**
+ * Experiment LinkedIn 4:5: scena 16:9 vlozena do vysokeho ramca. `flatBg` = jednofarebne pozadie (ramec ho natiahne
+ * na celu plochu bez viditelneho okraja pasu), `hideFooter` = bez paticky (ramec ma vlastnu znacku a web),
+ * `overflowVisible` = obsah smie presiahnut ramec 16:9 (orezava az okno ramca, napr. veko krabice v C5).
+ * Bez Providera (hlavna verzia) sa nic nemeni.
+ */
+export const SceneFrameContext = React.createContext<{ flatBg?: boolean; hideFooter?: boolean; overflowVisible?: boolean }>({});
+
 export const Scene: React.FC<{ mode?: Mode; footer?: boolean; footerOpacity?: number; footerMode?: Mode; band?: boolean; children: React.ReactNode }> = ({
   mode = 'light',
   footer = false,
@@ -26,13 +34,14 @@ export const Scene: React.FC<{ mode?: Mode; footer?: boolean; footerOpacity?: nu
   useEffect(() => {
     loadFonts();
   }, []);
+  const fx = useContext(SceneFrameContext);
   const c = modeColors(mode);
   const fm = footerMode ?? mode; // paticka moze mat iny rezim (C4: navy scena, biela paticka na konci)
   const fc = modeColors(fm);
   return (
-    <AbsoluteFill style={{ background: mode === 'dark' ? `linear-gradient(135deg, ${c.bg} 0%, ${c.bg2} 100%)` : c.bg, overflow: 'hidden' }}>
+    <AbsoluteFill style={{ background: mode === 'dark' && !fx.flatBg ? `linear-gradient(135deg, ${c.bg} 0%, ${c.bg2} 100%)` : c.bg, overflow: fx.overflowVisible ? 'visible' : 'hidden' }}>
       {children}
-      {footer ? (
+      {footer && !fx.hideFooter ? (
         <div
           style={{
             position: 'absolute',

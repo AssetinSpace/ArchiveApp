@@ -39,15 +39,20 @@ import { CAM_END, SV, TARGET_SHELF, VB } from './C3_Sklad';
  * Kolo 28: texty v obraze (2500 "Hladanie trva...", 4700 "Zaplatene dvakrat..."),
  * predel posunuty o D, znacka drzi o H dlhsie a pod lockupom je popis. 11,1 s.
  */
-const D = 1300; // posun predelu, aby sa dal precitat text pod "2x"
-const H = 3780; // drzanie znacky: kolo 40 znova veta "Predstavujeme vam softverove riesenie katalogizacie Assetin Archives." (15,5-20,1 s vystupu) + text pod lockupom
+const D_MAIN = 1300; // posun predelu, aby sa dal precitat text pod "2x"
+const H_MAIN = 3780; // drzanie znacky: kolo 40 znova veta "Predstavujeme vam softverove riesenie katalogizacie Assetin Archives." (15,5-20,1 s vystupu) + text pod lockupom
 const BOX = 860;
-export const C4_Cena: React.FC = () => {
+/**
+ * Experiment kratkej verzie: `d` = posun predelu, `h` = drzanie znacky (ms), `brand` = false: bez lockupu a textu pod nim
+ * (LinkedIn 4:5 kresli vlastne logo na vysku), `cost` = false: bez sipky, vykresu, cenoviek a "2x EUR" (len regal,
+ * otaznik a hodiny), `clockAt` = kedy sa objavia hodiny (ms sceny); predvolene hlavna verzia.
+ */
+export const C4_Cena: React.FC<{ d?: number; h?: number; brand?: boolean; cost?: boolean; clockAt?: number }> = ({ d: D = D_MAIN, h: H = H_MAIN, brand = true, cost = true, clockAt = 2600 }) => {
   const frame = useCurrentFrame();
   const showCap = useCaptions(); // kolo 29: vety nesie nahovor + titulky (Paced)
   const tw = (s: number, d: number) => tween(frame, s, d);
   const bigQ = pop(frame, 1100);
-  const clock = settle(frame, 2600);
+  const clock = settle(frame, clockAt);
   const hand = (useOutputFrame() / 30) * 300; // kolo 33: rucicka tika plynulo podla skutocneho casu klipu, aj pocas pauz
   const arrow = tw(3000, 500);
   const sheet = settle(frame, 3200);
@@ -96,11 +101,13 @@ export const C4_Cena: React.FC = () => {
         <circle r={8} fill={BRAND[400]} />
       </svg>
       {/* sipka hodiny -> vykres */}
-      <svg width={180} height={80} viewBox="0 0 180 80" style={{ position: 'absolute', left: 1200, top: 460, opacity: arrow > 0 ? out : 0 }}>
+      <svg width={180} height={80} viewBox="0 0 180 80" style={{ position: 'absolute', left: 1200, top: 460, opacity: cost && arrow > 0 ? out : 0 }}>
         <path d="M10 40 H150" fill="none" stroke={BRAND[400]} strokeWidth={8} strokeLinecap="round" {...drawProps(arrow, 140)} />
         <path d="M122 12 L156 40 L122 68" fill="none" stroke={BRAND[400]} strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" opacity={arrow > 0.85 ? 1 : 0} />
       </svg>
 
+      {cost ? (
+        <>
       <div style={{ position: 'absolute', left: 300, top: 720, opacity: out }}>
         <PriceTag text="skladovanie" s={tagA} color={BRAND[700]} size={36} />
       </div>
@@ -110,8 +117,10 @@ export const C4_Cena: React.FC = () => {
       <div style={{ position: 'absolute', left: 1395, top: 720, opacity: out }}>
         <PriceTag text="nové vyhotovenie" s={tagB} color={BRAND[700]} size={36} />
       </div>
+        </>
+      ) : null}
       {/* 2x EUR dole v strede, medzi cenovkami (kolo 36: jeden text, jedno EUR, na stred) */}
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 640, textAlign: 'center', opacity: big * out, transform: `scale(${0.6 + 0.4 * big})`, whiteSpace: 'nowrap', fontFamily: FONT.display, fontWeight: 800, fontSize: 170, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.03em' }}>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 640, textAlign: 'center', opacity: cost ? big * out : 0, transform: `scale(${0.6 + 0.4 * big})`, whiteSpace: 'nowrap', fontFamily: FONT.display, fontWeight: 800, fontSize: 170, lineHeight: 0.9, color: BRAND[400], letterSpacing: '-0.03em' }}>
         2×€
       </div>
       {showCap ? (
@@ -125,7 +134,7 @@ export const C4_Cena: React.FC = () => {
       {light > 0 ? <div style={{ position: 'absolute', inset: 0, background: '#fff', opacity: light, pointerEvents: 'none' }} /> : null}
 
       {/* znacka Assetin + lockup z design kitu (assetin / .space | Archives), svetla verzia */}
-      {mark > 0 ? (
+      {brand && mark > 0 ? (
         <div style={{ position: 'absolute', inset: 0, opacity: (1 - brandOut) * Math.min(1, mark * 1.2), transform: `scale(${(1 - 0.06 * brandOut) * (0.97 + 0.03 * mark)})`, transformOrigin: '50% 50%' }}>
           {(() => {
             const k = 0.6;

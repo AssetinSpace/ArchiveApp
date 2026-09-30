@@ -47,13 +47,15 @@ const PHONE_END = {
   h: FOOTAGE_PHONE.h / CAM_END.scale,
 };
 /** Nas pristup v troch krokoch (text vpravo, rovnaky jazyk ako pri footage). */
-const STEPS: { from: number; title: string; line?: string }[] = [
+export type C5Step = { from: number; title: string; line?: string };
+const STEPS: C5Step[] = [
   { from: 900, title: 'Fyzické dokumenty' },
   { from: 1450, title: 'Prilepiť QR kód' }, // kolo 32: po pauze na prvu vetu (hold 1400)
   { from: 4350, title: 'Odfotiť identifikačnú stranu' }, // kolo 32: pred pauzou (hold 4750, po dopade poslednej nalepky), aby bol na zmrazenom obraze cely
 ];
 
-export const C5_Teren: React.FC = () => {
+/** `steps`, `phase`: ine kroky a nazov fazy vpravo (experiment kratkej verzie), predvolene hlavna verzia. */
+export const C5_Teren: React.FC<{ steps?: C5Step[]; phase?: string }> = ({ steps = STEPS, phase = phases.teren }) => {
   const frame = useCurrentFrame();
   const showCap = useCaptions();
   const tw = (s: number, d: number) => tween(frame, s, d);
@@ -96,7 +98,7 @@ export const C5_Teren: React.FC = () => {
     w: PHONE_NOW.w + (PHONE_END.w - PHONE_NOW.w) * move,
     h: PHONE_NOW.h + (PHONE_END.h - PHONE_NOW.h) * move,
   };
-  const stepIdx = Math.max(0, STEPS.findIndex((s, i) => frame * 1000 / 30 >= s.from && (i === STEPS.length - 1 || frame * 1000 / 30 < STEPS[i + 1].from)));
+  const stepIdx = Math.max(0, steps.findIndex((s, i) => frame * 1000 / 30 >= s.from && (i === steps.length - 1 || frame * 1000 / 30 < steps[i + 1].from)));
 
   // pozicia bunky harku v px: harok lezi naplocho (izometria 2:1 ako krabica), os x harku ide vpravo dole, os y vlavo dole
   const sheetCx = 250,
@@ -281,18 +283,18 @@ export const C5_Teren: React.FC = () => {
 
       {/* kroky vpravo: nas pristup (rovnaky jazyk ako pri footage); mimo kamery, nehybe sa pri najazde */}
       <div style={{ position: 'absolute', left: 1380, top: 0, width: 500, height: 1080, display: 'flex', flexDirection: 'column', justifyContent: 'center', opacity: others }}>
-        {STEPS.map((s, i) => {
+        {steps.map((s, i) => {
           const on = i === stepIdx ? 1 : 0;
           const inT = settle(frame, s.from);
           return (
             <div key={i} style={{ position: 'absolute', left: 0, right: 0, top: 320, opacity: on * inT, transform: `translateY(${(1 - inT) * 16}px)` }}>
               <div style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: 22, letterSpacing: '0.14em', textTransform: 'uppercase', color: BRAND[600], marginBottom: 14 }}>
-                {phases.teren}
+                {phase}
               </div>
               <div style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 56, lineHeight: 1.05, color: INK[900], letterSpacing: '-0.02em', marginBottom: 14 }}>{s.title}</div>
               {s.line ? <div style={{ fontFamily: FONT.body, fontWeight: 400, fontSize: 30, lineHeight: 1.35, color: INK[500] }}>{s.line}</div> : null}
               <div style={{ display: 'flex', gap: 10, marginTop: 28 }}>
-                {STEPS.map((_, k) => (
+                {steps.map((_, k) => (
                   <div key={k} style={{ width: k <= i ? 34 : 12, height: 12, borderRadius: 6, background: k <= i ? BRAND[500] : INK[200] }} />
                 ))}
               </div>

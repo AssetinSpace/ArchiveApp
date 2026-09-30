@@ -27,12 +27,14 @@ const lerpRect = (a: Rect, b: Rect, t: number): Rect => ({
 });
 
 /** Mobil: telo + displej. Displej je `children` (footage alebo placeholder). */
-export const PhoneFrame: React.FC<{ at: Rect; fill?: number; rotate?: number; children?: React.ReactNode; opacity?: number }> = ({
+/** screenBg: pozadie displeja (predvolene biele; experiment kratkej verzie cierne, aby v zaobleni rohov nepresvitala biela). */
+export const PhoneFrame: React.FC<{ at: Rect; fill?: number; rotate?: number; children?: React.ReactNode; opacity?: number; screenBg?: string }> = ({
   at,
   fill = 0,
   rotate = 0,
   children,
   opacity = 1,
+  screenBg = '#fff',
 }) => {
   // pri fill=1 displej (nie telo) vyplni frame: telo je o okraje vacsie
   const bezel = 0.07;
@@ -45,7 +47,7 @@ export const PhoneFrame: React.FC<{ at: Rect; fill?: number; rotate?: number; ch
   return (
     <div style={{ position: 'absolute', inset: 0, opacity, transform: `rotate(${rotate * (1 - fill)}deg)`, transformOrigin: `${at.x + at.w / 2}px ${at.y + at.h / 2}px`, pointerEvents: 'none' }}>
       <div style={{ position: 'absolute', left: body.x, top: body.y, width: body.w, height: body.h, borderRadius: r * 1.5, background: INK[900] }} />
-      <div style={{ position: 'absolute', left: screen.x, top: screen.y, width: screen.w, height: screen.h, borderRadius: r, background: '#fff', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', left: screen.x, top: screen.y, width: screen.w, height: screen.h, borderRadius: r, background: screenBg, overflow: 'hidden' }}>
         {children}
       </div>
       {/* notch */}
