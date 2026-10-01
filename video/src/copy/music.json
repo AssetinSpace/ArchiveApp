@@ -206,7 +206,7 @@
     "_end": "koniec pocutelneho doznenia v bed_dlha_edit_e.wav (variant D + 4 takty)"
   },
   "F": {
-    "_": "Kolo 53 (Samuel: hudba sa na zaciatku hned rozbije a skonci skor ako video; C10 vypadol, film ~153 s): takty ako variant D. Iskry nad 4-6 kHz stlmene o 20 dB v celom tichom uvode (2,2-20,4 s, po spoj -5 -> -2), vyrovnanie (scripts/music_level.py) najviac +10 dB, rastie najviac 2,5 dB/s (dozvuk prveho akordu nevyskoci) a spicka pod -3 dBFS. Koniec: end = koniec posledneho akordu (153,6 s, potom pod -45 dB), v mixe 0,15 s pred koncom filmu, stisenie len 0,6 s. Mix: python3 scripts/music_edit.py --cfg src/copy/music.json --variant F, potom node scripts/mix-music.mjs --variant F --music public/music/bed_dlha_edit_f.wav.",
+    "_": "Kolo 53 (Samuel: hudba sa na zaciatku hned rozbije a skonci skor ako video; C10 vypadol, film ~153 s): takty ako pred kolom 51 (bez taktov -4 a -3, polfraza 8-11 len raz), na konci polfraza 48-51 dvakrat (zaverecny akord pride ~3 s pred koncom filmu). Hudba zacina klavirom od 0 s (bez ticha do 2,27 s, prvy akord v tichom intre C1 nastupil skokom), iskry nad 4-6 kHz o 20 dB tichsie v tichom uvode (1,1-20,4 s) a v zaverecnom akorde. Skladba Lyria konci useknutim bez zaverecneho akordu: za posledny takt (na dobu taktu 52) je prvy akord skladby (2,1-8,1 s zdroja, uder 2,25 s) s 1,8 s stisenim, `end` = 2,4 s po udere, v mixe 0,05 s pred koncom filmu; C9 je o 1,7 s dlhsi, akord udrie po poslednom slove a doznie na logu (stisenie poslednych 0,5 s). Vyrovnanie (scripts/music_level.py) najviac +10 dB, rastie najviac 2,5 dB/s, spicka pod -3 dBFS. Stisenie pod hlasom attack 150 ms, release 800 ms. Mix: python3 scripts/music_edit.py --cfg src/copy/music.json --variant F, potom node scripts/mix-music.mjs --variant F --music public/music/bed_dlha_edit_f.wav.",
     "edit": {
       "src": "public/music/bed.wav",
       "out": "public/music/bed_dlha_edit_f.wav",
@@ -232,10 +232,6 @@
         5,
         6,
         7,
-        8,
-        9,
-        10,
-        11,
         8,
         9,
         10,
@@ -279,33 +275,57 @@
         48,
         49,
         50,
+        51,
+        48,
+        49,
+        50,
         51
       ],
       "dirty": [],
       "pre_ms": 60,
       "cut_out_ms": 15,
       "cut_in_ms": 4,
-      "mute_before": 2.27,
-      "mute_fade_ms": 60,
-      "hf_cut": {
-        "from": 2.2,
-        "to": 20.4,
-        "fade_ms": 600,
-        "lo_hz": 4000,
-        "hi_hz": 6000,
-        "db": -20
+      "hf_cut": [
+        {
+          "from": 1.1,
+          "to": 20.4,
+          "fade_ms": 600,
+          "lo_hz": 4000,
+          "hi_hz": 6000,
+          "db": -20
+        },
+        {
+          "from": 152.94,
+          "to": 155.53,
+          "fade_ms": 400,
+          "lo_hz": 4000,
+          "hi_hz": 6000,
+          "db": -20
+        }
+      ],
+      "coda": {
+        "src_from": 2.1,
+        "hit": 2.25,
+        "to": 8.1,
+        "fade_in_ms": 40,
+        "fade_ms": 1800,
+        "tail_ms": 120
       }
     },
     "cuts": [],
-    "end": 153.6,
-    "_end": "koniec posledneho akordu v bed_dlha_edit_f.wav (153,3 s -35 dB, 153,6 s ~-46 dB)",
-    "endPad": 0.15,
-    "fadeOut": 0.6,
+    "end": 155.53,
+    "_end": "uder zaverecneho akordu + 2,4 s; v mixe 0,05 s pred koncom filmu, stisenie poslednych 0,5 s (C9 je o 1,7 s dlhsi: akord udrie po poslednom slove a doznie na logu)",
+    "endPad": 0.05,
+    "fadeOut": 0.5,
     "level": {
       "range": 0,
       "max": 10,
       "rise": 2.5,
       "peak": -3
+    },
+    "duck": {
+      "attack": 150,
+      "release": 800
     }
   }
 }

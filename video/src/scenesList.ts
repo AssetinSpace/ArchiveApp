@@ -52,7 +52,8 @@ export const SCENE_LIST: [string, SceneDef][] = [
   paced('F3-Vyhladavanie', { scene: F3_Vyhladavanie, seconds: F3_SECONDS, vo: true, brand: {}, stills: [30, 170, 330, 440] }),
   paced('C8-Pilot', { scene: C8_Pilot, seconds: 21, vo: true, brand: {}, stills: [60, 170, 330, 500, 625] }), // kolo 42: dve ponuky (sluzba na kluc / softver), kolo 45: riadok rozsahu nasadenia
   paced('C8b-Technika', { scene: C8b_Technika, seconds: C8B_SECONDS, vo: true, brand: {}, stills: [40, 160, 220] }), // kolo 52: slide Technicke riesenie z kratkej verzie
-  paced('C9-Outro', { scene: C9_Outro, seconds: 7.3, vo: true, dark: true, stills: [40, 150] }),
+  paced('C9-Outro', { scene: C9_Outro, seconds: 9.0, // kolo 53: o 1,7 s dlhsie, po poslednom slove zaverecny akord hudby doznie na logu
+    vo: true, dark: true, stills: [40, 150] }),
 ];
 
 /** Verzia 1 (dlha): samostatna kancelaria a sklad, nahradene klipom C2-Hladanie. */

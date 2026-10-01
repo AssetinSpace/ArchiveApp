@@ -10,7 +10,7 @@ Stačí checkout vetvy (alebo `main`), `cd video && npm install`, potom hneď `b
 ## Dlhá verzia zjednotená s krátkou (kolá 49 až 51, 30. 9. 2026)
 
 - Vetva `claude/magical-davinci-j440nt` (na hlave experimentu krátkej verzie). Značka `src/components/ArchivesBrand.tsx`, rámec 16:9 `src/components/Frame16.tsx`, vety so `src` vo `vo.json` (výroba `python3 scripts/kratka_lines.py --script src/copy/vo.json --dir public/vo`, potom `node scripts/vo.mjs --engine gemini --reuse`).
-- **Full od kola 52:** `python3 scripts/music_edit.py --cfg src/copy/music.json --variant E` (raz, vyrobí `public/music/bed_dlha_edit_e.wav`) a `node scripts/mix-music.mjs --variant E --music public/music/bed_dlha_edit_e.wav`. Bez `--variant E` by hudba nesedela na dĺžku filmu (variant D platil pre kolo 51, 154,3 s).
+- **Full od kola 53:** `python3 scripts/music_edit.py --cfg src/copy/music.json --variant F` (raz, vyrobí `public/music/bed_dlha_edit_f.wav`) a `node scripts/mix-music.mjs --variant F --music public/music/bed_dlha_edit_f.wav`. Variant F má vlastné vyrovnanie (`level`), stíšenie (`duck`) a koniec (`coda`, `endPad`, `fadeOut`). Desktopové záznamy sú v 2x rozlíšení (`cuts.json` `up`, `node scripts/cut-footage.mjs f2-metadata f3-search f4-review`).
 - Kolo 52: karty pod oknom (`components/AppCards.tsx`, `panels` v `DesktopFootageClip`), ikony krátkej (`components/ArchivesIcons.tsx`), nový klip `C8b-Technika` (slide Technické riešenie).
 - Rýchle stills viacerých klipov: `node scripts/stills-fast.mjs C4-Cena:330,420 C9-Outro:40`.
 

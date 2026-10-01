@@ -69,7 +69,8 @@ def main():
         first, last = r == 0, r == len(runs) - 1
         o0 = int(round(run["o"] * beat * sr))
         s0 = int(round(run["s0"]))
-        s1 = len(x) if last else int(round(run["s1"]))
+        coda = e.get("coda")
+        s1 = len(x) if last and not coda else int(round(run["s1"])) + (ms(coda.get("tail_ms", 120)) if last and coda else 0)
         fb, fbt = run["first"]
         prev_clean = not first and not (fbt == 0 and (fb - 1) in dirty) and run["i"] not in hard
         head = pre if prev_clean else 0
@@ -82,6 +83,9 @@ def main():
             seg[:head] *= np.sin(np.linspace(0, np.pi / 2, head))[:, None] ** 2
         else:
             seg[:in_ms] *= np.sin(np.linspace(0, np.pi / 2, in_ms))[:, None] ** 2
+        if last and coda:  # kolo 53: posledny usek konci kratkym dobehom na dobe, kde nastupi zaverecny akord
+            tail = ms(coda.get("tail_ms", 120))
+            seg[len(seg) - tail:] *= np.cos(np.linspace(0, np.pi / 2, tail))[:, None] ** 2
         if not last:  # koniec useku: dozvuk konci na dobe dalsieho useku
             nxt = runs[r + 1]
             nb, nbt = nxt["first"]
@@ -94,6 +98,20 @@ def main():
         how = "zaciatok" if first else ("prelinacka pred dobou" if prev_clean else "tvrdy strih na dobe")
         lb, lbt = run["last"]
         print(f"usek {r}: {fb:+d}:{fbt:g} .. {lb:+d}:{lbt:g} zo skladby {max(0, run['s0']) / sr:6.3f}-{s1 / sr:6.3f} s -> od {run['o'] * beat:6.3f} s, {how}")
+    cd = e.get("coda")
+    if cd:
+        # kolo 53 (Samuel: hudba skonci skor ako video; skladba Lyria konci useknutim bez zaverecneho akordu): za posledny
+        # takt (na dobu dalsieho taktu) zaverecny akord zo skladby (`src_from`-`to` s, uder v `hit` s), na konci stisenie
+        a0, hit, a1 = (int(round(float(cd[k]) * sr)) for k in ("src_from", "hit", "to"))
+        seg = x[a0:a1].copy()
+        f_in, f_out = ms(cd.get("fade_in_ms", 40)), ms(cd.get("fade_ms", 1500))
+        seg[:f_in] *= np.sin(np.linspace(0, np.pi / 2, f_in))[:, None] ** 2
+        seg[len(seg) - f_out:] *= np.cos(np.linspace(0, np.pi / 2, f_out))[:, None] ** 2
+        seg *= 10 ** (cd.get("gain_db", 0) / 20)
+        start = int(round(o * beat * sr)) - (hit - a0)
+        y[start:start + len(seg)] += seg
+        end_out = start + len(seg)
+        print(f"zaverecny akord zo skladby {a0 / sr:.2f}-{a1 / sr:.2f} s, uder na dobe po poslednom takte ({o * beat:.3f} s), koniec {end_out / sr:.2f} s")
     mb = e.get("mute_before")
     if mb:  # kolo 22: ticho na zaciatku, kratky nabeh tesne pred `mute_before`
         i1 = int(round(mb * sr))
@@ -101,8 +119,8 @@ def main():
         y[:i0] = 0
         y[i0:i1] *= np.sin(np.linspace(0, np.pi / 2, i1 - i0))[:, None] ** 2
         print(f"ticho do {i0 / sr:.3f} s, nabeh do {mb:.3f} s")
-    hc = e.get("hf_cut")
-    if hc:  # kolo 23: vysky (cinkave tony) v useku stlmene, bez posunu nizsich pasiem (filter v spektre, nulova faza)
+    hcs = e.get("hf_cut") or []
+    for hc in hcs if isinstance(hcs, list) else [hcs]:  # kolo 53: aj viac usekov (uvod a zaverecny akord)
         a0, a1, fade = float(hc["from"]), float(hc["to"]), hc.get("fade_ms", 400) / 1000
         lo, hi = hc.get("lo_hz", 4000), hc.get("hi_hz", 6000)
         i0, i1 = max(0, int((a0 - fade - 0.2) * sr)), min(len(y), int((a1 + fade + 0.2) * sr))

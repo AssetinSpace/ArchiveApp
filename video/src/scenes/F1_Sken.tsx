@@ -32,12 +32,13 @@ export type PhoneMark = { from: number; to: number; x: number; y: number; w: num
  * Kolo 33: kliky premerane na zazname 1206 x 2622 (podiely), casy zdroja.
  * Kolo 53 (Samuel: dotyky na displeji su mimo): kruzok kliku presiel cez prelinacku do dalsej obrazovky (Dalej 1,7 s je
  * az po zaciatku prelinacky do fotoaparatu, Use Photo 9,9 s uz na formulari) a spust bola o 0,35 s neskor ako bliknutie
- * iOS (8,583 s zdroja, ako v kratkej verzii kolo 23). Kruzky su teraz na obrazovke, ktorej patria, a skoncia pred strihom.
+ * iOS (8,583 s zdroja, ako v kratkej verzii kolo 23). Kruzky su teraz na obrazovke, ktorej patria, a skoncia pred strihom;
+ * Use Photo bez kruzku (tlacidlo nie je v orezanom displeji vidiet).
  */
 const F1_TAPS: Tap[] = [
   { t: cutTime('f1-sken', 1.15), x: 0.887, y: 0.791, d: 420 }, // Dalej (prelinacka do fotoaparatu od 1,46 s zdroja)
   { t: cutTime('f1-sken', 8.55), x: 0.5, y: 0.824 }, // spust (bliknutie iOS 8,583 s)
-  { t: cutTime('f1-sken', 9.45), x: 0.86, y: 0.916, d: 400 }, // Use Photo (prelinacka na formular od 9,66 s zdroja)
+  // Use Photo (9,9 s) bez kruzku: tlacidlo je pod orezom displeja (lista Safari), kruzok bol na prazdnom mieste
 ];
 /** Kroky podla hlasu (casti vety vo vo.json): typ, zaradenie do hierarchie, fotka, zaznam. */
 const voS = (k: number) => voAt('F1-Sken', 0, k) / 1000;

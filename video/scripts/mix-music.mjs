@@ -113,13 +113,13 @@ if (!withMusic) {
   console.log(`hudba: tempo ${TEMPO.toFixed(4)} (koniec skladby ${musicEnd} s -> ${(DELAY + musicEnd / TEMPO).toFixed(2)} s${DELAY ? `, od ${DELAY} s` : ''})`);
   const fc = [
     // hlas: stereo, jedna vetva do mixu, druha ako kluc stisenia
-    `[0:a]aformat=sample_rates=48000:channel_layouts=stereo,asplit=2[v][key]`,
+    `[0:a]aformat=sample_rates=48000:channel_layouts=stereo,apad=whole_dur=${T},asplit=2[v][key]`, // kolo 53: hlas doplneny tichom na dlzku obrazu (zvuk koncil ~0,8 s pred obrazom)
     // hudba: tempo na dlzku filmu, jemny zarez 1-3 kHz (plucky vs. rec), zaciatok a koniec
     ...musicCuts(cuts, XF),
     `[mc]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,atempo=${TEMPO}${DELAY ? `,adelay=${Math.round(DELAY * 1000)}:all=1` : ''},atrim=0:${T},asetpts=PTS-STARTPTS,equalizer=f=2000:t=q:w=1.2:g=-3,volume=${GAIN}dB,alimiter=limit=0.9:level=disabled,afade=t=in:st=${DELAY}:d=0.4,afade=t=out:st=${(total - FADE_OUT).toFixed(3)}:d=${FADE_OUT}[m]`,
     // stisenie pod hlasom
-    `[m][key]sidechaincompress=threshold=0.02:ratio=3:attack=40:release=600:knee=4[md]`,
-    `[v][md]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000[a]`,
+    `[m][key]sidechaincompress=threshold=0.02:ratio=3:attack=${mcfg.duck?.attack ?? 40}:release=${mcfg.duck?.release ?? 600}:knee=4[md]`, // kolo 53: "duck" vo variante = pomalsie stisenie
+    `[v][md]amix=inputs=2:normalize=0:duration=longest,atrim=0:${T},loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000[a]`, // kolo 53: longest + atrim (s duration=first hudba v poslednej sekunde chybala)
   ].join(';');
   execFileSync(FF, ['-v', 'error', '-y', '-i', voice, '-i', LEVEL, '-filter_complex', fc, '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', out]);
 }

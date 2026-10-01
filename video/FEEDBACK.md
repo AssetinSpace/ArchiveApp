@@ -607,3 +607,16 @@ Samuel: porovnať, čo ešte nesedí s krátkou verziou, a opraviť. Porovnanie 
 - C8: karty na šírku rámca (120 až 1800 px, stĺpce 810 px), väčšie písmo a ikony. C10: okno od začiatku `APP_WIN`, karty väčšie. C6: 2 s, nadpis od začiatku.
 - Nový klip `C8b-Technika` (8,6 s) za C8: zelený pás Bezpečne, pod ním Online u nás alebo Na vašej infraštruktúre, karta pri svojom slove zelená. Veta „Aplikácia funguje v súlade s vašimi bezpečnostnými požiadavkami, online u nás alebo na vašej infraštruktúre.“ je z nahrávky krátkej (`src` K-C8-Ponuka-2.wav), bez Gemini.
 - Hudba: variant `E` v `music.json` (D + polfráza 40-43 dvakrát, +4 takty), `bed_dlha_edit_e.wav`, tempo 1,0067. Film 162,0 s (predtým 154,3), -16 LUFS. Krátka verzia overená, 8 kontrolných snímok pixelovo zhodných.
+
+
+## Kolo 53 (1. 10. 2026): ostrosť, dotyky, bez Exportu a Analýzy, hudba na začiatku a konci
+
+Samuel: „Príde mi to teraz rozmazané a málo ostré. Hudba nesedí, na začiatku sa to hneď rozbije. To, kde klikáme (dotyky na displeji), je mimo. Celé to s exportom a analýzou vyhoď, prosto hneď ideme na kľúčové slovo a vyhľadávanie. Hudba skončí skôr ako video. Oprav všetko.“
+
+- Ostrosť: záznamy aplikácie sú 1920 x 1032 s nízkym bitrate, orez 1764 x 882 je natívne rozlíšenie a od kola 50 sa okno približovalo až 1,7x (prehliadač zväčšoval bilineárne). Teraz `cuts.json` `up: 2` (f2, f3, f4): `scripts/cut-footage.mjs` robí zostrihy v dvojnásobnom rozlíšení (lanczos + jemný unsharp, crf 14), okno sa len zmenšuje; `autoViews` najviac 1,3x (minW 1300). Full sa už nekóduje druhýkrát (`mix-music.mjs` spája klipy `-c:v copy`).
+- Dotyky: krúžky (550 ms) prechádzali cez prelínačku do ďalšej obrazovky. F1: Ďalej pri 1,15 s zdroja (prelínačka do fotoaparátu od 1,46 s), spúšť pri bliknutí iOS 8,55 s (predtým 8,9 s), Use Photo bez krúžku (tlačidlo je pod orezom displeja). F2 a F4: `Tap.d` a `Tap.lead`, krúžok začne 0,1 s pred klikom a skončí pred strihom; „Prijať úpravu“ pred zmenou rozloženia (48,23 s zdroja).
+- C10 (Export, Analýza, Vyhľadávanie) vypadol zo `SCENE_LIST`, F3 ide hneď po F4 a okno sa objaví z bielej (`enter`).
+- Hudba (variant `F`, `music.json`): takty ako pred kolom 51 (8-11 len raz), na konci polfráza 48-51 dvakrát. Začína klavírom od 0 s (bez ticha do 2,27 s: prvý akord v tichom intre C1 nastúpil skokom), iskry nad 4-6 kHz o 20 dB tichšie v 1,1-20,4 s. `music_level.py` má `--rise` (zosilnenie rastie najviac 2,5 dB/s) a `--peak` (špička pod -3 dBFS), max +10 dB (predtým +15 dB skokom po prvom akorde). Stíšenie pod hlasom attack 150 ms a release 800 ms (`duck`).
+- Koniec: skladba Lyria končí useknutím bez záverečného akordu. `music_edit.py` má `coda`: za posledný takt je prvý akord skladby (2,1-8,1 s zdroja) so stíšením. `end` = úder + 2,4 s, `endPad` 0,05 s, `fadeOut` 0,5 s. C9 je o 1,7 s dlhší (9,0 s), akord udrie po poslednom slove a dozvie na logu. Zvuk končil ~1 s pred obrazom (`amix duration=first`), teraz `duration=longest` + `atrim` a hlas doplnený tichom (`apad`).
+- Kontrola posluchom (Gemini 3.1 Pro, ako test divákov): začiatok „plynulý, čistý, bez skoku a skreslenia“, koniec „akord doznieva presne s koncom videa“.
+- Film 154,6 s, -15,7 LUFS. Krátka verzia overená, 8 kontrolných snímok pixelovo zhodných.
