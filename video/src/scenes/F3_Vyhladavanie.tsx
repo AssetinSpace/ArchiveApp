@@ -44,5 +44,5 @@ const F3_PANELS: Panel[] = [
   { from: vo(0, 1) / 1000 + 0.3, to: vo(1) / 1000 + 0.05, node: <ItemCard /> },
   { from: vo(1) / 1000 + 0.1, to: vo(2) / 1000 - 0.2, node: <DocPath lineAt={vo(1) / 1000} /> },
 ];
-/** F3 nadvazuje na okno z C10 (kolo 36), obsah okna nabehne z bielej. */
-export const F3_Vyhladavanie: React.FC = () => <DesktopFootageClip src="footage/f3-search.mp4" seconds={F3_SECONDS} steps={F3_STEPS} taps={F3_TAPS} marks={F3_MARKS} panels={F3_PANELS} />;
+/** Kolo 53: C10 vypadol, F3 ide hned po F4 (ten konci do bielej), okno sa objavi z bielej (`enter`). */
+export const F3_Vyhladavanie: React.FC = () => <DesktopFootageClip src="footage/f3-search.mp4" seconds={F3_SECONDS} steps={F3_STEPS} taps={F3_TAPS} marks={F3_MARKS} panels={F3_PANELS} enter />;

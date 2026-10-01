@@ -8,7 +8,6 @@ import { C5_TerenMain } from './scenes/C5_Teren';
 import { C8B_SECONDS, C8b_Technika } from './scenes/C8b_Technika';
 import { F1_SECONDS, F1_Sken } from './scenes/F1_Sken';
 import { C6_Spracovanie } from './scenes/C6_Spracovanie';
-import { C10_Databaza } from './scenes/C10_Databaza';
 import { F2_Metadata } from './scenes/F2_Metadata';
 import { F3_Vyhladavanie } from './scenes/F3_Vyhladavanie';
 import { F4_Kontrola } from './scenes/F4_Kontrola';
@@ -49,7 +48,7 @@ export const SCENE_LIST: [string, SceneDef][] = [
   paced('F2-Metadata', { scene: F2_Metadata, seconds: F2_SECONDS, vo: true, holds: [{ at: 7400, hold: 900 }], // kolo 51: veta z kratkej verzie je o 0,3 s dlhsia
     brand: {}, stills: [10, 100, 240] }),
   paced('F4-Kontrola', { scene: F4_Kontrola, seconds: F4_SECONDS, vo: true, brand: {}, stills: [10, 150, 400] }),
-  paced('C10-Databaza', { scene: C10_Databaza, seconds: 9.0, vo: true, brand: {}, stills: [60, 150, 200, 230] }),
+  // kolo 53 (Samuel: export a analyzu vyhodit, hned klucove slovo a vyhladavanie): C10-Databaza vypadol, F3 ide hned po F4
   paced('F3-Vyhladavanie', { scene: F3_Vyhladavanie, seconds: F3_SECONDS, vo: true, brand: {}, stills: [30, 170, 330, 440] }),
   paced('C8-Pilot', { scene: C8_Pilot, seconds: 21, vo: true, brand: {}, stills: [60, 170, 330, 500, 625] }), // kolo 42: dve ponuky (sluzba na kluc / softver), kolo 45: riadok rozsahu nasadenia
   paced('C8b-Technika', { scene: C8b_Technika, seconds: C8B_SECONDS, vo: true, brand: {}, stills: [40, 160, 220] }), // kolo 52: slide Technicke riesenie z kratkej verzie

@@ -24,7 +24,7 @@ import { BRAND } from '../theme';
 const MARK_FILL = { green: 'rgba(79,168,90,0.28)', amber: 'rgba(245,158,11,0.34)' };
 export const SRC_WIDE = { w: 1764, h: 882 }; // F3, F4 po oreze
 export const SRC_F2 = { w: 1520, h: 882 };
-export type Tap = { t: number; x: number; y: number }; // s, podiel sirky/vysky obsahu okna
+export type Tap = { t: number; x: number; y: number; d?: number; lead?: number }; // s, podiel sirky/vysky obsahu okna; kolo 53: d = trvanie kruzku (ms), lead = o kolko s skor zacne (kruzok nesmie prejst cez strih)
 /** Kolo 52: karta pod oknom (s klipu); `node` je karta z components/AppCards. */
 export type Panel = { from: number; to: number; node: React.ReactNode };
 export type Mark = { from: number; to: number; x: number; y: number; w: number; h: number; sweep?: number; color?: 'green' | 'amber'; outline?: boolean; spot?: boolean; pad?: number }; // pad = okraj spotu okolo oblasti (px, predvolene 8) // s, podiely obsahu okna; sweep = s, za ktore sa zvyraznenie "nakresli" zlava (ako fixkou)
@@ -102,7 +102,7 @@ export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps:
             })}
             {/* kliky: jemny zeleny kruh ako pri mobilnom footage */}
             {taps.map((tp, i) => {
-              const t = tw(tp.t * 1000, 550);
+              const t = tw((tp.t - (tp.lead ?? 0.1)) * 1000, tp.d ?? 550);
               if (t <= 0 || t >= 1) return null;
               const r = 18 + 66 * t;
               return <div key={`t${i}`} style={{ position: 'absolute', left: X(tp.x) - r, top: Y(tp.y) - r, width: 2 * r, height: 2 * r, borderRadius: '50%', border: `3px solid ${BRAND[400]}`, background: `rgba(79,168,90,${0.28 * (1 - t)})`, opacity: 1 - t * t, pointerEvents: 'none' }} />;
@@ -145,9 +145,10 @@ const F2_STEPS: Step[] = [
   { from: 0, title: 'Prečítať text' }, // kolo 51: nazvy krokov ako v kratkej verzii
   { from: voAt('F2-Metadata', 0, 1), title: 'Návrh údajov' },
 ];
+/** Kolo 53: kruzky kratsie, aby neprechadzali cez prelinacku do dalsieho useku zostrihu. */
 const F2_TAPS: Tap[] = [
-  tapAt('f2-metadata', 11.3, 546, 972), // vyber prilohy (checkbox)
-  tapAt('f2-metadata', 13.5, 1606, 972), // Extrahovat metadata
+  { ...tapAt('f2-metadata', 11.3, 546, 972), d: 400 }, // vyber prilohy (checkbox)
+  { ...tapAt('f2-metadata', 13.5, 1606, 972), d: 350 }, // Extrahovat metadata (dalsi usek od 1,1 s)
   tapAt('f2-metadata', 16.6, 1680, 976), // spustit (sipka pri sablone)
 ];
 /**

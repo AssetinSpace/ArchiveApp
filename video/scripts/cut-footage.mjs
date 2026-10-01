@@ -23,12 +23,14 @@ for (const id of ids) {
     const out = join(tmp, `${i}.mp4`);
     const speed = s.speed ?? 1;
     // fps pred tpad: po setpts nema stream snimkovu frekvenciu a tpad by zmrazenie ticho vynechal (ffmpeg 7, kolo 32)
-    const vf = [cuts[id].vf ?? `crop=${cuts.crop}`, `setpts=PTS/${speed}`, 'fps=30', `tpad=start_duration=${s.before ?? 0}:start_mode=clone:stop_duration=${s.after ?? 0}:stop_mode=clone`].join(',');
+    // kolo 53: `up` = vystup v nasobnom rozliseni (lanczos + jemny unsharp), okno aplikacie sa v Remotion len zmensuje (ostrejsi text)
+    const up = cuts[id].up ? [`scale=iw*${cuts[id].up}:ih*${cuts[id].up}:flags=lanczos`, 'unsharp=5:5:0.6:5:5:0'] : [];
+    const vf = [cuts[id].vf ?? `crop=${cuts.crop}`, ...up, `setpts=PTS/${speed}`, 'fps=30', `tpad=start_duration=${s.before ?? 0}:start_mode=clone:stop_duration=${s.after ?? 0}:stop_mode=clone`].join(',');
     execFileSync(FF, ['-v', 'error', '-y', '-ss', String(s.from), '-to', String(s.to), '-i', `public/footage/${src}`, '-vf', vf, '-an', '-c:v', 'libx264', '-crf', '14', '-preset', 'fast', '-pix_fmt', 'yuv420p', out], { stdio: 'inherit' });
     parts.push(`file '${out}'`);
   });
   const out = `public/footage/${id}.mp4`;
-  const enc = ['-c:v', 'libx264', '-crf', '16', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-an', out];
+  const enc = ['-c:v', 'libx264', '-crf', cuts[id].up ? '14' : '16', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-an', out];
   if (segs.some((s, i) => i > 0 && s.fade)) {
     // prelinacky: xfade medzi segmentmi s fade, inak concat; offsety z nameranych dlzok usekov
     const files = parts.map((p) => p.slice(6, -1));

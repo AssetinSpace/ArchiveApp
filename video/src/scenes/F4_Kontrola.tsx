@@ -21,10 +21,11 @@ const F4_STEPS: Step[] = [
   { from: vo(2), title: 'Opraviť v návrhu' },
   { from: vo(3), title: 'Overený záznam' },
 ];
+/** Kolo 53 (Samuel: dotyky mimo): kruzok konci pred strihom do montaze (5,77 s) a pred zmenou rozlozenia po "Prijat upravu". */
 const F4_TAPS: Tap[] = [
-  tapAt(ID, 12.15, 1734, 764), // prijat prvy navrh (Nazov projektu)
+  { ...tapAt(ID, 12.15, 1734, 764), d: 330 }, // prijat prvy navrh (Nazov projektu); montaz od 12,4 s zdroja
   tapAt(ID, 43.6, 1775, 745), // ceruzka - upravit navrh (Cislo zmeny)
-  tapAt(ID, 48.15, 1716, 789), // Prijat upravu (kolo 40: klik je v 48,15 s, rozlozenie sa meni v 48,23 s)
+  { ...tapAt(ID, 48.15, 1716, 789), d: 300, lead: 0.2 }, // Prijat upravu (kolo 40: klik je v 48,15 s, rozlozenie sa meni v 48,23 s)
   tapAt(ID, 66.6, 855, 442), // Odoslat
 ];
 const F4_MARKS: Mark[] = [

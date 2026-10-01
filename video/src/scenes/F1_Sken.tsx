@@ -23,16 +23,21 @@ export const F1_SECONDS = cutDuration('f1-sken'); // zostrih podla src/footage/c
 const SRC_W = 884,
   SRC_H = 1920;
 
-export type Tap = { t: number; x: number; y: number }; // s, podiel sirky/vysky celeho zaznamu
+export type Tap = { t: number; x: number; y: number; d?: number }; // s, podiel sirky/vysky celeho zaznamu; d = trvanie kruzku (ms, predvolene 550)
 export type Step = { from: number; title: string; line?: string }; // s
 /** Zvyraznenie (kolo 33 fixka, kolo 36 spot: ramik + stmavene okolie): s, podiely celeho zaznamu; sweep sa uz nepouziva. */
 export type PhoneMark = { from: number; to: number; x: number; y: number; w: number; h: number; sweep?: number };
 
-/** Kolo 33: kliky premerane na zazname 1206 x 2622 (podiely), casy zdroja. */
+/**
+ * Kolo 33: kliky premerane na zazname 1206 x 2622 (podiely), casy zdroja.
+ * Kolo 53 (Samuel: dotyky na displeji su mimo): kruzok kliku presiel cez prelinacku do dalsej obrazovky (Dalej 1,7 s je
+ * az po zaciatku prelinacky do fotoaparatu, Use Photo 9,9 s uz na formulari) a spust bola o 0,35 s neskor ako bliknutie
+ * iOS (8,583 s zdroja, ako v kratkej verzii kolo 23). Kruzky su teraz na obrazovke, ktorej patria, a skoncia pred strihom.
+ */
 const F1_TAPS: Tap[] = [
-  { t: cutTime('f1-sken', 1.7), x: 0.887, y: 0.791 }, // Dalej
-  { t: cutTime('f1-sken', 8.9), x: 0.5, y: 0.824 }, // spust
-  { t: cutTime('f1-sken', 9.9), x: 0.86, y: 0.916 }, // Use Photo
+  { t: cutTime('f1-sken', 1.15), x: 0.887, y: 0.791, d: 420 }, // Dalej (prelinacka do fotoaparatu od 1,46 s zdroja)
+  { t: cutTime('f1-sken', 8.55), x: 0.5, y: 0.824 }, // spust (bliknutie iOS 8,583 s)
+  { t: cutTime('f1-sken', 9.45), x: 0.86, y: 0.916, d: 400 }, // Use Photo (prelinacka na formular od 9,66 s zdroja)
 ];
 /** Kroky podla hlasu (casti vety vo vo.json): typ, zaradenie do hierarchie, fotka, zaznam. */
 const voS = (k: number) => voAt('F1-Sken', 0, k) / 1000;
@@ -88,7 +93,7 @@ export const FootageClip: React.FC<{ src: string; seconds: number; taps?: Tap[];
             })}
             {/* tapy: jemny zeleny kruh, ktory sa rozsiri a zmizne */}
             {taps.map((tp, i) => {
-              const t = tw(tp.t * 1000, 550);
+              const t = tw(tp.t * 1000, tp.d ?? 550);
               if (t <= 0 || t >= 1) return null;
               const r = 18 + 70 * t;
               return (

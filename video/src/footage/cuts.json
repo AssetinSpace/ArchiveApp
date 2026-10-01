@@ -1,8 +1,9 @@
 {
-  "_": "Zostrih footage z originalov (public/footage/src/*, nie su v gite). Segmenty v sekundach zdroja; speed = zrychlenie, before/after = zmrazeny prvy/posledny obraz (s, len na pokojnej obrazovke, nikdy na prechode), fade = prelinacka z predosleho segmentu (s); vf = vlastny filter / orez. scripts/cut-footage.mjs z toho vyrobi public/footage/<id>.mp4, src/lib/cuts.ts z toho pocita casy krokov, klikov a zvyrazneni.",
+  "_": "Zostrih footage z originalov (public/footage/src/*, nie su v gite). Segmenty v sekundach zdroja; speed = zrychlenie, before/after = zmrazeny prvy/posledny obraz (s, len na pokojnej obrazovke, nikdy na prechode), fade = prelinacka z predosleho segmentu (s); vf = vlastny filter / orez. scripts/cut-footage.mjs z toho vyrobi public/footage/<id>.mp4, src/lib/cuts.ts z toho pocita casy krokov, klikov a zvyrazneni. Kolo 53 (Samuel: rozmazane): `up` = zostrih v nasobnom rozliseni (lanczos + jemny unsharp), aby prehliadac pri priblizeni okna len zmensoval; v kode ostavaju rozmery orezu (size), zvyraznenia a kliky sa nemenia.",
   "crop": "1520:882:400:150",
   "f2-metadata": {
     "src": "src/extrakce.mp4",
+    "up": 2,
     "segs": [
       {
         "from": 10.6,
@@ -38,6 +39,7 @@
   },
   "f3-search": {
     "src": "src/search2.mp4",
+    "up": 2,
     "vf": "crop=1764:882:96:150",
     "segs": [
       {
@@ -74,6 +76,7 @@
   },
   "f4-review": {
     "src": "src/review2.mp4",
+    "up": 2,
     "vf": "crop=1764:882:98:150",
     "segs": [
       {

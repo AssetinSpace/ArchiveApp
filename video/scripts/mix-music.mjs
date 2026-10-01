@@ -53,7 +53,7 @@ const joinClips = () => {
   });
   writeFileSync(`${TMP}/${TAG}_list.txt`, files.map((f) => `file '${process.cwd()}/${f}'`).join('\n') + '\n');
   const voice = `${TMP}/${TAG}_voice.mp4`;
-  execFileSync(FF, ['-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', `${TMP}/${TAG}_list.txt`, '-c:v', 'libx264', '-crf', '18', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', voice]);
+  execFileSync(FF, ['-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', `${TMP}/${TAG}_list.txt`, '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', voice]);
 
   let t = 0;
   console.log('Predely:');
@@ -91,9 +91,12 @@ if (!withMusic) {
   const T = total.toFixed(3);
   // kolo 39: vyrovnanie hlasitosti skladby (tichy uvod Lyria bol pod hlasom nepocut), vysledok float WAV
   const LEVEL = MUSIC.replace(/\.wav$/, '_level.wav');
-  execFileSync('python3', ['scripts/music_level.py', MUSIC, LEVEL, '--range', opt('--range', '0')], { stdio: 'inherit' });
   const cfg = JSON.parse(readFileSync(CFG, 'utf8'));
   const mcfg = VARIANT ? { ...cfg, ...cfg[VARIANT] } : cfg; // experiment: vlastne strihy hudby pre K a T
+  // kolo 53: "level" vo variante = parametre vyrovnania (max, rise, peak), bez neho ako doteraz
+  const lv = mcfg.level ?? {};
+  const levelArgs = ['--range', opt('--range', String(lv.range ?? 0)), ...['max', 'rise', 'peak'].flatMap((k) => (lv[k] !== undefined ? [`--${k}`, String(lv[k])] : []))];
+  execFileSync('python3', ['scripts/music_level.py', MUSIC, LEVEL, ...levelArgs], { stdio: 'inherit' });
   // kolo 41: vystrihnute useky skladby (music.json "cuts", na dobu), prelinacka XF; koniec skladby sa posunie o ich dlzku
   const cuts = mcfg.cuts ?? [];
   const XF = 0.06;
@@ -102,14 +105,18 @@ if (!withMusic) {
   // experiment kratkej verzie: "delay" (s) = hudba zacne o tolko neskor, "tempo" = pevne tempo namiesto auto, aby nastup
   // plnej kapely aj prechodovy takt padli na strih (obe predvolene bez zmeny, hlavna verzia ich nema)
   const DELAY = mcfg.delay ?? 0;
-  const TEMPO = TEMPO_ARG !== 'auto' ? Number(TEMPO_ARG) : mcfg.tempo ?? Math.min(1.03, Math.max(0.97, musicEnd / (total - 0.4 - DELAY)));
+  // kolo 53 (Samuel: hudba skonci skor ako video): "endPad" = koniec skladby (koniec doznenia) tolko s pred koncom filmu,
+  // "fadeOut" = dlzka stisenia na konci (s); predvolene ako doteraz 0,4 s a 1,2 s
+  const END_PAD = mcfg.endPad ?? 0.4;
+  const FADE_OUT = mcfg.fadeOut ?? 1.2;
+  const TEMPO = TEMPO_ARG !== 'auto' ? Number(TEMPO_ARG) : mcfg.tempo ?? Math.min(1.03, Math.max(0.97, musicEnd / (total - END_PAD - DELAY)));
   console.log(`hudba: tempo ${TEMPO.toFixed(4)} (koniec skladby ${musicEnd} s -> ${(DELAY + musicEnd / TEMPO).toFixed(2)} s${DELAY ? `, od ${DELAY} s` : ''})`);
   const fc = [
     // hlas: stereo, jedna vetva do mixu, druha ako kluc stisenia
     `[0:a]aformat=sample_rates=48000:channel_layouts=stereo,asplit=2[v][key]`,
     // hudba: tempo na dlzku filmu, jemny zarez 1-3 kHz (plucky vs. rec), zaciatok a koniec
     ...musicCuts(cuts, XF),
-    `[mc]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,atempo=${TEMPO}${DELAY ? `,adelay=${Math.round(DELAY * 1000)}:all=1` : ''},atrim=0:${T},asetpts=PTS-STARTPTS,equalizer=f=2000:t=q:w=1.2:g=-3,volume=${GAIN}dB,alimiter=limit=0.9:level=disabled,afade=t=in:st=${DELAY}:d=0.4,afade=t=out:st=${(total - 1.2).toFixed(3)}:d=1.2[m]`,
+    `[mc]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,atempo=${TEMPO}${DELAY ? `,adelay=${Math.round(DELAY * 1000)}:all=1` : ''},atrim=0:${T},asetpts=PTS-STARTPTS,equalizer=f=2000:t=q:w=1.2:g=-3,volume=${GAIN}dB,alimiter=limit=0.9:level=disabled,afade=t=in:st=${DELAY}:d=0.4,afade=t=out:st=${(total - FADE_OUT).toFixed(3)}:d=${FADE_OUT}[m]`,
     // stisenie pod hlasom
     `[m][key]sidechaincompress=threshold=0.02:ratio=3:attack=40:release=600:knee=4[md]`,
     `[v][md]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000[a]`,

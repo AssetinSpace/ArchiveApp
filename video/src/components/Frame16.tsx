@@ -64,7 +64,7 @@ type Region = { from: number; to: number; x: number; y: number; w: number; h: nu
  * zvyraznenie nepride hned. `winRatio` = vyska / sirka obsahu okna.
  */
 export const autoViews = (marks: Region[], src: { w: number; h: number }, winRatio: number, opts: { minW?: number; overviewY?: number } = {}): FootView[] => {
-  const minW = opts.minW ?? 1000;
+  const minW = opts.minW ?? 1300; // kolo 53 (Samuel: rozmazane): najviac ~1,3x (predtym 1000 px = 1,7x)
   const vh = (w: number) => w * winRatio;
   const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
   const ov = { x: 0, y: clamp(opts.overviewY ?? (src.h - vh(src.w)) / 2, 0, Math.max(0, src.h - vh(src.w))), w: src.w };

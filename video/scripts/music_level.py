@@ -19,6 +19,10 @@ def main():
     ap.add_argument("dst")
     ap.add_argument("--range", type=float, default=6.0)
     ap.add_argument("--max", type=float, default=20.0)
+    # kolo 53 (Samuel: hudba sa na zaciatku hned rozbije): zosilnenie rastie najviac o --rise dB/s (dozvuk prveho akordu
+    # nevyskoci) a spicka po zosilneni ostane pod --peak dBFS (bez skreslenia v limiteri); bez nich ako doteraz
+    ap.add_argument("--rise", type=float, default=None)
+    ap.add_argument("--peak", type=float, default=None)
     a = ap.parse_args()
     ff = imageio_ffmpeg.get_ffmpeg_exe()
     sr = 48000
@@ -36,6 +40,15 @@ def main():
     pad = np.pad(gain, (k, k), mode="edge")
     gmin = np.array([pad[i:i + 2 * k + 1].min() for i in range(n)])
     gain = np.convolve(np.pad(gmin, (5, 4), mode="edge"), np.ones(10) / 10, mode="valid")
+    if a.peak is not None:
+        pk = np.array([np.max(np.abs(x[i * hop:(i + 1) * hop])) for i in range(n)]) + 1e-9
+        pad = np.pad(pk, (3, 3), mode="edge")
+        pk = np.array([pad[i:i + 7].max() for i in range(n)])  # spicka v okne +-0,3 s
+        gain = np.minimum(gain, np.maximum(0, a.peak - 20 * np.log10(pk)))
+    if a.rise is not None:
+        step = a.rise * hop / sr
+        for i in range(1, n):
+            gain[i] = min(gain[i], gain[i - 1] + step)
     t = (np.arange(n) + 0.5) * hop
     g = 10 ** (np.interp(np.arange(len(x)), t, gain) / 20)
     y = x * g[:, None]
