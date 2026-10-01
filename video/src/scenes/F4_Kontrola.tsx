@@ -1,7 +1,8 @@
 import React from 'react';
 import { Step } from '../components/Steps';
 import { voAt } from '../components/Subtitles';
-import { DesktopFootageClip, Mark, Tap, markAt, tapAt } from './F2_Metadata';
+import { DesktopFootageClip, Mark, Panel, Tap, markAt, tapAt } from './F2_Metadata';
+import { ValueCard } from '../components/AppCards';
 import { cutDuration, cutTime, segStart } from '../lib/cuts';
 
 /**
@@ -31,5 +32,10 @@ const F4_MARKS: Mark[] = [
   markAt(ID, vo(1, 1) / 1000, vo(1, 1) / 1000 + 2.4, 286, 523, 331, 443, { spot: true }), // "Fotka je dokaz": ramik okolo fotky
   markAt(ID, cutTime(ID, 44.0), cutTime(ID, 48.2), 828, 668, 967, 40, { spot: true, color: 'amber' }), // oprava: pole Hodnota pri Cislo zmeny (1 -> 2); kolo 40: konci pred prijatim (48,23 s), inak ostal zlty ramik po prekliknuti
 ];
+/**
+ * Kolo 52 (ako v kratkej verzii): karta navrhu z F2 (Nazov projektu, autor, rok) je pod oknom od zaciatku, pri prijati
+ * prveho navrhu (klik pri "potvrdi") zozelenie a dostane fajku; po nej sa okno znova zvacsi (fotka ako dokaz, oprava).
+ */
+const F4_PANELS: Panel[] = [{ from: -0.5, to: F4_TAPS[0].t + 1.6, node: <ValueCard approveAt={F4_TAPS[0].t} authorAt={0} yearAt={0} /> }];
 /** F4 zacina z bielej (F2 konci fade-om), sirsie okno sa objavi. */
-export const F4_Kontrola: React.FC = () => <DesktopFootageClip src="footage/f4-review.mp4" seconds={F4_SECONDS} steps={F4_STEPS} taps={F4_TAPS} marks={F4_MARKS} enter />;
+export const F4_Kontrola: React.FC = () => <DesktopFootageClip src="footage/f4-review.mp4" seconds={F4_SECONDS} steps={F4_STEPS} taps={F4_TAPS} marks={F4_MARKS} enter panels={F4_PANELS} />;

@@ -5,6 +5,9 @@ import { Caption } from '../components/Text';
 import { ArchiveBox, archiveBoxPxPerCm, QR_SCALE } from '../components/ArchiveBox';
 import { FOOTAGE_PHONE, PhoneFrame } from '../components/Device';
 import { StepLabel } from '../components/Frame16';
+import { HIcon, HKind, QrBadge } from '../components/ArchivesIcons';
+import { useOutputFrame } from '../components/Paced';
+import { voAt } from '../components/Subtitles';
 import { Camera } from '../lib/camera';
 import { pop, settle, tween } from '../lib/anim';
 import { captions, phases } from '../copy/sk';
@@ -57,8 +60,56 @@ const STEPS: C5Step[] = [
   { from: 4350, title: 'Odfotiť identifikačnú stranu' }, // kolo 32: pred pauzou (hold 4750, po dopade poslednej nalepky), aby bol na zmrazenom obraze cely
 ];
 
-/** `steps`, `phase`: ine kroky a nazov fazy vpravo (experiment kratkej verzie), predvolene hlavna verzia. */
-export const C5_Teren: React.FC<{ steps?: C5Step[]; phase?: string }> = ({ steps = STEPS, phase = phases.teren }) => {
+/**
+ * Kolo 52 (Samuel: preniest do dlhej aj zvysok obrazu kratkej verzie): vpravo od krabice rad Polica, Krabica, Sanon,
+ * Zlozka ako v kratkej (kolo 4 a 7 tam): ikona pri svojom slove vety "Kazda polozka, ci uz polica, krabica, sanon alebo
+ * zlozka, dostane QR kod, podla toho, ako mate archiv usporiadany.", nalepka QR pri "dostane QR kod", pri "podla toho"
+ * a "archiv" dva priklady usporiadania (ostatne polozky stlmene). Scena v tom case stoji v pauze, casy su v case
+ * vystupu (useOutputFrame), slova z public/vo/lines/C5-Teren-1.words.json. Rad odide pred vetou o mobile.
+ */
+const H_WORDS = [1.52, 2.3, 3.02, 3.88]; // polica, krabica, sanon, zlozka
+const H_QR = 4.76; // "dostane QR kod"
+const H_ARRANGE = { a: 6.16, b: 7.18, all: 8.36 }; // "podla toho", "archiv", koniec "usporiadany"
+const H_ITEMS: { kind: HKind; label: string; a: boolean; b: boolean }[] = [
+  { kind: 'shelf', label: 'Polica', a: true, b: true },
+  { kind: 'box', label: 'Krabica', a: true, b: false },
+  { kind: 'binder', label: 'Šanón', a: false, b: true },
+  { kind: 'folder', label: 'Zložka', a: true, b: false },
+];
+const H_ROW = { left: C5_TITLE_LEFT - 20, top: 330, item: 205, icon: 112 };
+const C5Hierarchy: React.FC = () => {
+  const of = useOutputFrame();
+  const line = voAt('C5-Teren', 1);
+  const out = tween(of, voAt('C5-Teren', 2) - 650, 350);
+  if (out >= 1) return null;
+  const at = (s: number) => line + s * 1000;
+  const wa = tween(of, at(H_ARRANGE.a) - 80, 260) * (1 - tween(of, at(H_ARRANGE.b) - 80, 260));
+  const wb = tween(of, at(H_ARRANGE.b) - 80, 260) * (1 - tween(of, at(H_ARRANGE.all), 320));
+  return (
+    <div style={{ position: 'absolute', left: H_ROW.left, top: H_ROW.top, width: 4 * H_ROW.item, display: 'flex', opacity: 1 - out }}>
+      {H_ITEMS.map((it, i) => {
+        const t = settle(of, at(H_WORDS[i]) - 120);
+        const qr = settle(of, at(H_QR) + i * 90);
+        const off = wa * (it.a ? 0 : 1) + wb * (it.b ? 0 : 1);
+        return (
+          <div key={it.label} style={{ width: H_ROW.item, display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: t * (1 - 0.72 * off), transform: `translateY(${(1 - t) * 18}px) scale(${1 - 0.08 * off})` }}>
+            <div style={{ position: 'relative' }}>
+              <HIcon kind={it.kind} size={H_ROW.icon} on={qr > 0.5 && off < 0.5} />
+              {qr > 0 ? <QrBadge size={46} t={qr} /> : null}
+            </div>
+            <div style={{ marginTop: 14, fontFamily: FONT.display, fontWeight: 700, fontSize: 32, color: INK[900] }}>{it.label}</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+/**
+ * `steps`, `phase`: ine kroky a nazov fazy vpravo (experiment kratkej verzie), predvolene hlavna verzia.
+ * `hierarchy` (kolo 52, len dlha verzia): rad ikon Polica, Krabica, Sanon, Zlozka vpravo od krabice.
+ */
+export const C5_Teren: React.FC<{ steps?: C5Step[]; phase?: string; hierarchy?: boolean }> = ({ steps = STEPS, phase = phases.teren, hierarchy = false }) => {
   const frame = useCurrentFrame();
   const showCap = useCaptions();
   const tw = (s: number, d: number) => tween(frame, s, d);
@@ -286,6 +337,10 @@ export const C5_Teren: React.FC<{ steps?: C5Step[]; phase?: string }> = ({ steps
       {/* kroky: kolo 50 nadpis kroku hore (StepLabel) nad stlpcom titulkov F1, bez nazvu fazy a bodiek (predtym vpravo);
           mimo kamery, nehybe sa pri najazde */}
       <StepLabel frame={frame} steps={steps} left={C5_TITLE_LEFT} opacity={others} />
+      {hierarchy ? <C5Hierarchy /> : null}
     </Scene>
   );
 };
+
+/** Hlavna (dlha) verzia C5 s radom ikon hierarchie (kolo 52). */
+export const C5_TerenMain: React.FC = () => <C5_Teren hierarchy />;

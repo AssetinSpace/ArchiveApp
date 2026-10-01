@@ -21,11 +21,13 @@ import { BRAND, FONT, INK } from '../theme';
  * 3850 Zoskupovanie · 4600 Export · 6800 zostane Vyhladavanie · 7600-8400 okno do okna F3 · 8300-8550 obsah zmizne.
  * Kolo 50: okno do APP_WIN (okno F3 na celu sirku), nadpis kroku hore vlavo.
  */
-const WIN = { x: 510, y: 170, w: 900, h: 640 }; // kolo 50: v strede (nadpis je hore vlavo, nie vpravo)
-const CARD = { w: 230, h: 250, gap: 36 };
+// kolo 52 (Samuel: rozlozenie ako v kratkej verzii): okno od zaciatku APP_WIN ako vsetky okna aplikacie (predtym mensie
+// v strede od 510 px a na konci sa zvacsilo), karty vacsie; F3 nadvazuje v tom istom okne
+const WIN = APP_WIN;
+const CARD = { w: 340, h: 360, gap: 60 };
 
 const Icon: React.FC<{ kind: 'search' | 'chart' | 'export' }> = ({ kind }) => (
-  <svg width={104} height={104} viewBox="0 0 100 100" fill="none" stroke={BRAND[600]} strokeWidth={8} strokeLinecap="round" strokeLinejoin="round">
+  <svg width={140} height={140} viewBox="0 0 100 100" fill="none" stroke={BRAND[600]} strokeWidth={8} strokeLinecap="round" strokeLinejoin="round">
     {kind === 'search' ? (
       <>
         <circle cx={42} cy={42} r={25} />
@@ -59,14 +61,8 @@ export const C10_Databaza: React.FC = () => {
   const chrome = tw(0, 400);
   const focus = tw(7100, 400); // zostane vyhladavanie (slovo "vyhladavanie" 7,2 s)
   const content = 1 - tw(8700, 250);
-  const fill = tw(8000, 800); // okno prejde do okna F3 (hlas konci 8,3 s)
   const dim = settle(frame, 300); // karty su v okne od zaciatku, stlmene
-  const at = {
-    x: WIN.x + (APP_WIN.x - WIN.x) * fill,
-    y: WIN.y + (APP_WIN.y - WIN.y) * fill,
-    w: WIN.w + (APP_WIN.w - WIN.w) * fill,
-    h: WIN.h + (APP_WIN.h - WIN.h) * fill,
-  };
+  const at = WIN; // kolo 52: okno uz je v polohe okna F3
   const rowW = CARDS.length * CARD.w + (CARDS.length - 1) * CARD.gap;
   return (
     <Scene mode="light">
@@ -89,13 +85,13 @@ export const C10_Databaza: React.FC = () => {
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: 22,
+                  gap: 30,
                   opacity: dim * (0.3 + 0.7 * Math.min(1, t)) * (main ? 1 : 1 - 0.65 * focus),
                   transform: `scale(${(0.96 + 0.04 * Math.min(1, t)) * (main ? 1 + 0.06 * focus : 1)})`,
                 }}
               >
                 <Icon kind={c.kind} />
-                <div style={{ fontFamily: FONT.display, fontWeight: 700, fontSize: 30, color: INK[900], letterSpacing: '-0.01em' }}>{c.label}</div>
+                <div style={{ fontFamily: FONT.display, fontWeight: 700, fontSize: 40, color: INK[900], letterSpacing: '-0.01em' }}>{c.label}</div>
               </div>
             );
           })}

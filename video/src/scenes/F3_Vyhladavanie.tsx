@@ -1,7 +1,8 @@
 import React from 'react';
 import { Step } from '../components/Steps';
 import { voAt } from '../components/Subtitles';
-import { DesktopFootageClip, Mark, Tap, markAt } from './F2_Metadata';
+import { DesktopFootageClip, Mark, Panel, Tap, markAt } from './F2_Metadata';
+import { DocPath, ItemCard, SearchCard } from '../components/AppCards';
 import { cutDuration, segStart } from '../lib/cuts';
 
 /**
@@ -33,5 +34,15 @@ const F3_MARKS: Mark[] = [
   markAt(ID, vo(2) / 1000 + 0.3, segStart(ID, 3) - 0.05, 226, 879, 154, 28, spot), // Najdene v: Metadata | OCR
   markAt(ID, segStart(ID, 4) + 0.1, F3_SECONDS - 0.4, 998, 632, 496, 24, { ...spot, pad: 4 }), // kolo 41: zvyraznena zhoda v metadatach (Popis zmeny); kolo 42: tesne okolo zltej zhody
 ];
+/**
+ * Kolo 52 (ako v kratkej verzii): pod oknom hladane slovo (pise sa ako v zazname, 1,0 az 2,1 s), pri "a aplikacia ukaze
+ * udaje" karta najdenej zlozky ZL_03 so zvyraznenym slovom, pri "aj cestu k nej" cesta PL_01 -> KR_01 -> ZL_03;
+ * pri vete o zvyrazneni v metadatach je okno znova velke.
+ */
+const F3_PANELS: Panel[] = [
+  { from: 0.25, to: vo(0, 1) / 1000 + 0.25, node: <SearchCard typeFrom={1.0} typeTo={2.1} /> },
+  { from: vo(0, 1) / 1000 + 0.3, to: vo(1) / 1000 + 0.05, node: <ItemCard /> },
+  { from: vo(1) / 1000 + 0.1, to: vo(2) / 1000 - 0.2, node: <DocPath lineAt={vo(1) / 1000} /> },
+];
 /** F3 nadvazuje na okno z C10 (kolo 36), obsah okna nabehne z bielej. */
-export const F3_Vyhladavanie: React.FC = () => <DesktopFootageClip src="footage/f3-search.mp4" seconds={F3_SECONDS} steps={F3_STEPS} taps={F3_TAPS} marks={F3_MARKS} />;
+export const F3_Vyhladavanie: React.FC = () => <DesktopFootageClip src="footage/f3-search.mp4" seconds={F3_SECONDS} steps={F3_STEPS} taps={F3_TAPS} marks={F3_MARKS} panels={F3_PANELS} />;

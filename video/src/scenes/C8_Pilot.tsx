@@ -19,12 +19,17 @@ import { BRAND, FONT, INK, NAVY } from '../theme';
  * ms (casy slov): 400 sluzba · 3300 jej stitok · 6700 softver (sluzba stlmena) · 9740 jeho stitok · 12100 riadok rozsahu
  * (horny riadok stlmeny) · 15040 identifikacne strany · 17080 cele dokumenty · 20200 vsetko rovnako. 21 s.
  */
-const COL = { w: 680, gap: 60 };
-const LEFT = 960 - COL.gap / 2 - COL.w;
-const RIGHT = 960 + COL.gap / 2;
-const CARD_H = 236;
-const ROW1 = { kicker: 162, top: 206 }; // kolo 47: cely blok nizsie, na stred plochy nad titulkami
-const ROW2 = { kicker: 498, top: 542 };
+/**
+ * Kolo 52 (Samuel: preniest rozlozenie kratkej verzie): karty na sirku ramca (120 az 1800 px, zarovnane s nadpisom
+ * a logom v rohu ako okno aplikacie), vacsie pismo a ikony; predtym stlpce 680 px od 250 px a prazdno pod nimi.
+ */
+const COL = { w: 810, gap: 60 };
+const LEFT = 120;
+const RIGHT = LEFT + COL.w + COL.gap;
+const CARD_H = 252;
+const ICON = 124;
+const ROW1 = { kicker: 150, top: 198 };
+const ROW2 = { kicker: 506, top: 554 };
 
 type IconKind = 'box' | 'app' | 'id' | 'scan';
 type Tone = 'green' | 'navy';
@@ -36,8 +41,8 @@ const TONE = {
 
 /** Ikony v rovnakom stylovom jazyku (obrys, zelena) v kruhu. */
 const Icon: React.FC<{ kind: IconKind; tone: Tone }> = ({ kind, tone }) => (
-  <div style={{ width: 108, height: 108, borderRadius: 54, background: TONE[tone].circle, border: `2px solid ${TONE[tone].ring}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
-    <svg width={58} height={58} viewBox="0 0 48 48" fill="none" stroke={TONE[tone].ink} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+  <div style={{ width: ICON, height: ICON, borderRadius: ICON / 2, background: TONE[tone].circle, border: `2px solid ${TONE[tone].ring}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
+    <svg width={66} height={66} viewBox="0 0 48 48" fill="none" stroke={TONE[tone].ink} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
       {kind === 'box' ? (
         <>
           <rect x={6} y={10} width={36} height={9} rx={2} />
@@ -88,14 +93,14 @@ const Card: React.FC<{ x: number; y: number; t: number; dim: number; main?: bool
       boxSizing: 'border-box',
     }}
   >
-    <div style={{ position: 'absolute', left: 44, top: (CARD_H - 4 - 108) / 2 }}>
+    <div style={{ position: 'absolute', left: 48, top: (CARD_H - 4 - ICON) / 2 }}>
       <Icon kind={icon} tone={tone} />
     </div>
-    <div style={{ position: 'absolute', left: 44 + 108 + 36, top: 38, fontFamily: FONT.display, fontWeight: 800, fontSize: 46, lineHeight: 1, color: main ? BRAND[700] : INK[900], letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>{title}</div>
-    <div style={{ position: 'absolute', left: 44 + 108 + 36, top: 96, fontFamily: FONT.body, fontSize: 27, lineHeight: 1.2, color: INK[500], whiteSpace: 'nowrap' }}>{desc}</div>
-    <div style={{ position: 'absolute', left: 44 + 108 + 36, top: 150, opacity: Math.min(1, stepT * 1.4), transform: `translateY(${(1 - Math.min(1, stepT)) * 10}px)` }}>
-      <div style={{ height: 50, padding: '0 22px', borderRadius: 25, background: TONE[tone].pillBg, border: `2px solid ${TONE[tone].pillBorder}`, display: 'flex', alignItems: 'center', gap: 10, fontFamily: FONT.display, fontWeight: 700, fontSize: 25, color: INK[900], whiteSpace: 'nowrap' }}>
-        <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={TONE[tone].ink} strokeWidth={3.2} strokeLinecap="round" strokeLinejoin="round">
+    <div style={{ position: 'absolute', left: 48 + ICON + 40, top: 36, fontFamily: FONT.display, fontWeight: 800, fontSize: 54, lineHeight: 1, color: main ? BRAND[700] : INK[900], letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>{title}</div>
+    <div style={{ position: 'absolute', left: 48 + ICON + 40, top: 102, fontFamily: FONT.body, fontSize: 31, lineHeight: 1.2, color: INK[500], whiteSpace: 'nowrap' }}>{desc}</div>
+    <div style={{ position: 'absolute', left: 48 + ICON + 40, top: 160, opacity: Math.min(1, stepT * 1.4), transform: `translateY(${(1 - Math.min(1, stepT)) * 10}px)` }}>
+      <div style={{ height: 54, padding: '0 24px', borderRadius: 27, background: TONE[tone].pillBg, border: `2px solid ${TONE[tone].pillBorder}`, display: 'flex', alignItems: 'center', gap: 12, fontFamily: FONT.display, fontWeight: 700, fontSize: 28, color: INK[900], whiteSpace: 'nowrap' }}>
+        <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={TONE[tone].ink} strokeWidth={3.2} strokeLinecap="round" strokeLinejoin="round">
           <path d="M5 12.5 L10 17 L19 7" />
         </svg>
         {step}
@@ -106,8 +111,8 @@ const Card: React.FC<{ x: number; y: number; t: number; dim: number; main?: bool
 
 const Kicker: React.FC<{ y: number; t: number; text: string; note?: string; tone?: Tone }> = ({ y, t, text, note, tone = 'green' }) => (
   <div style={{ position: 'absolute', left: LEFT, width: 2 * COL.w + COL.gap, top: y, display: 'flex', alignItems: 'center', gap: 18, opacity: t }}>
-    <div style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: 24, letterSpacing: '0.16em', textTransform: 'uppercase', color: TONE[tone].kicker, whiteSpace: 'nowrap' }}>{text}</div>
-    {note ? <div style={{ fontFamily: FONT.body, fontSize: 24, color: INK[400], whiteSpace: 'nowrap' }}>{note}</div> : null}
+    <div style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: 27, letterSpacing: '0.16em', textTransform: 'uppercase', color: TONE[tone].kicker, whiteSpace: 'nowrap' }}>{text}</div>
+    {note ? <div style={{ fontFamily: FONT.body, fontSize: 27, color: INK[400], whiteSpace: 'nowrap' }}>{note}</div> : null}
     <div style={{ flex: 1, height: 2, background: TONE[tone].rule }} />
   </div>
 );

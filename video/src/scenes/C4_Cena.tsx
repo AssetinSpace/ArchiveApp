@@ -2,6 +2,8 @@ import React from 'react';
 import { Easing, useCurrentFrame } from 'remotion';
 import { Scene, useCaptions } from '../components/Scene';
 import { Lockup } from '../components/ArchivesBrand';
+import { OfferIcon, OfferIconKind } from '../components/ArchivesIcons';
+import { voAt } from '../components/Subtitles';
 import { ArchiveBox, archiveBoxClosed } from '../components/ArchiveBox';
 import { C5_BOX_LEFT } from './C5_Teren';
 import { Caption } from '../components/Text';
@@ -51,7 +53,7 @@ const WIPE_FEATHER = 110;
 const WHITE_AFTER = 220;
 const WIPE_EASE = Easing.bezier(0.45, 0, 0.25, 1);
 const LOGO_H = 200; // vyska loga (sirka ~790 px)
-const LOGO_TOP = 350;
+const LOGO_TOP = 280; // kolo 52: o 70 px vyssie, pod sloganom su ikony Vas archiv -> Digitalny katalog
 const D_MAIN = 1300; // posun predelu, aby sa dal precitat text pod "2x"
 const H_MAIN = 6250; // kolo 51: premostenie "S nami ho najdete za par sekund." pred logom a pri logu "Predstavujeme vam Assetin Archives. Z vasho archivu urobime prehladny digitalny katalog." (12,75-19,3 s vystupu); predtym 3780 // drzanie znacky: kolo 40 znova veta "Predstavujeme vam softverove riesenie katalogizacie Assetin Archives." (15,5-20,1 s vystupu) + text pod lockupom
 const BOX = 860;
@@ -163,8 +165,43 @@ export const C4_Cena: React.FC<{ d?: number; h?: number; brand?: boolean; cost?:
         </div>
       ) : null}
 
+      {brand && brandOut < 1 ? <C4Promise out={brandOut} /> : null}
+
       {/* krabica z C5 sa usadi na podstavec = prvy frame C5 */}
       {box > 0 ? <ArchiveBox state={archiveBoxClosed} size={BOX} style={{ position: 'absolute', left: boxLeft, top: boxTop, opacity: box, transform: `translateY(${(1 - box) * 30}px)` }} /> : null}
     </Scene>
+  );
+};
+
+/**
+ * Kolo 52 (Samuel: preniest do dlhej aj zvysok obrazu kratkej verzie): pod logom pri vete "Z vasho archivu urobime
+ * prehladny digitalny katalog" Vas archiv -> Digitalny katalog ako v kratkej (kolo 8 tam): ikona pri slove "archivu",
+ * sipka pri "urobime", katalog pri "prehladny"; odide spolu s logom. Casy v case vystupu (useOutputFrame, scena v tom
+ * case stoji v pauze), slova z public/vo/lines/C4-Cena-3.words.json.
+ */
+const PROMISE_TOP = 640;
+const C4_W3 = { archivu: 3.36, urobime: 3.88, prehladny: 4.44 };
+const C4Promise: React.FC<{ out: number }> = ({ out }) => {
+  const of = useOutputFrame();
+  const L = voAt('C4-Cena', 3);
+  const arch = settle(of, L + C4_W3.archivu * 1000 - 150);
+  const arrow = tween(of, L + C4_W3.urobime * 1000 - 100, 450);
+  const cat = settle(of, L + C4_W3.prehladny * 1000 - 150);
+  if (arch <= 0.001 || out >= 1) return null;
+  const item = (icon: OfferIconKind, label: string, t: number) => (
+    <div style={{ width: 340, display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: t, transform: `translateY(${(1 - t) * 18}px)` }}>
+      <OfferIcon kind={icon} on size={120} />
+      <div style={{ marginTop: 16, fontFamily: FONT.display, fontWeight: 700, fontSize: 34, color: INK[900], whiteSpace: 'nowrap' }}>{label}</div>
+    </div>
+  );
+  return (
+    <div style={{ position: 'absolute', left: 0, right: 0, top: PROMISE_TOP, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', opacity: 1 - out }}>
+      {item('box', 'Váš archív', arch)}
+      <svg width={170} height={124} viewBox="0 0 170 124" style={{ flex: 'none' }}>
+        <path d="M16 62 H146" fill="none" stroke={BRAND[500]} strokeWidth={7} strokeLinecap="round" strokeDasharray={130} strokeDashoffset={130 * (1 - arrow)} />
+        <path d="M126 42 L150 62 L126 82" fill="none" stroke={BRAND[500]} strokeWidth={7} strokeLinecap="round" strokeLinejoin="round" opacity={arrow > 0.85 ? 1 : 0} />
+      </svg>
+      {item('catalog', 'Digitálny katalóg', cat)}
+    </div>
   );
 };

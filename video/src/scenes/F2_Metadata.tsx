@@ -3,6 +3,8 @@ import { AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame } from 'remot
 import { WindowFrame } from '../components/Device';
 import { Step } from '../components/Steps';
 import { APP_WIN, FootView, StepLabel, WIN_CHROME, autoViews, footViewAt } from '../components/Frame16';
+import { PANEL, ValueCard } from '../components/AppCards';
+import type { Rect } from '../components/Device';
 import { cutDuration, cutTime, srcFrac } from '../lib/cuts';
 import { voAt } from '../components/Subtitles';
 import { settle, tween } from '../lib/anim';
@@ -23,6 +25,8 @@ const MARK_FILL = { green: 'rgba(79,168,90,0.28)', amber: 'rgba(245,158,11,0.34)
 export const SRC_WIDE = { w: 1764, h: 882 }; // F3, F4 po oreze
 export const SRC_F2 = { w: 1520, h: 882 };
 export type Tap = { t: number; x: number; y: number }; // s, podiel sirky/vysky obsahu okna
+/** Kolo 52: karta pod oknom (s klipu); `node` je karta z components/AppCards. */
+export type Panel = { from: number; to: number; node: React.ReactNode };
 export type Mark = { from: number; to: number; x: number; y: number; w: number; h: number; sweep?: number; color?: 'green' | 'amber'; outline?: boolean; spot?: boolean; pad?: number }; // pad = okraj spotu okolo oblasti (px, predvolene 8) // s, podiely obsahu okna; sweep = s, za ktore sa zvyraznenie "nakresli" zlava (ako fixkou)
 
 /**
@@ -32,7 +36,23 @@ export type Mark = { from: number; to: number; x: number; y: number; w: number; 
  * a priblizenie na kazde zvyraznenie (autoViews). Zvyraznenia (spot) a kliky su v podieloch zdroja, kreslia sa v px okna.
  * `src` = rozmer zdroja po oreze (F2 1520 x 882, F3 a F4 1764 x 882).
  */
-export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps: Step[]; taps?: Tap[]; marks?: Mark[]; enter?: boolean; size?: { w: number; h: number }; views?: FootView[]; overviewY?: number; fadeOut?: boolean }> = ({ src, seconds, steps, taps = [], marks = [], enter = false, size = SRC_WIDE, views, overviewY, fadeOut: fade = true }) => {
+/**
+ * Kolo 52 (Samuel: preniest do dlhej aj karty kratkej verzie): `panels` = karty pod oknom (navrh udajov, hladane slovo,
+ * najdena polozka, cesta k polozke). Pocas karty sa okno plynulo zmensi o pas PANEL.h + PANEL.gap (spodok okna 660 px),
+ * karta je pod nim (680 az 880 px); karty, ktore idu hned po sebe, zdielaju jeden pas. Vyrezy (autoViews) su pocitane
+ * pre mensie okno, zvyraznenie je tak cele vidno v oboch velkostiach (vo vacsom okne je pod nim viac zaznamu).
+ */
+const PANEL_IN = 450;
+const panelZones = (panels: Panel[]) => {
+  const zs: { from: number; to: number }[] = [];
+  [...panels].sort((a, b) => a.from - b.from).forEach((p) => {
+    const z = zs[zs.length - 1];
+    if (z && p.from - z.to < 0.6) z.to = Math.max(z.to, p.to);
+    else zs.push({ from: p.from, to: p.to });
+  });
+  return zs;
+};
+export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps: Step[]; taps?: Tap[]; marks?: Mark[]; enter?: boolean; size?: { w: number; h: number }; views?: FootView[]; overviewY?: number; fadeOut?: boolean; panels?: Panel[] }> = ({ src, seconds, steps, taps = [], marks = [], enter = false, size = SRC_WIDE, views, overviewY, fadeOut: fade = true, panels = [] }) => {
   const frame = useCurrentFrame();
   const tw = (s: number, d: number) => tween(frame, s, d);
   const winIn = enter ? tw(0, 400) : 1; // okno sa objavi z bielej (ked predchadzajuca scena nekonci oknom)
@@ -42,10 +62,14 @@ export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps:
   React.useEffect(() => {
     loadFonts();
   }, []);
-  const win = APP_WIN;
+  const zones = React.useMemo(() => panelZones(panels), [panels]);
+  const shrink = zones.reduce((a, z) => Math.max(a, tw(z.from * 1000 - 100, PANEL_IN) * (1 - tw(z.to * 1000 - 150, PANEL_IN))), 0);
+  const cut = PANEL.h + PANEL.gap;
+  const win: Rect = { ...APP_WIN, h: APP_WIN.h - cut * shrink };
   const cw = win.w,
-    ch = win.h - WIN_CHROME;
-  const keys = React.useMemo(() => views ?? autoViews(marks.filter((m) => m.spot), size, ch / cw, { overviewY }), [views, marks, size, ch, cw, overviewY]);
+    ch = win.h - WIN_CHROME,
+    chMin = APP_WIN.h - WIN_CHROME - (panels.length ? cut : 0);
+  const keys = React.useMemo(() => views ?? autoViews(marks.filter((m) => m.spot), size, chMin / cw, { overviewY }), [views, marks, size, chMin, cw, overviewY]);
   const v = footViewAt(keys, frame / 30);
   const k = cw / v.w; // px okna na px zdroja
   const X = (fx: number) => (fx * size.w - v.x) * k,
@@ -87,6 +111,15 @@ export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps:
           </div>
         </WindowFrame>
       </div>
+      {panels.map((p, i) => {
+        const a = tw(p.from * 1000 + 120, 350) * (1 - tw(p.to * 1000 - 250, 250)) * winIn; // kolo 52: karta od zaciatku (F4) nabehne s oknom
+        if (a <= 0) return null;
+        return (
+          <div key={`p${i}`} style={{ position: 'absolute', left: APP_WIN.x, top: APP_WIN.y + APP_WIN.h - PANEL.h, width: APP_WIN.w, height: PANEL.h, opacity: a, transform: `translateY(${(1 - a) * 24}px)` }}>
+            {p.node}
+          </div>
+        );
+      })}
       <StepLabel frame={frame} steps={steps} opacity={textIn} />
       <AbsoluteFill style={{ background: '#fff', opacity: fadeOut, pointerEvents: 'none' }} />
     </AbsoluteFill>
@@ -117,5 +150,20 @@ const F2_TAPS: Tap[] = [
   tapAt('f2-metadata', 13.5, 1606, 972), // Extrahovat metadata
   tapAt('f2-metadata', 16.6, 1680, 976), // spustit (sipka pri sablone)
 ];
-/** Kolo 50: vyrez nizsie (fotka a priebeh spracovania, nie nadpis Archiv PD). */
-export const F2_Metadata: React.FC = () => <DesktopFootageClip src="footage/f2-metadata.mp4" seconds={F2_SECONDS} steps={F2_STEPS} taps={F2_TAPS} size={SRC_F2} overviewY={200} />;
+/**
+ * Kolo 50: vyrez nizsie (fotka a priebeh spracovania, nie nadpis Archiv PD). Kolo 52: kym nie je karta, cely spodok
+ * zaznamu (prilohy a kliky); s kartou (okno mensie) vyrez na fotku a priebeh spracovania.
+ */
+const F2_VIEWS: FootView[] = [
+  { t: 0, x: 0, y: 242, w: SRC_F2.w },
+  { t: voAt('F2-Metadata', 0, 1) / 1000 - 0.1, x: 0, y: 242, w: SRC_F2.w },
+  { t: voAt('F2-Metadata', 0, 1) / 1000 + 0.5, x: 0, y: 400, w: SRC_F2.w },
+];
+/**
+ * Kolo 52: pri "a navrhne udaje" karta navrhu pod oknom ako v kratkej verzii (Nazov projektu, autor a rok pri svojich
+ * slovach, slova z public/vo/lines/F2-Metadata-0.words.json); ostava az do konca klipu (F4 zacina s tou istou kartou).
+ */
+const F2_W = { autora: 6.32, rok: 7.24 };
+const f2s = (w: number) => (voAt('F2-Metadata', 0) + w * 1000) / 1000;
+const F2_PANELS: Panel[] = [{ from: voAt('F2-Metadata', 0, 1) / 1000, to: F2_SECONDS + 1, node: <ValueCard authorAt={f2s(F2_W.autora) - 0.1} yearAt={Math.min(f2s(F2_W.rok) - 0.1, 7.38)} /> }];
+export const F2_Metadata: React.FC = () => <DesktopFootageClip src="footage/f2-metadata.mp4" seconds={F2_SECONDS} steps={F2_STEPS} taps={F2_TAPS} size={SRC_F2} views={F2_VIEWS} panels={F2_PANELS} />;

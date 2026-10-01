@@ -302,6 +302,26 @@
       ]
     }
   ],
+  "C8b-Technika": [
+    {
+      "at": 500,
+      "text": "Aplikácia funguje v súlade s vašimi bezpečnostnými požiadavkami, online u nás alebo na vašej infraštruktúre.",
+      "parts": [
+        "Aplikácia funguje v súlade",
+        "s vašimi bezpečnostnými požiadavkami,",
+        "online u nás alebo na vašej infraštruktúre."
+      ],
+      "src": {
+        "file": "public/vo-kratka/lines/K-C8-Ponuka-2.wav"
+      },
+      "dur": 7000,
+      "partAt": [
+        0,
+        1700,
+        3920
+      ]
+    }
+  ],
   "C9-Outro": [
     {
       "at": 700,
