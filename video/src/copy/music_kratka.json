@@ -314,7 +314,7 @@
     "tempo": 0.99037
   },
   "K46": {
-    "_": "Kolo 32 (Samuel: verzia okolo 46 s, kompozicia K-LinkedIn-46, film 55,67 s): ta ista skladba bed.wav a mriezka ako K (105,00 BPM, takt 2,2856 s, doba 1 taktu 0 = 29,793 s). Uvod 3,25 taktu (posledna doba taktu -13 so stlmenym nadychom, -12 s prvym akordom, -2, -1; skok -12 -> -2 je medzi taktmi uvodu s rovnakym akordom, podobnost 0,97), nastup kapely (takt 0) 0,3 s pred zelenym prechodom (8,57 s): 7,61 s hudby + delay 0,959 s. Groove 17 taktov namiesto 20 (0-7, potom 11-19: skok 7 -> 11 ma najvyssiu podobnost taktu 7 s taktom 10, ktory v skladbe pred 11 hra, 0,985; takt 11 je prechodovy pred nastupom bicich v takte 12), tempo 0,9763, pokojna cast (takt 44) presne na zaciatku prelinacky do ponuky (48,37 s). Pod ponukou len 2 takty (44, 50; skok 44 -> 50 podobnost 0,966) a zaverecny akord (takt 51) v 53,05 s, 0,12 s pred zaverecnym logom (53,17 s), dozneje do konca filmu. Stlmenie nadychu a cinkavych tonov ako v K, len posunute o takt skor (vysledok zacina poslednou dobou taktu -13, prvy akord je na 0,571 s). Mix: python3 scripts/music_edit.py --variant K46, potom node scripts/mix-music.mjs --video out/kratka/K-LinkedIn-46_voice.mp4 --out out/kratka/K-LinkedIn-46_1080p.mp4 --cfg src/copy/music_kratka.json --variant K46 --music public/music/bed_kratka46_edit.wav --gain -7 --range 0.",
+    "_": "Kolo 33 (film 50,4 s, K-LinkedIn-46): uvod 3,25 taktu (posledna doba taktu -13 so stlmenym nadychom, -12, -2, -1) s delay 1,370 s, nastup kapely (takt 0) 0,3 s pred zelenym prechodom (8,57 s); groove 16 taktov 0-15 (bicie od taktu 12 pod scenou Dve fazy, 35,1 s), tempo 1,0321 (+3,2 %), pokojna cast (takt 44) presne na zaciatku prelinacky do ponuky (44,0 s), takt 50 a zaverecny akord (takt 51) v 48,43 s = zaverecne logo (48,4 s), dozneje do konca. Skok 15 -> 44 (podobnost taktu 15 s taktom 43: 0,954), 44 -> 50 (0,966). Stlmenie nadychu a cinkavych tonov ako v kole 32. Mix: python3 scripts/music_edit.py --variant K46, potom node scripts/mix-music.mjs --video out/kratka/K-LinkedIn-46_voice.mp4 --out out/kratka/K-LinkedIn-46_1080p.mp4 --cfg src/copy/music_kratka.json --variant K46 --music public/music/bed_kratka46_edit.wav --gain -7 --range 0. Kolo 32 (film 55,7 s): Kolo 32 (Samuel: verzia okolo 46 s, kompozicia K-LinkedIn-46, film 55,67 s): ta ista skladba bed.wav a mriezka ako K (105,00 BPM, takt 2,2856 s, doba 1 taktu 0 = 29,793 s). Uvod 3,25 taktu (posledna doba taktu -13 so stlmenym nadychom, -12 s prvym akordom, -2, -1; skok -12 -> -2 je medzi taktmi uvodu s rovnakym akordom, podobnost 0,97), nastup kapely (takt 0) 0,3 s pred zelenym prechodom (8,57 s): 7,61 s hudby + delay 0,959 s. Groove 17 taktov namiesto 20 (0-7, potom 11-19: skok 7 -> 11 ma najvyssiu podobnost taktu 7 s taktom 10, ktory v skladbe pred 11 hra, 0,985; takt 11 je prechodovy pred nastupom bicich v takte 12), tempo 0,9763, pokojna cast (takt 44) presne na zaciatku prelinacky do ponuky (48,37 s). Pod ponukou len 2 takty (44, 50; skok 44 -> 50 podobnost 0,966) a zaverecny akord (takt 51) v 53,05 s, 0,12 s pred zaverecnym logom (53,17 s), dozneje do konca filmu. Stlmenie nadychu a cinkavych tonov ako v K, len posunute o takt skor (vysledok zacina poslednou dobou taktu -13, prvy akord je na 0,571 s). Mix: python3 scripts/music_edit.py --variant K46, potom node scripts/mix-music.mjs --video out/kratka/K-LinkedIn-46_voice.mp4 --out out/kratka/K-LinkedIn-46_1080p.mp4 --cfg src/copy/music_kratka.json --variant K46 --music public/music/bed_kratka46_edit.wav --gain -7 --range 0.",
     "edit": {
       "src": "public/music/bed.wav",
       "out": "public/music/bed_kratka46_edit.wav",
@@ -333,15 +333,14 @@
         5,
         6,
         7,
+        8,
+        9,
+        10,
         11,
         12,
         13,
         14,
         15,
-        16,
-        17,
-        18,
-        19,
         44,
         50,
         51
@@ -361,8 +360,8 @@
         "db": -24
       }
     },
-    "end": 56.29,
-    "delay": 0.959,
-    "tempo": 0.9763
+    "end": 54,
+    "delay": 1.37,
+    "tempo": 1.03208
   }
 }

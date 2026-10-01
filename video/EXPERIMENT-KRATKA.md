@@ -11,13 +11,14 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
-## Kde sme skončili (1. 10. 2026, kolo 32)
+## Kde sme skončili (1. 10. 2026, kolo 33)
 
 - Dve hotové videá, obe LinkedIn 4:5 (1080 x 1350), obe sa renderujú z toho istého projektu:
   - `video/out/kratka/K-LinkedIn_1080p.mp4` (76,8 s, kolo 31, kompozícia `K-LinkedIn`): plná krátka verzia, od kola 31 bez zmeny.
-  - `video/out/kratka/K-LinkedIn-46_1080p.mp4` (55,7 s, kolo 32, kompozícia `K-LinkedIn-46`): verzia "okolo 46 s" len z existujúcich
-    nahrávok (žiadna nová veta), podrobnosti v kole 32 nižšie. Náhľady `*_preview_540p.mp4` vedľa. Staršie kolá 14 až 30 sú
-    v `out/kratka/verzie/`. Pôvodná dlhá verzia (145 s, 16:9) sa nemenila.
+  - `video/out/kratka/K-LinkedIn-46_1080p.mp4` (50,4 s, kolo 33, kompozícia `K-LinkedIn-46`): krátka verzia pre LinkedIn
+    s pripomienkami Samuela (úvod "V skrini? V sklade?", QR bez vymenovania, "len titulná strana", dve fázy), 7 nových viet
+    tým istým hlasom; podrobnosti v kole 33 nižšie. Kolo 32 (55,7 s, len z existujúcich viet) je v `out/kratka/verzie/`.
+    Náhľady `*_preview_540p.mp4` vedľa. Staršie kolá 14 až 30 sú v `out/kratka/verzie/`. Pôvodná dlhá verzia (145 s, 16:9) sa nemenila.
 - Zdroj: kompozície `K-LinkedIn` a `K-LinkedIn-46` (zoznam klipov `LI_LIST_46` na konci súboru) v `src/scenes/kratka/LinkedIn.tsx` (spoločné dáta `Kratka.tsx`, klipy `src/kratkaList.ts`),
   scenár `src/copy/vo_kratka.json`, hlas `public/vo-kratka/`, hudba `src/copy/music_kratka.json` (variant `K`: hudba
   z kola 15 poskladaná na mriežke 105 BPM, bez iskier na začiatku), logá z `podklady/archives-logo-final/` cez
@@ -40,6 +41,45 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
   - Krabica alebo box: posúdené v kole 24, odporúčanie nechať "krabica".
 - Gemini API (hlas aj hudba) naposledy vracalo 402, vyčerpaný predplatený kredit; nové vety čakajú na jeho dobitie.
 - Review stránka experimentu (odkaz hore) je súkromná, ostatní ju uvidia, až keď ju vlastník zdieľa cez Share.
+
+## Kolo 33 (1. 10. 2026): 50 s s pripomienkami (úvod, QR bez vymenovania, len titulná strana, dve fázy)
+
+Samuel (ku kolu 32): 55 s je veľa; v úvode hlas hovorí málo, hoci miesta je dosť, dať tam "V skrini? V sklade?"
+(v kancelárii majú v skriniach neporiadok); pri 0:26 netreba vymenúvať položky, QR je vidieť; musí zaznieť, že sa fotí len
+titulná (identifikačná) strana, preto je katalogizácia rýchlejšia; potom fotka -> aplikácia vyčíta údaje -> je jasné, kde to je
+a čo to je a dá sa s tým ďalej pracovať; podľa produktovej stránky Archives (assetin.sk, vetva `claude/asset-archives-page-agmnzi`,
+`src/i18n/archives.ts`, sekcia `levels`) dve fázy: rýchla katalogizácia (kde to je, čo to je, metadáta napr. skartovať alebo
+uchovať) a až potom skenovanie vybraných dokumentov s fulltextom; cieľ 45 až 50 s. Rozhodnuté v chate: nové vety tým istým
+hlasom sú v poriadku, 48 až 50 s stačí, "V skrini? V sklade?", veta o fázach s "ako s tým ďalej naložiť, skartovať alebo uchovať".
+
+- Hlas: 7 nových viet Gemini TTS (Velvet 1, prepis bez chýb; otázky majú stúpavú intonáciu (výška hlasu na konci 214 a 245 Hz
+  proti 130 Hz pri oznamovacích vetách), "Odfotí sa len titulná strana." na druhý pokus): "V skrini?", "V sklade?" (počas chôdze
+  v sklade, kde v K bola veta o sklade), "Každá položka dostane QR kód.", "Odfotí sa len titulná strana." (pri príchode mobilu),
+  "Aplikácia z fotky sama vyčíta údaje a človek ich len potvrdí." (potvrdenie človekom je znova v hlase), "Viete, čo máte, kde to
+  je a čo skartovať alebo uchovať." a "Skenuje sa až to, čo naozaj potrebujete." (nová scéna Dve fázy). "Predstavujeme vám Assetin
+  Archives." je vystrihnuté z `K-C4-Cena-1.wav` (0 až 2,55 s, hranica vety podľa `words.json`), veta o katalógu vypadla (katalóg
+  nesie karta Katalogizácia). Ostatné vety sú kópie ako v kole 32. Spolu 12 viet, 61 slov. Časy slov nových viet cez
+  faster-whisper (`scripts/vo_words.py`).
+- Obraz (začiatky vo filme): C2 0:00 (8,87 s) bez zmeny obrazu, otázky v 4,3 a 5,6 s. C4 0:08,9 (6,65 s): logo odíde 0,3 s po
+  vete (`K_C4_H46` 2350, `c4BrandOut(h)`), pilulka ostáva, bez ikon archív -> katalóg (`C4TopBase` s `promise`). C5 0:15,5
+  (6,84 s): scéna od 300 ms bez páuz, od 4000 ms (zložka, mobil, blesk, nájazd) 1,4x cez mapu času (`C5_46_MAP`, `Freeze`),
+  ikony polica / krabica / šanón / zložka naraz pri "Každá položka", nálepky QR pri slove "kód", odídu pri vete o titulnej
+  strane; nadpisy Prilepiť QR kód / Odfotiť len titulnú stranu. F1 0:22,3 (1,4 s). F24 0:23,3 (5,63 s): nový zostrih
+  `k46-f24-review` (pokoj na fotke 2,4 s, lupa 1,6x, prijatie hneď), výrezy podľa slov "údaje" a "potvrdí", klik 0,3 s po
+  "potvrdí", nadpisy Prečítať text / Návrh údajov / Človek potvrdí. F3 0:29,0 (7,8 s): zostrih `k46-f3-search` (karta a cesta
+  o 1,3 s kratšie; `f3Marks(clip, seconds)`, `LI_F3Base`). Dve fázy 0:36,3 (8,25 s, `LI_Fazy`, `PhaseCard`): karta
+  Katalogizácia ("Viete, čo máte, kde to je a čo skartovať alebo uchovať.") so zeleným okrajom počas prvej vety, karta
+  Digitalizácia ("Skenujú sa len vybrané dokumenty, s fulltextovým vyhľadávaním.") príde 0,7 s pred druhou vetou; prelínačka
+  z F3 aj do ponuky. C8 0:44,0 (4,4 s, koniec 0,2 s po vete). C9 0:48,4 (2,0 s). Film 50,43 s (1512 snímok).
+- Hudba (variant `K46` v `music_kratka.json` prepísaný): úvod 3,25 taktu s delay 1,37 s, nástup kapely 0,3 s pred zeleným
+  prechodom (8,57 s), groove 16 taktov 0 až 15 (bicie od taktu 12 pod scénou Dve fázy, 35,1 s), tempo 1,032 (+3,2 %),
+  pokojná časť (takt 44) na začiatku prelínačky do ponuky (44,0 s), takt 50 a záverečný akord (takt 51) v 48,43 s na
+  záverečnom logu. Skoky 15 -> 44 (podobnosť 0,954) a 44 -> 50 (0,966).
+- Kontroly: stills v 20 časoch bez kolízií; film 50,5 s (s hudbou), -16,1 LUFS, true peak -1,3 dBFS; hlas bez prekryvov viet, typecheck bez chýb,
+  kompozícia K-LinkedIn stále 2302 snímok. Prepis finálneho mixu cez Gemini zachytí všetkých 12 viet v poradí a čase
+  (0:00, 0:04, 0:05, 0:07, 0:09, 0:11, 0:15, 0:19, 0:24, 0:29, 0:37, 0:41, 0:44, 0:48), hlas podľa neho čisto zrozumiteľný,
+  hudba bez počuteľných skokov, lupnutí a náhlych zmien.
+- Kolo 32 je uložené v `out/kratka/verzie/K-LinkedIn-46_kolo32_56s_*.mp4` a v commite `aecc5b7`.
 
 ## Kolo 32 (1. 10. 2026): verzia okolo 46 s z existujúcich nahrávok (K-LinkedIn-46)
 

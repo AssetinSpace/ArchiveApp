@@ -219,29 +219,54 @@
   "k46-f24-review": {
     "src": "src/review2.mp4",
     "vf": "crop=1764:882:98:150",
-    "note": "Kolo 32 (K46, verzia okolo 46 s): ako k-f24-review, len pokoj na fotke kratsi (veta o cloveku vypadla, overenie a potvrdenie je len v obraze).",
+    "note": "Kolo 33 (K46, verzia 48-50 s): kratsi pokoj na fotke, lupa 1,6x, prijatie hned; veta \"Aplikacia z fotky sama vycita udaje a clovek ich len potvrdi.\" (4,2 s od 0,8 s), klik pri \"potvrdi\".",
     "segs": [
       {
         "from": 0.5,
         "to": 2.5,
         "before": 0.4,
-        "after": 4.2,
-        "note": "fotka a navrhnute udaje v pokoji pocas vety (aplikacia z fotky precita text a navrhne udaje, napriklad nazov projektu, autora alebo rok); kolo 32 (K46): o 2,4 s kratsie, lupa pride pri \"autora alebo rok\""
+        "after": 0,
+        "note": "fotka a navrhnute udaje v pokoji (2,4 s): \"z fotky sama vycita udaje\""
       },
       {
         "from": 6.4,
         "to": 9.4,
-        "speed": 1.25,
+        "speed": 1.6,
         "fade": 0.25,
-        "note": "lupa nad fotkou: clovek overi (K46: bez hlasu, nadpis kroku Overit a potvrdit)"
+        "note": "lupa nad fotkou: \"clovek\" overi (1,9 s)"
       },
       {
         "from": 11.3,
         "to": 12.8,
         "fade": 0.25,
-        "after": 2.9,
-        "note": "spravna hodnota, prijatie 12,15 s (pri \"potvrdi\"), zelena ciara schvaleneho navrhu",
-        "before": 0.25
+        "after": 1,
+        "before": 0.25,
+        "note": "spravna hodnota, prijatie 12,15 s pri \"potvrdi\", zelena ciara schvaleneho navrhu"
+      }
+    ]
+  },
+  "k46-f3-search": {
+    "src": "src/search2.mp4",
+    "vf": "crop=1764:882:96:150",
+    "note": "Kolo 33 (K46): ako k-f3-search, len karta najdenej zlozky a cesta drzia o 1,3 s kratsie (after 4,05).",
+    "segs": [
+      {
+        "from": 3.5,
+        "to": 5.1,
+        "before": 0.4,
+        "note": "pisanie slova vodovod (3,9-5,0 s)"
+      },
+      {
+        "from": 5.1,
+        "to": 6.2,
+        "speed": 2,
+        "note": "cakanie, vysledok 6,05 s"
+      },
+      {
+        "from": 6.2,
+        "to": 7.4,
+        "after": 4.05,
+        "note": "vysledok ZL_03 a detail v pokoji, drobcek PL_01 / KR_01 / ZL_03; K46 kolo 33: drzi 4,05 s (v K 5,35)"
       }
     ]
   }
