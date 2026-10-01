@@ -4,7 +4,7 @@ import { FPS, H, W } from './theme';
 import { OPTIONAL_LIST, SCENE_LIST } from './scenesList';
 import { Full } from './scenes/Full';
 import { FootageFrame, footageDefaults } from './scenes/FootageFrame';
-import { K_LinkedIn, LI, liFrames } from './scenes/kratka/LinkedIn';
+import { K_LinkedIn, K_LinkedIn46, LI, liFrames, liFrames46 } from './scenes/kratka/LinkedIn';
 
 export const Root: React.FC = () => (
   <>
@@ -39,6 +39,8 @@ export const Root: React.FC = () => (
     <Folder name="Kratka">
       {/* LinkedIn 4:5: vlastne velke titulky pod obrazom (v klipoch su vypnute) */}
       <Composition id="K-LinkedIn" component={K_LinkedIn} durationInFrames={liFrames()} fps={FPS} width={LI.w} height={LI.h} />
+      {/* kolo 32: verzia okolo 46 s z existujucich viet (bez novych nahravok), K-LinkedIn sa nemeni */}
+      <Composition id="K-LinkedIn-46" component={K_LinkedIn46} durationInFrames={liFrames46()} fps={FPS} width={LI.w} height={LI.h} />
     </Folder>
     <Folder name="Optional">
       {OPTIONAL_LIST.map(([id, s]) => (

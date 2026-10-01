@@ -11,11 +11,14 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
-## Kde sme skončili (30. 9. 2026, kolo 31)
+## Kde sme skončili (1. 10. 2026, kolo 32)
 
-- Hotové video: `video/out/kratka/K-LinkedIn_1080p.mp4` (LinkedIn 4:5, 1080 x 1350, 76,8 s, -16 LUFS, true peak
-  -1,4 dBFS) a náhľad `K-LinkedIn_preview_540p.mp4`. Staršie kolá 14 až 30 sú v `out/kratka/verzie/`. Pôvodná dlhá verzia (145 s, 16:9) sa nemenila.
-- Zdroj: kompozícia `K-LinkedIn` v `src/scenes/kratka/LinkedIn.tsx` (spoločné dáta `Kratka.tsx`, klipy `src/kratkaList.ts`),
+- Dve hotové videá, obe LinkedIn 4:5 (1080 x 1350), obe sa renderujú z toho istého projektu:
+  - `video/out/kratka/K-LinkedIn_1080p.mp4` (76,8 s, kolo 31, kompozícia `K-LinkedIn`): plná krátka verzia, od kola 31 bez zmeny.
+  - `video/out/kratka/K-LinkedIn-46_1080p.mp4` (55,7 s, kolo 32, kompozícia `K-LinkedIn-46`): verzia "okolo 46 s" len z existujúcich
+    nahrávok (žiadna nová veta), podrobnosti v kole 32 nižšie. Náhľady `*_preview_540p.mp4` vedľa. Staršie kolá 14 až 30 sú
+    v `out/kratka/verzie/`. Pôvodná dlhá verzia (145 s, 16:9) sa nemenila.
+- Zdroj: kompozície `K-LinkedIn` a `K-LinkedIn-46` (zoznam klipov `LI_LIST_46` na konci súboru) v `src/scenes/kratka/LinkedIn.tsx` (spoločné dáta `Kratka.tsx`, klipy `src/kratkaList.ts`),
   scenár `src/copy/vo_kratka.json`, hlas `public/vo-kratka/`, hudba `src/copy/music_kratka.json` (variant `K`: hudba
   z kola 15 poskladaná na mriežke 105 BPM, bez iskier na začiatku), logá z `podklady/archives-logo-final/` cez
   `scripts/archives_logo.py`. Render a mix: časť "Ako to zopakovať" nižšie.
@@ -37,6 +40,52 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
   - Krabica alebo box: posúdené v kole 24, odporúčanie nechať "krabica".
 - Gemini API (hlas aj hudba) naposledy vracalo 402, vyčerpaný predplatený kredit; nové vety čakajú na jeho dobitie.
 - Review stránka experimentu (odkaz hore) je súkromná, ostatní ju uvidia, až keď ju vlastník zdieľa cez Share.
+
+## Kolo 32 (1. 10. 2026): verzia okolo 46 s z existujúcich nahrávok (K-LinkedIn-46)
+
+Samuel: pre LinkedIn skôr okolo 40 s, aby to algoritmus zachytil a video sa jasne odprezentovalo; žiadne nové nahrávky,
+zredukovať to, čo už vo videu je; 46 s je prijateľných; v obraze má ostať, že cieľom je digitálny katalóg, a aspoň ukázať
+potvrdenie človekom. Text príspevku zatiaľ nepísať, pilulka pri logu ostáva, hudba ostáva, pomer strán podľa toho, čo je
+pre LinkedIn najlepšie (posúdenie: ostáva 4:5, zobrazí sa celé vo feede na mobile aj na počítači; 9:16 by znamenalo nové
+rozloženie každej scény).
+
+- Nová kompozícia `K-LinkedIn-46` (`LI_LIST_46` v `LinkedIn.tsx`, `Root.tsx`), 77 s verzia `K-LinkedIn` sa nemení (2302
+  snímok ako doteraz). Spoločné časti sú vyňaté do parametrov: mapa času skladu `c2Plan(backAt, endMs)`, `c4ShiftFor(c2Seconds)`,
+  `C5HierarchyBase` (klip a čas odchodu ikon), `LI_F24Base` (zostrih, výrezy, kliky), `C8FirstStep` (slide Prvý krok),
+  `filmOf(list)`. `scripts/kratka-stills.mjs --comp K-LinkedIn-46` renderuje stills druhej kompozície.
+- Hlas: klipy `K46-*` v `src/copy/vo_kratka.json`, každá veta je kópia existujúcej vety (súbory `public/vo-kratka/lines/K46-*.wav`
+  skopírované aj s `words.json`, `src` v scenári ukazuje na pôvodný súbor). Klipy `K-C4-Cena`, `K-F3-Vyhladavanie` a `K-C9-Outro`
+  sa použili priamo. Vypadli: "V sklade, na polici, v krabici alebo v zložke." (sklad ostáva obrazom), "Mobilom potom odfotíme
+  titulnú stranu dokumentu.", "Človek každú hodnotu overí a prípadne opraví alebo potvrdí.", "Archív vám spracujeme na kľúč.",
+  "Alebo ho spracujete sami v našej aplikácii." a veta o bezpečnosti a infraštruktúre (slidy Spracovanie archívu a Technické
+  riešenie). Ostalo 10 viet, 77 slov (predtým 16 viet, 139 slov).
+- Obraz po klipoch (začiatky vo filme): C2 0:00 (8,87 s): otázka, prestrih do skladu, chôdza, krabice sa otvoria a hneď
+  "Hľadanie môže trvať hodiny." (veta 100 ms pred zdvihnutím zložiek, návrat zložiek 100 ms po ňom; pozor, komentár v kóde
+  uvádzal chôdzu ~1,05 s, skutočná je 1,74 s, zložky sú hore v 7,16 s klipu). C4 0:08,9 (9,15 s) bez zmeny: most, logo,
+  pilulka, "Z vášho archívu urobíme prehľadný digitálny katalóg." s ikonami archív -> katalóg. C5 0:18,0 (9,8 s): veta o QR,
+  pauza po poslednej nálepke len 0,7 s (predtým 4,15 s), zložka a mobil prídu počas "podľa toho, ako máte archív usporiadaný",
+  ikony polica / krabica / šanón / zložka odídu 0,4 s pred koncom vety (skôr, než mobil narastie na celý rámec). F1 0:27,8
+  (2,0 s, záznam drží posledný záber). F24 0:29,4 (10,35 s): "Aplikácia z fotky sama prečíta text...", potom bez hlasu nadpis
+  kroku "Overiť a potvrdiť", lupa nad fotkou, klik na prijatie a zelená karta s fajkou; nový zostrih `k46-f24-review`
+  (`cuts.json`, pokoj na fotke 4,2 s namiesto 6,6 s). F3 0:39,8 (9,1 s) bez zmeny. C8 0:48,4 (4,8 s): len slide Prvý krok
+  s výzvou "Začnime jednou krabicou, zadarmo a nezáväzne." a webom. C9 0:53,2 (2,5 s). Film 55,67 s (1670 snímok).
+- Dĺžka: odhad "asi 46 s" z posudku rátal s tým, že obraz sa skráti s hlasom; v skutočnosti chôdza v sklade, otvorenie
+  krabíc, príchod mobilu a fotenie a klik na prijatie potrebujú svoj čas aj bez viet, preto 55,7 s. Kde sa dá ďalej brať
+  (bez nových nahrávok): sklad v úvode (bez prestrihu do skladu by úvod mal ~5 s, ale veta o hodinách by znela nad kanceláriou),
+  veta o katalógu (3,8 s), karta nájdenej zložky vo vyhľadávaní (drží 5,35 s, dá sa o 1 s menej), rýchlejší príchod mobilu
+  (scéna C5 od 4000 ms 1,25x, ~0,9 s).
+- Hudba: variant `K46` v `src/copy/music_kratka.json` (tá istá skladba `bed.wav`, mriežka 105 BPM): úvod 3,25 taktu
+  (posledná doba taktu -13, -12, -2, -1) s delay 0,959 s, nástup kapely 0,3 s pred zeleným prechodom (8,57 s), groove 17 taktov
+  (0-7, 11-19; skok 7 -> 11 vybraný podľa podobnosti akordov taktov 7 a 10, 0,985), tempo 0,9763, pokojná časť (takt 44) na
+  začiatku prelínačky do ponuky (48,37 s), pod ponukou takty 44 a 50 a záverečný akord (takt 51) v 53,05 s, 0,12 s pred
+  záverečným logom. Stlmenie nádychu a cinkavých tónov na začiatku ako v K. `scripts/music_edit.py --variant K46` ->
+  `public/music/bed_kratka46_edit.wav` (56,3 s, mimo gitu), mix `mix-music.mjs --variant K46 --gain -7 --range 0`.
+- Kontroly: stills v 22 časoch (úvod, logo, nálepky a mobil s ikonami, aplikácia, potvrdenie, ponuka, záver) bez kolízií;
+  film 55,8 s (s hudbou), -16,2 LUFS, true peak -1,4 dBFS; hlas v renderi bez prekryvov viet (vo.mjs), typecheck bez chýb,
+  kompozícia K-LinkedIn má po zmenách stále 2302 snímok. prepis finálneho mixu cez Gemini zachytí všetkých
+  10 viet v správnom poradí a čase (0:00, 0:07, 0:09, 0:11, 0:14, 0:18, 0:30, 0:40 a 0:46, 0:49, 0:53), hlas podľa neho zrozumiteľný
+  v celom zázname, hudba bez počuteľných skokov a lupnutí.
+- Kolo 31 (77 s) ostáva ako `out/kratka/K-LinkedIn_1080p.mp4` a v commite `a70056e`.
 
 ## Kolo 31 (30. 9. 2026): police v sklade ďalej od okraja plošiny
 

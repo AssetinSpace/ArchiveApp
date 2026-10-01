@@ -17,7 +17,7 @@
     "delay": 0.25,
     "tempo": 0.9986,
     "_cuts": "Kolo 15 (film 76,7 s: most \"S nami ho najdete za par sekund.\", zeleny prechod 0,38 s skor, ponuka 1,43 s neskor): druhy strih o takt neskor (skok z konca taktu 31 na takt 55, na hranici 4-taktovej frazy od nastupu kapely v takte 12), aby tempo ostalo takmer 1 (pri strihu z kola 14 by muselo byt 0,948 a hudba by zacala pred filmom): hudba od 0.25 s tempom 0.9986, plna kapela (takt 12) ~9,23 s, 0,3 s pred zelenym prechodom (9,53 s), prechodovy takt 55 od ~55,39 s = zaciatok prelinacky do ponuky (55,37 s); skladba dozneje ~1,3 s pred koncom. Kolo 13 (film 75,2 s: ponuka o 1,2 s kratsia, prelinacka z F3): strihy ako v kole 11, hudba od 0,532 s tempom 0,9875: plna kapela (takt 12) ~9,62 s, 0,3 s pred zelenym prechodom (9,92 s), prechodovy takt 55 od ~53,96 s = zaciatok prelinacky do ponuky (53,93 s); skladba dozneje ~1 s pred koncom. Kolo 12 (film 76,4 s: pomalsi navrat zloziek, C2 o 0,367 s dlhsie, F3 o 0,3 s kratsie): strihy ako v kole 11, hudba zacne o 0,43 s neskor (\"delay\") s tempom 0,9765 (\"tempo\"; auto by dalo 0,97 a prechodovy takt by bol 0,3 s neskoro): plna kapela (takt 12) ~9,62 s na doznení slova \"hodiny\", 0,3 s pred zelenym prechodom (9,92 s), prechodovy takt 55 od ~54,46 s = zaciatok ponuky (54,43 s); skladba dozneje ~1,5 s pred koncom. Kolo 11 (film 76,3 s: dlhsia chodza v sklade, dlhsie vety v F24): 9 taktov (2-10) z pulzujucej casti, plna kapela (takt 12) ~9,25 s na doznení slova \"hodiny\", 0,3 s pred zelenym prechodom (9,55 s); 24 taktov (31-54) z plneho grooveu, prechodovy takt 55 (bez bicich) od ~54,4 s = zaciatok ponuky (54,37 s); tempo 0,97 (dolna hranica), skladba dozneje ~0,6 s pred koncom. Kolo 10: [[6.72, 27.49], [71.34, 129.03]] s tempom 0,97, kolo 7: [[9.03, 27.49], [69.03, 129.03]].",
-    "end": 149.0,
+    "end": 149,
     "_": "Kolo 15 (skladba bed.wav, mix-music.mjs --music public/music/bed.wav --variant K_kolo15), nahradene kolom 16."
   },
   "K_kolo16": {
@@ -312,5 +312,57 @@
     "end": 76.3,
     "delay": 0.0021,
     "tempo": 0.99037
+  },
+  "K46": {
+    "_": "Kolo 32 (Samuel: verzia okolo 46 s, kompozicia K-LinkedIn-46, film 55,67 s): ta ista skladba bed.wav a mriezka ako K (105,00 BPM, takt 2,2856 s, doba 1 taktu 0 = 29,793 s). Uvod 3,25 taktu (posledna doba taktu -13 so stlmenym nadychom, -12 s prvym akordom, -2, -1; skok -12 -> -2 je medzi taktmi uvodu s rovnakym akordom, podobnost 0,97), nastup kapely (takt 0) 0,3 s pred zelenym prechodom (8,57 s): 7,61 s hudby + delay 0,959 s. Groove 17 taktov namiesto 20 (0-7, potom 11-19: skok 7 -> 11 ma najvyssiu podobnost taktu 7 s taktom 10, ktory v skladbe pred 11 hra, 0,985; takt 11 je prechodovy pred nastupom bicich v takte 12), tempo 0,9763, pokojna cast (takt 44) presne na zaciatku prelinacky do ponuky (48,37 s). Pod ponukou len 2 takty (44, 50; skok 44 -> 50 podobnost 0,966) a zaverecny akord (takt 51) v 53,05 s, 0,12 s pred zaverecnym logom (53,17 s), dozneje do konca filmu. Stlmenie nadychu a cinkavych tonov ako v K, len posunute o takt skor (vysledok zacina poslednou dobou taktu -13, prvy akord je na 0,571 s). Mix: python3 scripts/music_edit.py --variant K46, potom node scripts/mix-music.mjs --video out/kratka/K-LinkedIn-46_voice.mp4 --out out/kratka/K-LinkedIn-46_1080p.mp4 --cfg src/copy/music_kratka.json --variant K46 --music public/music/bed_kratka46_edit.wav --gain -7 --range 0.",
+    "edit": {
+      "src": "public/music/bed.wav",
+      "out": "public/music/bed_kratka46_edit.wav",
+      "downbeat": 29.7928,
+      "bar": 2.2856,
+      "bars": [
+        "-13:3-4",
+        -12,
+        -2,
+        -1,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        44,
+        50,
+        51
+      ],
+      "dirty": [],
+      "pre_ms": 60,
+      "cut_out_ms": 15,
+      "cut_in_ms": 4,
+      "mute_before": 0.556,
+      "mute_fade_ms": 60,
+      "hf_cut": {
+        "from": 0.486,
+        "to": 3.586,
+        "fade_ms": 450,
+        "lo_hz": 4000,
+        "hi_hz": 6000,
+        "db": -24
+      }
+    },
+    "end": 56.29,
+    "delay": 0.959,
+    "tempo": 0.9763
   }
 }

@@ -104,7 +104,7 @@
       },
       {
         "from": 42.4,
-        "to": 50.0,
+        "to": 50,
         "speed": 1.6,
         "note": "oprava Cislo zmeny 1 -> 2 (ceruzka 43,6 s, pole Hodnota 44-48 s, Prijat upravu 48,15 s)"
       },
@@ -124,12 +124,12 @@
     "segs": [
       {
         "from": 0.45,
-        "to": 1.0,
+        "to": 1,
         "after": 6.65,
         "note": "kolo 34: rovno obrazovka Vybrat typ jednotky (KR_01 a klik Pridat do tejto jednotky vypadli), drzi pokojnu obrazovku typu pocas vety o type a hierarchii"
       },
       {
-        "from": 1.0,
+        "from": 1,
         "to": 1.71,
         "note": "Dalej (1,70 s); koniec pred obrazovkou Priradit QR (1,72 s)"
       },
@@ -213,6 +213,35 @@
         "to": 7.4,
         "after": 5.35,
         "note": "vysledok ZL_03 a detail v pokoji, drobcek PL_01 / KR_01 / ZL_03; kolo 4: drzi o 0,8 s dlhsie, aby sa dala docitat cesta polica -> krabica -> zlozka -> dokument; kolo 10: o 1,2 s dlhsie (pauza pred \"aj cestu k nej\", karta najdenej zlozky sa da docitat); kolo 12: o 0,3 s kratsie (pauza pred \"aj cestu k nej\" 0,7 s namiesto 1,0 s, ticho na konci ostava)"
+      }
+    ]
+  },
+  "k46-f24-review": {
+    "src": "src/review2.mp4",
+    "vf": "crop=1764:882:98:150",
+    "note": "Kolo 32 (K46, verzia okolo 46 s): ako k-f24-review, len pokoj na fotke kratsi (veta o cloveku vypadla, overenie a potvrdenie je len v obraze).",
+    "segs": [
+      {
+        "from": 0.5,
+        "to": 2.5,
+        "before": 0.4,
+        "after": 4.2,
+        "note": "fotka a navrhnute udaje v pokoji pocas vety (aplikacia z fotky precita text a navrhne udaje, napriklad nazov projektu, autora alebo rok); kolo 32 (K46): o 2,4 s kratsie, lupa pride pri \"autora alebo rok\""
+      },
+      {
+        "from": 6.4,
+        "to": 9.4,
+        "speed": 1.25,
+        "fade": 0.25,
+        "note": "lupa nad fotkou: clovek overi (K46: bez hlasu, nadpis kroku Overit a potvrdit)"
+      },
+      {
+        "from": 11.3,
+        "to": 12.8,
+        "fade": 0.25,
+        "after": 2.9,
+        "note": "spravna hodnota, prijatie 12,15 s (pri \"potvrdi\"), zelena ciara schvaleneho navrhu",
+        "before": 0.25
       }
     ]
   }

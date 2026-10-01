@@ -10,7 +10,12 @@ import { CAM_END, SV, VB } from '../C3_Sklad';
 import { Floor } from '../../components/Illustrations';
 import { iso } from '../../lib/iso';
 import { C5_Teren } from '../C5_Teren';
+import type { C5Step } from '../C5_Teren';
+import { markAt, tapAt } from '../F2_Metadata';
 import type { Mark, Tap } from '../F2_Metadata';
+import type { Step } from '../../components/Steps';
+import type { Hold } from '../../components/Paced';
+import { segStart } from '../../lib/cuts';
 import { C5_STEPS, SLOGAN, K_C4, K_C4_D, K_C4_H, K_C5_HOLDS, K_F1_SECONDS, K_F1_TAPS, K_F24_END, K_F24_MARKS, K_F24_STEPS, K_F24_TAPS, K_F3_SECONDS, PHASE_ARCHIV, SOFTWARE_DESC, c4End, f3Marks, f3Steps } from './Kratka';
 import { paced } from '../../kratkaList';
 import { ARCHIVES_LOGO } from './archivesLogo';
@@ -378,10 +383,10 @@ const C5_ITEMS: { kind: HKind; label: string; a: boolean; b: boolean }[] = [
   { kind: 'binder', label: 'Šanón', a: false, b: true },
   { kind: 'folder', label: 'Zložka', a: true, b: false },
 ];
-const C5Hierarchy: React.FC = () => {
+const C5HierarchyBase: React.FC<{ clip: string; outAt: number }> = ({ clip, outAt }) => {
   const frame = useCurrentFrame();
-  const line = voAt('K-C5-Teren', 0);
-  const out = tween(frame, voAt('K-C5-Teren', 1) + 500, 350); // kolo 8: veta o foteni je samostatna (pauza pred nou)
+  const line = voAt(clip, 0);
+  const out = tween(frame, outAt, 350);
   if (out >= 1) return null;
   const at = (s: number) => line + s * 1000;
   const wa = tween(frame, at(C5_ARRANGE.a) - 80, 260) * (1 - tween(frame, at(C5_ARRANGE.b) - 80, 260)); // priklad A
@@ -405,6 +410,8 @@ const C5Hierarchy: React.FC = () => {
     </div>
   );
 };
+/** Ikony odidu 500 ms po zaciatku vety o foteni (kolo 8: veta o foteni je samostatna, pauza pred nou). */
+const C5Hierarchy: React.FC = () => <C5HierarchyBase clip="K-C5-Teren" outAt={voAt('K-C5-Teren', 1) + 500} />;
 
 /** C5 v 16:9 ma krabicu vlavo (vpravo bol panel krokov): na vysku sa pas na zaciatku plynulo posunie, krabica je na strede. */
 const C5_SHIFT = 186;
@@ -552,19 +559,21 @@ const F24_VIEWS: FootView[] = (() => {
     { t: L0 + 99, ...accept },
   ];
 })();
-const LI_F24: React.FC = () => (
+/** F24: okno so zaznamom a panely pod nim; `L0` = zaciatok vety o aplikacii (s), `L01` = jej cast "a navrhne udaje" (s). */
+const LI_F24Base: React.FC<{ src: string; views: FootView[]; taps: Tap[]; marks: Mark[]; end: number; L0: number; L01: number }> = ({ src, views, taps, marks, end, L0, L01 }) => (
   <AbsoluteFill>
     {/* kolo 3: okno na konci nevybledne do bielej, F3 nadvazuje v tom istom okne; kolo 13: priblizeny vyrez */}
-    <LiFootage src={F24_SRC} views={F24_VIEWS} taps={K_F24_TAPS} marks={K_F24_MARKS} />
-    <Panel from={0.5} to={kv(0, 1) + 0.1} label="Na fotke" width={720}>
+    <LiFootage src={src} views={views} taps={taps} marks={marks} />
+    <Panel from={0.5} to={L01 + 0.1} label="Na fotke" width={720}>
       <PhotoTitle width={720} />
     </Panel>
     {/* navrh ostava az po potvrdenie (klik na slove "potvrdi"); kolo 9: panel s fotkou pri zazname vypadol (duplicita) */}
-    <Panel from={kv(0, 1) + 0.35} to={K_F24_END} label="Návrh aplikácie: názov projektu" width={WIN.w}>
-      <ValueField approveAt={K_F24_TAPS[0].t} authorAt={kv(0) + F24_W0.autora - 0.1} yearAt={kv(0) + F24_W0.rok - 0.1} />
+    <Panel from={L01 + 0.35} to={end} label="Návrh aplikácie: názov projektu" width={WIN.w}>
+      <ValueField approveAt={taps[0].t} authorAt={L0 + F24_W0.autora - 0.1} yearAt={L0 + F24_W0.rok - 0.1} />
     </Panel>
   </AbsoluteFill>
 );
+const LI_F24: React.FC = () => <LI_F24Base src={F24_SRC} views={F24_VIEWS} taps={K_F24_TAPS} marks={K_F24_MARKS} end={K_F24_END} L0={kv(0)} L01={kv(0, 1)} />;
 
 /**
  * F3 na vysku: cely zaznam v okne, pod nim hladane slovo (pise sa v case ako v zazname). Kolo 7 (Samuel: aplikacia ukaze
@@ -743,6 +752,12 @@ const OfferIcon: React.FC<{ kind: OfferIconKind; on: boolean; size?: number }> =
 const C8_CLIP = 'K-C8-Ponuka';
 const C8L = (i: number, k = 0) => voAt(C8_CLIP, i, k);
 const C8_SLIDE = [C8L(2) - 350, C8L(3) - 350]; // prechod na 2. a 3. slide (tesne pred vetou)
+/** Hlasova stopa klipu konci 0,6 s po poslednej vete. */
+const clipEndSeconds = (clip: string) => {
+  const lines = voLines(clip);
+  const last = lines[lines.length - 1];
+  return (last.at + (last.dur ?? 4000)) / 1000 + 0.6;
+};
 /** Casy slov (ms od zaciatku vety, public/vo-kratka/lines/K-C8-Ponuka-2/3.words.json). */
 const C8_W2 = { bezpecne: 1360, online: 4000, na: 5440 }; // kolo 13: nova veta, "v sulade", "online", "na vasej"
 const C8_W3 = { krabicou: 1120, zadarmo: 2040 };
@@ -799,6 +814,32 @@ const FreePill: React.FC<{ text: string; size?: number }> = ({ text, size = 54 }
 const OrPill: React.FC<{ top: number; t: number }> = ({ top, t }) => (
   <div style={{ position: 'absolute', left: (LI.w - 104) / 2, top, width: 104, height: 50, borderRadius: 25, background: '#fff', border: `2px solid ${INK[200]}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: FONT.body, fontWeight: 600, fontSize: 26, color: INK[500], opacity: t }}>alebo</div>
 );
+/**
+ * Slide "Prvy krok": krabica, nalepka QR pri slove "krabicou", pilulka pri "zadarmo", web 0,45 s po nom. `lineAt` = zaciatok
+ * vety "Zacnime jednou krabicou..." (ms klipu); spolocny pre K (treti slide) aj K46 (jediny slide ponuky).
+ */
+const C8FirstStep: React.FC<{ lineAt: number }> = ({ lineAt }) => {
+  const frame = useCurrentFrame();
+  const head = settle(frame, lineAt - 100);
+  const sticker = pop(frame, lineAt + C8_W3.krabicou - 100);
+  const free = pop(frame, lineAt + C8_W3.zadarmo - 150, { damping: 16 });
+  const web = settle(frame, lineAt + C8_W3.zadarmo + 450);
+  return (
+    <>
+      <ArchiveBox state={{ lid: 0, binders: [0, 0, 0], qr: [0, 0, 0, sticker] }} size={700} style={{ position: 'absolute', left: (LI.w - 700) / 2, top: 156 }} />
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 832, textAlign: 'center', fontFamily: FONT.display, fontWeight: 800, fontSize: 76, lineHeight: 1.05, letterSpacing: '-0.02em', color: INK[900], opacity: head, transform: `translateY(${(1 - head) * 24}px)` }}>
+        Začnime <span style={{ color: BRAND[600] }}>jednou krabicou</span>
+      </div>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 966, display: 'flex', justifyContent: 'center', opacity: Math.min(1, free * 1.5), transform: `scale(${0.85 + 0.15 * free})` }}>
+        <FreePill text="Zadarmo a nezáväzne" />
+      </div>
+      {/* kolo 15 (laik v teste: kam sa ozvat): web pod pilulkou, ako na zaverecnom logu */}
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 1108, display: 'flex', justifyContent: 'center', opacity: web, transform: `translateY(${(1 - web) * 12}px)` }}>
+        <div style={{ padding: '12px 32px', borderRadius: 40, border: `2px solid ${INK[200]}`, fontFamily: FONT.display, fontWeight: 700, fontSize: 42, letterSpacing: '0.01em', color: INK[800] }}>{sk.S12.web}</div>
+      </div>
+    </>
+  );
+};
 const LI_C8: React.FC = () => {
   const frame = useCurrentFrame();
   const ms = (frame / FPS) * 1000;
@@ -813,10 +854,6 @@ const LI_C8: React.FC = () => {
     onlineAt = C8L(2) + C8_W2.online - 250,
     yoursAt = C8L(2) + C8_W2.na - 250;
   const opts = settle(frame, onlineAt);
-  const head = settle(frame, C8L(3) - 100);
-  const sticker = pop(frame, C8L(3) + C8_W3.krabicou - 100);
-  const free = pop(frame, C8L(3) + C8_W3.zadarmo - 150, { damping: 16 });
-  const web = settle(frame, C8L(3) + C8_W3.zadarmo + 450);
   return (
     <AbsoluteFill style={{ background: '#fff' }}>
       {slide(
@@ -837,22 +874,7 @@ const LI_C8: React.FC = () => {
           <OptionCard icon="server" title="Na vašej infraštruktúre" desc="Na vašich serveroch" top={690} h={190} t={opts} on={ms >= yoursAt} size={52} inset={20} />
         </>,
       )}
-      {slide(
-        2,
-        <>
-          <ArchiveBox state={{ lid: 0, binders: [0, 0, 0], qr: [0, 0, 0, sticker] }} size={700} style={{ position: 'absolute', left: (LI.w - 700) / 2, top: 156 }} />
-          <div style={{ position: 'absolute', left: 0, right: 0, top: 832, textAlign: 'center', fontFamily: FONT.display, fontWeight: 800, fontSize: 76, lineHeight: 1.05, letterSpacing: '-0.02em', color: INK[900], opacity: head, transform: `translateY(${(1 - head) * 24}px)` }}>
-            Začnime <span style={{ color: BRAND[600] }}>jednou krabicou</span>
-          </div>
-          <div style={{ position: 'absolute', left: 0, right: 0, top: 966, display: 'flex', justifyContent: 'center', opacity: Math.min(1, free * 1.5), transform: `scale(${0.85 + 0.15 * free})` }}>
-            <FreePill text="Zadarmo a nezáväzne" />
-          </div>
-          {/* kolo 15 (laik v teste: kam sa ozvat): web pod pilulkou, ako na zaverecnom logu */}
-          <div style={{ position: 'absolute', left: 0, right: 0, top: 1108, display: 'flex', justifyContent: 'center', opacity: web, transform: `translateY(${(1 - web) * 12}px)` }}>
-            <div style={{ padding: '12px 32px', borderRadius: 40, border: `2px solid ${INK[200]}`, fontFamily: FONT.display, fontWeight: 700, fontSize: 42, letterSpacing: '0.01em', color: INK[800] }}>{sk.S12.web}</div>
-          </div>
-        </>,
-      )}
+      {slide(2, <C8FirstStep lineAt={C8L(3)} />)}
     </AbsoluteFill>
   );
 };
@@ -963,10 +985,10 @@ const C2_END_CAM: Cam = { z: 1.8, fx: 960, fy: 450, tx: 540, ty: 600 };
  */
 const c4Win = (ms: number) => (ms < C4_LIGHT ? INTRO_WIN : BAND_WIN);
 /** Kolo 15: pomaly najazd z C2 (slowZoom okolo bodu police C2_Q) pokracuje, kym obraz neprekryje zelena; pod bielou CAM_ID. */
-const c4Shift = (ms: number) => {
+const c4ShiftFor = (c2Seconds: number) => (ms: number) => {
   if (ms >= C4_LIGHT) return camShift([[0, CAM_ID]])(ms);
   const k = S169 * C2_END_CAM.z; // ten isty zaber ako C2_END_CAM, len s bodom police C2_Q na jeho mieste v ramci
-  const cam: Cam = { z: C2_END_CAM.z * slowZoom(C2_SECONDS * 1000 + ms), fx: C2_END_CAM.fx + (C2_Q[0] - C2_END_CAM.tx) / k, fy: C2_END_CAM.fy + (C2_Q[1] - C2_END_CAM.ty) / k, tx: C2_Q[0], ty: C2_Q[1] };
+  const cam: Cam = { z: C2_END_CAM.z * slowZoom(c2Seconds * 1000 + ms), fx: C2_END_CAM.fx + (C2_Q[0] - C2_END_CAM.tx) / k, fy: C2_END_CAM.fy + (C2_Q[1] - C2_END_CAM.ty) / k, tx: C2_Q[0], ty: C2_Q[1] };
   return camShift([[0, cam]])(ms);
 };
 /**
@@ -1019,8 +1041,9 @@ const WH_D = whDist(1) - whDist(WH_P0); // ~411 px sceny skladu
 const OFFICE_WALK_PX = Math.hypot(160, -70) * (1920 / 980);
 const C2_WALK_AT = C2_PAN_AT + 650; // chodza v sklade od konca prestrihu (sklad uz takmer cely v obraze)
 const C2_WALK_MS = (800 * WH_D * WH_K) / OFFICE_WALK_PX; // ~1050 ms: rovnaka rychlost na obrazovke ako v kancelarii
-const C2_ARR = C2_WALK_AT + C2_WALK_MS; // panacik pri regali (cas skladu 6500)
+const C2_ARR = C2_WALK_AT + C2_WALK_MS; // panacik pri regali (cas skladu 6500); kolo 11: chodza ~1,75 s, C2_ARR ~5844
 const C2_UP = 7820; // cas skladu: zlozky v oboch krabiciach su hore
+const C2_UP_AT = C2_ARR + (C2_UP - 6500); // ms klipu: zlozky hore (~7164)
 /** Kolo 12 (Samuel: zlozky sa vratia do krabice prilis rychlo, 0:07-0:10 rozsekane): navrat 1120 ms sceny za 640 ms (1,75x,
  * v kole 11 3x za 373 ms, v kole 10 2,5x), chvila so zlozkami hore 150 ms (v kole 11 50). Pocas oboch zmien rychlosti
  * sa v sklade nic nehybe (zlozky su hore, krabice dnu), takze nie je vidiet ziadny skok. */
@@ -1030,21 +1053,32 @@ const C2_UP = 7820; // cas skladu: zlozky v oboch krabiciach su hore
  * a krabic ide 1:1 (1120 ms, v kole 12 1,75x) od 70 ms po zaciatku vety "Hladanie moze trvat hodiny." (7,83 s), C2 konci
  * 110 ms po slove "hodiny" (9,42 s), kde zacina zeleny prechod C4.
  */
+/**
+ * Mapa casu klipu -> cas skladu. `backAt` = ms klipu, kedy sa zlozky zacnu vracat (150 ms po zaciatku vety o hodinach),
+ * `endMs` = koniec klipu (koniec vety o hodinach, zaokruhli sa na cely snimok). K46 (verzia okolo 46 s) ma vetu
+ * o hodinach hned po zdvihnuti zloziek, preto vlastny plan s tou istou chodzou a navratom.
+ */
+const c2Plan = (backAt: number, endMs: number) => {
+  const end = (Math.round((endMs / 1000) * FPS) * 1000) / FPS; // cely snimok (K: 286)
+  const wmap: [number, number][] = [
+    [0, whTime(WH_P0)],
+    [C2_WALK_AT, whTime(WH_P0)],
+    ...Array.from({ length: 20 }, (_, i): [number, number] => {
+      const e = (i + 1) / 20;
+      return [C2_WALK_AT + C2_WALK_MS * e, whTime(invert01(whDist, whDist(WH_P0) + WH_D * easeInOut(e)))];
+    }),
+    [C2_UP_AT, C2_UP], // 1:1: vyblednutie skladu, krabice, veka a zlozky hore
+    [backAt, 8500], // staticka chvila so zlozkami hore
+    [backAt + 1120, 9620], // zlozky dole, veka a krabice spat 1:1
+    [end, 9620 + end - backAt - 1120], // polica v pokoji
+  ];
+  return { wmap, seconds: end / 1000 };
+};
 const C2_BACK_AT = 7900;
-const C2_END = (Math.round(9.53 * FPS) * 1000) / FPS; // cely snimok (286)
-const C2_WMAP: [number, number][] = [
-  [0, whTime(WH_P0)],
-  [C2_WALK_AT, whTime(WH_P0)],
-  ...Array.from({ length: 20 }, (_, i): [number, number] => {
-    const e = (i + 1) / 20;
-    return [C2_WALK_AT + C2_WALK_MS * e, whTime(invert01(whDist, whDist(WH_P0) + WH_D * easeInOut(e)))];
-  }),
-  [C2_ARR + (C2_UP - 6500), C2_UP], // 1:1: vyblednutie skladu, krabice, veka a zlozky hore
-  [C2_BACK_AT, 8500], // staticka chvila so zlozkami hore
-  [C2_BACK_AT + 1120, 9620], // zlozky dole, veka a krabice spat 1:1
-  [C2_END, 9620 + C2_END - C2_BACK_AT - 1120], // polica v pokoji
-];
-const C2_SECONDS = C2_WMAP[C2_WMAP.length - 1][0] / 1000;
+const C2_PLAN = c2Plan(C2_BACK_AT, 9530);
+const C2_WMAP = C2_PLAN.wmap;
+const C2_SECONDS = C2_PLAN.seconds;
+const c4Shift = c4ShiftFor(C2_SECONDS); // az tu: C2_SECONDS musi byt deklarovane
 const mapMs = (map: [number, number][], ms: number) => {
   for (let i = 1; i < map.length; i++) {
     const [a, sa] = map[i - 1];
@@ -1108,12 +1142,12 @@ const WH_PAD = 70; // zadny roh podlahy skladu je nad jeho platnou (kolo 31: 58 
  * 1021 px (s hranou 1034, titulky od 1060), zadny 68 px. Cesta panacika, priblizenie na policu aj C4 bez zmeny.
  */
 const WH_FLOOR_DX = 60;
-const LI_C2: React.FC = () => {
+const LI_C2Base: React.FC<{ wmap: [number, number][] }> = ({ wmap }) => {
   const frame = useCurrentFrame();
   const pan = tween(frame, C2_PAN_AT, C2_PAN_MS);
   const offA = 1 - tween(frame, C2_PAN_AT + 100, 450); // kolo 30: kancelaria pri posune nahor zmizne
   const whA = tween(frame, C2_PAN_AT + 350, 450); // sklad sa zospodu vynori
-  const w = mapMs(C2_WMAP, (frame / FPS) * 1000);
+  const w = mapMs(wmap, (frame / FPS) * 1000);
   const fw = (w / 1000) * FPS;
   const un = simInv(whCam(w)); // zrusi vnutornu kameru skladu
   return (
@@ -1143,6 +1177,7 @@ const LI_C2: React.FC = () => {
     </Scene>
   );
 };
+const LI_C2: React.FC = () => <LI_C2Base wmap={C2_WMAP} />;
 /**
  * Kolo 8 (Samuel: pri predstaveni je vela prazdneho miesta, kde sa nic nedeje): pod logom pri vete "Z vasho archivu urobime
  * prehladny digitalny katalog" Vas archiv -> Digitalny katalog (ikona pri slove "archivu", sipka pri "urobime", katalog
@@ -1329,25 +1364,24 @@ const LiFrame: React.FC<{ d: LiDef }> = ({ d }) => {
 
 /** Kolo 13: prekrytie klipu s predchadzajucim (snimky), klip zacina o tolko skor. */
 const liOverlap = (d: LiDef) => (d.xfadeIn ? Math.round((d.xfadeIn / 1000) * FPS) : 0);
-export const liFrames = () => LI_LIST.reduce((a, d) => a + Math.round(d.def[1].seconds * FPS) - liOverlap(d), 0);
+const liFramesOf = (list: LiDef[]) => list.reduce((a, d) => a + Math.round(d.def[1].seconds * FPS) - liOverlap(d), 0);
 /** Kolo 6: zaciatky klipov vo filme (s), pre strihy hudby na takt (music_kratka.json). */
-export const liStarts = () => {
+const liStartsOf = (list: LiDef[]) => {
   let f = 0;
-  return LI_LIST.map((d) => {
+  return list.map((d) => {
     f -= liOverlap(d);
     const from = f / FPS;
     f += Math.round(d.def[1].seconds * FPS);
     return [d.def[0], from] as const;
   });
 };
-
-export const K_LinkedIn: React.FC = () => {
+const filmOf = (list: LiDef[]): React.FC => () => {
   React.useEffect(() => {
     loadFonts();
   }, []);
   return (
     <Series>
-      {LI_LIST.map((d) => (
+      {list.map((d) => (
         <Series.Sequence key={d.def[0]} durationInFrames={Math.round(d.def[1].seconds * FPS)} offset={-liOverlap(d)}>
           <LiFrame d={d} />
         </Series.Sequence>
@@ -1355,3 +1389,93 @@ export const K_LinkedIn: React.FC = () => {
     </Series>
   );
 };
+export const liFrames = () => liFramesOf(LI_LIST);
+export const liStarts = () => liStartsOf(LI_LIST);
+export const K_LinkedIn = filmOf(LI_LIST);
+
+/**
+ * Kolo 32 (Samuel: verzia okolo 46 s pre LinkedIn, bez novych nahravok, zredukovat to, co uz je): kompozicia K-LinkedIn-46.
+ * Ta ista stavba, len z existujucich viet (src/copy/vo_kratka.json, klipy K46-*): v uvode otazka a hned "Hladanie moze
+ * trvat hodiny." (veta o sklade vypadla, sklad ostava obrazom), C4 cely (most, logo, pilulka, "Z vasho archivu urobime
+ * prehladny digitalny katalog."), v C5 len veta o QR (fotenie bez hlasu, mobil pride hned po nalepkach), v aplikacii len
+ * veta "Aplikacia z fotky sama precita text..." a overenie a potvrdenie clovekom len v obraze (lupa, klik, zelena karta,
+ * nadpis kroku "Overit a potvrdit"; zostrih k46-f24-review), vyhladavanie bez zmeny, ponuka len slide "Prvy krok"
+ * (Zacnime jednou krabicou, zadarmo a nezavazne), zaver 2,5 s. Verzia K (77 s) sa nemeni.
+ */
+/**
+ * C2: veta o hodinach zacina ~100 ms pred zdvihnutim zloziek (K: az po vete o sklade a pauze 0,74 s), navrat zloziek
+ * 100 ms po zdvihnuti (staticka chvila skladu 7820-8500 prebehne za tych 100 ms, nic sa v nej nehybe). `at` vety
+ * v vo_kratka.json (7070) je C2_UP_AT - ~100; ak sa zmeni chodza, upravit aj tam.
+ */
+const C2_46_LINE = voAt('K46-C2-Hladanie', 1);
+const C2_46 = c2Plan(Math.max(C2_46_LINE + 150, C2_UP_AT + 100), C2_46_LINE + (voLines('K46-C2-Hladanie')[1].dur ?? 1780));
+const LI_C2_46: React.FC = () => <LI_C2Base wmap={C2_46.wmap} />;
+/** C5: pauza po dopade poslednej nalepky len 700 ms (nalepky na ikonach dopadnu pri "dostane QR kod"), potom hned zlozka a mobil. */
+const C5_46_HOLDS: Hold[] = [
+  { at: 2300, hold: 700 },
+  { at: 4000, hold: 700 },
+];
+const C5_46_PHONE = 4300 + 700 + 700; // ms klipu: mobil pri zlozke (scena 4300 + pauzy)
+const C5_46_STEPS: C5Step[] = [
+  { from: 600, title: 'Prilepiť QR kód' },
+  { from: C5_46_PHONE - 100, title: 'Odfotiť titulnú stranu' },
+];
+const C5_46_CLIP = 'K46-C5-Teren';
+/** Ikony odidu 400 ms pred koncom vety (pri "usporiadany"), skor nez mobil narastie na cely ramec (scena 7600+). */
+const C5Hierarchy46: React.FC = () => <C5HierarchyBase clip={C5_46_CLIP} outAt={voAt(C5_46_CLIP, 0) + (voLines(C5_46_CLIP)[0].dur ?? 8640) - 400} />;
+/** F24: zostrih k46-f24-review (pokoj na fotke kratsi), lupa pri "autora alebo rok", klik na prijatie po vete, bez hlasu. */
+const KF24_46 = 'k46-f24-review';
+const F24_46_CLIP = 'K46-F24-Aplikacia';
+const kv46 = (i: number, k = 0) => voAt(F24_46_CLIP, i, k) / 1000;
+const F24_46_LINE_END = kv46(0) + (voLines(F24_46_CLIP)[0].dur ?? 7840) / 1000;
+const F24_46_TAPS: Tap[] = [tapAt(KF24_46, 12.15, 1734, 764)]; // prijat spravnu hodnotu (Nazov projektu)
+const F24_46_END = F24_46_TAPS[0].t + 0.75;
+const F24_46_LUPA = segStart(KF24_46, 1); // lupa nad fotkou (clovek overi), vratane prelinacky
+const F24_46_MARKS: Mark[] = [
+  markAt(KF24_46, kv46(0) + 0.9, kv46(0, 1) - 0.05, 286, 523, 331, 443, { spot: true }), // "z fotky sama precita text": fotka
+  markAt(KF24_46, kv46(0, 1) + 0.5, F24_46_LUPA - 0.05, 824, 654, 428, 32, { spot: true }), // "navrhne udaje: nazov projektu": navrhnuta hodnota
+];
+const F24_46_VIEWS: FootView[] = (() => {
+  const photo = { x: 120, y: 360, w: 840 },
+    form = { x: 700, y: 380, w: 840 },
+    both = { x: 150, y: 250, w: 840 },
+    accept = { x: 910, y: 380, w: 840 };
+  const L01 = kv46(0, 1),
+    tap = F24_46_TAPS[0].t;
+  return [
+    { t: 0, ...photo },
+    { t: L01 - 0.2, ...photo }, // "z fotky sama precita text"
+    { t: L01 + 0.6, ...form }, // "a navrhne udaje": nazov projektu, autor, rok
+    { t: F24_46_LUPA + 0.2, ...form },
+    { t: F24_46_LUPA + 0.9, ...both }, // lupa na fotke: clovek overi (bez hlasu)
+    { t: tap - 0.9, ...both },
+    { t: tap - 0.2, ...accept }, // klik na fajku: potvrdi
+    { t: tap + 99, ...accept },
+  ];
+})();
+const F24_46_STEPS: Step[] = [
+  { from: 0, title: 'Prečítať text' },
+  { from: kv46(0, 1) * 1000, title: 'Návrh údajov' },
+  { from: F24_46_LINE_END * 1000 - 100, title: 'Overiť a potvrdiť' }, // po vete, pocas lupy a kliku
+];
+const LI_F24_46: React.FC = () => <LI_F24Base src={`footage/${KF24_46}.mp4`} views={F24_46_VIEWS} taps={F24_46_TAPS} marks={F24_46_MARKS} end={F24_46_END} L0={kv46(0)} L01={kv46(0, 1)} />;
+/** C8: len slide "Prvy krok" (veta "Zacnime jednou krabicou, zadarmo a nezavazne."), prelinacka z F3 ako v K. */
+const C8_46_CLIP = 'K46-C8-Ponuka';
+const LI_C8_46: React.FC = () => (
+  <AbsoluteFill style={{ background: '#fff' }}>
+    <C8FirstStep lineAt={voAt(C8_46_CLIP, 0)} />
+  </AbsoluteFill>
+);
+const LI_LIST_46: LiDef[] = [
+  { def: paced('K46-C2-Hladanie', { scene: LI_C2_46, seconds: C2_46.seconds, stills: [], ...noSubs }), band: true, tone: () => 'dark', shift: c2Shift, win: INTRO_WIN, overflow: true },
+  { ...LI_LIST[1], shift: c4ShiftFor(C2_46.seconds) }, // C4 cely (hlas K-C4-Cena), pomaly najazd nadvazuje na kratsie C2
+  { def: paced(C5_46_CLIP, { scene: C5_BAND, seconds: 8.4, holds: C5_46_HOLDS, stills: [], ...noSubs }), band: true, tone: () => 'light', steps: C5_46_STEPS, phase: PHASE_ARCHIV, shift: c5Shift, win: { top: 138, bottom: 1030, feather: 18 }, overflow: true, overlay: C5Hierarchy46 },
+  { def: paced('K-F1-Sken', { scene: LI_F1, seconds: 2.0, vo: false, stills: [] }), tone: () => 'light', steps: F1_STEPS, phase: PHASE_ARCHIV }, // zaznam drzi posledny zaber, staci 2,0 s
+  { def: paced(F24_46_CLIP, { scene: LI_F24_46, seconds: F24_46_END, stills: [], ...noSubs }), tone: () => 'light', steps: F24_46_STEPS, phase: phases.app, xfadeIn: F1_XFADE },
+  LI_LIST[5], // F3 bez zmeny (hlas K-F3-Vyhladavanie)
+  { def: paced(C8_46_CLIP, { scene: LI_C8_46, seconds: clipEndSeconds(C8_46_CLIP), stills: [], ...noSubs }), tone: () => 'light', steps: [{ from: -9999, title: 'Prvý krok' }], phase: offer.kicker, subsOut: [0, 1e9], xfadeIn: C8_XFADE },
+  { def: paced('K-C9-Outro', { scene: LI_C9, seconds: 2.5, stills: [], ...noSubs }), tone: () => 'dark', chrome: false, subs: false },
+];
+export const liFrames46 = () => liFramesOf(LI_LIST_46);
+export const liStarts46 = () => liStartsOf(LI_LIST_46);
+export const K_LinkedIn46 = filmOf(LI_LIST_46);
