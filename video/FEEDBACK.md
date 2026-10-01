@@ -591,3 +591,19 @@ Posledná časť plánu z kola 49 (Samuel: vety prevziať z krátkej, kde hovori
 - Hudba: `bed.wav` poskladaný `scripts/music_edit.py` (variant `D` v `src/copy/music.json`) na mriežke 105 BPM z krátkej verzie: bez taktov -4 a -3 ako doteraz, polfráza 8-11 dvakrát (+9,1 s pod dlhší film), na začiatku bez iskier ako v krátkej (ticho do 2,27 s, výšky 2,2 až 5,3 s o 24 dB tichšie). Full: `node scripts/mix-music.mjs --variant D --music public/music/bed_dlha_edit.wav`, tempo 0,9974, nástup kapely 25,2 s (2,6 s pred zeleným prechodom na logo ako doteraz).
 - Film 154,3 s (predtým 145,2), -16 LUFS. Krátka verzia overená, 8 kontrolných snímok pixelovo zhodných.
 - Otvorené na posúdenie: prekreslené karty údajov pod oknom a pilulka „Zadarmo a nezáväzne“ v C8 (z kola 50); slide o bezpečnosti a infraštruktúre z krátkej („Technické riešenie“) v dlhej nie je.
+
+
+## Kolo 52 (1. 10. 2026): zvyšok obrazu krátkej verzie, slide Technické riešenie
+
+Samuel: porovnať, čo ešte nesedí s krátkou verziou, a opraviť. Porovnanie snímok Full kola 51 a K-LinkedIn kola 30: značka a rámec už sedeli, chýbali grafické prvky krátkej (hlas bol rovnaký, obraz chudobnejší) a tri miesta nesedeli s rámcom z kola 50. Rozhodnutia: body 1 až 7 áno, slide „Technické riešenie“ áno, pilulka „Zadarmo a nezáväzne“ nie.
+
+- Nové `src/components/ArchivesIcons.tsx` (HIcon, QrBadge, OfferIcon skopírované z krátkej) a `src/components/AppCards.tsx` (ValueCard, SearchCard, ItemCard, DocPath na šírku okna 16:9, pás `PANEL` 200 px).
+- C4: pod logom a sloganom ikony Váš archív → Digitálny katalóg pri slovách „archívu“, „urobíme“, „prehľadný“ (čas výstupu, `useOutputFrame`); logo o 70 px vyššie (280 px). Krátka verzia (`brand = false`) bez zmeny.
+- C5: vpravo od krabice rad Polica, Krabica, Šanón, Zložka (ikona pri svojom slove, QR nálepka pri „dostane QR kód“, dva príklady usporiadania), odíde pred vetou o mobile. Len dlhá verzia (`C5_TerenMain`, prop `hierarchy`).
+- `DesktopFootageClip` má `panels`: počas karty sa okno plynulo zmenší o 220 px (spodok 660 px), karta je 680 až 880 px; výrezy `autoViews` sú počítané pre menšie okno.
+  - F2: pri „a navrhne údaje“ karta Názov projektu, autor a rok pri svojich slovách; výrez pred kartou celý spodok záznamu, s kartou fotka a priebeh (`F2_VIEWS`).
+  - F4: tá istá karta od začiatku, pri prijatí návrhu (5,5 s) zozelenie s fajkou a štítkom Potvrdené, potom okno znova veľké.
+  - F3: hľadané slovo (píše sa 1,0 až 2,1 s ako v zázname), karta ZL_03 so zvýrazneným „vodovod“, cesta PL_01 → KR_01 → ZL_03 pri „aj cestu k nej“; pri vete o metadátach okno veľké.
+- C8: karty na šírku rámca (120 až 1800 px, stĺpce 810 px), väčšie písmo a ikony. C10: okno od začiatku `APP_WIN`, karty väčšie. C6: 2 s, nadpis od začiatku.
+- Nový klip `C8b-Technika` (8,6 s) za C8: zelený pás Bezpečne, pod ním Online u nás alebo Na vašej infraštruktúre, karta pri svojom slove zelená. Veta „Aplikácia funguje v súlade s vašimi bezpečnostnými požiadavkami, online u nás alebo na vašej infraštruktúre.“ je z nahrávky krátkej (`src` K-C8-Ponuka-2.wav), bez Gemini.
+- Hudba: variant `E` v `music.json` (D + polfráza 40-43 dvakrát, +4 takty), `bed_dlha_edit_e.wav`, tempo 1,0067. Film 162,0 s (predtým 154,3), -16 LUFS. Krátka verzia overená, 8 kontrolných snímok pixelovo zhodných.
