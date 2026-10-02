@@ -11,17 +11,17 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
-## Kde sme skončili (2. 10. 2026, kolo 38)
+## Kde sme skončili (2. 10. 2026, kolo 39)
 
 - Dve hotové videá, obe LinkedIn 4:5 (1080 x 1350), obe sa renderujú z toho istého projektu:
   - `video/out/kratka/K-LinkedIn_1080p.mp4` (76,8 s, kolo 31, kompozícia `K-LinkedIn`): plná krátka verzia, od kola 31 bez zmeny.
-  - `video/out/kratka/K-LinkedIn-46_1080p.mp4` (58,6 s, kolo 38, kompozícia `K-LinkedIn-46`): krátka verzia pre LinkedIn:
+  - `video/out/kratka/K-LinkedIn-46_1080p.mp4` (57,9 s, kolo 39, kompozícia `K-LinkedIn-46`): krátka verzia pre LinkedIn:
     problém, vycentrované logo ("Predstavujeme softvérové riešenie Assetin Archives."), háčik "Naskenovať celý archív môže byť
     drahé. Náš prístup katalogizácie archívu je hospodárnejší." (328 strán proti 1 identifikačnej strane s nadpisom), QR kód a
     "Mobilom sa odfotí len identifikačná strana." s bleskom, aplikácia s kartou pod oknom bez lupy (potvrdí alebo upraví),
     hľadanie (karty v strede medzi oknom a titulkom), výsledok "spoľahlivo viete, čo presne máte a kde to je" a rozhodnutie
-    uchovať / skartovať / plnohodnotne skenovať, výzva; podrobnosti v kole 38 nižšie. Kolá 32 (55,7 s), 33 (50,5 s), 34 (52,2 s),
-    35 (54,9 s), 36 (59,8 s) a 37 (59,5 s) sú v `out/kratka/verzie/`.
+    uchovať / skartovať / plnohodnotne skenovať, výzva; podrobnosti v kole 39 nižšie. Kolá 32 (55,7 s), 33 (50,5 s), 34 (52,2 s),
+    35 (54,9 s), 36 (59,8 s), 37 (59,5 s) a 38 (58,6 s) sú v `out/kratka/verzie/`.
     Náhľady `*_preview_540p.mp4` vedľa. Staršie kolá 14 až 30 sú v `out/kratka/verzie/`. Pôvodná dlhá verzia (145 s, 16:9) sa nemenila.
 - Zdroj: kompozície `K-LinkedIn` a `K-LinkedIn-46` (zoznam klipov `LI_LIST_46` na konci súboru) v `src/scenes/kratka/LinkedIn.tsx` (spoločné dáta `Kratka.tsx`, klipy `src/kratkaList.ts`),
   scenár `src/copy/vo_kratka.json`, hlas `public/vo-kratka/`, hudba `src/copy/music_kratka.json` (variant `K`: hudba
@@ -45,6 +45,36 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
   - Krabica alebo box: posúdené v kole 24, odporúčanie nechať "krabica".
 - Gemini API (hlas aj hudba) naposledy vracalo 402, vyčerpaný predplatený kredit; nové vety čakajú na jeho dobitie.
 - Review stránka experimentu (odkaz hore) je súkromná, ostatní ju uvidia, až keď ju vlastník zdieľa cez Share.
+
+## Kolo 39 (2. 10. 2026): úvod "V kancelárii či v archíve.", simulácia divákov na LinkedIne
+
+Samuel (ku kolu 38): úvod len "V kancelárii či v archíve."; potom simulácia divákov na LinkedIne, čo sa im páči, s čím majú
+problém a kde má video medzery, aby sme to upravili.
+
+- Úvod: "V kancelárii či v archíve." (2,2 s, z 3 kandidátov Gemini vybral 9/10, pokojná oznamovacia veta; v jednom kandidátovi
+  bolo "v" spodobené na "f"), "Hľadanie môže trvať hodiny." späť od 6,37 s. Film 57,77 s (1733 snímok), 15 viet, 104 slov.
+- Hudba (variant `K46`): groove 19 taktov, delay 0,35 s, tempo 0,9929, nástup kapely 0,34 s pred zeleným prechodom (7,83 s),
+  takt 44 na prelínačke do ponuky (51,57 s), akord v 56,2 s na logu (55,97 s).
+- Kontroly: prepis mixu cez Gemini zachytí všetkých 15 viet celých, hlas profesionálny a zrozumiteľný; -16,3 LUFS, true peak
+  -1,5 dBFS; K-LinkedIn 2302 snímok. Gemini opäť počuje kostrbatý prechod pri 0:15 až 0:16 (takt 3 až 4 skladby, v zostrihu
+  strih nie je).
+- Simulácia divákov na LinkedIne (Gemini s videom, 5 persón: správca budov, majiteľ stavebnej firmy, vedúci projekčnej
+  kancelárie, office manažérka, ktorá archív spravuje, marketér):
+  - Páči sa: kontrast "328 strán za €€€ proti 1 identifikačnej strane za €" (0:16 až 0:20; marketér: najsilnejší argument, mal
+    by byť v prvých sekundách), cesta polica -> krabica -> zložka (0:38 až 0:40), hľadanie "vodovod" (0:33 až 0:37), kroky
+    uchovať / skartovať / skenovať (správca: náklady na sklad), výzva "Začnime jednou krabicou, zadarmo a nezáväzne", hlas a hudba.
+  - Problémy (podľa váhy): 1. kto to fyzicky urobí (SaaS alebo služba na kľúč; správca nemá ľudí behať so mobilom, office
+    manažérka sa bojí, že bude všetko ťukať a kontrolovať ona, majiteľ to vníma ako licenciu); 2. pomalý úvod a logo v 0:08 až
+    0:12 (majiteľ a marketér: generický začiatok, logo pôsobí ako koniec intra); 3. drobné UI aplikácie na mobile (0:27 až 0:38);
+    4. chýba sociálny dôkaz a bezpečnosť dát (kde dáta ležia, kto to používa); 5. len A4 šanóny, projektant nevidí veľké formáty
+    a stupne dokumentácie.
+  - Medzery pred konaním: cena po pilotnej krabici, čo presne znamená "jedna krabica zadarmo" (príde niekto, alebo len prístup
+    do aplikácie), odkiaľ sú QR štítky, prepojenie s existujúcim digitálnym archívom.
+  - Odporúčané úpravy: úvod rovno kontrastom nákladov (bez postavičky), logo len ako vodoznak, aplikácia ako makro-výrez poľa
+    namiesto celého okna, veta "Zvládnete to sami s mobilom, alebo to celé zdigitalizuje náš tím." okolo 0:21, kratší záver a
+    silnejšia výzva s webom a mikrodôkazom. Nemeniť: koncept 1 strany proti celému spisu, hlas a hudba, výzva s jednou krabicou.
+  - Celý výstup simulácie: `video/review-kratka/` (riadok testov kolo 39) a súbor v scratchpade session.
+- Kolo 38 je uložené v `out/kratka/verzie/K-LinkedIn-46_kolo38_59s_*.mp4` a v commite `7b45f0e`.
 
 ## Kolo 38 (2. 10. 2026): záver bez "ako s tým ďalej naložiť", úvod "V kancelárii, v skrini, či v archíve.", karta v strede
 
