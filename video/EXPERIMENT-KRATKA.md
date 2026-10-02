@@ -11,17 +11,17 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
-## Kde sme skončili (2. 10. 2026, kolo 39)
+## Kde sme skončili (2. 10. 2026, kolo 40)
 
 - Dve hotové videá, obe LinkedIn 4:5 (1080 x 1350), obe sa renderujú z toho istého projektu:
   - `video/out/kratka/K-LinkedIn_1080p.mp4` (76,8 s, kolo 31, kompozícia `K-LinkedIn`): plná krátka verzia, od kola 31 bez zmeny.
-  - `video/out/kratka/K-LinkedIn-46_1080p.mp4` (57,9 s, kolo 39, kompozícia `K-LinkedIn-46`): krátka verzia pre LinkedIn:
+  - `video/out/kratka/K-LinkedIn-46_1080p.mp4` (61,9 s, kolo 40, kompozícia `K-LinkedIn-46`): krátka verzia pre LinkedIn:
     problém, vycentrované logo ("Predstavujeme softvérové riešenie Assetin Archives."), háčik "Naskenovať celý archív môže byť
-    drahé. Náš prístup katalogizácie archívu je hospodárnejší." (328 strán proti 1 identifikačnej strane s nadpisom), QR kód a
-    "Mobilom sa odfotí len identifikačná strana." s bleskom, aplikácia s kartou pod oknom bez lupy (potvrdí alebo upraví),
-    hľadanie (karty v strede medzi oknom a titulkom), výsledok "spoľahlivo viete, čo presne máte a kde to je" a rozhodnutie
-    uchovať / skartovať / plnohodnotne skenovať, výzva; podrobnosti v kole 39 nižšie. Kolá 32 (55,7 s), 33 (50,5 s), 34 (52,2 s),
-    35 (54,9 s), 36 (59,8 s), 37 (59,5 s) a 38 (58,6 s) sú v `out/kratka/verzie/`.
+    drahé. Náš prístup katalogizácie archívu je hospodárnejší." (logo z predstavenia ostáva ako hlavička háčika, 328 strán proti
+    1 identifikačnej strane), QR kód a "Mobilom sa odfotí len identifikačná strana." s bleskom, aplikácia s tesnými výrezmi a kartou
+    v strede pásma (potvrdí alebo upraví), hľadanie, výsledok "spoľahlivo viete, čo presne máte a kde to je" a rozhodnutie uchovať /
+    skartovať / plnohodnotne skenovať, "Buď katalogizujete vlastnými silami, alebo to spravíme ako službu na kľúč.", výzva;
+    podrobnosti v kole 40 nižšie. Kolá 32 až 39 sú v `out/kratka/verzie/`.
     Náhľady `*_preview_540p.mp4` vedľa. Staršie kolá 14 až 30 sú v `out/kratka/verzie/`. Pôvodná dlhá verzia (145 s, 16:9) sa nemenila.
 - Zdroj: kompozície `K-LinkedIn` a `K-LinkedIn-46` (zoznam klipov `LI_LIST_46` na konci súboru) v `src/scenes/kratka/LinkedIn.tsx` (spoločné dáta `Kratka.tsx`, klipy `src/kratkaList.ts`),
   scenár `src/copy/vo_kratka.json`, hlas `public/vo-kratka/`, hudba `src/copy/music_kratka.json` (variant `K`: hudba
@@ -45,6 +45,36 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
   - Krabica alebo box: posúdené v kole 24, odporúčanie nechať "krabica".
 - Gemini API (hlas aj hudba) naposledy vracalo 402, vyčerpaný predplatený kredit; nové vety čakajú na jeho dobitie.
 - Review stránka experimentu (odkaz hore) je súkromná, ostatní ju uvidia, až keď ju vlastník zdieľa cez Share.
+
+## Kolo 40 (2. 10. 2026): logo ako hlavička háčika, kratšia veta loga, tesnejšie výrezy, "vlastnými silami, alebo na kľúč"
+
+Samuel (k simulácii divákov z kola 39): sociálny dôkaz, bezpečnosť a veľké formáty do videa nejdú; záznam aplikácie nechať
+(alternatíva bez záznamu nie je vhodná); úvod má ostať problém -> riešenie -> meno; rozhodnuté cez otázky: logo ako hlavička
+háčika, veta loga "Predstavujeme Assetin Archives." (bez "softvérové riešenie", ktoré diváci čítali ako prácu pre seba),
+tesnejšie výrezy záznamu, veta "Buď katalogizujete vlastnými silami, alebo to spravíme ako službu na kľúč." pred výzvou.
+
+- Hlas: "Predstavujeme Assetin Archives." (2,9 s, tvrdé t overené), nový klip `K46-Kto` "Buď katalogizujete vlastnými silami,
+  alebo to spravíme ako službu na kľúč." (4,8 s, Gemini: prirodzená, profesionálna), háčik od 0,7 s klipu. Spolu 16 viet, 113 slov.
+- Logo a háčik: C4 končí 400 ms po vete s logom na obraze (`K_C4_H46` s brandOut za koncom klipu, `rowOut` do konca), háčik
+  začína bez prelínačky s tým istým logom na tom istom mieste (`Lockup` výška 168 na `C4_Y46.logo`), za 600 ms sa zmenší na
+  hlavičku vpravo hore (výška 64, `HOOK_LOGO`), slogan zbledne, stoh sa usadí od 450 ms; háčik má `chrome: false` (logo v pätke by
+  bolo dvakrát). Logo je na obraze 4 + 7 s namiesto 5 s prázdnej bielej.
+- Výrezy záznamu: aplikácia fotka (šírka 700), pole Názov projektu (620 okolo 728,380), prijatie (620 okolo 1144,540); hľadanie
+  `F3_46_VIEWS` (riadok so slovom 640, karta ZL_03 640, drobček 620), `LI_F3Base` dostal prop `views`.
+- Nová scéna `LI_Kto` (0:50,6, 5,0 s): dve karty Vlastnými silami (ikona aplikácie, "s našou aplikáciou") a Služba na kľúč
+  (ikona katalógu, "spracujeme my") pri slovách, nadpis "Vlastnými silami, alebo na kľúč", prelínačky 500 ms z Výsledku a do výzvy.
+- Hudba (variant `K46`): groove 21 taktov, delay 0,30 s, tempo 1,0017, nástup kapely 0,45 s pred zeleným prechodom, takt 44 na
+  prelínačke do výzvy (55,63 s), akord v 60,2 s na logu (60,03 s).
+- Dĺžka: 61,9 s (logo -1,6 s, háčik +0,4 s, nová scéna +5 s). Rezervy, ak má byť pod 60: kratšia veta "Vlastnými silami, alebo ako
+  služba na kľúč." (-1 s), kratšia druhá veta záveru (-1,5 s), úvodná veta "V kancelárii či v archíve." preč (-2,5 s).
+- Kontroly: prepis mixu cez Gemini zachytí všetkých 16 viet celých, hlas zrozumiteľný; -16,3 LUFS, true peak -1,5 dBFS; K-LinkedIn
+  2302 snímok. Pás 11,6 až 13,0 s: logo bez skoku, plynulé zmenšenie. Stills: hlavička v háčiku, výrezy aplikácie a hľadania,
+  karty Kto. Meranie obrazu: pod 6 % 0:09 až 0:12 (logo), 0:40 až 0:41, 0:51 až 0:52 (začiatky scén), nad 40 % len 0:27.
+  Simulované publikum (správca, majiteľ, office manažérka): logo už nepôsobí ako koniec intra (plynulý predel problém -> riešenie),
+  polia aplikácie čitateľné vďaka výrezom a kartám, "kto to urobí" je jasné, ale až v 0:51 (správca a office manažérka by to
+  chceli naznačiť už pri fotení v 0:22, majiteľ by "na kľúč" farebne vypichol); všetci dopozerajú, správca a office manažérka
+  kliknú, majiteľ prepošle. Gemini: video pripravené na zverejnenie, "na kľúč" zdôrazniť aj v texte príspevku.
+- Kolo 39 je uložené v `out/kratka/verzie/K-LinkedIn-46_kolo39_58s_*.mp4` a v commite `4aa253b`.
 
 ## Kolo 39 (2. 10. 2026): úvod "V kancelárii či v archíve.", simulácia divákov na LinkedIne
 
