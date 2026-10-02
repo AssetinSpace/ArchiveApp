@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { AbsoluteFill, getInputProps } from 'remotion';
+import { AbsoluteFill, Img, getInputProps, staticFile } from 'remotion';
 import { BRAND, FONT, Mode, modeColors, W } from '../theme';
 import { loadFonts } from '../lib/fonts';
 
@@ -48,15 +48,8 @@ export const Scene: React.FC<{ mode?: Mode; footer?: boolean; footerOpacity?: nu
             color: fc.muted,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <LogoMark size={34} color={fm === 'dark' ? '#ffffff' : BRAND[700]} />
-            <span style={{ width: 1, height: 28, background: fc.rule }} />
-            <span style={{ fontFamily: FONT.display, fontWeight: 700, color: fm === 'dark' ? '#fff' : '#0F172A' }}>
-              asset<span style={{ color: BRAND[600] }}>in</span>
-            </span>
-            <span style={{ width: 1, height: 28, background: fc.rule }} />
-            <span>Archives</span>
-          </div>
+          {/* Nove logo Assetin Archives (kolo 49): jednoriadkova verzia z public/brand, na tmavom podklade inverzna. */}
+          <Img src={staticFile(fm === 'dark' ? 'brand/archives-logo-line-inverse.svg' : 'brand/archives-logo-line.svg')} style={{ height: 34, width: 'auto', display: 'block' }} />
           <div>www.assetin.sk</div>
         </div>
       ) : null}
