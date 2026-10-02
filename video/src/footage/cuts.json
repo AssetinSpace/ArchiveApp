@@ -219,29 +219,22 @@
   "k46-f24-review": {
     "src": "src/review2.mp4",
     "vf": "crop=1764:882:98:150",
-    "note": "Kolo 33 (K46, verzia 48-50 s): kratsi pokoj na fotke, lupa 1,6x, prijatie hned; veta \"Aplikacia z fotky sama vycita udaje a clovek ich len potvrdi.\" (4,2 s od 0,8 s), klik pri \"potvrdi\".",
+    "note": "Kolo 33 (K46): kratsi pokoj na fotke, prijatie hned; kolo 37 (Samuel: lupa nad dokumentom nemusi byt): segment s lupou vypadol, po fotke s navrhom ide rovno prijatie; veta \"Aplikacia z fotky sama vycita udaje a clovek ich potvrdi alebo upravi.\" (5 s od 0,8 s).",
     "segs": [
       {
         "from": 0.5,
         "to": 2.5,
         "before": 0.4,
-        "after": 0,
-        "note": "fotka a navrhnute udaje v pokoji (2,4 s): \"z fotky sama vycita udaje\""
-      },
-      {
-        "from": 6.4,
-        "to": 9.4,
-        "speed": 1.6,
-        "fade": 0.25,
-        "note": "lupa nad fotkou: \"clovek\" overi (1,9 s)"
+        "after": 0.6,
+        "note": "fotka a navrhnute udaje v pokoji (3,0 s): \"z fotky sama vycita udaje\"; kolo 37: drzi o 0,6 s dlhsie, aby prijatie sadlo na \"potvrdi\""
       },
       {
         "from": 11.3,
         "to": 12.8,
         "fade": 0.25,
-        "after": 1,
+        "after": 2.0,
         "before": 0.25,
-        "note": "spravna hodnota, prijatie 12,15 s pri \"potvrdi\", zelena ciara schvaleneho navrhu"
+        "note": "spravna hodnota, prijatie 12,15 s pri \"potvrdi\", zelena ciara schvaleneho navrhu; drzi do konca vety (upravi)"
       }
     ]
   },

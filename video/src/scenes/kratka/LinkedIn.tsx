@@ -1496,7 +1496,7 @@ const HOOK_STEPS: Step[] = [
   { from: 0, title: 'Skenovať všetko je drahé' },
   { from: voAt(HOOK_CLIP, 1) - 100, title: 'Len identifikačná strana' },
 ];
-const HOOK_PAGES = 1240; // pocitadlo stran pri skenovani celeho archivu
+const HOOK_PAGES = 328; // pocitadlo stran pri skenovani celeho archivu (kolo 37: 328 namiesto 1 240)
 const fmtPages = (n: number) => `${Math.round(n).toLocaleString('sk-SK').replace(/\u00a0/g, ' ')} strán`;
 /**
  * Kolo 36 (Samuel: animacia, ze sken prebehne strasne vela stran a my fotime len jednu): krok 1 "Naskenovat cely archiv moze byt
@@ -1543,7 +1543,34 @@ const LI_Hook: React.FC = () => {
           const sc = top ? 1 + 0.1 * split : 1;
           return (
             <div key={i} style={{ position: 'absolute', left: cx - w / 2 + dx + stackDx + lx, top: cy - h / 2 + dy + ly, width: w, height: h, opacity: top ? 1 : 1 - stackDim, transform: `rotate(${rot * (1 - (top ? split : 0))}deg) scale(${sc})`, transformOrigin: 'center', filter: 'drop-shadow(0 10px 22px rgba(15,23,42,0.14))' }}>
-              <Sheet w={w} h={h} lines={8} title qr={top} stamp={top} />
+              {top ? (
+                <>
+                  {/* kolo 37 (Samuel: graficky rozlisit identifikacnu stranu): vrchny list ma hlavicku s nazvom a kratke polia, nie plny text */}
+                  <Sheet w={w} h={h} lines={0} title={false} qr stamp />
+                  <div style={{ position: 'absolute', left: w * 0.12, top: h * 0.09, width: w * 0.76 }}>
+                    <div style={{ fontFamily: APP_FONT, fontWeight: 600, fontSize: 13, letterSpacing: '0.08em', color: INK[400] }}>NÁZOV PROJEKTU</div>
+                    <div style={{ position: 'relative', marginTop: 6, padding: '6px 8px', borderRadius: 6, background: `rgba(234,245,235,${Math.min(1, frameT * 1.5)})`, fontFamily: FONT.display, fontWeight: 800, fontSize: 24, lineHeight: 1.12, letterSpacing: '-0.01em', color: INK[900] }}>
+                      Novostavba bytového domu
+                      <br />
+                      SLNEČNÁ 12
+                    </div>
+                    <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {[
+                        ['Autor', 'DOMINIS PROJEKT, s.r.o.'],
+                        ['Rok', '2018'],
+                        ['Typ', 'Projekt pre stavebné povolenie'],
+                      ].map(([k, v]) => (
+                        <div key={k} style={{ display: 'flex', gap: 8, fontFamily: APP_FONT, fontSize: 14, lineHeight: 1.2 }}>
+                          <span style={{ width: 44, flex: 'none', fontWeight: 500, color: INK[400] }}>{k}</span>
+                          <span style={{ fontWeight: 600, color: INK[800] }}>{v}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <Sheet w={w} h={h} lines={8} title />
+              )}
               {top && frameT > 0 ? (
                 <div style={{ position: 'absolute', inset: -14, borderRadius: 10, border: `5px solid ${BRAND[500]}`, opacity: Math.min(1, frameT * 1.5), transform: `scale(${1.08 - 0.08 * frameT})` }} />
               ) : null}
@@ -1587,7 +1614,7 @@ const C5_46_CLIP = 'K46-C5-Teren';
 const C5_46_SPEED = 1.4;
 /** Kolo 35: ikony a QR 1,15x. Kolo 36 (Samuel): tretia veta "Skenuje sa az to, co naozaj potrebujete." a dokumenty cez mobil vypadli,
  * po najazde na mobil scena stoji (8400) len do konca vety o identifikacnej strane, hned nasleduje aplikacia. */
-const C5_46_END = voAt(C5_46_CLIP, 1) + (voLines(C5_46_CLIP)[1].dur ?? 2880) + 200;
+const C5_46_END = voAt(C5_46_CLIP, 1) + (voLines(C5_46_CLIP)[1].dur ?? 3280) + 200; // kolo 37: veta "Mobilom sa odfoti..." zacina tak, aby "odfoti" (0,9 s) sadlo na blesk (scena 4900 = klip 3843)
 const C5_46_MAP: [number, number][] = [
   [0, 300],
   [3200, 4000],
@@ -1607,14 +1634,14 @@ const C5_46_Scene: React.FC = () => {
 const C5_46_W0 = { kod: 1.6 }; // s od zaciatku vety "Kazda polozka dostane QR kod." (words): "kod"
 const C5_46_STEPS: C5Step[] = [
   { from: 300, title: 'Prilepiť QR kód' },
-  { from: voAt(C5_46_CLIP, 1) - 100, title: 'Odfotiť len identifikačnú stranu' },
+  { from: voAt(C5_46_CLIP, 1) - 100, title: 'Mobilom odfotiť identifikačnú stranu' },
 ];
 const C5Hierarchy46: React.FC = () => <C5HierarchyBase clip={C5_46_CLIP} outAt={voAt(C5_46_CLIP, 1) - 100} iconsAt={[0, 1, 2, 3].map((i) => voAt(C5_46_CLIP, 0) + 150 + i * 90)} qrAt={voAt(C5_46_CLIP, 0) + C5_46_W0.kod * 1000 - 150} arrange={false} />;
 /** F24: zostrih k46-f24-review (pokoj na fotke 2,4 s, lupa 1,6x, prijatie hned), veta "Aplikacia z fotky sama vycita udaje a clovek ich len potvrdi.", klik 0,3 s po "potvrdi". */
 const KF24_46 = 'k46-f24-review';
 const F24_46_CLIP = 'K46-F24-Aplikacia';
 const F24_46_L0 = voAt(F24_46_CLIP, 0) / 1000;
-const F24_46_W = { udaje: 1.94, clovek: 2.84, potvrdi: 3.3, upravi: 4.18 }; // s od zaciatku vety "Aplikacia z fotky sama vycita udaje a clovek ich potvrdi alebo upravi." (words)
+const F24_46_W = { udaje: 2.04, clovek: 2.74, potvrdi: 3.24, upravi: 4.14 }; // s od zaciatku vety "Aplikacia z fotky sama vycita udaje a clovek ich potvrdi alebo upravi." (words)
 const F24_46_UDAJE = F24_46_L0 + F24_46_W.udaje;
 const F24_46_POTVRDI = F24_46_L0 + F24_46_W.potvrdi;
 const F24_46_TAPS: Tap[] = [tapAt(KF24_46, 12.15, 1734, 764)]; // prijat spravnu hodnotu (Nazov projektu)
@@ -1629,12 +1656,12 @@ const F24_46_VIEWS: FootView[] = (() => {
     form = { x: 700, y: 380, w: 840 },
     accept = { x: 910, y: 380, w: 840 };
   const tap = F24_46_TAPS[0].t;
+  // kolo 37: zostrih bez lupy, prijatie v zazname (tap) sadne na "potvrdi"; pohlad na formular kratko pred nim
   return [
     { t: 0, ...photo },
     { t: F24_46_UDAJE - 0.2, ...photo }, // "z fotky sama vycita"
-    { t: F24_46_UDAJE + 0.4, ...form }, // "udaje": nazov projektu
-    { t: tap - 0.9, ...form },
-    { t: tap - 0.25, ...accept }, // "potvrdi": klik na fajku
+    { t: F24_46_UDAJE + 0.3, ...form }, // "udaje": nazov projektu
+    { t: Math.max(F24_46_UDAJE + 0.9, tap - 0.25), ...accept }, // "potvrdi": prijatie
     { t: tap + 99, ...accept },
   ];
 })();
@@ -1666,7 +1693,7 @@ const VYS_CLIP = 'K46-Vysledok';
 /** Kolo 36 (Samuel): "Vysledok katalogizacie je, ze viete, co mate, kde to je a ako s tym dalej nalozit." (tri zelene riadky pri
  * slovach) a "Na zaklade toho viete rozhodnut, napriklad co uchovat, skartovat alebo plnohodnotne skenovat." (dlazdice v obrysoch
  * od zaciatku vety, rozsvietia sa pri slovach). Casy slov z K46-Vysledok-0 a -1 words. */
-const VYS_W = { co: 2.52, kde: 3.32, ako: 4.22, uchovat: 2.8, skartovat: 3.58, skenovat: 4.64 };
+const VYS_W = { co: 2.52, kde: 3.32, uchovat: 2.8, skartovat: 3.58, skenovat: 4.64 };
 const VYS_L0 = voAt(VYS_CLIP, 0);
 const VYS_L1 = voAt(VYS_CLIP, 1);
 const VYS_SECONDS = (VYS_L1 + (voLines(VYS_CLIP)[1].dur ?? 6240)) / 1000 + 0.3;
@@ -1734,9 +1761,9 @@ const VysTile: React.FC<{ kind: VysKind; label: string; sub: string; at: number;
 };
 const LI_Vysledok: React.FC = () => (
   <AbsoluteFill style={{ background: '#fff' }}>
-    <VysRow text="Čo máte" at={VYS_L0 + VYS_W.co * 1000 - 100} top={190} showAt={VYS_L0 + 150} />
-    <VysRow text="Kde to je" at={VYS_L0 + VYS_W.kde * 1000 - 100} top={340} showAt={VYS_L0 + 240} />
-    <VysRow text="Ako s tým ďalej" at={VYS_L0 + VYS_W.ako * 1000 - 100} top={490} showAt={VYS_L0 + 330} />
+    {/* kolo 37 (Samuel): riadok "Ako s tym dalej" prec, ostavaju dva */}
+    <VysRow text="Čo máte" at={VYS_L0 + VYS_W.co * 1000 - 100} top={250} showAt={VYS_L0 + 150} />
+    <VysRow text="Kde to je" at={VYS_L0 + VYS_W.kde * 1000 - 100} top={420} showAt={VYS_L0 + 240} />
     {VYS_TILES.map((t, i) => (
       <VysTile key={t.kind} {...t} at={VYS_L1 + t.at * 1000 - 120} showAt={VYS_L1 - 100 + i * 90} left={C8X + i * (300 + (C8W - 900) / 2)} />
     ))}

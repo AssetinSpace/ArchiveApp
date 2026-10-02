@@ -11,16 +11,16 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
-## Kde sme skončili (2. 10. 2026, kolo 36)
+## Kde sme skončili (2. 10. 2026, kolo 37)
 
 - Dve hotové videá, obe LinkedIn 4:5 (1080 x 1350), obe sa renderujú z toho istého projektu:
   - `video/out/kratka/K-LinkedIn_1080p.mp4` (76,8 s, kolo 31, kompozícia `K-LinkedIn`): plná krátka verzia, od kola 31 bez zmeny.
-  - `video/out/kratka/K-LinkedIn-46_1080p.mp4` (59,8 s, kolo 36, kompozícia `K-LinkedIn-46`): krátka verzia pre LinkedIn:
+  - `video/out/kratka/K-LinkedIn-46_1080p.mp4` (59,5 s, kolo 37, kompozícia `K-LinkedIn-46`): krátka verzia pre LinkedIn:
     problém, vycentrované logo ("Predstavujeme softvérové riešenie Assetin Archives."), háčik "Naskenovať celý archív môže byť
-    drahé. Náš prístup katalogizácie archívu je hospodárnejší." (1 240 strán proti 1 strane), QR kód a identifikačná strana,
-    aplikácia s kartou pod oknom (potvrdí alebo upraví), hľadanie, výsledok katalogizácie (čo máte, kde to je, ako s tým ďalej)
-    a rozhodnutie uchovať / skartovať / plnohodnotne skenovať, výzva; podrobnosti v kole 36 nižšie. Kolá 32 (55,7 s), 33 (50,5 s),
-    34 (52,2 s) a 35 (54,9 s) sú v `out/kratka/verzie/`.
+    drahé. Náš prístup katalogizácie archívu je hospodárnejší." (328 strán proti 1 identifikačnej strane s nadpisom), QR kód a
+    "Mobilom sa odfotí len identifikačná strana." s bleskom, aplikácia s kartou pod oknom bez lupy (potvrdí alebo upraví),
+    hľadanie, výsledok katalogizácie (čo máte, kde to je) a rozhodnutie uchovať / skartovať / plnohodnotne skenovať, výzva;
+    podrobnosti v kole 37 nižšie. Kolá 32 (55,7 s), 33 (50,5 s), 34 (52,2 s), 35 (54,9 s) a 36 (59,8 s) sú v `out/kratka/verzie/`.
     Náhľady `*_preview_540p.mp4` vedľa. Staršie kolá 14 až 30 sú v `out/kratka/verzie/`. Pôvodná dlhá verzia (145 s, 16:9) sa nemenila.
 - Zdroj: kompozície `K-LinkedIn` a `K-LinkedIn-46` (zoznam klipov `LI_LIST_46` na konci súboru) v `src/scenes/kratka/LinkedIn.tsx` (spoločné dáta `Kratka.tsx`, klipy `src/kratkaList.ts`),
   scenár `src/copy/vo_kratka.json`, hlas `public/vo-kratka/`, hudba `src/copy/music_kratka.json` (variant `K`: hudba
@@ -44,6 +44,33 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
   - Krabica alebo box: posúdené v kole 24, odporúčanie nechať "krabica".
 - Gemini API (hlas aj hudba) naposledy vracalo 402, vyčerpaný predplatený kredit; nové vety čakajú na jeho dobitie.
 - Review stránka experimentu (odkaz hore) je súkromná, ostatní ju uvidia, až keď ju vlastník zdieľa cez Share.
+
+## Kolo 37 (2. 10. 2026): oznamovacia veta v úvode, bez lupy, 328 strán, identifikačná strana graficky, mobil pri "odfotí"
+
+Samuel (ku kolu 36): "V skrini alebo v archíve" znie stále neprirodzene, možno oznamovacia veta; lupa nad dokumentom (0:29)
+nemusí byť; 1 240 strán zmeniť na 328; v háčiku graficky rozlíšiť identifikačnú stranu (názov, nadpis, nie plný text);
+"Aplikácia ... potvrdí alebo upraví" má zlú intonáciu; "QR kód" číta "kód" krátko; 0:27 sa už nefotí mobilom, prechod je planý,
+povedať "mobilom sa odfotí len identifikačná strana"; v bodoch na konci zmazať "ako s tým ďalej naložiť".
+
+- Hlas: "V skrini alebo v archíve." nahraná ako oznamovacia veta (Gemini na samostatnej nahrávke: prirodzené klesanie, nie
+  otázka; v prepise celého mixu ju však spolu s vetou "Výsledok katalogizácie..." označil za najplochejšiu, Samuel posúdi);
+  "Každá položka dostane QR kód." nahraná znova s dlhým ó (overené); nová "Mobilom sa odfotí len identifikačná strana." (3,3 s);
+  "Aplikácia z fotky sama vyčíta údaje a človek ich potvrdí alebo upraví." nahraná znova s pokynom na rovnú profesionálnu
+  intonáciu, z troch kandidátov Gemini vybral prvý (najvyrovnanejší). Spolu 15 viet, 107 slov.
+- Obraz: háčik: počítadlo 0 až 328 strán; vrchný (zdvihnutý) list je identifikačná strana: hlavička NÁZOV PROJEKTU, nadpis
+  "Novostavba bytového domu SLNEČNÁ 12" (pri zdvihnutí zelené podfarbenie), polia Autor / Rok / Typ, pečiatka a QR; listy v stohu
+  majú plný text (`Sheet` s 8 riadkami). QR scéna: veta "Mobilom sa odfotí len identifikačná strana." začína v 2,95 s klipu tak, aby
+  "odfotí" (0,9 s) sadlo na blesk mobilu (scéna 4900 ms = klip 3,84 s), nadpis Mobilom odfotiť identifikačnú stranu; po vete
+  0,2 s a prelínačka do aplikácie. Aplikácia: zostrih `k46-f24-review` bez lupy (fotka a návrh 3,0 s, potom rovno prijatie, ktoré
+  sadne na "potvrdí"), pohľady fotka -> formulár -> prijatie. Výsledok: riadky Čo máte / Kde to je (tretí riadok preč), dlaždice
+  bez zmeny. Úvod: "Hľadanie môže trvať hodiny." o 0,23 s neskôr (oznamovacia veta je dlhšia, 2,5 s). Film 59,37 s (1781 snímok).
+- Hudba (variant `K46`): delay 0,400 s, tempo 1,007, nástup kapely 0,6 s pred zeleným prechodom (7,78 s), takt 44 na prelínačke do
+  ponuky (53,17 s), akord v 57,7 s na logu (57,57 s). Gemini počuje zmenu pri 0:32 až 0:33: je to nástup bicích v takte 12 skladby
+  (takty 0 až 19 idú v kuse), nie strih.
+- Kontroly: prepis mixu cez Gemini zachytí všetkých 15 viet celých, hlas zrozumiteľný; -16,2 LUFS, true peak -1,5 dBFS; K-LinkedIn
+  2302 snímok. Stills v 10 časoch bez kolízií (identifikačná strana čitateľná, blesk pri "odfotí", karta s fajkou a ceruzkou pod
+  oknom). Meranie obrazu: pod 6 % len 0:13 a 0:41 až 0:42, nad 40 % len 0:28.
+- Kolo 36 je uložené v `out/kratka/verzie/K-LinkedIn-46_kolo36_60s_*.mp4` a v commite `7df4840`.
 
 ## Kolo 36 (2. 10. 2026): pokojnejší hlas, logo bez pilulky, sken mnohých strán, karty pod oknom, výsledok katalogizácie
 
