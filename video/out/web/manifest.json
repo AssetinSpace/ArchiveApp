@@ -544,8 +544,8 @@
       "seconds": 5.65,
       "file": {
         "path": "out/mp4/C7-Hierarchia.mp4",
-        "bytes": 792670,
-        "sha256": "6a1e77793a2d8e3679cbf749dcc652f245db0a0cc36185e8214d1bb456983ae9",
+        "bytes": 763405,
+        "sha256": "43b0492539f0d46f8d67ab7d41b988f66848c1e9f9ac83b0a3fa3d3b69278ebb",
         "changed": "2026-10-02"
       },
       "stills": [
@@ -557,14 +557,14 @@
         },
         {
           "path": "out/stills/C7-Hierarchia_2.png",
-          "bytes": 132881,
-          "sha256": "3b09462459f04af42017adcfd84baea539ed71182799858260a8c4df871bbbc8",
+          "bytes": 131424,
+          "sha256": "a4a8d6011b69fc3a0137413986b731aa21b9a889deab8bba24c37613b6d26cba",
           "changed": "2026-10-02"
         },
         {
           "path": "out/stills/C7-Hierarchia_3.png",
-          "bytes": 133639,
-          "sha256": "e1015b6dc96f60ce7bfdbab624e3905b65e51624b26b7b4a6a7f88f933b899b3",
+          "bytes": 114814,
+          "sha256": "f13bea9a2540e6ed067f32c8f415f68c97e2c8c569bf5f543979c77779761dc0",
           "changed": "2026-10-02"
         }
       ],

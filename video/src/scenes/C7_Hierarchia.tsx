@@ -58,6 +58,9 @@ export const C7_Hierarchia: React.FC = () => {
   const scan = 0; // mobil a ramik na konci vypadli, ostava len zvyraznenie vetvy
   const glow = tw(2200, 400);
   const placed = (i: number) => pop(frame, 3800 + i * 220);
+  /** Najazd kamery na policu: strom (ciary, nizsie uzly) sa pri nom stlmi, aby pod policou netrcala zelena vetva. */
+  const camIn = tw(2900, 1100);
+  const treeDim = 1 - camIn;
   const search = 0; // hladanie v mobile vypadlo (ukaze ho desktop footage F3)
   const found = 0;
   const FOUND = 2; // KR_01
@@ -94,7 +97,7 @@ export const C7_Hierarchia: React.FC = () => {
                       h = 40;
                     return (
                       <g key={k} transform={`translate(0 ${(1 - p) * -30})`} opacity={p * dim}>
-                        <Carton x={cx} y={cy} z={cz} qr={p} qrSize={0.3} />
+                        <Carton x={cx} y={cy} z={cz} qr={p} qrSize={0.16} />
                         {isFound && found > 0 ? (
                           <g>
                             {/* obrys siluety najdenej krabice + znacka nad nou */}
@@ -127,10 +130,7 @@ export const C7_Hierarchia: React.FC = () => {
             <g>
               <IsoBox x={-10} y={-15} z={0} w={21} d={30} h={1} faces={{ top: '#fff', left: ISO.right, right: ISO.edge }} />
               <QrOnTopFace x={-2} y={5} z={1.2} size={8} s={q} /> {/* kolo 31: QR plocho na liste, nie z boku */}
-              {/* oznacenie dokumentu */}
-              <text x={0} y={46} textAnchor="middle" fontFamily="ui-monospace, Menlo, monospace" fontSize={18} fill={INK[500]} opacity={q}>
-                {docId}
-              </text>
+              {/* oznacenie dokumentu je len vpravo pri nazve urovne (DK_07), nie pod kazdym dokumentom */}
             </g>
           )}
         </g>
@@ -141,7 +141,7 @@ export const C7_Hierarchia: React.FC = () => {
   return (
     <Scene mode="light" footer>
       <Camera keys={[{ ms: 2900, x: 0, y: 0, scale: 1 }, { ms: 4000, x: SHELF_C.x - 924, y: SHELF_C.y - 540, scale: 2.4 }]}>
-        <svg width={1400} height={760} viewBox="0 0 1400 760" style={{ position: 'absolute', left: SVG_AT.x, top: SVG_AT.y, opacity: treeOut }}>
+        <svg width={1400} height={820} viewBox="0 0 1400 820" style={{ position: 'absolute', left: SVG_AT.x, top: SVG_AT.y, opacity: treeOut }}>
           {NODES_Y.slice(1).map((ny, i) => {
             const py = NODES_Y[i] + (i === 0 ? 100 : i === 1 ? 170 : 90);
             const t = line(i);
@@ -150,14 +150,14 @@ export const C7_Hierarchia: React.FC = () => {
                 {[0, ...sib[i + 1]].map((dx, k) => {
                   const d = `M${NODE_X} ${py} C ${NODE_X} ${py + 50}, ${NODE_X + dx} ${ny - 40}, ${NODE_X + dx} ${ny + (i === 0 ? 20 : 10)}`;
                   const strong = dx === 0;
-                  return <path key={k} d={d} fill="none" stroke={strong && glow > 0.5 ? BRAND[600] : INK[300]} strokeWidth={strong ? 3 : 2} strokeLinecap="round" opacity={strong ? 1 : 0.6 * (1 - 0.6 * glow)} {...drawProps(t, 400)} />;
+                  return <path key={k} d={d} fill="none" stroke={strong && glow > 0.5 ? BRAND[600] : INK[300]} strokeWidth={strong ? 3 : 2} strokeLinecap="round" opacity={(strong ? 1 : 0.6 * (1 - 0.6 * glow)) * treeDim} {...drawProps(t, 400)} />;
                 })}
               </g>
             );
           })}
           {NODES_Y.map((ny, i) =>
             i === 1 ? null : (
-              <g key={i}>
+              <g key={i} opacity={i === 0 ? 1 : treeDim}>
                 {sib[i].map((dx, k) => (
                   <Node key={k} level={i} x={NODE_X + dx} y={ny} t={lvl(i)} q={qr(i) * 0.9} docId={['DK_06', 'DK_08'][k]} />
                 ))}
@@ -171,7 +171,7 @@ export const C7_Hierarchia: React.FC = () => {
                 {['Polica', 'Krabica', 'Zložka', 'Dokument'][i]}
               </text>
               <text x={NODE_X + 380} y={ny + 98 + (i === 0 ? 0 : i === 1 ? 20 : -10)} fontFamily="ui-monospace, Menlo, monospace" fontSize={22} fill={INK[500]} opacity={qr(i) * zoomOut}>
-                {['PO_01', 'KR_01', 'ZL_12', 'DK_07'][i]}
+                {['PO_01', 'KR_01', 'ZL_12', 'DK_01'][i]}
               </text>
             </g>
           ))}
