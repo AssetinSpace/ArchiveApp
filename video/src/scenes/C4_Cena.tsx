@@ -47,7 +47,7 @@ const BOX = 860;
  * (LinkedIn 4:5 kresli vlastne logo na vysku), `cost` = false: bez sipky, vykresu, cenoviek a "2x EUR" (len regal,
  * otaznik a hodiny), `clockAt` = kedy sa objavia hodiny (ms sceny); predvolene hlavna verzia.
  */
-export const C4_Cena: React.FC<{ d?: number; h?: number; brand?: boolean; cost?: boolean; clockAt?: number }> = ({ d: D = D_MAIN, h: H = H_MAIN, brand = true, cost = true, clockAt = 2600 }) => {
+export const C4_Cena: React.FC<{ d?: number; h?: number; brand?: boolean; cost?: boolean; clockAt?: number; withBox?: boolean }> = ({ d: D = D_MAIN, h: H = H_MAIN, brand = true, cost = true, clockAt = 2600, withBox = true }) => {
   const frame = useCurrentFrame();
   const showCap = useCaptions(); // kolo 29: vety nesie nahovor + titulky (Paced)
   const tw = (s: number, d: number) => tween(frame, s, d);
@@ -168,7 +168,8 @@ export const C4_Cena: React.FC<{ d?: number; h?: number; brand?: boolean; cost?:
       ) : null}
 
       {/* krabica z C5 sa usadi na podstavec = prvy frame C5 */}
-      {box > 0 ? <ArchiveBox state={archiveBoxClosed} size={BOX} style={{ position: 'absolute', left: boxLeft, top: boxTop, opacity: box, transform: `translateY(${(1 - box) * 30}px)` }} /> : null}
+      {/* kratka verzia K46 (kolo 35): bez krabice, po logu nasleduje hacik na bielej */}
+      {withBox && box > 0 ? <ArchiveBox state={archiveBoxClosed} size={BOX} style={{ position: 'absolute', left: boxLeft, top: boxTop, opacity: box, transform: `translateY(${(1 - box) * 30}px)` }} /> : null}
     </Scene>
   );
 };

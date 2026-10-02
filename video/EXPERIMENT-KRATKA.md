@@ -11,13 +11,15 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
-## Kde sme skončili (2. 10. 2026, kolo 34)
+## Kde sme skončili (2. 10. 2026, kolo 35)
 
 - Dve hotové videá, obe LinkedIn 4:5 (1080 x 1350), obe sa renderujú z toho istého projektu:
   - `video/out/kratka/K-LinkedIn_1080p.mp4` (76,8 s, kolo 31, kompozícia `K-LinkedIn`): plná krátka verzia, od kola 31 bez zmeny.
-  - `video/out/kratka/K-LinkedIn-46_1080p.mp4` (52,2 s, kolo 34, kompozícia `K-LinkedIn-46`): krátka verzia pre LinkedIn
-    s háčikom "Naskenovať celý archív je drahé..." hneď po logu, jedna vec naraz v aplikácii a hľadaní, výsledok ako tri body;
-    podrobnosti v kole 34 nižšie. Kolá 32 (55,7 s) a 33 (50,5 s) sú v `out/kratka/verzie/`.
+  - `video/out/kratka/K-LinkedIn-46_1080p.mp4` (54,9 s, kolo 35, kompozícia `K-LinkedIn-46`): krátka verzia pre LinkedIn
+    s háčikom "Naskenovať celý archív môže byť drahé. Náš prístup je hospodárnejší." po vycentrovanom logu s riadkom "Na kľúč,
+    alebo vlastnými silami", QR scéna s identifikačnou stranou a skenovaním len vybraného, jedna vec naraz v aplikácii a hľadaní,
+    záver "čo máte, kde to je" a triedenie uchovať / skartovať / naskenovať celé; podrobnosti v kole 35 nižšie. Kolá 32 (55,7 s),
+    33 (50,5 s) a 34 (52,2 s) sú v `out/kratka/verzie/`.
     Náhľady `*_preview_540p.mp4` vedľa. Staršie kolá 14 až 30 sú v `out/kratka/verzie/`. Pôvodná dlhá verzia (145 s, 16:9) sa nemenila.
 - Zdroj: kompozície `K-LinkedIn` a `K-LinkedIn-46` (zoznam klipov `LI_LIST_46` na konci súboru) v `src/scenes/kratka/LinkedIn.tsx` (spoločné dáta `Kratka.tsx`, klipy `src/kratkaList.ts`),
   scenár `src/copy/vo_kratka.json`, hlas `public/vo-kratka/`, hudba `src/copy/music_kratka.json` (variant `K`: hudba
@@ -41,6 +43,58 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
   - Krabica alebo box: posúdené v kole 24, odporúčanie nechať "krabica".
 - Gemini API (hlas aj hudba) naposledy vracalo 402, vyčerpaný predplatený kredit; nové vety čakajú na jeho dobitie.
 - Review stránka experimentu (odkaz hore) je súkromná, ostatní ju uvidia, až keď ju vlastník zdieľa cez Share.
+
+## Kolo 35 (2. 10. 2026): odlišnosť (katalóg rýchlo a spoľahlivo, skenuje sa len vybrané), logo vycentrované, triedenie
+
+Samuel (ku kolu 34): "V skrini? V sklade?" ako jedna veta "V skrini alebo v archíve?"; na logu veľa bieleho miesta a nič sa
+nedeje (vycentrovať, povedať "predstavujeme softvérové riešenie Assetin Archives"); po krabici ostal divný preklik; háčik
+"naskenovať celý archív môže byť drahé, náš prístup je šetrnejší / účelnejší" (navrhnúť slovo), veta o jednej strane netreba,
+hneď záber s krabicou (QR kód, len identifikačná strana); na konci "viete, čo to je a kde to je" a nad tým ďalší postup: uchovať
+dlhodobo, skartovať, alebo fulltextovo naskenovať; cieľ je ukázať odlišnosť (katalogizácia je rýchla, relatívne lacná a spoľahlivá,
+lebo je tam vždy fotka; zodpovedná osoba v aplikácii vytriedi a dá naskenovať len to, čo treba). Simulovať s divákmi.
+
+- Preklik po krabici (snímky 11,3 až 12,6 s kola 34): krabica scény C4 (verzia K) sa začína usádzať 100 ms pred koncom klipu a na
+  posledných snímkach prebleskla vľavo dole. Oprava: `C4_Cena` má prop `withBox` (K46 `false`), logo odíde 100 ms po vete, klip
+  drží bielu 260 ms a háčik sa cez ňu prelinie 250 ms (prvý pokus s prelínačkou cez odchádzajúce logo dal "ducha" loga cez stoh).
+- Simulované publikum na scenári (správca budov, majiteľ firmy; Gemini, text): verzia s triedením na konci je lepšia (rieši
+  skutočný problém oboch: skartovať a uvoľniť sklad), ale "softvérové riešenie" bez vysvetlenia znamená pre oboch prácu navyše
+  pre seba, dôvod "prečo len jedna strana" nesmie prísť až v 0:39 a pri "Skartovať" pomôže odkaz na menší sklad. Rozhodnuté
+  (Samuel): slovo "hospodárnejší"; na logu veta "Predstavujeme softvérové riešenie Assetin Archives." a pod logom riadok "Na kľúč,
+  alebo vlastnými silami"; veta "Skenuje sa až to, čo naozaj potrebujete." hneď po identifikačnej strane v QR scéne; nová
+  nahrávka "Odfotí sa len identifikačná strana."
+- Hlas: 7 nových viet Gemini (prepis bez chýb): "V skrini alebo v archíve?" (1,9 s), "Predstavujeme softvérové riešenie Assetin
+  Archives." (3,8 s), "Naskenovať celý archív môže byť drahé." (3,1 s), "Náš prístup je hospodárnejší." (2,3 s), "Odfotí sa len
+  identifikačná strana." (2,9 s), "Viete, čo máte a kde to je. Zodpovedná osoba rozhodne, čo uchovať, skartovať alebo naskenovať
+  celé." (7,3 s, jedna nahrávka s dvoma vetami; dve samostatné nahrávky mali 2,3 + 5,2 s a film by bol o sekundu dlhší). Veta
+  "Skenuje sa až to, čo naozaj potrebujete." je kópia bývalej K46-Hook-2 (`lines/K46-Skenuje.wav`). Spolu 16 viet, 99 slov.
+- Obraz (začiatky vo filme): C2 0:00 (8,17 s) ako kolo 34, "V skrini alebo v archíve?" pri chôdzi v sklade (3,9 s). C4 0:08,2
+  (4,8 s): logo so sloganom vycentrované (`C4TopBase` `center`, `C4_Y46`), pod nimi zelený riadok "Na kľúč, alebo vlastnými silami"
+  pri slove "riešenie" (`who`), bez pilulky a bez krabice. Háčik 0:13,0 (6,0 s, `LI_Hook` 2 kroky): stoh a cenovka €€€ pri
+  "drahé", pri "hospodárnejší" cenovka zbledne, na jej mieste zelená cenovka s jedným € a fajka, stoh zbledne na 65 %; nadpisy
+  Skenovať všetko je drahé / Náš prístup. C5 0:18,8 (10,2 s): ikony a QR 1,15x (scéna 300 až 4000 ms za 3,2 s), "Odfotí sa len
+  identifikačná strana." pri príchode mobilu (3,95 s), po najazde na mobil scéna stojí a pri "Skenuje sa až to..." (7,0 s) sa cez
+  zbledený mobil ukážu tri dokumenty, jeden na skenovanie, fajka pri "potrebujete" (`C5Pick46`, prenesené z háčika kola 34);
+  nadpisy Prilepiť QR kód / Odfotiť len identifikačnú stranu / Skenovať len vybrané. F24 0:28,7 (5,4 s) a F3 0:33,7 (7,8 s) bez
+  zmeny. Výsledok 0:41,0 (8,0 s, `LI_Vysledok`): riadky Čo máte / Kde to je sa pri fajke vyplnia zelenou (meranie: biele riadky
+  s obrysom mali 4 % plochy), pri "Zodpovedná osoba" tri dlaždice v obrysoch (nadpis Čo ďalej), pri slovách sa rozsvietia:
+  Uchovať (dlhodobo), Skartovať (menší sklad), Naskenovať celé (fulltextové vyhľadávanie); titulok v troch častiach. C8 0:48,6
+  (4,4 s) bez zmeny (riadok "Na kľúč" ostáva aj tu). C9 0:53,0 (1,8 s). Film 54,77 s (1643 snímok).
+- Dĺžka: 54,8 s namiesto plánovaných 52 až 53 (odhad rátal s kratšími vetami: logo 3,8 s namiesto 3,2, výsledok 7,3 s namiesto
+  6,5; nové vety majú spolu 21,3 s reči). Vzaté: ikony QR 1,15x (0,5 s), zlúčená nahrávka výsledku (1 s). Rezervy: bez vety
+  "Viete, čo máte a kde to je." (riadky prídu potichu, -2,4 s), kratšia veta loga bez "softvérové riešenie" (-1 s), mobil 1,6x
+  (-0,5 s), kratší chvost hľadania nejde (hlas končí 0,25 s pred koncom).
+- Hudba (variant `K46`): o takt dlhší groove (takty 0 až 16, bicie od taktu 12 pod aplikáciou, 36,6 s), tempo 0,9585, nástup
+  kapely 0,2 s pred zeleným prechodom (7,96 s), pokojná časť (takt 44) na začiatku prelínačky do ponuky (48,5 s), akord (51)
+  v 53,3 s na záverečnom logu (53,0 s). Gemini: prechody sedia na dobe, žiadny počuteľný skok.
+- Kontroly: prepis mixu cez Gemini zachytí všetkých 16 viet celých, hlas zrozumiteľný; -16,3 LUFS, true peak -1,4 dBFS; K-LinkedIn
+  2302 snímok. Snímkový pás 12,5 až 13,9 s: logo zmizne, biela, stoh sa prelinie, bez krabice. Meranie obrazu: obsah pod 6 % len
+  0:13 (biela medzi logom a háčikom) a 0:40 až 0:41 (cesta k položke), nad 40 % len 0:30. Simulované publikum na videu (pred
+  zelenými riadkami výsledku): so zvukom obaja dopozerajú, dôvod "len jedna strana" pochopia v 0:14 až 0:18 (so zvukom) a
+  0:15 až 0:28 (bez zvuku); riadok "Na kľúč" v 0:10 obaja vidia, ale je im nenápadný a hlas to nepovie, majiteľ stále vníma
+  softvér na vlastných ľudí; bez zvuku správca váha pri logu (0:09 až 0:12), majiteľ pri úvode (chcel by hneď číslo o úspore);
+  priveľa: okno aplikácie 0:28 až 0:33 a hľadanie 0:36 až 0:40; prázdne: logo 5 s, riadky výsledku 0:40 až 0:44 (opravené
+  zelenou výplňou a skorším obrysom dlaždíc).
+- Kolo 34 je uložené v `out/kratka/verzie/K-LinkedIn-46_kolo34_52s_*.mp4` a v commite `0298e9f`.
 
 ## Kolo 34 (1. až 2. 10. 2026): háčik "neskenujte všetko", vyvážený dej bez zvuku
 

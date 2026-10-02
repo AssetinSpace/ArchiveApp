@@ -42,7 +42,7 @@ export const K_C4_D = -2250; // kolo 13: predel sceny o 320 ms neskor pod pomals
 export const K_C4_H = 4850;
 export const K_C4_CLOCK = 1400;
 /** Kolo 33 (K46): scena C4 s inym `h` (kratsia veta pri logu). */
-export const K_C4For = (h: number): React.FC => () => <C4_Cena d={K_C4_D} h={h} brand={false} cost={false} clockAt={K_C4_CLOCK} />;
+export const K_C4For = (h: number, withBox = true): React.FC => () => <C4_Cena d={K_C4_D} h={h} brand={false} cost={false} clockAt={K_C4_CLOCK} withBox={withBox} />;
 export const K_C4 = K_C4For(K_C4_H);
 /** Scena C4 konci po usadeni krabice a paticke (ako v hlavnej verzii: 8200 + d + h + 900 ms). */
 export const c4End = (d: number, h: number) => (8200 + d + h + 900) / 1000;
