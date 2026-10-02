@@ -574,6 +574,44 @@
           "line": ""
         }
       ]
+    },
+    {
+      "id": "F4-Navrh",
+      "order": 14,
+      "title": "F4-Navrh",
+      "seconds": 3.9,
+      "file": {
+        "path": "out/mp4/F4-Navrh.mp4",
+        "bytes": 303377,
+        "sha256": "1e6882288601ea28c2ce6e7e6941f12fa928263dc31cc91d6d3329b58fd6f429",
+        "changed": "2026-10-02"
+      },
+      "stills": [
+        {
+          "path": "out/stills/F4-Navrh_1.png",
+          "bytes": 483228,
+          "sha256": "ed11e9b347c168ab15b2219c7f9ef027fda1309cd1fcf3d12c030d1f29f73996",
+          "changed": "2026-10-02"
+        },
+        {
+          "path": "out/stills/F4-Navrh_2.png",
+          "bytes": 536728,
+          "sha256": "3ff16da52140a791b7c6c489ee441729ed13e310fdf797c328da954f99992b7a",
+          "changed": "2026-10-02"
+        },
+        {
+          "path": "out/stills/F4-Navrh_3.png",
+          "bytes": 555492,
+          "sha256": "43147447d44a339102c60e5cb64bb74dca31ff63476b542187f5f28ff5539de8",
+          "changed": "2026-10-02"
+        }
+      ],
+      "steps": [
+        {
+          "title": "Návrh metadát",
+          "line": ""
+        }
+      ]
     }
   ],
   "transcript": [

@@ -148,5 +148,18 @@
       }
     ],
     "note": "zdroj: sken-1.mp4 = H.264 prevod povodneho ScreenRecording .mov (1206x2622, 60 fps)"
+  },
+  "f4-navrh": {
+    "src": "src/review2.mp4",
+    "vf": "crop=1764:882:98:150",
+    "segs": [
+      {
+        "from": 0.5,
+        "to": 2.5,
+        "before": 0.3,
+        "after": 1.6,
+        "note": "web, krok 3: fotka stitku a navrh udajov vedla (Nazov projektu), bez kontroly"
+      }
+    ]
   }
 }

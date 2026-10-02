@@ -8,6 +8,7 @@ import { C5_Teren } from './scenes/C5_Teren';
 import { F1_SECONDS, F1_Sken } from './scenes/F1_Sken';
 import { C6_Spracovanie } from './scenes/C6_Spracovanie';
 import { C7_Hierarchia } from './scenes/C7_Hierarchia';
+import { F4_Navrh, F4_NAVRH_SECONDS } from './scenes/F4_Navrh';
 import { C10_Databaza } from './scenes/C10_Databaza';
 import { F2_Metadata } from './scenes/F2_Metadata';
 import { F3_Vyhladavanie } from './scenes/F3_Vyhladavanie';
@@ -54,11 +55,13 @@ export const SCENE_LIST: [string, SceneDef][] = [
 /**
  * Klipy len pre web (nie su vo Full): C7-Hierarchia vypadlo z videa v kole 41,
  * ale produktova stranka ho pouziva ako ilustraciu kroku "Zaradenie do
- * hierarchie" (strom polica - krabica - zlozka - dokument). export-web.mjs
+ * hierarchie" (strom polica - krabica - zlozka - dokument); F4-Navrh je prvy
+ * usek kontroly (navrh udajov vedla fotky) pre krok 3. export-web.mjs
  * ho berie ako kazdy iny klip (musi stat pred zoznamom verzie 1).
  */
 export const WEB_EXTRA_LIST: [string, SceneDef][] = [
   paced('C7-Hierarchia', { scene: C7_Hierarchia, seconds: 5.6, vo: true, stills: [15, 75, 165] }),
+  paced('F4-Navrh', { scene: F4_Navrh, seconds: F4_NAVRH_SECONDS, stills: [5, 40, 100] }),
 ];
 
 /** Verzia 1 (dlha): samostatna kancelaria a sklad, nahradene klipom C2-Hladanie. */
