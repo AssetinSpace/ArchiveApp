@@ -621,30 +621,30 @@
       "id": "F4-Kontrola-Web",
       "order": 15,
       "title": "F4-Kontrola-Web",
-      "seconds": 18.6,
+      "seconds": 15.53,
       "file": {
         "path": "out/mp4/F4-Kontrola-Web.mp4",
-        "bytes": 3189936,
-        "sha256": "6826294b4bd785e62def808b1b1d97d524476874bea64720141278316aa38ee2",
+        "bytes": 2850598,
+        "sha256": "7d282220f8e7d7bf526c150893f0500a1fa8403bbc7b16702a3b240590c220ee",
         "changed": "2026-10-02"
       },
       "stills": [
         {
           "path": "out/stills/F4-Kontrola-Web_1.png",
-          "bytes": 165781,
-          "sha256": "815d8a6ad625f2d89e28c72ad041038a9a228cc71cde503df9306719021b2d90",
+          "bytes": 537359,
+          "sha256": "5fc025b760a44b05adfdbba56b908077bad69c3971ece4bd5f67cf49c82ff23d",
           "changed": "2026-10-02"
         },
         {
           "path": "out/stills/F4-Kontrola-Web_2.png",
-          "bytes": 247184,
-          "sha256": "0921209de184977ad7a75461166f4fcb750c1e9df8dba98e9ccf6d117e00f9f1",
+          "bytes": 542811,
+          "sha256": "5601ef39544835b7080fe224509b84974accbdbf8413dc11a85c7e24a94d5f0c",
           "changed": "2026-10-02"
         },
         {
           "path": "out/stills/F4-Kontrola-Web_3.png",
-          "bytes": 522469,
-          "sha256": "d8364fdcf490c952e9893be1f844cdf262bb9a8b8be8380346b556e70e12fd7a",
+          "bytes": 502439,
+          "sha256": "7c1d27667712144b23555b4b8cf606e16342431cf905ec7f03b339dfc56129a8",
           "changed": "2026-10-02"
         }
       ],

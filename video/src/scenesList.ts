@@ -12,7 +12,7 @@ import { F4_Navrh, F4_NAVRH_SECONDS } from './scenes/F4_Navrh';
 import { C10_Databaza } from './scenes/C10_Databaza';
 import { F2_Metadata } from './scenes/F2_Metadata';
 import { F3_Vyhladavanie, F3_VyhladavanieWeb } from './scenes/F3_Vyhladavanie';
-import { F4_Kontrola, F4_KontrolaWeb } from './scenes/F4_Kontrola';
+import { F4_Kontrola, F4_KontrolaWeb, F4_WEB_SKIP } from './scenes/F4_Kontrola';
 import { C8_Pilot } from './scenes/C8_Pilot';
 import { C9_Outro } from './scenes/C9_Outro';
 import { S04_Pokusy } from './scenes/optional/S04_Pokusy';
@@ -62,7 +62,7 @@ export const SCENE_LIST: [string, SceneDef][] = [
 export const WEB_EXTRA_LIST: [string, SceneDef][] = [
   paced('C7-Hierarchia', { scene: C7_Hierarchia, seconds: 5.6, vo: true, stills: [15, 75, 165] }),
   paced('F4-Navrh', { scene: F4_Navrh, seconds: F4_NAVRH_SECONDS, stills: [5, 60, 150] }),
-  paced('F4-Kontrola-Web', { scene: F4_KontrolaWeb, seconds: F4_SECONDS, stills: [10, 150, 400] }),
+  paced('F4-Kontrola-Web', { scene: F4_KontrolaWeb, seconds: F4_SECONDS, skip: F4_WEB_SKIP, stills: [10, 150, 400] }),
   paced('F3-Vyhladavanie-Web', { scene: F3_VyhladavanieWeb, seconds: F3_SECONDS, stills: [30, 170, 330, 440] }),
 ];
 
