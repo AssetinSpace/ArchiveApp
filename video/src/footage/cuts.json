@@ -241,7 +241,7 @@
   "k46-f3-search": {
     "src": "src/search2.mp4",
     "vf": "crop=1764:882:96:150",
-    "note": "Kolo 34 (K46): ako k-f3-search, karta a cesta drzia 4,25 s (K 5,35), karta sa vysuva cez zbledene okno, zmrazeny uvod len 0,2 s.",
+    "note": "Kolo 34 (K46): ako k-f3-search; kolo 42 (Samuel: v zazname nie je vidiet udaje o polozke): doplneny posun k zhode v metadatach (7,4 az 12,8 s, 3x) a zlta zhoda (12,8 az 13,2 s), karta drzi kratsie.",
     "segs": [
       {
         "from": 3.5,
@@ -258,8 +258,20 @@
       {
         "from": 6.2,
         "to": 7.4,
-        "after": 4.25,
-        "note": "vysledok ZL_03 a detail v pokoji, drobcek PL_01 / KR_01 / ZL_03; K46 kolo 34: drzi 4,25 s (klip 7,8 s, hlas konci v 7,55 s; pri 3,25 sa veta \"aj cestu k nej\" odsekla), zaciatok o 0,2 s skor"
+        "after": 0.9,
+        "note": "vysledok ZL_03 a detail v pokoji (drobcek PL_01 / KR_01 / ZL_03, Priloha, zaciatok tabulky metadat)"
+      },
+      {
+        "from": 7.4,
+        "to": 12.8,
+        "speed": 3,
+        "note": "posun stranky k zhode v metadatach (pocas \"o konkretnej polozke\")"
+      },
+      {
+        "from": 12.8,
+        "to": 13.2,
+        "after": 1.15,
+        "note": "automaticky zvyraznena zhoda v metadatach (Popis zmeny: Doplnenie vodovodnej pripojky...), drzi do konca klipu"
       }
     ]
   }

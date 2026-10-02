@@ -11,17 +11,17 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
-## Kde sme skončili (2. 10. 2026, kolo 41)
+## Kde sme skončili (2. 10. 2026, kolo 42)
 
 - Dve hotové videá, obe LinkedIn 4:5 (1080 x 1350), obe sa renderujú z toho istého projektu:
   - `video/out/kratka/K-LinkedIn_1080p.mp4` (76,8 s, kolo 31, kompozícia `K-LinkedIn`): plná krátka verzia, od kola 31 bez zmeny.
-  - `video/out/kratka/K-LinkedIn-46_1080p.mp4` (61,9 s, kolo 41, kompozícia `K-LinkedIn-46`): krátka verzia pre LinkedIn:
+  - `video/out/kratka/K-LinkedIn-46_1080p.mp4` (61,9 s, kolo 42, kompozícia `K-LinkedIn-46`): krátka verzia pre LinkedIn:
     problém, vycentrované logo ("Predstavujeme softvérové riešenie Assetin Archives."), háčik "Naskenovať celý archív môže byť
     drahé. Náš prístup katalogizácie archívu je hospodárnejší." (logo z predstavenia ostáva ako hlavička háčika, 328 strán proti
     1 identifikačnej strane), QR kód a "Mobilom sa odfotí len identifikačná strana." s bleskom, aplikácia (záznam od celého okna
     s plynulým priblížením, karta v strede pásma, potvrdí alebo upraví), hľadanie s detailom položky, výsledok "spoľahlivo viete, čo presne máte a kde to je" a rozhodnutie uchovať /
     skartovať / plnohodnotne skenovať, "Buď katalogizujete vlastnými silami, alebo to spravíme ako službu na kľúč.", výzva;
-    podrobnosti v kole 41 nižšie. Kolá 32 až 40 sú v `out/kratka/verzie/`.
+    podrobnosti v kole 42 nižšie. Kolá 32 až 41 sú v `out/kratka/verzie/`.
     Náhľady `*_preview_540p.mp4` vedľa. Staršie kolá 14 až 30 sú v `out/kratka/verzie/`. Pôvodná dlhá verzia (145 s, 16:9) sa nemenila.
 - Zdroj: kompozície `K-LinkedIn` a `K-LinkedIn-46` (zoznam klipov `LI_LIST_46` na konci súboru) v `src/scenes/kratka/LinkedIn.tsx` (spoločné dáta `Kratka.tsx`, klipy `src/kratkaList.ts`),
   scenár `src/copy/vo_kratka.json`, hlas `public/vo-kratka/`, hudba `src/copy/music_kratka.json` (variant `K`: hudba
@@ -45,6 +45,31 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
   - Krabica alebo box: posúdené v kole 24, odporúčanie nechať "krabica".
 - Gemini API (hlas aj hudba) naposledy vracalo 402, vyčerpaný predplatený kredit; nové vety čakajú na jeho dobitie.
 - Review stránka experimentu (odkaz hore) je súkromná, ostatní ju uvidia, až keď ju vlastník zdieľa cez Share.
+
+## Kolo 42 (2. 10. 2026): pohľady na záznam nanovo podľa skutočného obsahu, overené v plnom rozlíšení a simulovanými divákmi
+
+Samuel (komentár na review stránke ku kolu 41): pohľady na záznam sú katastrofálne, nič tam nie je poriadne vidieť, opraviť
+celé ešte raz a overiť, či to dáva zmysel aj simulovaným divákom.
+
+- Príčina: pohľady som dovtedy kontroloval len na miniatúrach. V plnom rozlíšení: v aplikácii pohľad na prijatie ukazoval
+  zbalený blok ďalšieho kľúča a tmavé pozadie stránky; v hľadaní pohľad "detail" prichádzal skôr, než sa výsledok objavil (prázdna
+  biela), a detail ukazoval len ZL_03, Bez poznámky a Prílohu, lebo zostrih končil pred posunom k zhode v metadátach.
+- Aplikácia (`F24_46_VIEWS`): celé okno (0,7 s) -> plynulé priblíženie na celú fotku pri "z fotky" -> držanie do "vyčíta" -> posun
+  na celý blok Kľúč: project_title (Označenie, Popis, Hodnota "Novostavba bytového domu SLNEČNÁ 12, BRATISLAVA", tlačidlá
+  prijatia) pri "údaje" -> držanie do konca, prijatie prebehne vnútri pohľadu (zelená čiara, "1 schválené"). Len dva pohyby.
+- Hľadanie: zostrih `k46-f3-search` doplnený o posun stránky k zhode v metadátach (zdroj 7,4 až 12,8 s, 3x) a žltú zhodu "Popis
+  zmeny: Doplnenie vodovodnej prípojky podľa požiadavky investora" (12,8 až 13,2 s, drží do konca); `F3_46_VIEWS`: celé okno
+  (0,5 s) -> pole Hľadať počas písania (výsledok sa objaví vnútri pohľadu) -> posun na detail (drobček, ZL_03, Príloha, Metadáta:
+  Časť projektu, Autor) pri "ukáže údaje" -> pri posune stránky pohľad hore a širší (1000 px), aby celý zvýraznený riadok a riadky
+  okolo (Číslo zmeny, Kontroloval, Číslo zákazky, Miesto stavby, Názov projektu) boli v zábere; pohľad na drobček vypadol (cestu
+  ukazuje karta pod oknom).
+- Kontrola: snímky v plnom rozlíšení každých 0,5 s (25,5 až 40 s): fotka celá, blok s hodnotou čitateľný, prijatie v zábere,
+  výsledok hľadania v zábere, metadáta so žltou zhodou celé (prvý pokus mal zhodu odrezanú vpravo, opravené širším pohľadom).
+  Simulovaní diváci na úseku 0:25 až 0:41 (správca budov, office manažérka): obaja rozumejú toku (fotka -> návrh -> potvrdenie;
+  slovo -> položka -> cesta), čitateľné sú priblížené polia, slovo vodovod a karty, nečitateľné ostávajú drobné popisy a názvy
+  súborov (ale karty pod oknom dávajú podstatu); jediná výhrada: na mobile by priblíženie mohlo byť ešte o 20 % tesnejšie.
+  -16,3 LUFS; K-LinkedIn 2302 snímok; hlas, hudba a dĺžka bez zmeny (61,9 s).
+- Kolo 41 je uložené v `out/kratka/verzie/K-LinkedIn-46_kolo41_62s_*.mp4` a v commite `0acd087`.
 
 ## Kolo 41 (2. 10. 2026): plynulé priblíženie záznamu, detail položky v hľadaní, pokojná hudba od scény Kto
 

@@ -1675,20 +1675,18 @@ const F24_46_VIEWS: FootView[] = (() => {
   // kolo 40 (publikum: polia aplikacie su na mobile drobne): tesnejsie vyrezy okolo fotky, pola Nazov projektu a prijatia;
   // kolo 41 (Samuel: uplne priblizenia prepinaju prilis rychlo): zacina cele okno, plynule priblizenie na fotku, posun na pole
   // Nazov projektu a na prijatie (footViewAt interpoluje s easeInOut a rovnomernou mierkou)
+  // kolo 42 (Samuel: v pohladoch nic nevidiet; kontrola v plnom rozliseni): len dva pohyby, fotka cela, potom cely blok
+  // Kluc: project_title (Oznacenie, Popis, Hodnota, tlacidla prijatia su vnutri), prijatie prebehne vnutri pohladu
   const full = { x: 70, y: 0, w: 1625 }, // najvacsi vyrez, ktory sa zmesti do 882 px zdroja
-    photo = { x: 200, y: 430, w: 700 },
-    form = { x: 728, y: 380, w: 620 },
-    accept = { x: 1144, y: 540, w: 620 };
-  const tap = F24_46_TAPS[0].t;
+    photo = { x: 60, y: 385, w: 810 },
+    block = { x: 700, y: 330, w: 1000 };
   return [
     { t: 0, ...full },
     { t: 0.7, ...full },
-    { t: F24_46_UDAJE - 0.3, ...photo }, // priblizenie na fotku do "vycita"
-    { t: F24_46_UDAJE + 0.3, ...photo },
-    { t: F24_46_UDAJE + 1.4, ...form }, // posun na pole Nazov projektu pri "udaje"
-    { t: Math.max(F24_46_UDAJE + 1.9, tap - 1.0), ...form },
-    { t: Math.max(F24_46_UDAJE + 2.4, tap - 0.2), ...accept }, // posun na prijatie pri "potvrdi"
-    { t: tap + 99, ...accept },
+    { t: F24_46_L0 + 1.0, ...photo }, // priblizenie na fotku pri "z fotky"
+    { t: F24_46_UDAJE - 0.3, ...photo }, // drzi do "vycita"
+    { t: F24_46_UDAJE + 0.6, ...block }, // posun na blok s hodnotou pri "udaje"
+    { t: 99, ...block },
   ];
 })();
 const F24_46_STEPS: Step[] = [
@@ -1705,21 +1703,23 @@ const F3_46_SECONDS = cutDuration(KF3_46);
 /** Kolo 40: tesnejsie vyrezy; kolo 41 (Samuel): zacina cele okno, plynule priblizenie na riadok s hladanym slovom, po vysledku posun
  * na detail polozky vpravo (ZL_03, Zlozka, nazov, priloha), pri "aj cestu k nej" na drobcek. */
 const F3_46_VIEWS: FootView[] = (() => {
+  // kolo 42: pole Hladat (vysledok sa objavi vnutri pohladu), detail s drobcekom, ZL_03, Prilohou a zaciatkom tabulky metadat,
+  // pri posune stranky pohlad hore, aby zlta zhoda (y 490) a riadky okolo boli v strede; pohlad na drobcek vypadol (cestu
+  // ukazuje karta pod oknom)
   const full = { x: 70, y: 0, w: 1625 },
-    search = { x: 0, y: 370, w: 640 },
-    detail = { x: 540, y: 430, w: 800 },
-    crumb = { x: 380, y: 560, w: 620 };
-  const v1 = voAt(F3_CLIP, 0, 1) / 1000,
-    path = voAt(F3_CLIP, 1) / 1000;
+    search = { x: 60, y: 300, w: 1000 },
+    detail = { x: 480, y: 440, w: 820 },
+    match = { x: 480, y: 220, w: 1000 }; // sirsi, aby cely zvyrazneny text (x 908 az 1393) bol vnutri
+  const v1 = voAt(F3_CLIP, 0, 1) / 1000;
   return [
     { t: 0, ...full },
-    { t: 0.6, ...full },
-    { t: 1.8, ...search }, // priblizenie pocas pisania slova
-    { t: v1 + 0.5, ...search },
-    { t: v1 + 1.6, ...detail }, // "udaje o konkretnej polozke": detail vpravo
-    { t: path - 0.2, ...detail },
-    { t: path + 0.8, ...crumb }, // "aj cestu k nej"
-    { t: 99, ...crumb },
+    { t: 0.5, ...full },
+    { t: 1.3, ...search }, // priblizenie pocas pisania slova
+    { t: v1 + 0.4, ...search },
+    { t: v1 + 1.3, ...detail }, // "ukaze udaje o konkretnej polozke"
+    { t: 5.5, ...detail },
+    { t: 6.4, ...match }, // posun stranky k zhode v metadatach
+    { t: 99, ...match },
   ];
 })();
 const LI_F3_46: React.FC = () => <LI_F3Base src={`footage/${KF3_46}.mp4`} seconds={F3_46_SECONDS} marks={f3Marks(F3_CLIP, F3_46_SECONDS).slice(0, 1)} middle views={F3_46_VIEWS} />; // kolo 36 (Samuel: divne sa to prekryva): karta a cesta pod oknom ako v K
