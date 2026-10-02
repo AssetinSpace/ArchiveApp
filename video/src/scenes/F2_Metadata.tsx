@@ -21,11 +21,13 @@ import { BRAND } from '../theme';
  * Zdroj: public/footage/ (priecinok nie je v gite).
  */
 export type Tap = { t: number; x: number; y: number }; // s, podiel sirky/vysky obsahu okna
+/** Kamera v okne: ohnisko (podiely obsahu okna) a mierka; medzi klucmi plynuly prechod. */
+export type ZoomKey = { ms: number; x: number; y: number; scale: number };
 export type Mark = { from: number; to: number; x: number; y: number; w: number; h: number; sweep?: number; color?: 'green' | 'amber'; outline?: boolean; spot?: boolean; pad?: number }; // pad = okraj spotu okolo oblasti (px, predvolene 8) // s, podiely obsahu okna; sweep = s, za ktore sa zvyraznenie "nakresli" zlava (ako fixkou)
 
 const MARK_FILL = { green: 'rgba(79,168,90,0.28)', amber: 'rgba(245,158,11,0.34)' };
 
-export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps: Step[]; phase?: string; taps?: Tap[]; marks?: Mark[]; enter?: boolean; win?: Rect; panelLeft?: number; panelWidth?: number }> = ({ src, seconds, steps, phase = phases.app, taps = [], marks = [], enter = false, win = FOOTAGE_WINDOW, panelLeft, panelWidth }) => {
+export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps: Step[]; phase?: string; taps?: Tap[]; marks?: Mark[]; enter?: boolean; win?: Rect; panelLeft?: number; panelWidth?: number; zoom?: ZoomKey[] }> = ({ src, seconds, steps, phase = phases.app, taps = [], marks = [], enter = false, win = FOOTAGE_WINDOW, panelLeft, panelWidth, zoom = [] }) => {
   const frame = useCurrentFrame();
   const tw = (s: number, d: number) => tween(frame, s, d);
   const winIn = enter ? tw(0, 400) : 1; // okno sa objavi z bielej (ked predchadzajuca scena nekonci oknom)
@@ -37,11 +39,25 @@ export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps:
   }, []);
   const cw = win.w,
     ch = win.h - 44;
+  // kamera: medzi klucmi zoomu plynule (easeInOut), ohnisko ide do stredu okna
+  let cam = { x: 0.5, y: 0.5, scale: 1 };
+  if (zoom.length) {
+    cam = { x: zoom[0].x, y: zoom[0].y, scale: zoom[0].scale };
+    for (let i = 1; i < zoom.length; i++) {
+      const k = zoom[i - 1],
+        n = zoom[i];
+      const t = tw(k.ms, n.ms - k.ms);
+      if (t <= 0) break; // dalsi kluc este nezacal
+      cam = { x: k.x + (n.x - k.x) * t, y: k.y + (n.y - k.y) * t, scale: k.scale + (n.scale - k.scale) * t };
+    }
+  }
+  const camStyle: React.CSSProperties = { position: 'absolute', inset: 0, transformOrigin: '0 0', transform: `translate(${cw / 2 - cam.x * cw * cam.scale}px, ${ch / 2 - cam.y * ch * cam.scale}px) scale(${cam.scale})` };
   return (
     <AbsoluteFill style={{ background: '#fff' }}>
       <div style={{ position: 'absolute', inset: 0, opacity: winIn, transform: `scale(${0.94 + 0.06 * winIn})`, transformOrigin: `${win.x + cw / 2}px ${win.y + win.h / 2}px` }}>
         <WindowFrame at={win}>
           <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#fff' }}>
+            <div style={camStyle}>
             <OffthreadVideo src={staticFile(src)} muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             {/* zvyraznenie ako fixkou (polopriehladna plocha, nakresli sa zlava doprava) alebo ramik */}
             {marks.map((m, i) => {
@@ -64,6 +80,7 @@ export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps:
               const r = 16 + 60 * t;
               return <div key={`t${i}`} style={{ position: 'absolute', left: tp.x * cw - r, top: tp.y * ch - r, width: 2 * r, height: 2 * r, borderRadius: '50%', border: `3px solid ${BRAND[400]}`, background: `rgba(79,168,90,${0.28 * (1 - t)})`, opacity: 1 - t * t, pointerEvents: 'none' }} />;
             })}
+            </div>
             <div style={{ position: 'absolute', inset: 0, background: '#fff', opacity: 1 - screenIn, pointerEvents: 'none' }} />
           </div>
         </WindowFrame>

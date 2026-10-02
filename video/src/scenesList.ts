@@ -61,7 +61,7 @@ export const SCENE_LIST: [string, SceneDef][] = [
  */
 export const WEB_EXTRA_LIST: [string, SceneDef][] = [
   paced('C7-Hierarchia', { scene: C7_Hierarchia, seconds: 5.6, vo: true, stills: [15, 75, 165] }),
-  paced('F4-Navrh', { scene: F4_Navrh, seconds: F4_NAVRH_SECONDS, stills: [5, 40, 100] }),
+  paced('F4-Navrh', { scene: F4_Navrh, seconds: F4_NAVRH_SECONDS, stills: [5, 60, 150] }),
 ];
 
 /** Verzia 1 (dlha): samostatna kancelaria a sklad, nahradene klipom C2-Hladanie. */

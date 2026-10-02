@@ -157,8 +157,8 @@
         "from": 0.5,
         "to": 2.5,
         "before": 0.3,
-        "after": 1.6,
-        "note": "web, krok 3: fotka stitku a navrh udajov vedla (Nazov projektu), bez kontroly"
+        "after": 3.5,
+        "note": "web, krok 3: fotka stitku a navrh udajov (kamera: najprv fotka, potom hodnoty), bez kontroly"
       }
     ]
   }
