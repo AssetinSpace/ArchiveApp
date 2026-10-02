@@ -217,12 +217,20 @@ const BigSubtitles: React.FC<{ clip: string; tone: Tone; ink?: number }> = ({ cl
  * aplikacie (navrh hodnoty, hladane slovo) su prekreslene jej pismom podla zaznamu, cesta k dokumentu je nakreslena.
  */
 /** Kolo 34: `lift` (px) a `liftAt` (s): panel sa vysunie nahor cez zbledene okno (jedna vec naraz, test bez zvuku: okno + karta + titulok naraz je privela). */
-const Panel: React.FC<{ from: number; to: number; label: string; width: number; children: React.ReactNode; lift?: number; liftAt?: number }> = ({ from, to, width, children, lift = 0, liftAt }) => {
+const Panel: React.FC<{ from: number; to: number; label: string; width: number; children: React.ReactNode; lift?: number; liftAt?: number; middle?: boolean }> = ({ from, to, width, children, lift = 0, liftAt, middle = false }) => {
   const frame = useCurrentFrame();
   const a = settle(frame, from * 1000) * (1 - tween(frame, to * 1000 - 250, 250));
   if (a <= 0.001) return null;
   const up = lift ? lift * tween(frame, (liftAt ?? from) * 1000, 450, easeInOut) : 0;
   // kolo 8: stitok nad detailom vypadol (label ostava ako popis v kode), detail je v strede pasma medzi oknom a titulkami
+  // kolo 38 (K46, Samuel): `middle` = karta zvislo presne v strede pasma medzi spodkom okna a titulkami
+  if (middle) {
+    return (
+      <div style={{ position: 'absolute', left: (LI.w - width) / 2, top: WIN.y + WIN.h, height: SUB_Y - (WIN.y + WIN.h), width, display: 'flex', alignItems: 'center', opacity: a, transform: `translateY(${(1 - a) * 14 - up}px)` }}>
+        <div style={{ width }}>{children}</div>
+      </div>
+    );
+  }
   return (
     <div style={{ position: 'absolute', left: (LI.w - width) / 2, top: CALL_Y + 20, width, opacity: a, transform: `translateY(${(1 - a) * 14 - up}px)` }}>
       {children}
@@ -576,15 +584,15 @@ const F24_VIEWS: FootView[] = (() => {
 })();
 /** F24: okno so zaznamom a panely pod nim; `L0` = zaciatok vety o aplikacii (s), `L01` = jej cast "a navrhne udaje" (s). */
 /** Kolo 34 (K46): `focusAt` (s) = okno zbledne a karta sa vysunie do jeho miesta; `approveAt` = potvrdenie (predvolene prvy klik). */
-const LI_F24Base: React.FC<{ src: string; views: FootView[]; taps: Tap[]; marks: Mark[]; end: number; L0: number; L01: number; focusAt?: number; approveAt?: number; editAt?: number }> = ({ src, views, taps, marks, end, L0, L01, focusAt, approveAt, editAt }) => (
+const LI_F24Base: React.FC<{ src: string; views: FootView[]; taps: Tap[]; marks: Mark[]; end: number; L0: number; L01: number; focusAt?: number; approveAt?: number; editAt?: number; middle?: boolean }> = ({ src, views, taps, marks, end, L0, L01, focusAt, approveAt, editAt, middle }) => (
   <AbsoluteFill>
     {/* kolo 3: okno na konci nevybledne do bielej, F3 nadvazuje v tom istom okne; kolo 13: priblizeny vyrez */}
     <LiFootage src={src} views={views} taps={taps} marks={marks} dimAt={focusAt} />
-    <Panel from={0.5} to={L01 + 0.1} label="Na fotke" width={720}>
+    <Panel from={0.5} to={L01 + 0.1} label="Na fotke" width={720} middle={middle}>
       <PhotoTitle width={720} />
     </Panel>
     {/* navrh ostava az po potvrdenie (klik na slove "potvrdi"); kolo 9: panel s fotkou pri zazname vypadol (duplicita) */}
-    <Panel from={L01 + 0.35} to={end} label="Návrh aplikácie: názov projektu" width={WIN.w} lift={focusAt !== undefined ? CALL_Y + 20 - 300 : 0} liftAt={focusAt}>
+    <Panel from={L01 + 0.35} to={end} label="Návrh aplikácie: názov projektu" width={WIN.w} lift={focusAt !== undefined ? CALL_Y + 20 - 300 : 0} liftAt={focusAt} middle={middle}>
       <ValueField approveAt={approveAt ?? taps[0].t} authorAt={L0 + F24_W0.autora - 0.1} yearAt={L0 + F24_W0.rok - 0.1} editAt={editAt} />
     </Panel>
   </AbsoluteFill>
@@ -689,7 +697,7 @@ const F3_VIEWS: FootView[] = (() => {
   ];
 })();
 /** Kolo 34 (K46): `focus` = pri karte najdenej polozky okno zbledne a karta aj cesta sa vysunu do jeho miesta. */
-const LI_F3Base: React.FC<{ src: string; seconds: number; marks: Mark[]; focus?: boolean }> = ({ src, seconds, marks, focus = false }) => {
+const LI_F3Base: React.FC<{ src: string; seconds: number; marks: Mark[]; focus?: boolean; middle?: boolean }> = ({ src, seconds, marks, focus = false, middle = false }) => {
   const v = (k: number) => voAt(F3_CLIP, 0, k) / 1000;
   const path = voAt(F3_CLIP, 1) / 1000; // kolo 10: "aj cestu k nej." po pauze (kolo 12: 0,7 s, "polozke" prirodzene doznie), karta polozky sa da docitat
   const lift = focus ? CALL_Y + 20 - 260 : 0;
@@ -697,14 +705,14 @@ const LI_F3Base: React.FC<{ src: string; seconds: number; marks: Mark[]; focus?:
     <AbsoluteFill>
       {/* kolo 3: bez `enter` (okno je na rovnakom mieste ako v F24, test: 0:45 biela diera pred vyhladavanim) */}
       <LiFootage src={src} views={F3_VIEWS} marks={marks} dimAt={focus ? v(1) + 0.3 : undefined} />
-      <Panel from={0.25} to={v(1) + 0.25} label="Hľadané slovo" width={WIN.w}>
+      <Panel from={0.25} to={v(1) + 0.25} label="Hľadané slovo" width={WIN.w} middle={middle}>
         <SearchField typeFrom={0.8} typeTo={1.9} />
       </Panel>
       {/* kolo 12: karta o 0,15 s skor (pauza pred "aj cestu k nej" je kratsia), vidno ju 3,6 s */}
-      <Panel from={v(1) + 0.3} to={path + 0.05} label="Nájdená položka" width={WIN.w} lift={lift}>
+      <Panel from={v(1) + 0.3} to={path + 0.05} label="Nájdená položka" width={WIN.w} lift={lift} middle={middle}>
         <ItemCard />
       </Panel>
-      <Panel from={path + 0.1} to={seconds + 1} label="Cesta k položke" width={WIN.w} lift={lift} liftAt={path - 9}>
+      <Panel from={path + 0.1} to={seconds + 1} label="Cesta k položke" width={WIN.w} lift={lift} liftAt={path - 9} middle={middle}>
         <DocPath lineAt={path} />
       </Panel>
     </AbsoluteFill>
@@ -1672,11 +1680,11 @@ const F24_46_STEPS: Step[] = [
 ];
 /** Kolo 34: okno zbledlo a karta sa vysunula na jeho miesto. Kolo 36 (Samuel: rychlo to preblikne, karta ma byt rovno pod oknom):
  * okno ostava, karta pod nim ako v K, pri "potvrdi" fajka, pri "upravi" ceruzka. */
-const LI_F24_46: React.FC = () => <LI_F24Base src={`footage/${KF24_46}.mp4`} views={F24_46_VIEWS} taps={[]} marks={F24_46_MARKS} end={F24_46_END} L0={F24_46_L0} L01={F24_46_UDAJE} approveAt={F24_46_POTVRDI + 0.1} editAt={F24_46_UPRAVI} />;
+const LI_F24_46: React.FC = () => <LI_F24Base src={`footage/${KF24_46}.mp4`} views={F24_46_VIEWS} taps={[]} marks={F24_46_MARKS} end={F24_46_END} L0={F24_46_L0} L01={F24_46_UDAJE} approveAt={F24_46_POTVRDI + 0.1} editAt={F24_46_UPRAVI} middle />;
 /** F3: ten isty zostrih, len karta a cesta drzia o 1,3 s kratsie (k46-f3-search). */
 const KF3_46 = 'k46-f3-search';
 const F3_46_SECONDS = cutDuration(KF3_46);
-const LI_F3_46: React.FC = () => <LI_F3Base src={`footage/${KF3_46}.mp4`} seconds={F3_46_SECONDS} marks={f3Marks(F3_CLIP, F3_46_SECONDS).slice(0, 1)} />; // kolo 36 (Samuel: divne sa to prekryva): karta a cesta pod oknom ako v K
+const LI_F3_46: React.FC = () => <LI_F3Base src={`footage/${KF3_46}.mp4`} seconds={F3_46_SECONDS} marks={f3Marks(F3_CLIP, F3_46_SECONDS).slice(0, 1)} middle />; // kolo 36 (Samuel: divne sa to prekryva): karta a cesta pod oknom ako v K
 /* Kolo 33 mala tu scenu Dve fazy (dve karty, LI_Fazy); v kole 34 ju nahradil hacik na zaciatku a Vysledok (tri body), kod je v commite 63756e0. */
 /** C8: len slide "Prvy krok" (veta "Zacnime jednou krabicou, zadarmo a nezavazne."), prelinacka z Dve fazy. */
 const C8_46_CLIP = 'K46-C8-Ponuka';
@@ -1691,9 +1699,9 @@ const LI_C8_46: React.FC = () => (
  */
 const VYS_CLIP = 'K46-Vysledok';
 /** Kolo 36 (Samuel): "Vysledok katalogizacie je, ze viete, co mate, kde to je a ako s tym dalej nalozit." (tri zelene riadky pri
- * slovach) a "Na zaklade toho viete rozhodnut, napriklad co uchovat, skartovat alebo plnohodnotne skenovat." (dlazdice v obrysoch
+ * slovach); kolo 38: "Vysledok je, ze spolahlivo viete, co presne mate a kde to je." (dva riadky) a "Na zaklade toho viete rozhodnut, napriklad co uchovat, skartovat alebo plnohodnotne skenovat." (dlazdice v obrysoch
  * od zaciatku vety, rozsvietia sa pri slovach). Casy slov z K46-Vysledok-0 a -1 words. */
-const VYS_W = { co: 2.52, kde: 3.32, uchovat: 2.8, skartovat: 3.58, skenovat: 4.64 };
+const VYS_W = { co: 2.4, kde: 3.48, uchovat: 2.8, skartovat: 3.58, skenovat: 4.64 }; // kolo 38: prva veta "Vysledok je, ze spolahlivo viete, co presne mate a kde to je." (words)
 const VYS_L0 = voAt(VYS_CLIP, 0);
 const VYS_L1 = voAt(VYS_CLIP, 1);
 const VYS_SECONDS = (VYS_L1 + (voLines(VYS_CLIP)[1].dur ?? 6240)) / 1000 + 0.3;
@@ -1762,7 +1770,7 @@ const VysTile: React.FC<{ kind: VysKind; label: string; sub: string; at: number;
 const LI_Vysledok: React.FC = () => (
   <AbsoluteFill style={{ background: '#fff' }}>
     {/* kolo 37 (Samuel): riadok "Ako s tym dalej" prec, ostavaju dva */}
-    <VysRow text="Čo máte" at={VYS_L0 + VYS_W.co * 1000 - 100} top={250} showAt={VYS_L0 + 150} />
+    <VysRow text="Čo presne máte" at={VYS_L0 + VYS_W.co * 1000 - 100} top={250} showAt={VYS_L0 + 150} />
     <VysRow text="Kde to je" at={VYS_L0 + VYS_W.kde * 1000 - 100} top={420} showAt={VYS_L0 + 240} />
     {VYS_TILES.map((t, i) => (
       <VysTile key={t.kind} {...t} at={VYS_L1 + t.at * 1000 - 120} showAt={VYS_L1 - 100 + i * 90} left={C8X + i * (300 + (C8W - 900) / 2)} />

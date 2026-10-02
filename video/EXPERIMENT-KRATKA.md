@@ -11,16 +11,17 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
-## Kde sme skončili (2. 10. 2026, kolo 37)
+## Kde sme skončili (2. 10. 2026, kolo 38)
 
 - Dve hotové videá, obe LinkedIn 4:5 (1080 x 1350), obe sa renderujú z toho istého projektu:
   - `video/out/kratka/K-LinkedIn_1080p.mp4` (76,8 s, kolo 31, kompozícia `K-LinkedIn`): plná krátka verzia, od kola 31 bez zmeny.
-  - `video/out/kratka/K-LinkedIn-46_1080p.mp4` (59,5 s, kolo 37, kompozícia `K-LinkedIn-46`): krátka verzia pre LinkedIn:
+  - `video/out/kratka/K-LinkedIn-46_1080p.mp4` (58,6 s, kolo 38, kompozícia `K-LinkedIn-46`): krátka verzia pre LinkedIn:
     problém, vycentrované logo ("Predstavujeme softvérové riešenie Assetin Archives."), háčik "Naskenovať celý archív môže byť
     drahé. Náš prístup katalogizácie archívu je hospodárnejší." (328 strán proti 1 identifikačnej strane s nadpisom), QR kód a
     "Mobilom sa odfotí len identifikačná strana." s bleskom, aplikácia s kartou pod oknom bez lupy (potvrdí alebo upraví),
-    hľadanie, výsledok katalogizácie (čo máte, kde to je) a rozhodnutie uchovať / skartovať / plnohodnotne skenovať, výzva;
-    podrobnosti v kole 37 nižšie. Kolá 32 (55,7 s), 33 (50,5 s), 34 (52,2 s), 35 (54,9 s) a 36 (59,8 s) sú v `out/kratka/verzie/`.
+    hľadanie (karty v strede medzi oknom a titulkom), výsledok "spoľahlivo viete, čo presne máte a kde to je" a rozhodnutie
+    uchovať / skartovať / plnohodnotne skenovať, výzva; podrobnosti v kole 38 nižšie. Kolá 32 (55,7 s), 33 (50,5 s), 34 (52,2 s),
+    35 (54,9 s), 36 (59,8 s) a 37 (59,5 s) sú v `out/kratka/verzie/`.
     Náhľady `*_preview_540p.mp4` vedľa. Staršie kolá 14 až 30 sú v `out/kratka/verzie/`. Pôvodná dlhá verzia (145 s, 16:9) sa nemenila.
 - Zdroj: kompozície `K-LinkedIn` a `K-LinkedIn-46` (zoznam klipov `LI_LIST_46` na konci súboru) v `src/scenes/kratka/LinkedIn.tsx` (spoločné dáta `Kratka.tsx`, klipy `src/kratkaList.ts`),
   scenár `src/copy/vo_kratka.json`, hlas `public/vo-kratka/`, hudba `src/copy/music_kratka.json` (variant `K`: hudba
@@ -44,6 +45,29 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
   - Krabica alebo box: posúdené v kole 24, odporúčanie nechať "krabica".
 - Gemini API (hlas aj hudba) naposledy vracalo 402, vyčerpaný predplatený kredit; nové vety čakajú na jeho dobitie.
 - Review stránka experimentu (odkaz hore) je súkromná, ostatní ju uvidia, až keď ju vlastník zdieľa cez Share.
+
+## Kolo 38 (2. 10. 2026): záver bez "ako s tým ďalej naložiť", úvod "V kancelárii, v skrini, či v archíve.", karta v strede
+
+Samuel (ku kolu 37): v hovorenom slove ostalo "a ako s tým ďalej naložiť", to nechceme; posúdiť úvod "V kancelárii, v skrini,
+či v archíve."; podľa screenshotu z 0:32 vycentrovať kartu medzi okno aplikácie a titulok; výsledok: "Výsledok je, že spoľahlivo
+viete, čo presne máte a kde to je."
+
+- Úvodná veta: vymenovanie troch miest sedí k obrazu (kancelária so skriňou, regály, archív) a znie prirodzenejšie než dvojčlenná
+  alternatíva. Prvá nahrávka Gemini mala sekané pauzy (Gemini: roboticky), preto 3 ďalší kandidáti s pokynom "plynulo, jedným
+  dychom", Gemini zoradil (9/10 vybraná, 7, 6 pôvodná, 4 stúpavá). Veta má 3,1 s, "Hľadanie môže trvať hodiny." od 7,15 s klipu
+  (C2 o 0,55 s dlhší, 8,93 s).
+- Záver: "Výsledok je, že spoľahlivo viete, čo presne máte a kde to je." (4,3 s, nová nahrávka, titulok v dvoch častiach), riadky
+  Čo presne máte / Kde to je pri slovách (2,4 a 3,48 s); druhá veta "Na základe toho viete rozhodnúť..." od 4,9 s klipu.
+  Výsledok 11,8 s (bolo 12,3).
+- Karta pod oknom: `Panel` má prop `middle` (kontajner od spodku okna 698 px po titulky 1060 px, karta zvislo v strede); K46 ho
+  používa pre kartu fotky a návrhu v aplikácii aj pre hľadané slovo, kartu položky a cestu v hľadaní; K ostáva na `CALL_Y + 20`.
+- Hudba (variant `K46`): groove 19 taktov 0 až 18, delay 0,75 s, tempo 0,9859, nástup kapely 0,65 s pred zeleným prechodom
+  (8,28 s), takt 44 na prelínačke do ponuky (52,33 s), akord v 56,97 s na logu (56,73 s). Gemini počuje zakopnutie pri 0:16 až
+  0:17; v zostrihu tam strih nie je (takty 0 až 18 idú v kuse).
+- Kontroly: prepis mixu cez Gemini zachytí všetkých 15 viet celých (106 slov), hlas zrozumiteľný; -16,2 LUFS, true peak -1,5 dBFS;
+  K-LinkedIn 2302 snímok. Stills v 7 časoch (karty v strede pásma, dva riadky výsledku) bez kolízií. Meranie obrazu: pod 6 % len
+  0:13 a 0:41 až 0:43 (riadky v obrysoch), nad 40 % len 0:29. Film 58,53 s (1756 snímok).
+- Kolo 37 je uložené v `out/kratka/verzie/K-LinkedIn-46_kolo37_59s_*.mp4` a v commite `fb76c52`.
 
 ## Kolo 37 (2. 10. 2026): oznamovacia veta v úvode, bez lupy, 328 strán, identifikačná strana graficky, mobil pri "odfotí"
 
