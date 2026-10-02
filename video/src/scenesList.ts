@@ -58,7 +58,7 @@ export const SCENE_LIST: [string, SceneDef][] = [
  * ho berie ako kazdy iny klip (musi stat pred zoznamom verzie 1).
  */
 export const WEB_EXTRA_LIST: [string, SceneDef][] = [
-  paced('C7-Hierarchia', { scene: C7_Hierarchia, seconds: 5, vo: true, holds: [{ at: 2050, hold: 2260 }, { at: 2480, hold: 1120 }], stills: [15, 135, 210] }),
+  paced('C7-Hierarchia', { scene: C7_Hierarchia, seconds: 5.6, vo: true, stills: [15, 75, 165] }),
 ];
 
 /** Verzia 1 (dlha): samostatna kancelaria a sklad, nahradene klipom C2-Hladanie. */

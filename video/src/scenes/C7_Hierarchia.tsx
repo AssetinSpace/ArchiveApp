@@ -22,9 +22,14 @@ import { BRAND, FONT, INK, ISO, SAFE } from '../theme';
  * nasleduje C6. 5 s. Zaradene hned za F1 (po naskenovani ma krabica miesto).
  * Vpravo kroky: Miesto v hierarchii · Hotovo v terene.
  *
- * ms: 0-500 hold · 500-2000 oddialenie + zaradenie · 900-1400 surodenci ·
- * 2100 polica, 2500 zlozky, 2900 dokumenty · 2600+i*200 QR · 3000 caption ·
- * 3300 vetva sa zvyrazni (bez mobilu a ramika) · 4400-5000 strom vybledne.
+ * Web (kolo 49, klip len pre produktovu stranku, bez pauz pre hlas): rychlejsi
+ * priebeh a na konci kamera najde na policu a krabice do nej zapadnu (plna
+ * polica = posledny zaber, klip sa na webe cykli). Strom nevybledne.
+ *
+ * ms: 0-200 hold · 200-1100 oddialenie + zaradenie · 500-900 surodenci ·
+ * 1200 polica, 1450 zlozky, 1700 dokumenty · 1600+i*150 QR ·
+ * 2200 vetva sa zvyrazni · 2900-4000 kamera na policu · 3800+i*220 krabice
+ * zapadnu · do 5600 plna polica.
  */
 const PX = 3;
 const PHONE_AT = { x: 330, y: 330, w: 7 * PX * 6, h: 15 * PX * 6 };
@@ -44,19 +49,19 @@ export const C7_Hierarchia: React.FC = () => {
   const frame = useCurrentFrame();
   const showCap = useCaptions();
   const tw = (s: number, d: number) => tween(frame, s, d);
-  const zoomOut = tw(500, 1500);
-  const lvlStart = [2100, 0, 2500, 2900];
+  const zoomOut = tw(200, 900);
+  const lvlStart = [1200, 0, 1450, 1700];
   const lvl = (i: number) => settle(frame, lvlStart[i]);
-  const line = (i: number) => tw([2300, 2500, 2900][i], 400);
-  const qr = (i: number) => pop(frame, 2600 + i * 200);
-  const sibIn = (k: number) => settle(frame, 900 + k * 250);
+  const line = (i: number) => tw([1300, 1500, 1700][i], 350);
+  const qr = (i: number) => pop(frame, 1600 + i * 150);
+  const sibIn = (k: number) => settle(frame, 500 + k * 200);
   const scan = 0; // mobil a ramik na konci vypadli, ostava len zvyraznenie vetvy
-  const glow = tw(3300, 400);
-  const placed = (i: number) => pop(frame, 6000 + i * 250);
+  const glow = tw(2200, 400);
+  const placed = (i: number) => pop(frame, 3800 + i * 220);
   const search = 0; // hladanie v mobile vypadlo (ukaze ho desktop footage F3)
   const found = 0;
   const FOUND = 2; // KR_01
-  const treeOut = 1 - tw(4400, 600); // strom aj mobil vyblednu do bielej (nasleduje C6)
+  const treeOut = 1; // web: strom ostava, klip konci plnou policou
   const fill = 1 - treeOut;
 
   // velka krabica z C5 (ArchiveBox 860 px) sa zmensi a zasunie do medzery medzi rovnake krabice
@@ -135,7 +140,7 @@ export const C7_Hierarchia: React.FC = () => {
 
   return (
     <Scene mode="light" footer>
-      <Camera keys={[{ ms: 5500, x: 0, y: 0, scale: 1 }, { ms: 7000, x: SHELF_C.x - 960, y: SHELF_C.y - 540, scale: 2.4 }]}>
+      <Camera keys={[{ ms: 2900, x: 0, y: 0, scale: 1 }, { ms: 4000, x: SHELF_C.x - 924, y: SHELF_C.y - 540, scale: 2.4 }]}>
         <svg width={1400} height={760} viewBox="0 0 1400 760" style={{ position: 'absolute', left: SVG_AT.x, top: SVG_AT.y, opacity: treeOut }}>
           {NODES_Y.slice(1).map((ny, i) => {
             const py = NODES_Y[i] + (i === 0 ? 100 : i === 1 ? 170 : 90);

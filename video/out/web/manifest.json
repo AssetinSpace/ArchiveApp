@@ -1,7 +1,7 @@
 {
   "$comment": "Generuje `npm run export:web` (video/scripts/export-web.mjs) - needitovat rucne.",
   "schema": 1,
-  "updated": "2026-09-27",
+  "updated": "2026-10-02",
   "video": {
     "width": 1920,
     "height": 1080,
@@ -541,31 +541,31 @@
       "id": "C7-Hierarchia",
       "order": 13,
       "title": "C7-Hierarchia",
-      "seconds": 8.43,
+      "seconds": 5.65,
       "file": {
         "path": "out/mp4/C7-Hierarchia.mp4",
-        "bytes": 684013,
-        "sha256": "e9ba8d3faaac98fb32d92fa3eb133290baf0eb97d2a55f9781c977304a26ba15",
-        "changed": "2026-09-25"
+        "bytes": 792670,
+        "sha256": "6a1e77793a2d8e3679cbf749dcc652f245db0a0cc36185e8214d1bb456983ae9",
+        "changed": "2026-10-02"
       },
       "stills": [
         {
           "path": "out/stills/C7-Hierarchia_1.png",
-          "bytes": 66435,
-          "sha256": "e58fc19c114bcddc547f01f3140f7c3d8a76eadc4e33d60826e6f717172415e9",
-          "changed": "2026-09-23"
+          "bytes": 64785,
+          "sha256": "8d19d81f60ad772c8ea938e8185295e101f1f8f0c32cb4ba74f48a478a4d2103",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/C7-Hierarchia_2.png",
-          "bytes": 98205,
-          "sha256": "9011f38dc0d71b442dd4a5e425d354fa9e9ffc8452f2e05b96db95636b4530b8",
-          "changed": "2026-09-25"
+          "bytes": 132881,
+          "sha256": "3b09462459f04af42017adcfd84baea539ed71182799858260a8c4df871bbbc8",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/C7-Hierarchia_3.png",
-          "bytes": 131485,
-          "sha256": "9e0c85c15e1613186f01a38b93c153c98fcea346a126bb1f89d17fd656e27373",
-          "changed": "2026-09-25"
+          "bytes": 133639,
+          "sha256": "e1015b6dc96f60ce7bfdbab624e3905b65e51624b26b7b4a6a7f88f933b899b3",
+          "changed": "2026-10-02"
         }
       ],
       "steps": [
