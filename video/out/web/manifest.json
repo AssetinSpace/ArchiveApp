@@ -13,15 +13,15 @@
     "files": {
       "1080p": {
         "path": "out/mp4/Full_1080p.mp4",
-        "bytes": 15634372,
-        "sha256": "0ac4bb4e9b747877f5f16b93945c7c1437d8e0594374cddd431d766231155717",
-        "changed": "2026-09-27"
+        "bytes": 15767911,
+        "sha256": "323a28d28de37369a3ffc5cc88baa8b819de44f8e42f71a8caefac3f9b3c8fd3",
+        "changed": "2026-10-02"
       },
       "540p": {
         "path": "out/mp4/Full_preview_540p.mp4",
-        "bytes": 5063541,
-        "sha256": "6331c03ceee77c05128f0b2b705101aebd1d8cf5e833e73f29eae6b40b1130c7",
-        "changed": "2026-09-27"
+        "bytes": 5062074,
+        "sha256": "7184e4c9116c58caeafefa9c0c27e5355e3f631533278e5d53adcabe594a6e05",
+        "changed": "2026-10-02"
       }
     }
   },
@@ -91,9 +91,9 @@
         },
         {
           "path": "out/stills/C2-Hladanie_4.png",
-          "bytes": 897622,
-          "sha256": "bf455c0c72e4d2772c3e6d3725d79acbe41a779a59b5b23e316b08f60f342151",
-          "changed": "2026-09-27"
+          "bytes": 898793,
+          "sha256": "c22ffdb0fee955483b30aedd840c10edc86d54d323f95c85798e156ebdcadfd5",
+          "changed": "2026-10-02"
         }
       ],
       "steps": []
@@ -105,9 +105,9 @@
       "seconds": 18.52,
       "file": {
         "path": "out/mp4/C4-Cena.mp4",
-        "bytes": 2110141,
-        "sha256": "4e17a6deabe0915f058ff9175dc9e5d1b0653044135e19e68999ff7894f8bbb9",
-        "changed": "2026-09-27"
+        "bytes": 2116852,
+        "sha256": "dbb5b9dccf4043cf08a2456fcb49e774e686bdffb842e730a8dbee346633603a",
+        "changed": "2026-10-02"
       },
       "stills": [
         {
@@ -150,34 +150,34 @@
       "seconds": 11.76,
       "file": {
         "path": "out/mp4/C5-Teren.mp4",
-        "bytes": 1606859,
-        "sha256": "1c7ad0106752854c818b158b3e37c803b8086d133a93fe0a7b86eb3ae5b9f057",
-        "changed": "2026-09-27"
+        "bytes": 1632112,
+        "sha256": "f850e5994371ebc8be8f19b07737875d79553878738a1d711b242ecb27b51409",
+        "changed": "2026-10-02"
       },
       "stills": [
         {
           "path": "out/stills/C5-Teren_1.png",
-          "bytes": 132485,
-          "sha256": "914157bf352d58f0548c5ecd7a6c2e945cc2677c1b34ed7b61532de4de344b58",
-          "changed": "2026-09-27"
+          "bytes": 137573,
+          "sha256": "f77916d4046bdb3948691e3bc8b31d5475ceba424557c1c2e3722af1ab521332",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/C5-Teren_2.png",
-          "bytes": 147235,
-          "sha256": "b68cd2fdaf109d8a598d362cc14a2bca0ee4372a600e4132825ffd8cdb5e71b8",
-          "changed": "2026-09-27"
+          "bytes": 150925,
+          "sha256": "773a728df5bf746dfe82812a7047ceec3acd29336727c2d56fbb4c4731e439d7",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/C5-Teren_3.png",
-          "bytes": 365514,
-          "sha256": "744bda8b2080f5146985c13f915ad2e10bc067a9cade4ac54cc6647b89a4befa",
-          "changed": "2026-09-27"
+          "bytes": 369466,
+          "sha256": "5f78cad32733bd23c1ac93d5c14f8831627651b0ad25d6d5a2703d5addac31e1",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/C5-Teren_4.png",
-          "bytes": 189723,
-          "sha256": "dd0fd73752d61543834683df120ed75e4fc4eb7056a9f0eb4643ec1e3740c9ac",
-          "changed": "2026-09-27"
+          "bytes": 193707,
+          "sha256": "aa270c757a22bb19ebb3f87c2de3841f35fe9c0c7850a58a6b90382168c06769",
+          "changed": "2026-10-02"
         }
       ],
       "steps": [
@@ -202,9 +202,9 @@
       "seconds": 14.76,
       "file": {
         "path": "out/mp4/F1-Sken.mp4",
-        "bytes": 2640719,
-        "sha256": "4472f2b112a2a82d4deb1fa6e8488009fa6b479660d8dba2c24b9bb5f9598cf2",
-        "changed": "2026-09-26"
+        "bytes": 2639222,
+        "sha256": "b673c99912561598ea4049435081a936d208dbce5f15b864cea8a3d9b0bb6f41",
+        "changed": "2026-10-02"
       },
       "stills": [
         {
@@ -252,22 +252,22 @@
       "seconds": 3.05,
       "file": {
         "path": "out/mp4/C6-Spracovanie.mp4",
-        "bytes": 365801,
-        "sha256": "7114068fc9467e117e66b6745171c6d64b35270eabdbbb4c6b403b87ef670a02",
-        "changed": "2026-09-27"
+        "bytes": 375622,
+        "sha256": "841fce20006080c7c2115ca15a294651aec32b7b2a64dc6d95dcc80d132e3ee0",
+        "changed": "2026-10-02"
       },
       "stills": [
         {
           "path": "out/stills/C6-Spracovanie_1.png",
-          "bytes": 117692,
-          "sha256": "89ab335571e946a73f43e2ad98c35de2fa778e045565c425b4cdd0ddffc9df17",
-          "changed": "2026-09-27"
+          "bytes": 121486,
+          "sha256": "46e89206ed10ac447538eb1a59ad3e23acbb010579d887236d2b6f02b87be800",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/C6-Spracovanie_2.png",
-          "bytes": 148778,
-          "sha256": "85c5cc972b1c461131b9c779156bcce72468ccfd20835580234693eb4635846a",
-          "changed": "2026-09-27"
+          "bytes": 152826,
+          "sha256": "2757ced1c3734f50c5bbe3f51d7d0f6a3df3533dbb21a51ffd9a8cd350cf1778",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/C6-Spracovanie_3.png",
@@ -292,21 +292,21 @@
       "stills": [
         {
           "path": "out/stills/F2-Metadata_1.png",
-          "bytes": 425931,
-          "sha256": "fd94c594b08c40364a8fba25f86a005e1e97b72f3586a7284c35ad32690f07ef",
-          "changed": "2026-09-25"
+          "bytes": 425914,
+          "sha256": "bb16f06f26c4ae52ac346a6a8b30c76f80597127099f4745a2c36c0b9c9f41af",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/F2-Metadata_2.png",
-          "bytes": 469484,
-          "sha256": "975cbdf37a5a66c73e7bd5f2f58d5f730297c0e896b72359b32c2d62a45032d1",
-          "changed": "2026-09-25"
+          "bytes": 469460,
+          "sha256": "f4255d99c3b0a5cdafbc528c51be6e82a36c36beaf46da62251cfb199aae3f80",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/F2-Metadata_3.png",
-          "bytes": 317434,
-          "sha256": "05b27a91f1f2f3db793e9101c631dc57342af16ce90277a37bf2f628f8d0aec8",
-          "changed": "2026-09-25"
+          "bytes": 317429,
+          "sha256": "2dfcce9175e6ff63b2167968b1392762f1cd45632f33cabd8d2426709027cf69",
+          "changed": "2026-10-02"
         }
       ],
       "steps": [
@@ -334,21 +334,21 @@
       "stills": [
         {
           "path": "out/stills/F4-Kontrola_1.png",
-          "bytes": 166049,
-          "sha256": "92fc27bfad3802d4fcf706a71dcdd049cfae74e164cce0edfd9782c479ec6047",
-          "changed": "2026-09-25"
+          "bytes": 165781,
+          "sha256": "815d8a6ad625f2d89e28c72ad041038a9a228cc71cde503df9306719021b2d90",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/F4-Kontrola_2.png",
-          "bytes": 572397,
-          "sha256": "2a427fec0af2988bbb55a5a28c6480278db9cc4567cc7d97a16c9ef10f3741a1",
-          "changed": "2026-09-26"
+          "bytes": 572428,
+          "sha256": "468e0eac1dd458d07c1cf400a6c1d058cba38f6a60bd29c0b660ca5f220ebbe2",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/F4-Kontrola_3.png",
-          "bytes": 555907,
-          "sha256": "4ff113bc1033d05a22b195e7d11952e2b452c848fc62298c25d8e49e65d1eef7",
-          "changed": "2026-09-25"
+          "bytes": 555875,
+          "sha256": "ed658ebfbe51cd9df1481a21df9bd0e548d7f6f2044f7c1ad4adc2b0c953bec5",
+          "changed": "2026-10-02"
         }
       ],
       "steps": [
@@ -377,34 +377,34 @@
       "seconds": 9.05,
       "file": {
         "path": "out/mp4/C10-Databaza.mp4",
-        "bytes": 734407,
-        "sha256": "cd6c12938cfc3514c6965b2cbd541e2a9d5f41a889170737d77560d9e13ef305",
-        "changed": "2026-09-26"
+        "bytes": 752019,
+        "sha256": "d53f5ba6a571073169b17a4bc2f90ee89e56a9fd13a7c339fce3ea98dc99dc2a",
+        "changed": "2026-10-02"
       },
       "stills": [
         {
           "path": "out/stills/C10-Databaza_1.png",
-          "bytes": 139104,
-          "sha256": "376ce3977747d4ab42be02201102e146a0072c40117b49dcc04304649b97f350",
-          "changed": "2026-09-26"
+          "bytes": 142819,
+          "sha256": "7cf13bdc11085998dc9db39a16f449619f157c5ab7c68b2cabd6e9ec2a543095",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/C10-Databaza_2.png",
-          "bytes": 142727,
-          "sha256": "7525351a3b3f8ca5428e20784da3644a37464ff2e1b1d7ff9a5038d5fcefd473",
-          "changed": "2026-09-26"
+          "bytes": 146602,
+          "sha256": "d5944e2b4dae2aa4d45cd76d1559cbc290484016b0c57aff0d00c35c0e6c62c5",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/C10-Databaza_3.png",
-          "bytes": 124059,
-          "sha256": "8e5af52f9d5937087961297d7e6ed12fb300f12b0264d4ea9c4c3f4084eb496c",
-          "changed": "2026-09-26"
+          "bytes": 128028,
+          "sha256": "78dfd9e2c19754d4cac108ef1b3cc8f6b3a18242021771ee32da361bcbb4a864",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/C10-Databaza_4.png",
-          "bytes": 134608,
-          "sha256": "87e5552e94249e626565702a9bbefd4a6962ae1bc87763075a07ba96711a883d",
-          "changed": "2026-09-26"
+          "bytes": 138582,
+          "sha256": "04cfb7855a446fa87711b1fdaf952bf24f36808c84e80c8fec87704309f27e71",
+          "changed": "2026-10-02"
         }
       ],
       "steps": []
@@ -423,27 +423,27 @@
       "stills": [
         {
           "path": "out/stills/F3-Vyhladavanie_1.png",
-          "bytes": 621487,
-          "sha256": "adb605e88b64ef9583979e0c757aa6ae1ea1e5d2937383ba97d68a209bce8e99",
-          "changed": "2026-09-27"
+          "bytes": 621640,
+          "sha256": "6c0a4fafe2219a1117a5d2e97dff46f24235f0819d02191b6b2c774227847508",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/F3-Vyhladavanie_2.png",
-          "bytes": 421117,
-          "sha256": "24083664ab02083dff13735af43a6d331950a148431cd76253338f839e3d2666",
-          "changed": "2026-09-27"
+          "bytes": 421074,
+          "sha256": "dcaf86eb3487936fb863288f69b75e157c3c0d7eae961b712f9bdef72dbc04cd",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/F3-Vyhladavanie_3.png",
-          "bytes": 402193,
-          "sha256": "0da9dcc4792a49065c6b50c7f55326f6bd7aa4ef1756a14d730ac7d5146cc5cd",
-          "changed": "2026-09-27"
+          "bytes": 402176,
+          "sha256": "a952cf2cb3bc3bf9c5be0510707a45b8c939ecca69cbff61472ef3742d9a6413",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/F3-Vyhladavanie_4.png",
-          "bytes": 393457,
-          "sha256": "5be9f91f64be5a7202d5e23bb2768d598177012daf3f869ffd9131f7034e7b7a",
-          "changed": "2026-09-27"
+          "bytes": 393379,
+          "sha256": "cdae3f7595644cb10aa83366b9661ffeffacc61a48af0905fd3be7f7a28bcc69",
+          "changed": "2026-10-02"
         }
       ],
       "steps": [
@@ -472,40 +472,40 @@
       "seconds": 21.06,
       "file": {
         "path": "out/mp4/C8-Pilot.mp4",
-        "bytes": 1834441,
-        "sha256": "c983d601f39fb076762cf3acc9585b38b91d92a63cf3e8ac12732dfaa3a25743",
-        "changed": "2026-09-27"
+        "bytes": 1857095,
+        "sha256": "2c0623774ec91b0a531d94100ca67449c8a3cbd14d3729c934505784f85bb89d",
+        "changed": "2026-10-02"
       },
       "stills": [
         {
           "path": "out/stills/C8-Pilot_1.png",
-          "bytes": 104826,
-          "sha256": "a6abdbb196e2210a80b32f931959d7c22b5107104cab653ef5df289c3f7f53d5",
-          "changed": "2026-09-27"
+          "bytes": 108742,
+          "sha256": "eefeb40c5dab22c50c02abc3743ad63fc70d5bc058d27148d6f7f2d663a043ce",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/C8-Pilot_2.png",
-          "bytes": 118842,
-          "sha256": "fef9214277c73e6efb1662d3ed71521fc4ba474f60616f6cb42fc7794dc5d842",
-          "changed": "2026-09-27"
+          "bytes": 122722,
+          "sha256": "051c1512bcbd61869c032759170bd1be20c8f57e1725a951ef760be4fce86a69",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/C8-Pilot_3.png",
-          "bytes": 144351,
-          "sha256": "9b35511632f8d49ecb2cb2332890c864b6a3e6bdf89455a1228838bd5b2c33f8",
-          "changed": "2026-09-27"
+          "bytes": 148572,
+          "sha256": "403e65593e1079efffa012e7c4ef98f959fc6a2bdb0b4148526e8d4796467265",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/C8-Pilot_4.png",
-          "bytes": 191340,
-          "sha256": "e9184e9a5ccb311862e341256890b426e85a20668c549583fdbda11d7a4b4ae6",
-          "changed": "2026-09-27"
+          "bytes": 195352,
+          "sha256": "6468f97957e86d06c4745e50f1b0910ede46c03bc6f694c692b38171b0beb584",
+          "changed": "2026-10-02"
         },
         {
           "path": "out/stills/C8-Pilot_5.png",
-          "bytes": 190243,
-          "sha256": "166a8933aac11e5ca5caa4053ea9cadddd36bfbc647a988ed9d7d5e8823e3535",
-          "changed": "2026-09-27"
+          "bytes": 194273,
+          "sha256": "a21cb0d3693d5c23ed78c0585d689e994025db0a6f273171e8a8a5698c6c78e9",
+          "changed": "2026-10-02"
         }
       ],
       "steps": []
@@ -544,27 +544,27 @@
       "seconds": 5.65,
       "file": {
         "path": "out/mp4/C7-Hierarchia.mp4",
-        "bytes": 763405,
-        "sha256": "43b0492539f0d46f8d67ab7d41b988f66848c1e9f9ac83b0a3fa3d3b69278ebb",
+        "bytes": 777276,
+        "sha256": "def3d23c9ec3e6961e8e3005e7ed2892285041fe6a0dca266e9ece362059a511",
         "changed": "2026-10-02"
       },
       "stills": [
         {
           "path": "out/stills/C7-Hierarchia_1.png",
-          "bytes": 64785,
-          "sha256": "8d19d81f60ad772c8ea938e8185295e101f1f8f0c32cb4ba74f48a478a4d2103",
+          "bytes": 69080,
+          "sha256": "c1aa54d9b91a76ead57179bc6d503ac3739180374f04bf0d6ff545fa84138933",
           "changed": "2026-10-02"
         },
         {
           "path": "out/stills/C7-Hierarchia_2.png",
-          "bytes": 131424,
-          "sha256": "a4a8d6011b69fc3a0137413986b731aa21b9a889deab8bba24c37613b6d26cba",
+          "bytes": 135425,
+          "sha256": "2bf3806302ba4cd2fda3eb232eaa939ad7c59d8345a1c3f800dbb2a78cc5cd24",
           "changed": "2026-10-02"
         },
         {
           "path": "out/stills/C7-Hierarchia_3.png",
-          "bytes": 114814,
-          "sha256": "f13bea9a2540e6ed067f32c8f415f68c97e2c8c569bf5f543979c77779761dc0",
+          "bytes": 118741,
+          "sha256": "ce18492ed4d0f4fc1faf48929a1f097a472ce999f6c4e64284accab2756e476b",
           "changed": "2026-10-02"
         }
       ],
@@ -579,36 +579,40 @@
       "id": "F4-Navrh",
       "order": 14,
       "title": "F4-Navrh",
-      "seconds": 3.9,
+      "seconds": 5.8,
       "file": {
         "path": "out/mp4/F4-Navrh.mp4",
-        "bytes": 303377,
-        "sha256": "1e6882288601ea28c2ce6e7e6941f12fa928263dc31cc91d6d3329b58fd6f429",
+        "bytes": 1369632,
+        "sha256": "0fe859f0fd1c39bc2df814249bf58554a20478b5dd990664a70553f135355372",
         "changed": "2026-10-02"
       },
       "stills": [
         {
           "path": "out/stills/F4-Navrh_1.png",
-          "bytes": 483228,
-          "sha256": "ed11e9b347c168ab15b2219c7f9ef027fda1309cd1fcf3d12c030d1f29f73996",
+          "bytes": 473246,
+          "sha256": "3e47c72c451075444455474cbebdf29a7624ce761c10123638fa3d600676da92",
           "changed": "2026-10-02"
         },
         {
           "path": "out/stills/F4-Navrh_2.png",
-          "bytes": 536728,
-          "sha256": "3ff16da52140a791b7c6c489ee441729ed13e310fdf797c328da954f99992b7a",
+          "bytes": 453761,
+          "sha256": "a4cfee79308e63570f09f2b7d2d359f7b4b11e4b299c951b2d135d39cb7d9ab2",
           "changed": "2026-10-02"
         },
         {
           "path": "out/stills/F4-Navrh_3.png",
-          "bytes": 555492,
-          "sha256": "43147447d44a339102c60e5cb64bb74dca31ff63476b542187f5f28ff5539de8",
+          "bytes": 361454,
+          "sha256": "2d8c42558b3b8890d46161d98e81b4a16dc83143598bc24182ae3e8e62e8d80e",
           "changed": "2026-10-02"
         }
       ],
       "steps": [
         {
-          "title": "Návrh metadát",
+          "title": "Fotka identifikačnej strany",
+          "line": ""
+        },
+        {
+          "title": "Navrhnuté údaje sa zhodujú",
           "line": ""
         }
       ]
