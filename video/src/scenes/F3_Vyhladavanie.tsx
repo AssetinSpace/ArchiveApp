@@ -2,9 +2,9 @@ import React from 'react';
 import { Step } from '../components/Steps';
 import { FOOTAGE_WINDOW_WIDE } from '../components/Device';
 import { voAt } from '../components/Subtitles';
-import { DesktopFootageClip, Mark, Tap, markAt } from './F2_Metadata';
+import { DesktopFootageClip, Mark, Tap, ZoomKey, markAt } from './F2_Metadata';
 import { phases } from '../copy/sk';
-import { cutDuration, segStart } from '../lib/cuts';
+import { cutDuration, segStart, srcFrac } from '../lib/cuts';
 
 /**
  * F3 - Vyhladavanie: zostrih noveho zaznamu (search2.mp4) podla src/footage/cuts.json.
@@ -35,3 +35,28 @@ const F3_MARKS: Mark[] = [
 ];
 /** F3 nadvazuje na okno z C10 (kolo 36), obsah okna nabehne z bielej. */
 export const F3_Vyhladavanie: React.FC = () => <DesktopFootageClip src="footage/f3-search.mp4" seconds={F3_SECONDS} steps={F3_STEPS} phase={phases.search} taps={F3_TAPS} marks={F3_MARKS} win={FOOTAGE_WINDOW_WIDE} panelLeft={1460} panelWidth={430} />;
+
+/**
+ * F3-Vyhladavanie-Web: ten isty zostrih pre web (krok 5 produktovej stranky), s kamerou: pole
+ * vyhladavania pri pisani, vysledok a detail, drobcek cesty, odznaky Najdene v, zvyraznena zhoda.
+ * Samuel 2. 10.: priblizovat tam, kde sa prave nieco deje. Bez hlasu (web hra bez zvuku).
+ */
+const f = (x: number, y: number, scale: number, s: number): ZoomKey => ({ ms: s * 1000, ...srcFrac(ID, x, y), scale });
+const FULL = (s: number) => f(978, 591, 1, s);
+const F3_ZOOM: ZoomKey[] = [
+  FULL(0),
+  FULL(0.4),
+  f(640, 609, 1.5, 1.2), // pole vyhladavania: lava cast, kde sa pise slovo
+  f(640, 609, 1.5, segStart(ID, 2)),
+  f(700, 790, 1.45, segStart(ID, 2) + 0.8), // vysledok ZL_03 a detail
+  f(700, 790, 1.45, vo(2) / 1000),
+  f(720, 797, 1.9, vo(2) / 1000 + 0.7), // drobcek PL_01 / KR_01 / ZL_03
+  f(720, 797, 1.9, vo(3) / 1000),
+  f(330, 870, 1.9, vo(3) / 1000 + 0.6), // odznaky Najdene v: Metadata | OCR
+  f(330, 870, 1.9, segStart(ID, 3)),
+  FULL(segStart(ID, 3) + 0.6), // posun k zhode
+  FULL(segStart(ID, 4)),
+  f(1246, 644, 1.6, segStart(ID, 4) + 0.7), // zvyraznena zhoda v metadatach
+  f(1246, 644, 1.6, F3_SECONDS),
+];
+export const F3_VyhladavanieWeb: React.FC = () => <DesktopFootageClip src="footage/f3-search.mp4" seconds={F3_SECONDS} steps={F3_STEPS} phase={phases.search} taps={F3_TAPS} marks={F3_MARKS} zoom={F3_ZOOM} win={FOOTAGE_WINDOW_WIDE} panelLeft={1460} panelWidth={430} />;

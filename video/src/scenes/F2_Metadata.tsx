@@ -51,7 +51,10 @@ export const DesktopFootageClip: React.FC<{ src: string; seconds: number; steps:
       cam = { x: k.x + (n.x - k.x) * t, y: k.y + (n.y - k.y) * t, scale: k.scale + (n.scale - k.scale) * t };
     }
   }
-  const camStyle: React.CSSProperties = { position: 'absolute', inset: 0, transformOrigin: '0 0', transform: `translate(${cw / 2 - cam.x * cw * cam.scale}px, ${ch / 2 - cam.y * ch * cam.scale}px) scale(${cam.scale})` };
+  // posun tak, aby ohnisko bolo v strede okna; pri okraji zaznamu sa posun obmedzi (okno ostava plne)
+  const camTx = Math.min(0, Math.max(cw - cw * cam.scale, cw / 2 - cam.x * cw * cam.scale));
+  const camTy = Math.min(0, Math.max(ch - ch * cam.scale, ch / 2 - cam.y * ch * cam.scale));
+  const camStyle: React.CSSProperties = { position: 'absolute', inset: 0, transformOrigin: '0 0', transform: `translate(${camTx}px, ${camTy}px) scale(${cam.scale})` };
   return (
     <AbsoluteFill style={{ background: '#fff' }}>
       <div style={{ position: 'absolute', inset: 0, opacity: winIn, transform: `scale(${0.94 + 0.06 * winIn})`, transformOrigin: `${win.x + cw / 2}px ${win.y + win.h / 2}px` }}>

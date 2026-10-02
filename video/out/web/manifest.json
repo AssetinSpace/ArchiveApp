@@ -616,6 +616,112 @@
           "line": ""
         }
       ]
+    },
+    {
+      "id": "F4-Kontrola-Web",
+      "order": 15,
+      "title": "F4-Kontrola-Web",
+      "seconds": 18.6,
+      "file": {
+        "path": "out/mp4/F4-Kontrola-Web.mp4",
+        "bytes": 3189936,
+        "sha256": "6826294b4bd785e62def808b1b1d97d524476874bea64720141278316aa38ee2",
+        "changed": "2026-10-02"
+      },
+      "stills": [
+        {
+          "path": "out/stills/F4-Kontrola-Web_1.png",
+          "bytes": 165781,
+          "sha256": "815d8a6ad625f2d89e28c72ad041038a9a228cc71cde503df9306719021b2d90",
+          "changed": "2026-10-02"
+        },
+        {
+          "path": "out/stills/F4-Kontrola-Web_2.png",
+          "bytes": 247184,
+          "sha256": "0921209de184977ad7a75461166f4fcb750c1e9df8dba98e9ccf6d117e00f9f1",
+          "changed": "2026-10-02"
+        },
+        {
+          "path": "out/stills/F4-Kontrola-Web_3.png",
+          "bytes": 522469,
+          "sha256": "d8364fdcf490c952e9893be1f844cdf262bb9a8b8be8380346b556e70e12fd7a",
+          "changed": "2026-10-02"
+        }
+      ],
+      "steps": [
+        {
+          "title": "Návrh metadát",
+          "line": ""
+        },
+        {
+          "title": "Overiť a potvrdiť",
+          "line": ""
+        },
+        {
+          "title": "Opraviť v návrhu",
+          "line": ""
+        },
+        {
+          "title": "Overený záznam",
+          "line": ""
+        }
+      ]
+    },
+    {
+      "id": "F3-Vyhladavanie-Web",
+      "order": 16,
+      "title": "F3-Vyhladavanie-Web",
+      "seconds": 16.1,
+      "file": {
+        "path": "out/mp4/F3-Vyhladavanie-Web.mp4",
+        "bytes": 2971528,
+        "sha256": "d6476e03a0447db768f72188c88ae2d7818e452950377d30e44b1e8a04d6891c",
+        "changed": "2026-10-02"
+      },
+      "stills": [
+        {
+          "path": "out/stills/F3-Vyhladavanie-Web_1.png",
+          "bytes": 462225,
+          "sha256": "5ccf79cad7ec4ef2965862ec75ca202bfec3658c1d82cc2e6cb6af69ab46152b",
+          "changed": "2026-10-02"
+        },
+        {
+          "path": "out/stills/F3-Vyhladavanie-Web_2.png",
+          "bytes": 420649,
+          "sha256": "732f416403349c0db3bb50c74cfe1b95444ed7737673a3a25a5b1f82a138f5ae",
+          "changed": "2026-10-02"
+        },
+        {
+          "path": "out/stills/F3-Vyhladavanie-Web_3.png",
+          "bytes": 389550,
+          "sha256": "f0187677ce135c4443cd260a4a595307187ac0984d66195b8d376b70a97042f5",
+          "changed": "2026-10-02"
+        },
+        {
+          "path": "out/stills/F3-Vyhladavanie-Web_4.png",
+          "bytes": 180035,
+          "sha256": "9834cb4b893cb370a32c1218894ab3b6417349d85ca9c6b1228aa2778eb25db3",
+          "changed": "2026-10-02"
+        }
+      ],
+      "steps": [
+        {
+          "title": "Kľúčové slovo",
+          "line": ""
+        },
+        {
+          "title": "Záznam a podrobnosti",
+          "line": ""
+        },
+        {
+          "title": "Cesta v hierarchii",
+          "line": ""
+        },
+        {
+          "title": "Zvýraznené v metadátach",
+          "line": ""
+        }
+      ]
     }
   ],
   "transcript": [
