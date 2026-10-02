@@ -150,7 +150,11 @@ export const C7_Hierarchia: React.FC = () => {
                 {[0, ...sib[i + 1]].map((dx, k) => {
                   const d = `M${NODE_X} ${py} C ${NODE_X} ${py + 50}, ${NODE_X + dx} ${ny - 40}, ${NODE_X + dx} ${ny + (i === 0 ? 20 : 10)}`;
                   const strong = dx === 0;
-                  return <path key={k} d={d} fill="none" stroke={strong && glow > 0.5 ? BRAND[600] : INK[300]} strokeWidth={strong ? 3 : 2} strokeLinecap="round" opacity={(strong ? 1 : 0.6 * (1 - 0.6 * glow)) * treeDim} {...drawProps(t, 400)} />;
+                  // Samuel 2. 10.: stredna zvisla spojka bola na zaciatku tmavsia a hotova skor ako vetvy (vyzerala ako cierna
+                  // ciara). Kresli sa rovnakou hrubkou a priehladnostou ako vetvy, v rovnakom tempe (dlzka podla cesty);
+                  // zvyrazni sa az so zelenou cestou k zaradenej krabici (glow).
+                  const len = strong ? Math.abs(ny - py) + 40 : Math.hypot(dx, ny - py) + 80;
+                  return <path key={k} d={d} fill="none" stroke={strong && glow > 0.5 ? BRAND[600] : INK[300]} strokeWidth={strong && glow > 0.5 ? 3 : 2} strokeLinecap="round" opacity={(strong ? 0.6 + 0.4 * glow : 0.6 * (1 - 0.6 * glow)) * treeDim} {...drawProps(t, len)} />;
                 })}
               </g>
             );
