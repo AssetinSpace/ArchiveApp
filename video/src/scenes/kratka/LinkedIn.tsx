@@ -1672,17 +1672,22 @@ const F24_46_MARKS: Mark[] = [
   markAt(KF24_46, F24_46_UDAJE + 0.3, F24_46_POTVRDI - 0.4, 824, 654, 428, 32, { spot: true }), // "udaje": navrhnuta hodnota
 ];
 const F24_46_VIEWS: FootView[] = (() => {
-  // kolo 40 (publikum: polia aplikacie su na mobile drobne): tesnejsie vyrezy okolo fotky, pola Nazov projektu a prijatia
-  const photo = { x: 200, y: 430, w: 700 },
+  // kolo 40 (publikum: polia aplikacie su na mobile drobne): tesnejsie vyrezy okolo fotky, pola Nazov projektu a prijatia;
+  // kolo 41 (Samuel: uplne priblizenia prepinaju prilis rychlo): zacina cele okno, plynule priblizenie na fotku, posun na pole
+  // Nazov projektu a na prijatie (footViewAt interpoluje s easeInOut a rovnomernou mierkou)
+  const full = { x: 70, y: 0, w: 1625 }, // najvacsi vyrez, ktory sa zmesti do 882 px zdroja
+    photo = { x: 200, y: 430, w: 700 },
     form = { x: 728, y: 380, w: 620 },
     accept = { x: 1144, y: 540, w: 620 };
   const tap = F24_46_TAPS[0].t;
-  // kolo 37: zostrih bez lupy, prijatie v zazname (tap) sadne na "potvrdi"; pohlad na formular kratko pred nim
   return [
-    { t: 0, ...photo },
-    { t: F24_46_UDAJE - 0.2, ...photo }, // "z fotky sama vycita"
-    { t: F24_46_UDAJE + 0.3, ...form }, // "udaje": nazov projektu
-    { t: Math.max(F24_46_UDAJE + 0.9, tap - 0.25), ...accept }, // "potvrdi": prijatie
+    { t: 0, ...full },
+    { t: 0.7, ...full },
+    { t: F24_46_UDAJE - 0.3, ...photo }, // priblizenie na fotku do "vycita"
+    { t: F24_46_UDAJE + 0.3, ...photo },
+    { t: F24_46_UDAJE + 1.4, ...form }, // posun na pole Nazov projektu pri "udaje"
+    { t: Math.max(F24_46_UDAJE + 1.9, tap - 1.0), ...form },
+    { t: Math.max(F24_46_UDAJE + 2.4, tap - 0.2), ...accept }, // posun na prijatie pri "potvrdi"
     { t: tap + 99, ...accept },
   ];
 })();
@@ -1697,19 +1702,23 @@ const LI_F24_46: React.FC = () => <LI_F24Base src={`footage/${KF24_46}.mp4`} vie
 /** F3: ten isty zostrih, len karta a cesta drzia o 1,3 s kratsie (k46-f3-search). */
 const KF3_46 = 'k46-f3-search';
 const F3_46_SECONDS = cutDuration(KF3_46);
-/** Kolo 40: tesnejsie vyrezy (riadok s hladanym slovom, karta ZL_03, drobcek). */
+/** Kolo 40: tesnejsie vyrezy; kolo 41 (Samuel): zacina cele okno, plynule priblizenie na riadok s hladanym slovom, po vysledku posun
+ * na detail polozky vpravo (ZL_03, Zlozka, nazov, priloha), pri "aj cestu k nej" na drobcek. */
 const F3_46_VIEWS: FootView[] = (() => {
-  const search = { x: 0, y: 370, w: 640 },
-    result = { x: 20, y: 490, w: 640 },
+  const full = { x: 70, y: 0, w: 1625 },
+    search = { x: 0, y: 370, w: 640 },
+    detail = { x: 540, y: 430, w: 800 },
     crumb = { x: 380, y: 560, w: 620 };
   const v1 = voAt(F3_CLIP, 0, 1) / 1000,
     path = voAt(F3_CLIP, 1) / 1000;
   return [
-    { t: 0, ...search },
-    { t: v1 + 0.3, ...search },
-    { t: v1 + 1.1, ...result },
-    { t: path - 0.2, ...result },
-    { t: path + 0.8, ...crumb },
+    { t: 0, ...full },
+    { t: 0.6, ...full },
+    { t: 1.8, ...search }, // priblizenie pocas pisania slova
+    { t: v1 + 0.5, ...search },
+    { t: v1 + 1.6, ...detail }, // "udaje o konkretnej polozke": detail vpravo
+    { t: path - 0.2, ...detail },
+    { t: path + 0.8, ...crumb }, // "aj cestu k nej"
     { t: 99, ...crumb },
   ];
 })();

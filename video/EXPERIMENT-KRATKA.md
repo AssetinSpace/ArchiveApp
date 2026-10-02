@@ -11,17 +11,17 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
 - Dĺžka: okolo 75 s a k tomu 30 s teaser. Ponuku (C8) nechal na mňa.
 - Pôvodnú verziu nechytať, je to vstup. Hlas a hudbu negenerovať znova (existujúce nahrávky sa len strihajú).
 
-## Kde sme skončili (2. 10. 2026, kolo 40)
+## Kde sme skončili (2. 10. 2026, kolo 41)
 
 - Dve hotové videá, obe LinkedIn 4:5 (1080 x 1350), obe sa renderujú z toho istého projektu:
   - `video/out/kratka/K-LinkedIn_1080p.mp4` (76,8 s, kolo 31, kompozícia `K-LinkedIn`): plná krátka verzia, od kola 31 bez zmeny.
-  - `video/out/kratka/K-LinkedIn-46_1080p.mp4` (61,9 s, kolo 40, kompozícia `K-LinkedIn-46`): krátka verzia pre LinkedIn:
+  - `video/out/kratka/K-LinkedIn-46_1080p.mp4` (61,9 s, kolo 41, kompozícia `K-LinkedIn-46`): krátka verzia pre LinkedIn:
     problém, vycentrované logo ("Predstavujeme softvérové riešenie Assetin Archives."), háčik "Naskenovať celý archív môže byť
     drahé. Náš prístup katalogizácie archívu je hospodárnejší." (logo z predstavenia ostáva ako hlavička háčika, 328 strán proti
-    1 identifikačnej strane), QR kód a "Mobilom sa odfotí len identifikačná strana." s bleskom, aplikácia s tesnými výrezmi a kartou
-    v strede pásma (potvrdí alebo upraví), hľadanie, výsledok "spoľahlivo viete, čo presne máte a kde to je" a rozhodnutie uchovať /
+    1 identifikačnej strane), QR kód a "Mobilom sa odfotí len identifikačná strana." s bleskom, aplikácia (záznam od celého okna
+    s plynulým priblížením, karta v strede pásma, potvrdí alebo upraví), hľadanie s detailom položky, výsledok "spoľahlivo viete, čo presne máte a kde to je" a rozhodnutie uchovať /
     skartovať / plnohodnotne skenovať, "Buď katalogizujete vlastnými silami, alebo to spravíme ako službu na kľúč.", výzva;
-    podrobnosti v kole 40 nižšie. Kolá 32 až 39 sú v `out/kratka/verzie/`.
+    podrobnosti v kole 41 nižšie. Kolá 32 až 40 sú v `out/kratka/verzie/`.
     Náhľady `*_preview_540p.mp4` vedľa. Staršie kolá 14 až 30 sú v `out/kratka/verzie/`. Pôvodná dlhá verzia (145 s, 16:9) sa nemenila.
 - Zdroj: kompozície `K-LinkedIn` a `K-LinkedIn-46` (zoznam klipov `LI_LIST_46` na konci súboru) v `src/scenes/kratka/LinkedIn.tsx` (spoločné dáta `Kratka.tsx`, klipy `src/kratkaList.ts`),
   scenár `src/copy/vo_kratka.json`, hlas `public/vo-kratka/`, hudba `src/copy/music_kratka.json` (variant `K`: hudba
@@ -45,6 +45,24 @@ Review stránka experimentu: https://claude.ai/artifact/Y6R9zZWRh7VNqCNk9dnjg3
   - Krabica alebo box: posúdené v kole 24, odporúčanie nechať "krabica".
 - Gemini API (hlas aj hudba) naposledy vracalo 402, vyčerpaný predplatený kredit; nové vety čakajú na jeho dobitie.
 - Review stránka experimentu (odkaz hore) je súkromná, ostatní ju uvidia, až keď ju vlastník zdieľa cez Share.
+
+## Kolo 41 (2. 10. 2026): plynulé priblíženie záznamu, detail položky v hľadaní, pokojná hudba od scény Kto
+
+Samuel (ku kolu 40): od 0:26 úplné priblíženia nefungujú a prepína sa to príliš rýchlo, má to začať oddialené, priblížiť sa a
+plynulo sa posúvať s jasnou nadväznosťou; v 0:37 nie sú na zázname vidieť údaje o konkrétnej položke; hudba po predĺžení nesedí
+(rozhodnuté: pokojná časť už od scény "Buď katalogizujete vlastnými silami...").
+
+- Záznam aplikácie (`F24_46_VIEWS`): celé okno (výrez 1625 px, 0,7 s), plynulé priblíženie na fotku do "vyčíta", držanie, posun na
+  pole Názov projektu pri "údaje", držanie, posun na prijatie pri "potvrdí"; `footViewAt` interpoluje s easeInOut a rovnomernou
+  mierkou, kľúčové snímky sú 1 až 1,5 s od seba. Hľadanie (`F3_46_VIEWS`): celé okno 0,6 s, priblíženie na riadok so slovom
+  počas písania, po výsledku posun na detail položky vpravo (ZL_03, Zložka, Príloha, drobček), pri "aj cestu k nej" na drobček.
+- Hudba (variant `K46`): groove 19 taktov 0 až 18 (skok 18 -> 44: podobnosť taktu 18 s 43 0,966, koniec/začiatok 0,847), tempo
+  1,0144, delay 0,5 s (nástup kapely 0,34 s pred zeleným prechodom), pokojná časť takty 44 až 47 od začiatku scény Kto (50,63 s),
+  skok 47 -> 51 (koniec/začiatok 0,822, hlasitosť 0,19 -> 0,17; 46 -> 50 malo 0,761 a skok hlasitosti), akord v 59,65 s tesne pred
+  logom (60,03 s). Gemini: groove končí presne pri "Buď", pokojná časť sedí k ponuke aj výzve, bez lupnutí (1/5).
+- Kontroly: -16,3 LUFS, true peak -1,4 dBFS; K-LinkedIn 2302 snímok; pásy snímok 25,5 až 40 s: priblíženie plynulé, detail
+  položky viditeľný v 0:36 až 0:38. Hlas bez zmeny (16 viet). Film 61,9 s.
+- Kolo 40 je uložené v `out/kratka/verzie/K-LinkedIn-46_kolo40_62s_*.mp4` a v commite `2b24834`.
 
 ## Kolo 40 (2. 10. 2026): logo ako hlavička háčika, kratšia veta loga, tesnejšie výrezy, "vlastnými silami, alebo na kľúč"
 
